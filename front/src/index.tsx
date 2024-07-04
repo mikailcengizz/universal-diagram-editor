@@ -9,8 +9,8 @@ import {
 import '@fontsource/poppins';
 import RootPage from './routes/RootPage';
 import ErrorPage from "./routes/ErrorPage";
-import ContactPage from './routes/ContactPage';
 import RootLayout from './routes/RootLayout';
+import EditorPage from './routes/EditorPage';
 
 const router = createBrowserRouter([
   {
@@ -23,8 +23,8 @@ const router = createBrowserRouter([
         element: <RootPage />,
       },
       {
-        path: 'contact',
-        element: <ContactPage />,
+        path: 'editor',
+        element: <EditorPage />,
       },
     ],
   },
