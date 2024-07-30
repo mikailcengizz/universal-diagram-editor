@@ -15,15 +15,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // include route files
 const userRoute = require("./routes/userRoute");
-const activityRoute = require("./routes/activityRoute");
-const teamRoute = require("./routes/teamRoute");
-const notificationRoute = require("./routes/notificationRoute");
 
 // routers
 app.use("/user", basicAuth, userRoute);
-app.use("/activity", basicAuth, activityRoute);
-app.use("/team", basicAuth, teamRoute);
-app.use("/notification", basicAuth, notificationRoute);
 app.use("/uploads", express.static("uploads"));
 
 // db setup
