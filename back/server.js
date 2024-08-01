@@ -15,9 +15,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // include route files
 const userRoute = require("./routes/userRoute");
+const configRoute = require("./routes/configRoute");
 
 // routers
 app.use("/user", basicAuth, userRoute);
+app.use("/config", basicAuth, configRoute);
 app.use("/uploads", express.static("uploads"));
 
 // db setup

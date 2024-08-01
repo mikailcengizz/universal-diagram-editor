@@ -1,0 +1,17 @@
+{
+    "notations": [
+      {
+        "name": "Petri Net",
+        "elements": [
+          { "id": "place", "label": "Place", "shape": "circle" },
+          { "id": "transition", "label": "Transition", "shape": "rectangle" },
+          { "id": "arc", "label": "Arc", "shape": "arrow" },
+          { "id": "token", "label": "Token", "shape": "dot" }
+        ],
+        "connections": [
+          { "id": "place_to_transition", "label": "Flow", "style": "solid", "sourceId": "place", "targetId": "transition" }
+        ]
+      }
+    ]
+  }
+  
