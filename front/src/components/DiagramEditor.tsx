@@ -223,22 +223,30 @@ const DiagramEditor: React.FC<{ configFilename: string | null }> = ({
         </ReactFlowProvider>
       </div>
 
-      <button className="border-black border-2 px-4 py-1" onClick={exportToXMI}>
-        Export to XMI
-      </button>
-      <br />
+      <div className="mb-4">
+        <h3 className="font-bold">Export to XMI</h3>
+        <button
+          className="border-black border-2 px-4 py-1"
+          onClick={exportToXMI}
+        >
+          Export to XMI
+        </button>
+      </div>
 
-      <input
-        type="file"
-        accept=".xmi"
-        alt="Import from XMI"
-        placeholder="Import from XMI"
-        onChange={(e) => {
-          if (e.target.files) {
-            importFromXMI(e.target.files[0]);
-          }
-        }}
-      />
+      <div>
+        <h3 className="font-bold">Import from XMI</h3>
+        <input
+          type="file"
+          accept=".xmi"
+          alt="Import from XMI"
+          placeholder="Import from XMI"
+          onChange={(e) => {
+            if (e.target.files) {
+              importFromXMI(e.target.files[0]);
+            }
+          }}
+        />
+      </div>
     </div>
   );
 };
