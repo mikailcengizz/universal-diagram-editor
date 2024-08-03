@@ -10,12 +10,12 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     const ext = path.extname(file.originalname);
-    const userId = req.query.userId; // Ensure this is being parsed correctly
-    console.log("User ID:", userId); // Debugging log
+    const userId = req.query.userId;
+    console.log("User ID:", userId);
     if (!userId) {
       return cb(new Error("User ID not provided"));
     }
-    cb(null, `profile-${userId}${ext}`); // Ensures file is overwritten if it already exists
+    cb(null, `profile-${userId}${ext}`);
   },
 });
 
@@ -75,15 +75,14 @@ router.post("/upload", upload.single("file"), async (req, res) => {
   }
 
   try {
-    const userId = req.query.userId; // Make sure this is being passed correctly
+    const userId = req.query.userId;
     if (!userId) {
       return res.status(400).send("User ID is required.");
     }
 
     const filePath = `/uploads/${req.file.filename}`;
-    console.log("File path:", filePath); // Debugging log
+    console.log("File path:", filePath);
 
-    // Update the user's profile picture path in the database
     await User.update({ profilePic: filePath }, { where: { id: userId } });
 
     res.send({

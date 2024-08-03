@@ -1,0 +1,15 @@
+{
+  "name": "UML",
+  "notations": [
+    {
+      "name": "Class Diagram",
+      "elements": [
+        { "id": "class", "label": "Class", "shape": "rectangle" },
+        { "id": "interface", "label": "Interface", "shape": "rectangle" }
+      ],
+      "connections": [
+        { "id": "association", "label": "Association", "style": "solid", "sourceId": "class", "targetId": "interface" }
+      ]
+    }
+  ]
+}

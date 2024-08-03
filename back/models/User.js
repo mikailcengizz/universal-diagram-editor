@@ -27,9 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     },
   });
 
-  User.associate = (models) => {
-    // ... other associations ...
-  };
+  User.associate = (models) => {};
 
   return User;
 };

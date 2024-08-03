@@ -1,20 +1,19 @@
 const basicAuth = (req, res, next) => {
-  // The 'Authorization' header is encoded in base64 as 'username:password'
+  // the 'Authorization' header is encoded in base64 as 'username:password'
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
-    return res.status(401).send("Authentication required"); // No auth header
+    return res.status(401).send("Authentication required"); // no auth header
   }
 
-  const encodedCredentials = authHeader.split(" ")[1]; // Get the encoded part
+  const encodedCredentials = authHeader.split(" ")[1]; // get the encoded part
   const buffer = Buffer.from(encodedCredentials, "base64");
   const [username, password] = buffer.toString("utf-8").split(":");
 
-  // Replace 'admin' and 'password' with your actual admin credentials
   if (username === "test@hotmail.com" && password === "test123") {
-    return next(); // Credentials are correct, proceed to the route
+    return next(); // credentials are correct, proceed to the route
   } else {
-    return res.status(403).send("Access Denied"); // Access denied
+    return res.status(403).send("Access Denied"); // access denied
   }
 };
 
