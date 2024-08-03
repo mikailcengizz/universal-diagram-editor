@@ -1,4 +1,3 @@
-// CustomNodeCircle.tsx
 import React from "react";
 import { Handle, Position } from "react-flow-renderer";
 

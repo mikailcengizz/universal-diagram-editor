@@ -8,9 +8,9 @@ interface PaletteProps {
 const Palette: React.FC<PaletteProps> = ({ elements }) => {
   const onDragStart = (event: React.DragEvent, element: ConfigElement) => {
     event.dataTransfer.setData("application/reactflow", element.id);
-    event.dataTransfer.setData("element-label", element.label); // Optional, for custom labels
+    event.dataTransfer.setData("element-label", element.label);
     event.dataTransfer.effectAllowed = "move";
-    console.log("onDragStart - element dragged:", element); // Log the dragged element
+    console.log("onDragStart - element dragged:", element); // log the dragged element
   };
 
   return (

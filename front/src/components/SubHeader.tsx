@@ -1,8 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ArrowDropDownOutlinedIcon from "@mui/icons-material/ArrowDropDownOutlined";
+import axios from "axios";
 
-function SubHeader() {
+function SubHeader({ onSelectConfig }: any) {
   const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [configs, setConfigs] = useState<any>([]);
+
+  useEffect(() => {
+    const fetchConfigs = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/config/list", {
+          headers: {
+            Authorization: "Basic " + btoa("test@hotmail.com:test123"),
+          },
+        });
+        setConfigs(response.data);
+      } catch (error) {
+        console.error("Error fetching configurations:", error);
+      }
+    };
+    fetchConfigs();
+  }, []);
 
   const toggleDropdown = () => {
     setDropdownVisible(!dropdownVisible);
@@ -19,17 +37,17 @@ function SubHeader() {
           <ArrowDropDownOutlinedIcon />
         </div>
         {dropdownVisible && (
-          <div className="absolute mt-44 w-48 bg-white border border-gray-200 rounded shadow-lg z-10">
+          <div className="absolute mt-24 w-48 bg-white border border-gray-200 rounded shadow-lg z-10">
             <div className="py-2">
-              <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                BPMN
-              </div>
-              <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                UML
-              </div>
-              <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                Sequence Diagram
-              </div>
+              {configs.map((config: any, index: any) => (
+                <div
+                  key={index}
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  onClick={() => onSelectConfig(config.filename)}
+                >
+                  {config.name}
+                </div>
+              ))}
             </div>
           </div>
         )}

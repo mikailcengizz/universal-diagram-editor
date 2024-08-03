@@ -1,16 +1,14 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import reportWebVitals from './reportWebVitals';
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
-import '@fontsource/poppins';
-import RootPage from './routes/RootPage';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import reportWebVitals from "./reportWebVitals";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import "@fontsource/poppins";
+import RootPage from "./routes/RootPage";
 import ErrorPage from "./routes/ErrorPage";
-import RootLayout from './routes/RootLayout';
-import EditorPage from './routes/EditorPage';
+import RootLayout from "./routes/RootLayout";
+import EditorPage from "./routes/EditorPage";
+import DesignerPage from "./routes/DesignerPage";
 
 const router = createBrowserRouter([
   {
@@ -23,7 +21,11 @@ const router = createBrowserRouter([
         element: <RootPage />,
       },
       {
-        path: 'editor',
+        path: "designer",
+        element: <DesignerPage />,
+      },
+      {
+        path: "editor",
         element: <EditorPage />,
       },
     ],
@@ -31,7 +33,7 @@ const router = createBrowserRouter([
 ]);
 
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+  document.getElementById("root") as HTMLElement
 );
 root.render(
   <React.StrictMode>

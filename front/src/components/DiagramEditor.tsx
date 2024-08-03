@@ -21,37 +21,40 @@ import CustomNodeCircle from "./CustomNodeCircle";
 
 const nodeTypes = {
   circle: CustomNodeCircle,
-  // Add other custom node types
+  // other custom node types
 };
 
-const DiagramEditor: React.FC = () => {
+const DiagramEditor: React.FC<{ configFilename: string | null }> = ({
+  configFilename,
+}) => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [config, setConfig] = useState<Config | null>(null);
 
-  // Fetch the configuration from the backend on component mount
   useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:8080/config/get-config/petri-net-config",
-          {
-            headers: {
-              Authorization: "Basic " + btoa("test@hotmail.com:test123"),
-            },
-          }
-        );
-        setConfig(response.data);
-        console.log("Config fetched:", response.data); // Log the fetched configuration
-      } catch (error) {
-        console.error("Error fetching configuration: ", error);
-      }
-    };
-    fetchConfig();
-  }, []);
+    if (configFilename) {
+      const fetchConfig = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:8080/config/get-config/${configFilename}`,
+            {
+              headers: {
+                Authorization: "Basic " + btoa("test@hotmail.com:test123"),
+              },
+            }
+          );
+          setConfig(response.data);
+          console.log("Config fetched:", response.data); // Log the fetched configuration
+        } catch (error) {
+          console.error("Error fetching configuration: ", error);
+        }
+      };
+      fetchConfig();
+    }
+  }, [configFilename]);
 
-  // Set initial nodes and edges if configuration is loaded
+  // set initial nodes and edges if configuration is loaded
   useEffect(() => {
     if (config) {
       const elements = config.notations[0].elements;
@@ -63,7 +66,7 @@ const DiagramEditor: React.FC = () => {
           position: { x: 100 * index, y: 100 },
         }))
       );
-      console.log("Initial nodes set:", nodes); // Log initial nodes set
+      console.log("Initial nodes set:", nodes); // log initial nodes set
     }
   }, [config]);
 
@@ -84,13 +87,13 @@ const DiagramEditor: React.FC = () => {
 
   const onLoad = useCallback((_reactFlowInstance: any) => {
     setReactFlowInstance(_reactFlowInstance);
-    console.log("React Flow instance set in state:", _reactFlowInstance); // Additional log
+    console.log("React Flow instance set in state:", _reactFlowInstance);
   }, []);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
-    console.log("onDragOver triggered"); // Log drag over event
+    console.log("onDragOver triggered"); // log drag over event
   }, []);
 
   const onDrop = useCallback(
@@ -105,7 +108,7 @@ const DiagramEditor: React.FC = () => {
       const type = event.dataTransfer.getData("application/reactflow");
       const label = event.dataTransfer.getData("element-label");
 
-      // Find the element configuration based on the type
+      // find the element configuration based on the type
       const elementConfig = config?.notations[0].elements.find(
         (el) => el.id === type
       );
@@ -115,7 +118,7 @@ const DiagramEditor: React.FC = () => {
         return;
       }
 
-      const shape = elementConfig.shape; // Extract shape from config
+      const shape = elementConfig.shape; // extract shape from config
 
       const reactFlowBounds = reactFlowInstance.project({ x: 0, y: 0 });
       const position = reactFlowInstance.project({
@@ -125,7 +128,7 @@ const DiagramEditor: React.FC = () => {
 
       const newNode: Node = {
         id: `${+new Date()}`,
-        type: shape, // Use shape as the node type
+        type: shape, // use shape as the node type
         position,
         data: { label: label || elementConfig.label },
       };
@@ -176,8 +179,8 @@ const DiagramEditor: React.FC = () => {
           type: "default",
           data: { label: cls.$.name },
           position: {
-            x: parseFloat(cls.Position[0].$.x), // Extract x position
-            y: parseFloat(cls.Position[0].$.y), // Extract y position
+            x: parseFloat(cls.Position[0].$.x),
+            y: parseFloat(cls.Position[0].$.y),
           },
         })
       );
@@ -218,11 +221,16 @@ const DiagramEditor: React.FC = () => {
         </div>
       </ReactFlowProvider>
 
-      <button onClick={exportToXMI}>Export to XMI</button>
+      <button className="border-black border-2 px-4 py-1" onClick={exportToXMI}>
+        Export to XMI
+      </button>
       <br />
+
       <input
         type="file"
         accept=".xmi"
+        alt="Import from XMI"
+        placeholder="Import from XMI"
         onChange={(e) => {
           if (e.target.files) {
             importFromXMI(e.target.files[0]);

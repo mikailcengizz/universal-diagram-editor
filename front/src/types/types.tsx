@@ -1,8 +1,8 @@
-// Define types for the configuration elements
 export interface ConfigElement {
   id: string;
   label: string;
-  shape: "rectangle" | "circle" | "arrow" | "dot"; // Specify allowed shapes
+  shape: "rectangle" | "circle" | "arrow" | "dot"; // allowed shapes
+  rules?: Record<string, any>; // additional rules or constraints
 }
 
 export interface ConfigConnection {
