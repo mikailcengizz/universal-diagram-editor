@@ -1,7 +1,12 @@
-// NotationDesigner.tsx
-import React, { useState } from "react";
-import { ConfigElement } from "../types/types";
+import React, { useEffect, useState } from "react";
+import {
+  Config,
+  ConfigElement,
+  ConfigListItem,
+  Notation,
+} from "../types/types";
 import UploadConfig from "./UploadConfig";
+import axios from "axios";
 
 type Shape = "rectangle" | "circle" | "arrow" | "dot";
 
@@ -10,6 +15,55 @@ const NotationDesigner: React.FC = () => {
   const [currentShape, setCurrentShape] = useState<Shape>("circle");
   const [label, setLabel] = useState<string>("");
   const [rules, setRules] = useState<{ [key: string]: any }>({});
+  const [availableConfigs, setAvailableConfigs] = useState<ConfigListItem[]>(
+    []
+  );
+  const [selectedConfig, setSelectedConfig] = useState<string | null>(null);
+  const [configName, setConfigName] = useState<string>("");
+
+  useEffect(() => {
+    // fetch available configurations from the server
+    const fetchConfigs = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/config/list", {
+          headers: {
+            Authorization: "Basic " + btoa("test@hotmail.com:test123"),
+          },
+        });
+        const data: ConfigListItem[] = response.data;
+        setAvailableConfigs(data);
+      } catch (error) {
+        console.error("Error fetching configurations:", error);
+      }
+    };
+
+    fetchConfigs();
+  }, []);
+
+  useEffect(() => {
+    if (selectedConfig) {
+      // load the selected configuration from the server
+      const loadConfig = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:8080/config/get-config/${selectedConfig}`,
+            {
+              headers: {
+                Authorization: "Basic " + btoa("test@hotmail.com:test123"),
+              },
+            }
+          );
+          const config = response.data as Config;
+          setNotations(config.notations[0].elements);
+          setConfigName(config.name);
+          // additional code to set up other state as necessary, such as rules
+        } catch (error) {
+          console.error("Error loading configuration:", error);
+        }
+      };
+      loadConfig();
+    }
+  }, [selectedConfig]);
 
   const addNotation = () => {
     const newNotation: ConfigElement = {
@@ -37,6 +91,10 @@ const NotationDesigner: React.FC = () => {
     setRules({ ...rules, [ruleName]: e.target.value });
   };
 
+  const handleConfigNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfigName(e.target.value);
+  };
+
   const exportConfig = () => {
     const config = {
       notations: [
@@ -61,6 +119,34 @@ const NotationDesigner: React.FC = () => {
   return (
     <div style={{ padding: "20px" }}>
       <h1 className="text-2xl font-extrabold mb-8">Notation Designer</h1>
+
+      {/* dropdown to select existing configurations */}
+      <div style={{ marginBottom: "20px" }}>
+        <label>Select Configuration: </label>
+        <select
+          value={selectedConfig || ""}
+          onChange={(e) => setSelectedConfig(e.target.value)}
+          className="hover:cursor-pointer border-2 border-lightgray min-w-28"
+        >
+          <option value="">-- Select a Configuration --</option>
+          {availableConfigs.map((config, index) => (
+            <option key={index} value={config.filename}>
+              {config.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div style={{ marginBottom: "20px" }}>
+        <label>Configuration Name: </label>
+        <input
+          type="text"
+          value={configName}
+          onChange={handleConfigNameChange}
+          className="border-2 border-lightgray"
+        />
+      </div>
+
       <div style={{ marginBottom: "20px" }}>
         <label>Choose Shape: </label>
         <select
@@ -75,6 +161,7 @@ const NotationDesigner: React.FC = () => {
           {/* shape options as needed */}
         </select>
       </div>
+
       <div style={{ marginBottom: "20px" }}>
         <label>Label: </label>
         <input
@@ -84,6 +171,7 @@ const NotationDesigner: React.FC = () => {
           className="border-2 border-lightgray"
         />
       </div>
+
       <div style={{ marginBottom: "20px" }}>
         <h3 className="font-bold">Rules and Constraints</h3>
         <div>
@@ -104,6 +192,7 @@ const NotationDesigner: React.FC = () => {
         </div>
         {/* more rule fields as necessary */}
       </div>
+
       <button
         onClick={addNotation}
         className="bg-black px-4 py-1 text-white font-bold rounded-md hover:opacity-70 transition-all ease-out duration-300 mr-2"
@@ -117,7 +206,7 @@ const NotationDesigner: React.FC = () => {
         Export Configuration
       </button>
       <div>
-        <h3>Current Notations</h3>
+        <h3 className="font-bold mt-2">Current Notations</h3>
         <ul>
           {notations.map((n) => (
             <li key={n.id}>
@@ -129,7 +218,7 @@ const NotationDesigner: React.FC = () => {
 
       <br />
       <h3 className="text-lg font-bold">Upload config to server</h3>
-      <UploadConfig />
+      <UploadConfig configName={configName} selectedConfig={selectedConfig} />
     </div>
   );
 };

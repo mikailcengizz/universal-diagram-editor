@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import ReactFlow, {
   ReactFlowProvider,
   addEdge,
@@ -18,6 +18,8 @@ import { Config } from "../types/types";
 import Palette from "./Palette";
 import axios from "axios";
 import CustomNodeCircle from "./CustomNodeCircle";
+import * as htmlToImage from "html-to-image";
+import { saveAs } from "file-saver";
 
 const nodeTypes = {
   circle: CustomNodeCircle,
@@ -31,6 +33,7 @@ const DiagramEditor: React.FC<{ configFilename: string | null }> = ({
   const [edges, setEdges] = useState<Edge[]>([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [config, setConfig] = useState<Config | null>(null);
+  const diagramRef = useRef<HTMLDivElement>(null); // ref for the diagram area
 
   useEffect(() => {
     if (configFilename) {
@@ -197,11 +200,28 @@ const DiagramEditor: React.FC<{ configFilename: string | null }> = ({
     reader.readAsText(xmiFile);
   };
 
+  const exportToJPEG = () => {
+    if (diagramRef.current === null) {
+      return;
+    }
+    htmlToImage
+      .toJpeg(diagramRef.current, { quality: 0.95, backgroundColor: "#ffffff" })
+      .then((dataUrl) => {
+        saveAs(dataUrl, "diagram.jpeg");
+      })
+      .catch((error) => {
+        console.error("Error exporting to JPEG:", error);
+      });
+  };
+
   return (
     <div>
-      <div style={{ height: 600 }} className="border-2 mb-24">
+      <div style={{ height: 600 }} className="border-2 mb-24" ref={diagramRef}>
         <ReactFlowProvider>
-          <Palette elements={config ? config.notations[0].elements : []} />
+          <Palette
+            title={config!.name}
+            elements={config ? config.notations[0].elements : []}
+          />
           <div style={{ flexGrow: 1, height: "100%" }}>
             <ReactFlow
               nodes={nodes}
@@ -246,6 +266,16 @@ const DiagramEditor: React.FC<{ configFilename: string | null }> = ({
             }
           }}
         />
+      </div>
+
+      <div className="mt-4">
+        <h3 className="font-bold">Export to JPEG</h3>
+        <button
+          className="border-black border-2 px-4 py-1"
+          onClick={exportToJPEG}
+        >
+          Export to JPEG
+        </button>
       </div>
     </div>
   );

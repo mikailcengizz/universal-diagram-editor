@@ -1,8 +1,8 @@
 export interface ConfigElement {
   id: string;
   label: string;
-  shape: "rectangle" | "circle" | "arrow" | "dot"; // allowed shapes
-  rules?: Record<string, any>; // additional rules or constraints
+  shape: "rectangle" | "circle" | "arrow" | "dot";
+  rules?: Record<string, any>;
 }
 
 export interface ConfigConnection {
@@ -13,6 +13,11 @@ export interface ConfigConnection {
   targetId: string;
 }
 
+export interface ConfigListItem {
+  name: string;
+  filename: string;
+}
+
 export interface Notation {
   name: string;
   elements: ConfigElement[];
@@ -20,5 +25,6 @@ export interface Notation {
 }
 
 export interface Config {
+  name: string;
   notations: Notation[];
 }

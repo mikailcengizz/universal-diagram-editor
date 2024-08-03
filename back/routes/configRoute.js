@@ -38,11 +38,12 @@ router.get("/list", (req, res) => {
 
 router.get("/get-config/:name", (req, res) => {
   const configName = req.params.name;
-  console.log("hello", configName);
+  console.log("Finding config with name", configName);
   const configData = fs.readFileSync(
     `./diagram-configs/${configName}`,
     "utf-8"
   );
+  console.log("Returning config data", JSON.parse(configData));
   res.json(JSON.parse(configData));
 });
 

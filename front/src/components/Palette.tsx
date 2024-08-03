@@ -2,10 +2,11 @@ import React from "react";
 import { ConfigElement } from "../types/types";
 
 interface PaletteProps {
+  title: string | null;
   elements: ConfigElement[];
 }
 
-const Palette: React.FC<PaletteProps> = ({ elements }) => {
+const Palette = ({ title, elements }: PaletteProps) => {
   const onDragStart = (event: React.DragEvent, element: ConfigElement) => {
     event.dataTransfer.setData("application/reactflow", element.id);
     event.dataTransfer.setData("element-label", element.label);
@@ -17,12 +18,12 @@ const Palette: React.FC<PaletteProps> = ({ elements }) => {
     <aside
       style={{
         padding: "10px",
-        width: "fit-content",
+        width: "100%",
         backgroundColor: "#f4f4f4",
         borderRight: "1px solid #ddd",
       }}
     >
-      <h4>Palette</h4>
+      <h4>{title || "Palette"}</h4>
       <div className="flex">
         {elements.map((element) => (
           <div
