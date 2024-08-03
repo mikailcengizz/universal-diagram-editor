@@ -219,7 +219,7 @@ const DiagramEditor: React.FC<{ configFilename: string | null }> = ({
       <div style={{ height: 600 }} className="border-2 mb-24" ref={diagramRef}>
         <ReactFlowProvider>
           <Palette
-            title={config!.name}
+            title={config?.name}
             elements={config ? config.notations[0].elements : []}
           />
           <div style={{ flexGrow: 1, height: "100%" }}>

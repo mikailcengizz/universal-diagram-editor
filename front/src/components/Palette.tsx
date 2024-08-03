@@ -2,7 +2,7 @@ import React from "react";
 import { ConfigElement } from "../types/types";
 
 interface PaletteProps {
-  title: string | null;
+  title: string | undefined;
   elements: ConfigElement[];
 }
 
