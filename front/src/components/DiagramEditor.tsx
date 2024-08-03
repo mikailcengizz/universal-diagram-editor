@@ -198,28 +198,30 @@ const DiagramEditor: React.FC<{ configFilename: string | null }> = ({
   };
 
   return (
-    <div style={{ height: 600 }} className="border-2">
-      <ReactFlowProvider>
-        <Palette elements={config ? config.notations[0].elements : []} />
-        <div style={{ flexGrow: 1, height: "100%" }}>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onConnect={onConnect}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onLoad={onLoad}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            nodeTypes={nodeTypes}
-            snapToGrid={true}
-            snapGrid={[15, 15]}
-          >
-            <Controls />
-            <Background color="#aaa" gap={16} />
-          </ReactFlow>
-        </div>
-      </ReactFlowProvider>
+    <div>
+      <div style={{ height: 600 }} className="border-2 mb-24">
+        <ReactFlowProvider>
+          <Palette elements={config ? config.notations[0].elements : []} />
+          <div style={{ flexGrow: 1, height: "100%" }}>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onConnect={onConnect}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onLoad={onLoad}
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+              nodeTypes={nodeTypes}
+              snapToGrid={true}
+              snapGrid={[15, 15]}
+            >
+              <Controls />
+              <Background color="#aaa" gap={16} />
+            </ReactFlow>
+          </div>
+        </ReactFlowProvider>
+      </div>
 
       <button className="border-black border-2 px-4 py-1" onClick={exportToXMI}>
         Export to XMI

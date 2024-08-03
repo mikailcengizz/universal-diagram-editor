@@ -60,10 +60,14 @@ const NotationDesigner: React.FC = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>Notation Designer</h2>
+      <h1 className="text-2xl font-extrabold mb-8">Notation Designer</h1>
       <div style={{ marginBottom: "20px" }}>
         <label>Choose Shape: </label>
-        <select value={currentShape} onChange={handleShapeChange}>
+        <select
+          value={currentShape}
+          onChange={handleShapeChange}
+          className="hover:cursor-pointer border-2 border-lightgray min-w-28"
+        >
           <option value="circle">Circle</option>
           <option value="rectangle">Rectangle</option>
           <option value="arrow">Arrow</option>
@@ -73,15 +77,21 @@ const NotationDesigner: React.FC = () => {
       </div>
       <div style={{ marginBottom: "20px" }}>
         <label>Label: </label>
-        <input type="text" value={label} onChange={handleLabelChange} />
+        <input
+          type="text"
+          value={label}
+          onChange={handleLabelChange}
+          className="border-2 border-lightgray"
+        />
       </div>
       <div style={{ marginBottom: "20px" }}>
-        <h3>Rules and Constraints</h3>
+        <h3 className="font-bold">Rules and Constraints</h3>
         <div>
           <label>Max Connections: </label>
           <input
             type="number"
             onChange={(e) => handleRuleChange(e, "maxConnections")}
+            className="border-2 border-lightgray"
           />
         </div>
         <div>
@@ -89,16 +99,20 @@ const NotationDesigner: React.FC = () => {
           <input
             type="text"
             onChange={(e) => handleRuleChange(e, "canContain")}
+            className="border-2 border-lightgray"
           />
         </div>
         {/* more rule fields as necessary */}
       </div>
-      <button onClick={addNotation} className="border-black border-2 px-4 py-1">
+      <button
+        onClick={addNotation}
+        className="bg-black px-4 py-1 text-white font-bold rounded-md hover:opacity-70 transition-all ease-out duration-300 mr-2"
+      >
         Add Notation
       </button>
       <button
         onClick={exportConfig}
-        className="border-black border-2 px-4 py-1"
+        className="bg-black px-4 py-1 text-white font-bold rounded-md hover:opacity-70 transition-all ease-out duration-300"
       >
         Export Configuration
       </button>

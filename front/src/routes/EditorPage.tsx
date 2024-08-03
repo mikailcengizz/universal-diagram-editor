@@ -12,7 +12,6 @@ export default function EditorPage() {
     <div id="editor">
       <SubHeader onSelectConfig={setSelectedConfig} />
       <div className="px-12 pt-4">
-        <h1>Editor</h1>
         <DiagramEditor configFilename={selectedConfig} />{" "}
         {/* pass the selected config from the subheader to the editor */}
       </div>

@@ -37,7 +37,7 @@ const UploadConfig: React.FC = () => {
       <br />
       <button
         onClick={handleUpload}
-        className="border-black border-2 px-4 py-1"
+        className="bg-black px-4 py-1 text-white font-bold rounded-md hover:opacity-70 transition-all ease-out duration-300"
       >
         Upload Configuration
       </button>
