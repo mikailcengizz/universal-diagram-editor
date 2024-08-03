@@ -43,7 +43,10 @@ function SubHeader({ onSelectConfig }: any) {
                 <div
                   key={index}
                   className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => onSelectConfig(config.filename)}
+                  onClick={() => {
+                    onSelectConfig(config.filename);
+                    setDropdownVisible(false);
+                  }}
                 >
                   {config.name}
                 </div>
