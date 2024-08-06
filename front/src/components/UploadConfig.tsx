@@ -5,7 +5,7 @@ const UploadConfig = (configName: any, selectedConfig: any) => {
   const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
-    if (selectedConfig) {
+    if (selectedConfig && selectedConfig.length > 0) {
       // Set the file name if a config is selected and loaded for modification
       const fetchConfigFile = async () => {
         try {

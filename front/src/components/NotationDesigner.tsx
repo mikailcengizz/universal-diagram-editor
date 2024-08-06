@@ -8,7 +8,7 @@ import {
 import UploadConfig from "./UploadConfig";
 import axios from "axios";
 
-type Shape = "rectangle" | "circle" | "arrow" | "dot";
+type Shape = "rectangle" | "circle" | "arrow" | "dot" | "umlClass";
 
 const NotationDesigner: React.FC = () => {
   const [notations, setNotations] = useState<ConfigElement[]>([]);
@@ -20,6 +20,9 @@ const NotationDesigner: React.FC = () => {
   );
   const [selectedConfig, setSelectedConfig] = useState<string | null>(null);
   const [configName, setConfigName] = useState<string>("");
+  const [sections, setSections] = useState<{ name: string; default: string }[]>(
+    []
+  );
 
   useEffect(() => {
     // fetch available configurations from the server
@@ -70,10 +73,17 @@ const NotationDesigner: React.FC = () => {
       id: label.toLowerCase().replace(/\s+/g, "-"),
       label,
       shape: currentShape,
-      // additional properties or rules here
+      sections: currentShape === "umlClass" ? sections : undefined,
     };
     setNotations([...notations, newNotation]);
     setLabel("");
+    setSections([]);
+  };
+
+  const handleSectionChange = (index: number, field: string, value: string) => {
+    const newSections = [...sections];
+    newSections[index] = { ...newSections[index], [field]: value };
+    setSections(newSections);
   };
 
   const handleShapeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -158,6 +168,7 @@ const NotationDesigner: React.FC = () => {
           <option value="rectangle">Rectangle</option>
           <option value="arrow">Arrow</option>
           <option value="dot">Dot</option>
+          <option value="umlClass">UML Class</option>
           {/* shape options as needed */}
         </select>
       </div>
@@ -171,6 +182,43 @@ const NotationDesigner: React.FC = () => {
           className="border-2 border-lightgray"
         />
       </div>
+
+      {currentShape === "umlClass" && (
+        <div style={{ marginBottom: "20px" }}>
+          <label>Sections:</label>
+          {sections.map((section, index) => (
+            <div key={index}>
+              <input
+                type="text"
+                placeholder="Section name"
+                value={section.name}
+                onChange={(e) =>
+                  handleSectionChange(index, "name", e.target.value)
+                }
+                className="border-2 border-lightgray"
+              />
+              <input
+                type="text"
+                placeholder="Default text"
+                value={section.default}
+                onChange={(e) =>
+                  handleSectionChange(index, "default", e.target.value)
+                }
+                className="border-2 border-lightgray"
+              />
+            </div>
+          ))}
+          <br />
+          <button
+            onClick={() =>
+              setSections([...sections, { name: "", default: "" }])
+            }
+            className="bg-gray-600 px-4 py-1 text-white font-bold rounded-md hover:opacity-70 transition-all ease-out duration-300 mr-2"
+          >
+            Add Section
+          </button>
+        </div>
+      )}
 
       <div style={{ marginBottom: "20px" }}>
         <h3 className="font-bold">Rules and Constraints</h3>

@@ -1,5 +1,6 @@
 import React from "react";
 import { ConfigElement } from "../types/types";
+import CustomNodeUMLClass from "./CustomNodeUMLClass";
 
 interface PaletteProps {
   title: string | undefined;
@@ -12,6 +13,16 @@ const Palette = ({ title, elements }: PaletteProps) => {
     event.dataTransfer.setData("element-label", element.label);
     event.dataTransfer.effectAllowed = "move";
     console.log("onDragStart - element dragged:", element); // log the dragged element
+  };
+
+  const renderNodePreview = (element: ConfigElement) => {
+    switch (element.shape) {
+      case "umlClass":
+        return <CustomNodeUMLClass data={element} />;
+      // Add cases for other custom node types as needed
+      default:
+        return <div>{element.label}</div>;
+    }
   };
 
   return (
@@ -38,7 +49,7 @@ const Palette = ({ title, elements }: PaletteProps) => {
               backgroundColor: "#fff",
             }}
           >
-            {element.label}
+            {renderNodePreview(element)}
           </div>
         ))}
       </div>

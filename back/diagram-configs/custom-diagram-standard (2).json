@@ -1,1 +1,22 @@
-{"notations":[{"name":"Custom Diagram Standard","elements":[{"id":"class","label":"Class","shape":"rectangle","rules":{}},{"id":"interface","label":"Interface","shape":"rectangle","rules":{}},{"id":"implements","label":"Implements","shape":"arrow","rules":{}}]}]}
+{
+  "notations": [
+    {
+      "name": "Custom Diagram Standard",
+      "elements": [
+        { "id": "class", "label": "Class", "shape": "rectangle", "rules": {} },
+        {
+          "id": "interface",
+          "label": "Interface",
+          "shape": "rectangle",
+          "rules": {}
+        },
+        {
+          "id": "implements",
+          "label": "Implements",
+          "shape": "arrow",
+          "rules": {}
+        }
+      ]
+    }
+  ]
+}

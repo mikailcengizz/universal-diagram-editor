@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import ReactFlow, {
+import {
   ReactFlowProvider,
   addEdge,
-  MiniMap,
   Controls,
   Background,
   applyNodeChanges,
@@ -12,23 +11,30 @@ import ReactFlow, {
   Connection,
   OnNodesChange,
   OnEdgesChange,
-} from "react-flow-renderer";
+  MiniMap,
+  useReactFlow,
+} from "@xyflow/react";
 import { parseStringPromise } from "xml2js";
 import { Config } from "../types/types";
 import Palette from "./Palette";
-import axios from "axios";
 import CustomNodeCircle from "./CustomNodeCircle";
+import CustomNodeUMLClass from "./CustomNodeUMLClass";
 import * as htmlToImage from "html-to-image";
 import { saveAs } from "file-saver";
+import configService from "../services/ConfigService";
+import ReactFlowWithInstance from "./ReactFlowWithInstance";
 
 const nodeTypes = {
   circle: CustomNodeCircle,
+  umlClass: CustomNodeUMLClass,
   // other custom node types
 };
 
-const DiagramEditor: React.FC<{ configFilename: string | null }> = ({
-  configFilename,
-}) => {
+interface DiagramEditorProps {
+  configFilename: string | null;
+}
+
+const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
@@ -39,13 +45,8 @@ const DiagramEditor: React.FC<{ configFilename: string | null }> = ({
     if (configFilename) {
       const fetchConfig = async () => {
         try {
-          const response = await axios.get(
-            `http://localhost:8080/config/get-config/${configFilename}`,
-            {
-              headers: {
-                Authorization: "Basic " + btoa("test@hotmail.com:test123"),
-              },
-            }
+          const response = await configService.getConfigByFilename(
+            configFilename
           );
           setConfig(response.data);
           console.log("Config fetched:", response.data); // Log the fetched configuration
@@ -57,20 +58,13 @@ const DiagramEditor: React.FC<{ configFilename: string | null }> = ({
     }
   }, [configFilename]);
 
-  // set initial nodes and edges if configuration is loaded
+  // TODO: set initial nodes and edges from local storage,
   useEffect(() => {
-    if (config) {
-      const elements = config.notations[0].elements;
-      setNodes(
-        elements.map((el: any, index: any) => ({
-          id: `node-${index}`,
-          type: "default",
-          data: { label: el.label },
-          position: { x: 100 * index, y: 100 },
-        }))
-      );
-      console.log("Initial nodes set:", nodes); // log initial nodes set
-    }
+    /* if (config) {
+      const initialNodes = [];
+      setNodes(initialNodes);
+      console.log("Initial nodes set:", initialNodes);
+    } */
   }, [config]);
 
   const onConnect = useCallback(
@@ -88,9 +82,9 @@ const DiagramEditor: React.FC<{ configFilename: string | null }> = ({
     []
   );
 
-  const onLoad = useCallback((_reactFlowInstance: any) => {
-    setReactFlowInstance(_reactFlowInstance);
-    console.log("React Flow instance set in state:", _reactFlowInstance);
+  const onLoad = useCallback((instance: any) => {
+    setReactFlowInstance(instance);
+    console.log("React Flow instance set:", instance);
   }, []);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -123,17 +117,20 @@ const DiagramEditor: React.FC<{ configFilename: string | null }> = ({
 
       const shape = elementConfig.shape; // extract shape from config
 
-      const reactFlowBounds = reactFlowInstance.project({ x: 0, y: 0 });
-      const position = reactFlowInstance.project({
-        x: event.clientX - reactFlowBounds.x,
-        y: event.clientY - reactFlowBounds.y,
+      // Convert the screen coordinates to the flow's coordinate system
+      const position = reactFlowInstance.screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
       });
 
       const newNode: Node = {
         id: `${+new Date()}`,
         type: shape, // use shape as the node type
         position,
-        data: { label: label || elementConfig.label },
+        data: {
+          label: label || elementConfig.label,
+          sections: elementConfig.sections, // Add sections to data
+        },
       };
 
       console.log("Node dropped:", newNode);
@@ -222,8 +219,8 @@ const DiagramEditor: React.FC<{ configFilename: string | null }> = ({
             title={config?.name}
             elements={config ? config.notations[0].elements : []}
           />
-          <div style={{ flexGrow: 1, height: "100%" }}>
-            <ReactFlow
+          <div style={{ flexGrow: 1, height: "100%", cursor: "grab" }}>
+            <ReactFlowWithInstance
               nodes={nodes}
               edges={edges}
               onConnect={onConnect}
@@ -235,10 +232,7 @@ const DiagramEditor: React.FC<{ configFilename: string | null }> = ({
               nodeTypes={nodeTypes}
               snapToGrid={true}
               snapGrid={[15, 15]}
-            >
-              <Controls />
-              <Background color="#aaa" gap={16} />
-            </ReactFlow>
+            />
           </div>
         </ReactFlowProvider>
       </div>

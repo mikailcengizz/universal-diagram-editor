@@ -1,7 +1,9 @@
+// extended ConfigElement with sections for multi-compartment nodes
 export interface ConfigElement {
   id: string;
   label: string;
-  shape: "rectangle" | "circle" | "arrow" | "dot";
+  shape: "rectangle" | "circle" | "arrow" | "dot" | "umlClass";
+  sections?: Array<{ name: string; default: string }>;
   rules?: Record<string, any>;
 }
 
