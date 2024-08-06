@@ -1,4 +1,6 @@
-const basicAuth = (req, res, next) => {
+import { Request, Response, NextFunction } from "express";
+
+const basicAuth = (req: Request, res: Response, next: NextFunction) => {
   // the 'Authorization' header is encoded in base64 as 'username:password'
   const authHeader = req.headers.authorization;
 
@@ -17,4 +19,4 @@ const basicAuth = (req, res, next) => {
   }
 };
 
-module.exports = basicAuth;
+export default basicAuth;

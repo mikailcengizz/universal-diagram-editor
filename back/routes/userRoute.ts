@@ -1,3 +1,6 @@
+import { Router, Request, Response } from "express";
+import { Callback } from "../types/types";
+
 const express = require("express");
 const { User } = require("../models");
 const bcrypt = require("bcrypt");
@@ -5,10 +8,10 @@ const multer = require("multer");
 const path = require("path");
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: function (req: Request, file: Express.Multer.File, cb: Callback) {
     cb(null, "./uploads");
   },
-  filename: function (req, file, cb) {
+  filename: function (req: Request, file: Express.Multer.File, cb: Callback) {
     const ext = path.extname(file.originalname);
     const userId = req.query.userId;
     console.log("User ID:", userId);
@@ -25,14 +28,14 @@ const upload = multer({
 
 const router = express.Router();
 
-router.post("/", async (req, res) => {
+router.post("/", async (req: Request, res: Response) => {
   const { firstname, lastname, email, password, phone } = req.body;
 
   const user = await User.findOne({ where: { email: email } });
 
   if (!user || user === null) {
     // create a user
-    bcrypt.hash(password, 10).then((hash) => {
+    bcrypt.hash(password, 10).then((hash: any) => {
       User.create({
         firstname: firstname,
         lastname: lastname,
@@ -47,7 +50,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", async (req: Request, res: Response) => {
   console.log("Login request body", req.body);
   const { email, password } = req.body;
 
@@ -56,7 +59,7 @@ router.post("/login", async (req, res) => {
   if (!user || user === null) {
     res.json({ error: "User doesn't exist", status: 404 });
   } else {
-    bcrypt.compare(password, user.password).then((match) => {
+    bcrypt.compare(password, user.password).then((match: any) => {
       if (!match) {
         res.json({ error: "Wrong email or password" });
       }
@@ -69,7 +72,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.post("/upload", upload.single("file"), async (req, res) => {
+router.post("/upload", upload.single("file"), async (req: Request, res: Response) => {
   if (!req.file) {
     return res.status(400).send("No file uploaded.");
   }
@@ -89,10 +92,10 @@ router.post("/upload", upload.single("file"), async (req, res) => {
       message: "File uploaded successfully",
       filePath: filePath,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Upload error: ", error);
     res.status(500).send("Error uploading file: " + error.message);
   }
 });
 
-module.exports = router;
+export default router;  

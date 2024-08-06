@@ -1,7 +1,10 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const basicAuth = require("./middleware/basicAuth");
+import basicAuth from "./middleware/basicAuth";
+import userRoute from "./routes/userRoute";
+import configRoute from "./routes/configRoute";
+import db from "./models";
 
 app.use(
   cors({
@@ -13,10 +16,6 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// include route files
-const userRoute = require("./routes/userRoute");
-const configRoute = require("./routes/configRoute");
-
 // routers
 app.use("/user", basicAuth, userRoute);
 app.use("/config", basicAuth, configRoute);
@@ -24,7 +23,6 @@ app.use("/uploads", express.static("uploads"));
 
 // db setup
 const port = process.env.PORT || 8080;
-const db = require("./models");
 db.sequelize.sync().then(() => {
   app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
