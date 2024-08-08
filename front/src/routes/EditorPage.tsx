@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import {} from "reactflow";
 import DiagramEditor from "../components/DiagramEditor";
 import SubHeader from "../components/SubHeader";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 export default function EditorPage() {
   const [selectedConfig, setSelectedConfig] = useState<string | null>(null);

@@ -79,9 +79,21 @@ function SubHeader({ onSelectConfig }: any) {
     setDropdownVisibleFile(false);
   };
 
-  const onExportDiagramHandler = () => {
+  const onExportDiagramHandler = (fileType: string) => {
     console.log("Export diagram");
     setDropdownVisibleFile(false);
+
+    if (fileType === "png") {
+      console.log("Exporting as PNG");
+    } else if (fileType === "jpeg") {
+      console.log("Exporting as JPEG");
+    } else if (fileType === "svg") {
+      console.log("Exporting as SVG");
+    } else if (fileType === "xmi") {
+      console.log("Exporting as XMI");
+    } else if (fileType === "pdf") {
+      console.log("Exporting as PDF");
+    }
   };
 
   const dropdownItemCSS =
@@ -142,11 +154,36 @@ function SubHeader({ onSelectConfig }: any) {
               <ArrowRightOutlined />
               {sidewayDropdownVisibleExportAs && (
                 <div className="absolute top-[-0.5rem] left-[12rem] w-48 bg-white border border-gray-200 rounded shadow-lg py-2">
-                  <div className={dropdownItemCSS}>PNG</div>
-                  <div className={dropdownItemCSS}>JPEG</div>
-                  <div className={dropdownItemCSS}>SVG</div>
-                  <div className={dropdownItemCSS}>XMI</div>
-                  <div className={dropdownItemCSS}>PDF</div>
+                  <div
+                    className={dropdownItemCSS}
+                    onClick={() => onExportDiagramHandler("png")}
+                  >
+                    PNG
+                  </div>
+                  <div
+                    className={dropdownItemCSS}
+                    onClick={() => onExportDiagramHandler("jpeg")}
+                  >
+                    JPEG
+                  </div>
+                  <div
+                    className={dropdownItemCSS}
+                    onClick={() => onExportDiagramHandler("svg")}
+                  >
+                    SVG
+                  </div>
+                  <div
+                    className={dropdownItemCSS}
+                    onClick={() => onExportDiagramHandler("xmi")}
+                  >
+                    XMI
+                  </div>
+                  <div
+                    className={dropdownItemCSS}
+                    onClick={() => onExportDiagramHandler("pdf")}
+                  >
+                    PDF
+                  </div>
                 </div>
               )}
             </div>

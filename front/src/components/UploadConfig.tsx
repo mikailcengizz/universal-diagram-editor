@@ -6,7 +6,7 @@ const UploadConfig = (configName: any, selectedConfig: any) => {
 
   useEffect(() => {
     if (selectedConfig && selectedConfig.length > 0) {
-      // Set the file name if a config is selected and loaded for modification
+      // set the file name if a config is selected and loaded for modification
       const fetchConfigFile = async () => {
         try {
           const response = await axios.get(

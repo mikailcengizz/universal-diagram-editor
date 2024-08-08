@@ -19,7 +19,7 @@ const Palette = ({ title, elements }: PaletteProps) => {
     switch (element.shape) {
       case "umlClass":
         return <CustomNodeUMLClass data={element} />;
-      // Add cases for other custom node types as needed
+      // add cases for other custom node types as needed
       default:
         return <div>{element.label}</div>;
     }

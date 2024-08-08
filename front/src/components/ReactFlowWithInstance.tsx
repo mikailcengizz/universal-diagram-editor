@@ -7,7 +7,7 @@ const ReactFlowWithInstance = (props: any) => {
 
   useEffect(() => {
     if (reactFlowInstance) {
-      props.onLoad?.(reactFlowInstance); // Ensure the onLoad callback is called with the instance
+      props.onLoad?.(reactFlowInstance); // ensure the onLoad callback is called with the instance
     }
   }, [reactFlowInstance, props]);
 

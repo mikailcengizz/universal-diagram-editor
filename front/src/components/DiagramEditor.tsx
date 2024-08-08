@@ -2,8 +2,6 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   ReactFlowProvider,
   addEdge,
-  Controls,
-  Background,
   applyNodeChanges,
   applyEdgeChanges,
   Node,
@@ -11,8 +9,6 @@ import {
   Connection,
   OnNodesChange,
   OnEdgesChange,
-  MiniMap,
-  useReactFlow,
 } from "@xyflow/react";
 import { parseStringPromise } from "xml2js";
 import { Config } from "../types/types";
@@ -117,7 +113,7 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
 
       const shape = elementConfig.shape; // extract shape from config
 
-      // Convert the screen coordinates to the flow's coordinate system
+      // convert the screen coordinates to the flow's coordinate system
       const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
@@ -129,7 +125,7 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
         position,
         data: {
           label: label || elementConfig.label,
-          sections: elementConfig.sections, // Add sections to data
+          sections: elementConfig.sections, // add sections to data
         },
       };
 

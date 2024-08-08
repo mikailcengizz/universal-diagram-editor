@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Config,
-  ConfigElement,
-  ConfigListItem,
-  Notation,
-} from "../types/types";
+import { Config, ConfigElement, ConfigListItem } from "../types/types";
 import UploadConfig from "./UploadConfig";
 import axios from "axios";
 
