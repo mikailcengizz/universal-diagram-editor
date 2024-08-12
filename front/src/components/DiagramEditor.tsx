@@ -210,11 +210,11 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
   return (
     <div>
       <div style={{ height: 600 }} className="border-2 mb-24" ref={diagramRef}>
+        <Palette
+          title={config?.name}
+          elements={config ? config.notations[0].elements : []}
+        />
         <ReactFlowProvider>
-          <Palette
-            title={config?.name}
-            elements={config ? config.notations[0].elements : []}
-          />
           <div style={{ flexGrow: 1, height: "100%", cursor: "grab" }}>
             <ReactFlowWithInstance
               nodes={nodes}
