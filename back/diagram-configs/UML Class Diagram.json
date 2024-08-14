@@ -2,9 +2,9 @@
   "name": "UML Class Diagram",
   "notations": [
     {
-      "id": "",
+      "id": "1",
       "name": "Class",
-      "label": "",
+      "label": "class",
       "shape": "rectangle",
       "style": null,
       "sourceId": null,

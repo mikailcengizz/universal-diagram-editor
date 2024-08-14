@@ -1,7 +1,7 @@
 import React from "react";
 import { Handle, Position } from "react-flow-renderer";
 
-const DiamondNode = ({ data, type }: any) => {
+const DiamondNode = ({ data }: any) => {
   return (
     <div
       style={{

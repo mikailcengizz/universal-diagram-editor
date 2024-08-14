@@ -8,6 +8,7 @@ import {
   Connection,
   OnNodesChange,
   OnEdgesChange,
+  ReactFlowProvider,
   ReactFlow,
 } from "@xyflow/react";
 import { parseStringPromise } from "xml2js";
@@ -22,10 +23,12 @@ import ParallelogramNode from "./notation_representations/nodes/ParallelogramNod
 import CustomEdge from "./notation_representations/edges/CustomEdge";
 import GeneralizedNode from "./notation_representations/nodes/GeneralizedNode";
 import OvalNode from "./notation_representations/nodes/OvalNode";
+import CircleNode from "./notation_representations/nodes/CircleNode";
+import ReactFlowWithInstance from "./ReactFlowWithInstance";
 
 const nodeTypes = {
   rectangle: RectangleNode,
-  circle: RectangleNode,
+  circle: CircleNode,
   diamond: DiamondNode,
   parallelogram: ParallelogramNode,
   generalized: GeneralizedNode,
@@ -218,13 +221,14 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
   return (
     <div>
       <div style={{ height: 600 }} className="border-2 mb-24" ref={diagramRef}>
+      <ReactFlowProvider>
         <Palette
           title={config?.name}
           elements={config ? config.notations : []}
         />
-
-        <div style={{ flexGrow: 1, height: "100%", cursor: "grab" }}>
-          <ReactFlow
+        
+          <div style={{ flexGrow: 1, height: "100%", cursor: "grab" }}>
+          <ReactFlowWithInstance
             nodes={nodes}
             edges={edges}
             onConnect={onConnect}
@@ -239,6 +243,8 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
             snapGrid={[15, 15]}
           />
         </div>
+        </ReactFlowProvider>
+        
       </div>
 
       <div className="mb-4">

@@ -1,4 +1,3 @@
-import { ReactFlowProvider } from "@xyflow/react";
 import { useParams } from "react-router-dom";
 import {} from "reactflow";
 import DiagramEditor from "../components/DiagramEditor";
@@ -10,13 +9,11 @@ export default function EditorPage() {
 
   return (
     <div id="editor">
-      <SubHeader onSelectConfig={setSelectedConfig} />
-      <div className="px-12 pt-4">
-        <ReactFlowProvider>
+        <SubHeader onSelectConfig={setSelectedConfig} />
+        <div className="px-12 pt-4">
           <DiagramEditor configFilename={selectedConfig} />{" "}
           {/* pass the selected config from the subheader to the editor */}
-        </ReactFlowProvider>
-      </div>
+        </div>
     </div>
   );
 }

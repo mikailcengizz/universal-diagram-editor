@@ -1,7 +1,7 @@
 import React from "react";
 import { Handle, Position } from "react-flow-renderer";
 
-const CircleNode = ({ data, type }: any) => {
+const CircleNode = ({ data }: any) => {
   return (
     <div
       style={{

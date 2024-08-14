@@ -1,7 +1,7 @@
 import React from "react";
 import { Handle, Position } from "react-flow-renderer";
 
-const ParallelogramNode = ({ data, type }: any) => {
+const ParallelogramNode = ({ data }: any) => {
   return (
     <div
       style={{

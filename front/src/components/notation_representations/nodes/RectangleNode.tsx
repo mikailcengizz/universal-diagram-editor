@@ -1,7 +1,7 @@
 import React from "react";
 import { Handle, Position } from "react-flow-renderer";
 
-const RectangleNode = ({ data, type }: any) => {
+const RectangleNode = ({ data }: any) => {
   return (
     <div
       style={{
