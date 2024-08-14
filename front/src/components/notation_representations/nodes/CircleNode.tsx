@@ -1,5 +1,5 @@
+import { Handle, Position } from "@xyflow/react";
 import React from "react";
-import { Handle, Position } from "react-flow-renderer";
 
 const CircleNode = ({ data }: any) => {
   return (
