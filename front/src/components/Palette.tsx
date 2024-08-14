@@ -1,24 +1,24 @@
 import React from "react";
-import { ConfigElement } from "../types/types";
-import CustomNodeUMLClass from "./CustomNodeUMLClass";
+import { Notation } from "../types/types";
+import RectangleNode from "./notation_representations/nodes/RectangleNode";
 
 interface PaletteProps {
   title: string | undefined;
-  elements: ConfigElement[];
+  elements: Notation[];
 }
 
 const Palette = ({ title, elements }: PaletteProps) => {
-  const onDragStart = (event: React.DragEvent, element: ConfigElement) => {
+  const onDragStart = (event: React.DragEvent, element: Notation) => {
     event.dataTransfer.setData("application/reactflow", element.id);
-    event.dataTransfer.setData("element-label", element.label);
+    event.dataTransfer.setData("element-label", element.label!);
     event.dataTransfer.effectAllowed = "move";
     console.log("onDragStart - element dragged:", element); // log the dragged element
   };
 
-  const renderNodePreview = (element: ConfigElement) => {
+  const renderNodePreview = (element: Notation) => {
     switch (element.shape) {
-      case "umlClass":
-        return <CustomNodeUMLClass data={element} />;
+      case "rectangle":
+        return <RectangleNode data={element} />;
       // add cases for other custom node types as needed
       default:
         return <div>{element.label}</div>;

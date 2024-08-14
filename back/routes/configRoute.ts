@@ -12,7 +12,8 @@ const storage = multer.diskStorage({
     cb(null, "./diagram-configs");
   },
   filename: (req: Request, file: Express.Multer.File, cb: Callback) => {
-    cb(null, file.originalname);
+    const originalName = file.originalname+".json" || "default-config-name.json";
+    cb(null, originalName);
   },
 });
 const upload = multer({ storage });

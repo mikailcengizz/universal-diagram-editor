@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const UploadConfig = (configName: any, selectedConfig: any) => {
+interface UploadConfigProps {
+  packageName: string;
+  selectedConfig: string | null;
+}
+
+const UploadConfig = ({ packageName, selectedConfig }: UploadConfigProps) => {
   const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
@@ -18,7 +23,7 @@ const UploadConfig = (configName: any, selectedConfig: any) => {
               },
             }
           );
-          setFile(new File([response.data], configName));
+          setFile(new File([response.data], packageName));
         } catch (error) {
           console.error("Error loading configuration file:", error);
         }
@@ -26,7 +31,7 @@ const UploadConfig = (configName: any, selectedConfig: any) => {
 
       fetchConfigFile();
     }
-  }, [selectedConfig, configName]);
+  }, [selectedConfig, packageName]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -35,7 +40,7 @@ const UploadConfig = (configName: any, selectedConfig: any) => {
   };
 
   const handleUpload = async () => {
-    if (!configName) {
+    if (!packageName) {
       alert("Please enter a configuration name.");
       return;
     }
@@ -46,18 +51,18 @@ const UploadConfig = (configName: any, selectedConfig: any) => {
 
     const formData = new FormData();
     if (file) {
-      formData.append("file", file, configName);
+      formData.append("file", file, packageName);
     } else {
       const configBlob = new Blob(
         [
           JSON.stringify({
-            name: configName,
+            name: packageName,
             // additional config data if necessary
           }),
         ],
         { type: "application/json" }
       );
-      formData.append("file", configBlob, configName);
+      formData.append("file", configBlob, packageName);
     }
 
     try {

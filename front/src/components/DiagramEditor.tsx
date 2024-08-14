@@ -13,17 +13,24 @@ import {
 import { parseStringPromise } from "xml2js";
 import { Config } from "../types/types";
 import Palette from "./Palette";
-import CustomNodeCircle from "./CustomNodeCircle";
-import CustomNodeUMLClass from "./CustomNodeUMLClass";
 import * as htmlToImage from "html-to-image";
 import { saveAs } from "file-saver";
 import configService from "../services/ConfigService";
 import ReactFlowWithInstance from "./ReactFlowWithInstance";
+import RectangleNode from "./notation_representations/nodes/RectangleNode";
+import DiamondNode from "./notation_representations/nodes/DiamondNode";
+import ParallelogramNode from "./notation_representations/nodes/ParallelogramNode";
+import CustomEdge from "./notation_representations/edges/CustomEdge";
 
 const nodeTypes = {
-  circle: CustomNodeCircle,
-  umlClass: CustomNodeUMLClass,
-  // other custom node types
+  rectangle: RectangleNode,
+  circle: RectangleNode,
+  diamond: DiamondNode,
+  parallelogram: ParallelogramNode,
+};
+
+const edgeTypes = {
+  custom: CustomEdge,
 };
 
 interface DiagramEditorProps {
@@ -102,9 +109,7 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
       const label = event.dataTransfer.getData("element-label");
 
       // find the element configuration based on the type
-      const elementConfig = config?.notations[0].elements.find(
-        (el) => el.id === type
-      );
+      const elementConfig = config?.notations.find((el) => el.id === type);
 
       if (!elementConfig) {
         console.log("Element configuration not found.");
@@ -212,7 +217,7 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
       <div style={{ height: 600 }} className="border-2 mb-24" ref={diagramRef}>
         <Palette
           title={config?.name}
-          elements={config ? config.notations[0].elements : []}
+          elements={config ? config.notations : []}
         />
         <ReactFlowProvider>
           <div style={{ flexGrow: 1, height: "100%", cursor: "grab" }}>
@@ -226,6 +231,7 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
               onDrop={onDrop}
               onDragOver={onDragOver}
               nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
               snapToGrid={true}
               snapGrid={[15, 15]}
             />
