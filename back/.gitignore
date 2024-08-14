@@ -20,3 +20,4 @@
 # Ignore temporary files
 *.tmp
 *.bak
+/dist/

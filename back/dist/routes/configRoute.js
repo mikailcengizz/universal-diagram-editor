@@ -10,7 +10,8 @@ const storage = multer.diskStorage({
         cb(null, "./diagram-configs");
     },
     filename: (req, file, cb) => {
-        cb(null, file.originalname);
+        const originalName = file.originalname + ".json" || "default-config-name.json";
+        cb(null, originalName);
     },
 });
 const upload = multer({ storage });
