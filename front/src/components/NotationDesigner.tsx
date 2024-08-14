@@ -172,6 +172,7 @@ const NotationDesigner: React.FC = () => {
             label={currentNotation.label}
             rules={currentNotation.rules}
             sections={currentNotation.sections}
+            type={currentNotation}
           />
         );
       case "label":

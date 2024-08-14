@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
-  ReactFlowProvider,
   addEdge,
   applyNodeChanges,
   applyEdgeChanges,
@@ -9,6 +8,7 @@ import {
   Connection,
   OnNodesChange,
   OnEdgesChange,
+  ReactFlow,
 } from "@xyflow/react";
 import { parseStringPromise } from "xml2js";
 import { Config } from "../types/types";
@@ -16,17 +16,20 @@ import Palette from "./Palette";
 import * as htmlToImage from "html-to-image";
 import { saveAs } from "file-saver";
 import configService from "../services/ConfigService";
-import ReactFlowWithInstance from "./ReactFlowWithInstance";
 import RectangleNode from "./notation_representations/nodes/RectangleNode";
 import DiamondNode from "./notation_representations/nodes/DiamondNode";
 import ParallelogramNode from "./notation_representations/nodes/ParallelogramNode";
 import CustomEdge from "./notation_representations/edges/CustomEdge";
+import GeneralizedNode from "./notation_representations/nodes/GeneralizedNode";
+import OvalNode from "./notation_representations/nodes/OvalNode";
 
 const nodeTypes = {
   rectangle: RectangleNode,
   circle: RectangleNode,
   diamond: DiamondNode,
   parallelogram: ParallelogramNode,
+  generalized: GeneralizedNode,
+  oval: OvalNode,
 };
 
 const edgeTypes = {
@@ -219,24 +222,23 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
           title={config?.name}
           elements={config ? config.notations : []}
         />
-        <ReactFlowProvider>
-          <div style={{ flexGrow: 1, height: "100%", cursor: "grab" }}>
-            <ReactFlowWithInstance
-              nodes={nodes}
-              edges={edges}
-              onConnect={onConnect}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              onLoad={onLoad}
-              onDrop={onDrop}
-              onDragOver={onDragOver}
-              nodeTypes={nodeTypes}
-              edgeTypes={edgeTypes}
-              snapToGrid={true}
-              snapGrid={[15, 15]}
-            />
-          </div>
-        </ReactFlowProvider>
+
+        <div style={{ flexGrow: 1, height: "100%", cursor: "grab" }}>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onConnect={onConnect}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onLoad={onLoad}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
+            snapToGrid={true}
+            snapGrid={[15, 15]}
+          />
+        </div>
       </div>
 
       <div className="mb-4">

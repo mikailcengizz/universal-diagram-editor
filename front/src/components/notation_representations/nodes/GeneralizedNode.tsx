@@ -1,13 +1,9 @@
 import React from "react";
 import Compartment from "../compartments/Compartment";
-import { GeneralizedNodeData } from "../../../types/types";
 
-const GeneralizedNode: React.FC<GeneralizedNodeData> = ({
-  shape,
-  label,
-  sections = [],
-  rules,
-}) => {
+const GeneralizedNode = ({ data }: any) => {
+  const { shape, sections, label, rules } = data;
+
   if (shape === "rectangle") {
     return (
       <div
@@ -22,7 +18,7 @@ const GeneralizedNode: React.FC<GeneralizedNodeData> = ({
         {label && label.length > 0 && <strong>{label}</strong>}
         {sections &&
           sections.length > 0 &&
-          sections.map((section, index) => (
+          sections.map((section: any, index: any) => (
             <Compartment key={index} text={section.default} />
           ))}
       </div>

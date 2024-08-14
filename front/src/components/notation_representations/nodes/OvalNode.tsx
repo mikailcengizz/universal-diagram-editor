@@ -1,7 +1,7 @@
 import React from "react";
 import { Handle, Position } from "react-flow-renderer";
 
-const OvalNode = ({ data }: any) => {
+const OvalNode = ({ data, type }: any) => {
   return (
     <div
       style={{

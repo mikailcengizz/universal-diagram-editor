@@ -35,10 +35,3 @@ export interface ConfigListItem {
   name: string;
   filename: string;
 }
-
-export interface GeneralizedNodeData {
-  shape: string;
-  sections?: Array<{ name: string; default: string }> | null;
-  label?: string | null;
-  rules?: Record<string, any> | null;
-}
