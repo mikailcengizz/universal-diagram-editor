@@ -5,7 +5,6 @@ export interface Config {
   notations: Notation[];
 }
 export interface Notation {
-  id: string;
   name: string;
   label?: string | null;
   shape: Shape;

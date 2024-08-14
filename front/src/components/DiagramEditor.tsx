@@ -28,11 +28,11 @@ import ReactFlowWithInstance from "./ReactFlowWithInstance";
 
 const nodeTypes = {
   rectangle: RectangleNode,
-  circle: CircleNode,
+  /* circle: CircleNode,
   diamond: DiamondNode,
   parallelogram: ParallelogramNode,
   generalized: GeneralizedNode,
-  oval: OvalNode,
+  oval: OvalNode, */
 };
 
 const edgeTypes = {
@@ -102,6 +102,8 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
     console.log("onDragOver triggered"); // log drag over event
   }, []);
 
+  const elementCount: { [key: string]: number } = {}; // To track the count of each element type
+
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
@@ -111,16 +113,26 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
         return;
       }
 
-      const type = event.dataTransfer.getData("application/reactflow");
+      const name = event.dataTransfer.getData("application/reactflow");
       const label = event.dataTransfer.getData("element-label");
 
       // find the element configuration based on the type
-      const elementConfig = config?.notations.find((el) => el.id === type);
+      const elementConfig = config?.notations.find((el) => el.name === name);
 
       if (!elementConfig) {
         console.log("Element configuration not found.");
         return;
       }
+
+      // Update the count for this element type
+      if (!elementCount[name]) {
+        elementCount[name] = 1; // Initialize if it doesn't exist
+      } else {
+        elementCount[name] += 1; // Increment the count
+      }
+
+      // Generate a unique ID using the name and count
+      const uniqueId = `${name}${elementCount[name]}`;
 
       const shape = elementConfig.shape; // extract shape from config
 
@@ -131,7 +143,7 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
       });
 
       const newNode: Node = {
-        id: `${+new Date()}`,
+        id: uniqueId,
         type: shape, // use shape as the node type
         position,
         data: {
@@ -221,30 +233,29 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
   return (
     <div>
       <div style={{ height: 600 }} className="border-2 mb-24" ref={diagramRef}>
-      <ReactFlowProvider>
-        <Palette
-          title={config?.name}
-          elements={config ? config.notations : []}
-        />
-        
-          <div style={{ flexGrow: 1, height: "100%", cursor: "grab" }}>
-          <ReactFlowWithInstance
-            nodes={nodes}
-            edges={edges}
-            onConnect={onConnect}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onLoad={onLoad}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            nodeTypes={nodeTypes}
-            edgeTypes={edgeTypes}
-            snapToGrid={true}
-            snapGrid={[15, 15]}
+        <ReactFlowProvider>
+          <Palette
+            title={config?.name}
+            elements={config ? config.notations : []}
           />
-        </div>
+
+          <div style={{ flexGrow: 1, height: "100%", cursor: "grab" }}>
+            <ReactFlowWithInstance
+              nodes={nodes}
+              edges={edges}
+              onConnect={onConnect}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onLoad={onLoad}
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+              nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
+              snapToGrid={true}
+              snapGrid={[15, 15]}
+            />
+          </div>
         </ReactFlowProvider>
-        
       </div>
 
       <div className="mb-4">

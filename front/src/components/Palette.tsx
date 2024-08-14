@@ -9,16 +9,33 @@ interface PaletteProps {
 
 const Palette = ({ title, elements }: PaletteProps) => {
   const onDragStart = (event: React.DragEvent, element: Notation) => {
-    event.dataTransfer.setData("application/reactflow", element.id);
+    event.dataTransfer.setData("application/reactflow", element.name);
     event.dataTransfer.setData("element-label", element.label!);
     event.dataTransfer.effectAllowed = "move";
     console.log("onDragStart - element dragged:", element); // log the dragged element
+
+    // Create a temporary element to use as the drag image
+    const dragImage = document.createElement("div");
+    dragImage.style.width = "100px"; // adjust size as needed
+    dragImage.style.height = "50px";
+    dragImage.style.backgroundColor = "white";
+    dragImage.style.border = "1px solid black";
+    dragImage.style.textAlign = "center";
+    dragImage.style.lineHeight = "50px";
+    dragImage.innerText = element.label || "Dragging...";
+
+    // Make the drag image invisible to avoid showing it in the DOM
+    document.body.appendChild(dragImage);
+    event.dataTransfer.setDragImage(dragImage, 50, 25);
+
+    // Remove the drag image after a short delay
+    setTimeout(() => document.body.removeChild(dragImage), 0);
   };
 
   const renderNodePreview = (element: Notation) => {
     switch (element.shape) {
       case "rectangle":
-        return <RectangleNode data={element} />;
+        return <RectangleNode id="preview" data={element} isPalette={true} />;
       // add cases for other custom node types as needed
       default:
         return <div>{element.label}</div>;
@@ -38,7 +55,7 @@ const Palette = ({ title, elements }: PaletteProps) => {
       <div className="flex">
         {elements.map((element) => (
           <div
-            key={element.id}
+            key={element.name}
             onDragStart={(event) => onDragStart(event, element)}
             draggable
             style={{

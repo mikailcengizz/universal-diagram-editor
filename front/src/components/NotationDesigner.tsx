@@ -14,7 +14,6 @@ const NotationDesigner: React.FC = () => {
   const [selectedConfig, setSelectedConfig] = useState<string | null>(null);
   const [packageName, setPackageName] = useState<string>("");
   const [currentNotation, setCurrentNotation] = useState<Notation>({
-    id: "",
     name: "",
     label: "",
     shape: "rectangle",
@@ -167,7 +166,7 @@ const NotationDesigner: React.FC = () => {
       case "rectangle":
         return (
           <GeneralizedNode
-            key={currentNotation.id}
+            key={currentNotation.name}
             shape={currentNotation.shape}
             label={currentNotation.label}
             rules={currentNotation.rules}
@@ -364,7 +363,7 @@ const NotationDesigner: React.FC = () => {
             {notations &&
               notations.length > 0 &&
               notations.map((n) => (
-                <li key={n.id}>
+                <li key={n.name}>
                   {n.label} ({n.shape}) <CloseOutlinedIcon />
                 </li>
               ))}

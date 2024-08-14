@@ -1,9 +1,16 @@
 import { Handle, Position } from "@xyflow/react";
 import React from "react";
 
-const RectangleNode = ({ data }: any) => {
+const RectangleNode = ({ id, data, isPalette = false }: any) => {
+  console.log("RectangleNode Rendered:", { id }); // Debugging
+
+  if (!id) {
+    console.error("Error: Node ID is missing");
+  }
+
   return (
     <div
+      id={id}
       style={{
         border: "1px solid black",
         borderRadius: "5px",
@@ -13,16 +20,22 @@ const RectangleNode = ({ data }: any) => {
       }}
     >
       <strong>{data.label}</strong>
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        style={{ background: "#555" }}
-      />
-      <Handle
-        type="target"
-        position={Position.Top}
-        style={{ background: "#555" }}
-      />
+      {!isPalette && id && (
+        <>
+          <Handle
+            type="source"
+            position={Position.Bottom}
+            style={{ background: "#555" }}
+            id={`source-${id}`} // Unique id for the source handle
+          />
+          <Handle
+            type="target"
+            position={Position.Top}
+            style={{ background: "#555" }}
+            id={`target-${id}`} // Unique id for the target handle
+          />
+        </>
+      )}
     </div>
   );
 };

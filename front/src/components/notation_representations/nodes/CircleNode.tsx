@@ -21,11 +21,13 @@ const CircleNode = ({ data }: any) => {
         type="source"
         position={Position.Bottom}
         style={{ background: "#555" }}
+        id="a"
       />
       <Handle
         type="target"
         position={Position.Top}
         style={{ background: "#555" }}
+        id="b"
       />
     </div>
   );

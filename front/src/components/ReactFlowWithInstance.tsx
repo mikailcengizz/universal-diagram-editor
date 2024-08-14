@@ -1,6 +1,5 @@
-import { Background, Controls, useReactFlow } from "@xyflow/react";
+import { Background, Controls, useReactFlow, ReactFlow } from "@xyflow/react";
 import { useEffect } from "react";
-import ReactFlow from "reactflow";
 
 const ReactFlowWithInstance = (props: any) => {
   const reactFlowInstance = useReactFlow();
