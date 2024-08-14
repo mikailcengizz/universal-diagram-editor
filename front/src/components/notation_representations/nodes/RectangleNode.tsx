@@ -1,12 +1,17 @@
 import { Handle, Position } from "@xyflow/react";
-import React from "react";
+import React, { useState } from "react";
+import Compartment from "../compartments/Compartment";
 
 const RectangleNode = ({ id, data, isPalette = false }: any) => {
-  console.log("RectangleNode Rendered:", { id }); // Debugging
+  const [compartments, setCompartments] = useState(data.sections);
 
-  if (!id) {
-    console.error("Error: Node ID is missing");
-  }
+  const handleCompartmentChange = (index: number, newText: string) => {
+    const updatedCompartments = compartments.map(
+      (compartment: any, i: number) =>
+        i === index ? { ...compartment, default: newText } : compartment
+    );
+    setCompartments(updatedCompartments);
+  };
 
   return (
     <div
@@ -16,10 +21,20 @@ const RectangleNode = ({ id, data, isPalette = false }: any) => {
         borderRadius: "5px",
         backgroundColor: "white",
         padding: "10px",
-        minWidth: "100px",
+        minWidth: "150px",
+        textAlign: "center",
       }}
     >
-      <strong>{data.label}</strong>
+      {/* Render each section */}
+      {compartments.map((section: any, index: number) => (
+        <Compartment
+          key={index}
+          text={section.default}
+          onChange={(newText) => handleCompartmentChange(index, newText)}
+        />
+      ))}
+
+      {/* Handles for connections */}
       {!isPalette && id && (
         <>
           <Handle

@@ -19,7 +19,12 @@ const GeneralizedNode = ({ data }: any) => {
         {sections &&
           sections.length > 0 &&
           sections.map((section: any, index: any) => (
-            <Compartment key={index} text={section.default} />
+            <Compartment
+              key={index}
+              text={section.default}
+              onChange={() => ""}
+              style={{}}
+            />
           ))}
       </div>
     );
