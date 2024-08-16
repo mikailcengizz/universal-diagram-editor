@@ -1,7 +1,13 @@
 import React from "react";
 import Compartment from "../compartments/Compartment";
 
-const GeneralizedNode = ({ data }: any) => {
+const PreviewNode = ({ data }: any) => {
+  if (!data)
+    return (
+      <div>
+        <span>No notation is currently being configured</span>
+      </div>
+    ); // return if no data is passed
   const { shape, sections, label, rules } = data;
 
   if (shape === "rectangle") {
@@ -35,4 +41,4 @@ const GeneralizedNode = ({ data }: any) => {
   return null; // default return if no shape matches
 };
 
-export default GeneralizedNode;
+export default PreviewNode;

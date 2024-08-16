@@ -21,7 +21,7 @@ import RectangleNode from "./notation_representations/nodes/RectangleNode";
 import DiamondNode from "./notation_representations/nodes/DiamondNode";
 import ParallelogramNode from "./notation_representations/nodes/ParallelogramNode";
 import CustomEdge from "./notation_representations/edges/CustomEdge";
-import GeneralizedNode from "./notation_representations/nodes/GeneralizedNode";
+import GeneralizedNode from "./notation_representations/nodes/PreviewNode";
 import OvalNode from "./notation_representations/nodes/OvalNode";
 import CircleNode from "./notation_representations/nodes/CircleNode";
 import ReactFlowWithInstance from "./ReactFlowWithInstance";

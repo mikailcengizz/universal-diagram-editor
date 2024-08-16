@@ -3,7 +3,7 @@ import { Config, ConfigListItem, Notation } from "../types/types";
 import UploadConfig from "./UploadConfig";
 import axios from "axios";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
-import GeneralizedNode from "./notation_representations/nodes/GeneralizedNode";
+import PreviewNode from "./notation_representations/nodes/PreviewNode";
 import type { Shape } from "../types/types";
 
 const NotationDesigner: React.FC = () => {
@@ -165,7 +165,7 @@ const NotationDesigner: React.FC = () => {
     switch (currentNotation.shape) {
       case "rectangle":
         return (
-          <GeneralizedNode
+          <PreviewNode
             key={currentNotation.name}
             shape={currentNotation.shape}
             label={currentNotation.label}
