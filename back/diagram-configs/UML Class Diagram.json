@@ -3,7 +3,7 @@
   "notations": [
     {
       "name": "Class",
-      "label": "class",
+      "label": "",
       "shape": "rectangle",
       "style": null,
       "sourceId": null,
