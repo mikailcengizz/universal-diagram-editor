@@ -9,21 +9,10 @@
       "sourceId": null,
       "targetId": null,
       "sections": [
-        {
-          "name": "ClassName",
-          "default": "ClassName"
-        },
-        {
-          "name": "Attribute",
-          "default": "Attribute"
-        }
+        { "name": "ClassName", "default": "ClassName" },
+        { "name": "Attribute", "default": "Attribute" }
       ],
-      "mappings": [
-        {
-          "shape": "rectangle",
-          "metamodel": "Class"
-        }
-      ],
+      "mappings": [{ "shape": "rectangle", "metamodel": "Class" }],
       "rules": {}
     }
   ]

@@ -12,7 +12,7 @@ import {
   ReactFlow,
 } from "@xyflow/react";
 import { parseStringPromise } from "xml2js";
-import { Config } from "../types/types";
+import { Config, Notation } from "../types/types";
 import Palette from "./Palette";
 import * as htmlToImage from "html-to-image";
 import { saveAs } from "file-saver";
@@ -148,7 +148,7 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
         position,
         data: {
           label: label || elementConfig.label,
-          sections: elementConfig.sections, // add sections to data
+          sections: elementConfig.sections as any[],
         },
       };
 
@@ -162,17 +162,30 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
     const xmiData = `
       <XMI>
         <UML:Model>
-          ${nodes
-            .map(
-              (node) => `
-              <UML:Class name="${node.data.label}">
+          ${
+            nodes.length > 0 &&
+            nodes
+              .map(
+                (node) => `
+              <UML:Class name="${node.data.label}" type="${node.type}">
                 <Position x="${node.position.x}" y="${node.position.y}" />
+                ${
+                  (node.data.sections as Notation["sections"])!.length > 0 &&
+                  (node.data.sections as Notation["sections"])!
+                    .map(
+                      (section) => `
+                    <Compartment name="${section.name}" default="${section.default}" />
+                    `
+                    )
+                    .join("")
+                }
               </UML:Class>
             `
-            )
-            .join("")}
+              )
+              .join("")
+          }
           ${edges
-            .map(
+            ?.map(
               (edge) =>
                 `<UML:Association source="${edge.source}" target="${edge.target}" />`
             )
@@ -192,20 +205,25 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
     reader.onload = async (event) => {
       const xmiData = event.target?.result as string;
       const result = await parseStringPromise(xmiData);
-      const importedNodes: Node[] = result.XMI["UML:Model"][0]["UML:Class"].map(
-        (cls: any, index: number) => ({
-          id: `node-${index}`,
-          type: "default",
-          data: { label: cls.$.name },
-          position: {
-            x: parseFloat(cls.Position[0].$.x),
-            y: parseFloat(cls.Position[0].$.y),
-          },
-        })
-      );
+      const importedNodes: Node[] = result.XMI["UML:Model"][0][
+        "UML:Class"
+      ]?.map((cls: any, index: number) => ({
+        id: `node-${index}`,
+        type: cls.$.type,
+        data: {
+          label: cls.$.name,
+          sections: cls["Compartment"]?.map((compartment: any) => {
+            return { name: compartment.$.name, default: compartment.$.default };
+          }),
+        },
+        position: {
+          x: parseFloat(cls.Position[0].$.x),
+          y: parseFloat(cls.Position[0].$.y),
+        },
+      }));
       const importedEdges: Edge[] = result.XMI["UML:Model"][0][
         "UML:Association"
-      ].map((assoc: any, index: number) => ({
+      ]?.map((assoc: any, index: number) => ({
         id: `edge-${index}`,
         source: assoc.$.source,
         target: assoc.$.target,
@@ -232,7 +250,7 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
 
   return (
     <div>
-      <div style={{ height: 600 }} className="border-2 mb-24" ref={diagramRef}>
+      <div style={{ height: 600 }} className="border-2 mb-48" ref={diagramRef}>
         <ReactFlowProvider>
           <Palette
             title={config?.name}

@@ -26,13 +26,14 @@ const RectangleNode = ({ id, data, isPalette = false }: any) => {
       }}
     >
       {/* Render each section */}
-      {compartments.map((section: any, index: number) => (
-        <Compartment
-          key={index}
-          text={section.default}
-          onChange={(newText) => handleCompartmentChange(index, newText)}
-        />
-      ))}
+      {compartments &&
+        compartments.map((section: any, index: number) => (
+          <Compartment
+            key={index}
+            text={section.default}
+            onChange={(newText) => handleCompartmentChange(index, newText)}
+          />
+        ))}
 
       {/* Handles for connections */}
       {!isPalette && id && (
