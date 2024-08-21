@@ -364,7 +364,7 @@ const NotationDesigner: React.FC = () => {
               notations.length > 0 &&
               notations.map((n) => (
                 <li key={n.name}>
-                  {n.label} ({n.shape}) <CloseOutlinedIcon />
+                  {n.name} ({n.shape}) <CloseOutlinedIcon />
                 </li>
               ))}
           </ul>

@@ -12,7 +12,7 @@ import {
   ReactFlow,
 } from "@xyflow/react";
 import { parseStringPromise } from "xml2js";
-import { Config } from "../types/types";
+import { Config, Notation } from "../types/types";
 import Palette from "./Palette";
 import configService from "../services/ConfigService";
 import RectangleNode from "./notation_representations/nodes/RectangleNode";
@@ -155,7 +155,7 @@ const DiagramEditor = ({
         position,
         data: {
           label: label || elementConfig.label,
-          sections: elementConfig.sections, // add sections to data
+          sections: elementConfig.sections as any[],
         },
       };
 
@@ -170,20 +170,25 @@ const DiagramEditor = ({
     reader.onload = async (event) => {
       const xmiData = event.target?.result as string;
       const result = await parseStringPromise(xmiData);
-      const importedNodes: Node[] = result.XMI["UML:Model"][0]["UML:Class"].map(
-        (cls: any, index: number) => ({
-          id: `node-${index}`,
-          type: "default",
-          data: { label: cls.$.name },
-          position: {
-            x: parseFloat(cls.Position[0].$.x),
-            y: parseFloat(cls.Position[0].$.y),
-          },
-        })
-      );
+      const importedNodes: Node[] = result.XMI["UML:Model"][0][
+        "UML:Class"
+      ]?.map((cls: any, index: number) => ({
+        id: `node-${index}`,
+        type: cls.$.type,
+        data: {
+          label: cls.$.name,
+          sections: cls["Compartment"]?.map((compartment: any) => {
+            return { name: compartment.$.name, default: compartment.$.default };
+          }),
+        },
+        position: {
+          x: parseFloat(cls.Position[0].$.x),
+          y: parseFloat(cls.Position[0].$.y),
+        },
+      }));
       const importedEdges: Edge[] = result.XMI["UML:Model"][0][
         "UML:Association"
-      ].map((assoc: any, index: number) => ({
+      ]?.map((assoc: any, index: number) => ({
         id: `edge-${index}`,
         source: assoc.$.source,
         target: assoc.$.target,
