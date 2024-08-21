@@ -14,8 +14,6 @@ import {
 import { parseStringPromise } from "xml2js";
 import { Config } from "../types/types";
 import Palette from "./Palette";
-import * as htmlToImage from "html-to-image";
-import { saveAs } from "file-saver";
 import configService from "../services/ConfigService";
 import RectangleNode from "./notation_representations/nodes/RectangleNode";
 import DiamondNode from "./notation_representations/nodes/DiamondNode";
@@ -41,14 +39,23 @@ const edgeTypes = {
 
 interface DiagramEditorProps {
   configFilename: string | null;
+  diagramAreaRef: React.RefObject<HTMLDivElement>;
+  nodes: Node[];
+  setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
+  edges: Edge[];
+  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
 }
 
-const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
-  const [nodes, setNodes] = useState<Node[]>([]);
-  const [edges, setEdges] = useState<Edge[]>([]);
+const DiagramEditor = ({
+  configFilename,
+  diagramAreaRef,
+  nodes,
+  setNodes,
+  edges,
+  setEdges,
+}: DiagramEditorProps) => {
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [config, setConfig] = useState<Config | null>(null);
-  const diagramRef = useRef<HTMLDivElement>(null); // ref for the diagram area
 
   useEffect(() => {
     if (configFilename) {
@@ -158,35 +165,6 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
     [reactFlowInstance, config]
   );
 
-  const exportToXMI = () => {
-    const xmiData = `
-      <XMI>
-        <UML:Model>
-          ${nodes
-            .map(
-              (node) => `
-              <UML:Class name="${node.data.label}">
-                <Position x="${node.position.x}" y="${node.position.y}" />
-              </UML:Class>
-            `
-            )
-            .join("")}
-          ${edges
-            .map(
-              (edge) =>
-                `<UML:Association source="${edge.source}" target="${edge.target}" />`
-            )
-            .join("")}
-        </UML:Model>
-      </XMI>
-    `;
-    const blob = new Blob([xmiData], { type: "application/xml" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "diagram.xmi";
-    link.click();
-  };
-
   const importFromXMI = async (xmiFile: File) => {
     const reader = new FileReader();
     reader.onload = async (event) => {
@@ -216,29 +194,15 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
     reader.readAsText(xmiFile);
   };
 
-  const exportToJPEG = () => {
-    if (diagramRef.current === null) {
-      return;
-    }
-    htmlToImage
-      .toJpeg(diagramRef.current, { quality: 0.95, backgroundColor: "#ffffff" })
-      .then((dataUrl) => {
-        saveAs(dataUrl, "diagram.jpeg");
-      })
-      .catch((error) => {
-        console.error("Error exporting to JPEG:", error);
-      });
-  };
-
   return (
-    <div>
-      <div style={{ height: 600 }} className="border-2 mb-24" ref={diagramRef}>
+    <div className="flex h-full">
+      <Palette title={config?.name} elements={config ? config.notations : []} />
+      <div
+        style={{ minHeight: "100%", maxHeight: "100%", width: "100%" }}
+        className="border-2"
+        ref={diagramAreaRef}
+      >
         <ReactFlowProvider>
-          <Palette
-            title={config?.name}
-            elements={config ? config.notations : []}
-          />
-
           <div style={{ flexGrow: 1, height: "100%", cursor: "grab" }}>
             <ReactFlowWithInstance
               nodes={nodes}
@@ -258,16 +222,6 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
         </ReactFlowProvider>
       </div>
 
-      <div className="mb-4">
-        <h3 className="font-bold">Export to XMI</h3>
-        <button
-          className="border-black border-2 px-4 py-1"
-          onClick={exportToXMI}
-        >
-          Export to XMI
-        </button>
-      </div>
-
       <div>
         <h3 className="font-bold">Import from XMI</h3>
         <input
@@ -281,16 +235,6 @@ const DiagramEditor = ({ configFilename }: DiagramEditorProps) => {
             }
           }}
         />
-      </div>
-
-      <div className="mt-4">
-        <h3 className="font-bold">Export to JPEG</h3>
-        <button
-          className="border-black border-2 px-4 py-1"
-          onClick={exportToJPEG}
-        >
-          Export to JPEG
-        </button>
       </div>
     </div>
   );

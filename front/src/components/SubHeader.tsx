@@ -3,8 +3,23 @@ import ArrowDropDownOutlinedIcon from "@mui/icons-material/ArrowDropDownOutlined
 import configService from "../services/ConfigService";
 import { ConfigListItem } from "../types/types";
 import { ArrowRightOutlined } from "@mui/icons-material";
+import * as htmlToImage from "html-to-image";
+import { saveAs } from "file-saver";
+import { Edge, Node as ReactFlowNode } from "@xyflow/react";
 
-function SubHeader({ onSelectConfig }: any) {
+interface SubHeaderProps {
+  onSelectConfig: (configFilename: string) => void;
+  diagramAreaRef: React.RefObject<HTMLDivElement>;
+  nodes: ReactFlowNode[];
+  edges: Edge[];
+}
+
+function SubHeader({
+  onSelectConfig,
+  diagramAreaRef,
+  nodes,
+  edges,
+}: SubHeaderProps) {
   const [dropdownVisibleFile, setDropdownVisibleFile] = useState(false);
   const [sidewayDropdownVisibleExportAs, setSidewayDropdownVisibleExportAs] =
     useState(false);
@@ -79,6 +94,52 @@ function SubHeader({ onSelectConfig }: any) {
     setDropdownVisibleFile(false);
   };
 
+  const exportToJPEG = () => {
+    if (diagramAreaRef.current === null) {
+      return;
+    }
+    htmlToImage
+      .toJpeg(diagramAreaRef.current, {
+        quality: 0.95,
+        backgroundColor: "#ffffff",
+      })
+      .then((dataUrl) => {
+        saveAs(dataUrl, "diagram.jpeg");
+      })
+      .catch((error) => {
+        console.error("Error exporting to JPEG:", error);
+      });
+  };
+
+  const exportToXMI = () => {
+    const xmiData = `
+      <XMI>
+        <UML:Model>
+          ${nodes
+            .map(
+              (node: any) => `
+              <UML:Class name="${node.data.label}">
+                <Position x="${node.position.x}" y="${node.position.y}" />
+              </UML:Class>
+            `
+            )
+            .join("")}
+          ${edges
+            .map(
+              (edge: any) =>
+                `<UML:Association source="${edge.source}" target="${edge.target}" />`
+            )
+            .join("")}
+        </UML:Model>
+      </XMI>
+    `;
+    const blob = new Blob([xmiData], { type: "application/xml" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "diagram.xmi";
+    link.click();
+  };
+
   const onExportDiagramHandler = (fileType: string) => {
     console.log("Export diagram");
     setDropdownVisibleFile(false);
@@ -87,10 +148,12 @@ function SubHeader({ onSelectConfig }: any) {
       console.log("Exporting as PNG");
     } else if (fileType === "jpeg") {
       console.log("Exporting as JPEG");
+      exportToJPEG();
     } else if (fileType === "svg") {
       console.log("Exporting as SVG");
     } else if (fileType === "xmi") {
       console.log("Exporting as XMI");
+      exportToXMI();
     } else if (fileType === "pdf") {
       console.log("Exporting as PDF");
     }
@@ -102,7 +165,7 @@ function SubHeader({ onSelectConfig }: any) {
   return (
     <div ref={dropdownRef}>
       {/* Dropdown titles */}
-      <div className="flex w-full bg-white align-middle px-12 items-center h-10 border-b-2 relative z-10">
+      <div className="flex w-full bg-[#1B1B20] text-white align-middle px-12 items-center h-10 border-b-2 relative z-10">
         <div
           className="flex hover:cursor-pointer w-12 mr-4"
           onClick={() => toggleDropdown("file")}
