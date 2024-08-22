@@ -86,7 +86,7 @@ const UploadConfig = ({ packageName, selectedConfig }: UploadConfigProps) => {
       <br />
       <button
         onClick={handleUpload}
-        className="bg-black px-4 py-1 text-white font-bold rounded-md hover:opacity-70 transition-all ease-out duration-300"
+        className="bg-[#1B1B20] w-60 px-4 py-1 text-white font-bold rounded-md border-[#0F0F10] border-[1px] hover:opacity-70 transition-all ease-out duration-300"
       >
         Upload Configuration
       </button>

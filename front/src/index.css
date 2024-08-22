@@ -2,3 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+   /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    } 
+    
+}
+.slick-next::before {
+    color: black !important;
+}
+.slick-prev::before {
+    color: black !important;
+}
+.slick-next {
+    right: -10px !important;
+    z-index: 1;
+}
+.slick-prev {
+    left: -10px !important;
+    z-index: 1;
+}

@@ -12,6 +12,17 @@ import {
   Select,
   SelectChangeEvent,
 } from "@mui/material";
+import Slider from "react-slick";
+import SimpleSlider from "./notation_representations/ui_elements/SimpleSlider";
+
+var notationsSliderSettings = {
+  infinite: true,
+  speed: 500,
+  slidesToShow: 5,
+  slidesToScroll: 1,
+  arrows: true,
+  dots: false,
+};
 
 const inputStyle =
   "border-[1px] border-solid border-[#C8C8C8] rounded-md w-60 h-[38px] px-[16px] py-2 text-[#595959]";
@@ -223,9 +234,9 @@ const NotationDesigner: React.FC = () => {
   };
 
   return (
-    <div className="p-5 w-full flex">
+    <div className="w-full flex flex-row gap-x-4 pr-2">
       {/* Notation Designer */}
-      <div className="w-1/2">
+      <div className="w-2/3 rounded-md bg-white py-6 px-10">
         <h1 className="text-2xl font-extrabold mb-8">Notation Designer</h1>
         {/* dropdown to select existing configurations */}
         <div className="mb-5 flex flex-col gap-1">
@@ -369,34 +380,38 @@ const NotationDesigner: React.FC = () => {
             </button>
           </div>
         )}
-        <div style={{ marginBottom: "20px" }}>
+        <div className="mb-5 flex flex-col gap-1 w-60">
           <h3 className="font-bold">Rules and Constraints</h3>
           <div>
-            <label>Max Connections: </label>
+            <label>Max source connections</label>
             <input
               type="number"
-              onChange={(e) => handleRuleChange(e, "maxConnections")}
-              className="border-2 border-lightgray"
+              onChange={(e) => handleRuleChange(e, "maxSourceConnections")}
+              className={inputStyle}
+              placeholder="0"
             />
           </div>
           <div>
-            <label>Can Contain: </label>
+            <label>Max target connections</label>
             <input
-              type="text"
-              onChange={(e) => handleRuleChange(e, "canContain")}
-              className="border-2 border-lightgray"
+              type="number"
+              onChange={(e) => handleRuleChange(e, "maxTargetConnections")}
+              className={inputStyle}
+              placeholder="0"
             />
           </div>
           {/* more rule fields as necessary */}
         </div>
         <button
           onClick={addNotation}
-          className="bg-[#FF7D34] px-4 py-1 text-white font-bold rounded-md border-[#0F0F10] border-[1px] hover:opacity-70 transition-all ease-out duration-300 mr-2"
+          className="bg-[#FF7D34] px-4 py-1 w-60 text-white font-bold rounded-md border-[#0F0F10] border-[1px] hover:opacity-70 transition-all ease-out duration-300 mr-2"
         >
           Save Notation
         </button>
-        <div>
+
+        <div className="relative max-w-xl">
           <h3 className="text-lg font-bold mt-8">Current Notations</h3>
+          <input type="text" className={inputStyle} placeholder="Search..." />
           <ul>
             {notations &&
               notations.length > 0 &&
@@ -406,21 +421,43 @@ const NotationDesigner: React.FC = () => {
                 </li>
               ))}
           </ul>
+          <SimpleSlider settings={notationsSliderSettings} slides={[]} />
         </div>
 
         <button
           onClick={exportConfig}
-          className="bg-[#1B1B20] px-4 py-1 text-white font-bold rounded-md border-[#0F0F10] border-[1px] hover:opacity-70 transition-all ease-out duration-300 mt-4"
+          className="bg-[#1B1B20] w-60 px-4 py-1 text-white font-bold rounded-md border-[#0F0F10] border-[1px] hover:opacity-70 transition-all ease-out duration-300 mt-4"
         >
           Export Configuration
         </button>
 
         <div className="mt-6">
           <h3 className="text-lg font-bold">Upload config to team</h3>
-          <select>
-            <option>Team 1</option>
-            <option>Team 2</option>
-          </select>
+          <FormControl className="w-60">
+            <Select
+              value={selectedConfig}
+              onChange={(e) => handleShapeChange(e)}
+              displayEmpty
+              inputProps={{
+                "aria-label": "Without label",
+              }}
+              sx={{
+                "& .MuiSelect-select": {
+                  paddingRight: 4,
+                  paddingLeft: 2,
+                  paddingTop: 1,
+                  paddingBottom: 1,
+                },
+              }}
+            >
+              <MenuItem value="">Select team</MenuItem>
+              <MenuItem value="team-1">Team 1</MenuItem>
+              <MenuItem value="team-2">Team 2</MenuItem>
+              <MenuItem value="team-3">Team 3</MenuItem>
+              <MenuItem value="team-4">Team 4</MenuItem>
+              <MenuItem value="team-5">Team 5</MenuItem>
+            </Select>
+          </FormControl>
           <UploadConfig
             packageName={packageName}
             selectedConfig={selectedConfig}
@@ -429,7 +466,7 @@ const NotationDesigner: React.FC = () => {
       </div>
 
       {/* Notation Preview */}
-      <div className="w-1/2">
+      <div className="w-1/3 rounded-md bg-white py-6 px-10">
         <h1 className="text-2xl font-extrabold mb-8">Notation Preview</h1>
         <div className="flex">
           {/* Render the selected notation */}
