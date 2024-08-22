@@ -6,7 +6,7 @@ const RootLayout = () => {
   return (
     <div className="flex">
       <Sidebar />
-      <div className="min-h-screen max-h-screen w-full overflow-hidden h-full">
+      <div className="min-h-screen max-h-screen w-full overflow-y-scroll h-full">
         <Outlet />
       </div>
     </div>

@@ -5,13 +5,23 @@ import axios from "axios";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import PreviewNode from "./notation_representations/nodes/PreviewNode";
 import type { Shape } from "../types/types";
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+} from "@mui/material";
+
+const inputStyle =
+  "border-[1px] border-solid border-[#C8C8C8] rounded-md w-60 h-[38px] px-[16px] py-2 text-[#595959]";
 
 const NotationDesigner: React.FC = () => {
   const [notations, setNotations] = useState<Notation[]>([]);
   const [availableConfigs, setAvailableConfigs] = useState<ConfigListItem[]>(
     []
   );
-  const [selectedConfig, setSelectedConfig] = useState<string | null>(null);
+  const [selectedConfig, setSelectedConfig] = useState<string | null>("");
   const [packageName, setPackageName] = useState<string>("");
   const [currentNotation, setCurrentNotation] = useState<Notation>({
     name: "",
@@ -91,7 +101,7 @@ const NotationDesigner: React.FC = () => {
     setCurrentNotation(newCurrentNotation);
   };
 
-  const handleShapeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleShapeChange = (e: SelectChangeEvent<string | null>) => {
     const newCurrentNotation = currentNotation!;
     newCurrentNotation.shape = e.target.value as Shape;
     setCurrentNotation(newCurrentNotation);
@@ -218,54 +228,83 @@ const NotationDesigner: React.FC = () => {
       <div className="w-1/2">
         <h1 className="text-2xl font-extrabold mb-8">Notation Designer</h1>
         {/* dropdown to select existing configurations */}
-        <div style={{ marginBottom: "20px" }}>
-          <label>Select Configuration: </label>
-          <select
-            value={selectedConfig || ""}
-            onChange={(e) => setSelectedConfig(e.target.value)}
-            className="hover:cursor-pointer border-2 border-lightgray min-w-28"
-          >
-            <option value="">-- Select a Configuration --</option>
-            {availableConfigs.map((config, index) => (
-              <option key={index} value={config.filename}>
-                {config.name}
-              </option>
-            ))}
-          </select>
+        <div className="mb-5 flex flex-col gap-1">
+          <label>Configuration</label>
+          <FormControl className="w-60">
+            <Select
+              value={selectedConfig}
+              onChange={(e) => setSelectedConfig(e.target.value)}
+              displayEmpty
+              inputProps={{
+                "aria-label": "Without label",
+              }}
+              sx={{
+                "& .MuiSelect-select": {
+                  paddingRight: 4,
+                  paddingLeft: 2,
+                  paddingTop: 1,
+                  paddingBottom: 1,
+                  border: "1px solid #C8C8C8",
+                  color: "#595959",
+                },
+              }}
+            >
+              <MenuItem value="">Select configuration</MenuItem>
+              {availableConfigs.map((config, index) => (
+                <MenuItem key={index} value={config.filename}>
+                  {config.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </div>
-        <div style={{ marginBottom: "20px" }}>
-          <label>Configuration Name: </label>
+        <div className="mb-5 flex flex-col gap-1">
+          <label>Configuration Name</label>
           <input
             type="text"
             value={packageName}
+            placeholder="Configuration name"
             onChange={handleConfigNameChange}
-            className="border-2 border-lightgray"
+            className={inputStyle}
           />
         </div>
-        <div style={{ marginBottom: "20px" }}>
-          <label>Select Node Type: </label>
-          <select
-            value={currentNotation?.shape || "rectangle"}
-            onChange={handleShapeChange}
-            className="hover:cursor-pointer border-2 border-lightgray min-w-28"
-          >
-            <option value="rectangle">Rectangle</option>
-            <option value="compartment">Compartment</option>
-            <option value="label">Label</option>
-            <option value="arrow">Arrow</option>
-            <option value="dot">Dot</option>
-            {/* Add more predefined node types */}
-          </select>
+        <div className="mb-5 flex flex-col gap-1">
+          <label>Select node shape</label>
+          <FormControl className="w-60">
+            <Select
+              value={selectedConfig}
+              onChange={(e) => handleShapeChange(e)}
+              displayEmpty
+              inputProps={{
+                "aria-label": "Without label",
+              }}
+              sx={{
+                "& .MuiSelect-select": {
+                  paddingRight: 4,
+                  paddingLeft: 2,
+                  paddingTop: 1,
+                  paddingBottom: 1,
+                },
+              }}
+            >
+              <MenuItem value="">Select node shape</MenuItem>
+              <MenuItem value="rectangle">Rectangle</MenuItem>
+              <MenuItem value="compartment">Compartment</MenuItem>
+              <MenuItem value="label">Label</MenuItem>
+              <MenuItem value="arrow">Arrow</MenuItem>
+              <MenuItem value="dot">Dot</MenuItem>
+            </Select>
+          </FormControl>
         </div>
         {/* Mapping to metamodel element */}
         {/* Example: { shape: "rectangle", metamodel: "Class" } */}
-        <div className="mb-5">
+        <div className="mb-5 flex flex-col gap-1 w-60">
           <label>Notation Name</label>
           <input
             type="text"
             value={currentNotation.name}
-            placeholder="Enter notation name"
-            className="border-2 border-lightgray"
+            placeholder="Notation name"
+            className={inputStyle}
             onChange={(e) => handleNotationNameChange(e)}
           />
         </div>
@@ -283,10 +322,10 @@ const NotationDesigner: React.FC = () => {
           </div>
         )}
         {currentNotation?.shape === "rectangle" && (
-          <div style={{ marginBottom: "20px" }}>
-            <label>Sections:</label>
+          <div className="mb-5 flex flex-col gap-1 w-60">
+            <label>Sections</label>
             {currentNotation.sections!.map((section, index) => (
-              <div key={index}>
+              <div key={index} className="flex flex-row gap-x-2">
                 <input
                   type="text"
                   placeholder="Section name"
@@ -294,7 +333,7 @@ const NotationDesigner: React.FC = () => {
                   onChange={(e) =>
                     handleSectionChange(index, "name", e.target.value)
                   }
-                  className="border-2 border-lightgray"
+                  className={inputStyle}
                 />
                 <input
                   type="text"
@@ -303,11 +342,10 @@ const NotationDesigner: React.FC = () => {
                   onChange={(e) =>
                     handleSectionChange(index, "default", e.target.value)
                   }
-                  className="border-2 border-lightgray"
+                  className={inputStyle}
                 />
               </div>
             ))}
-            <br />
             <button
               onClick={() => {
                 if (!currentNotation.sections) {
@@ -325,7 +363,7 @@ const NotationDesigner: React.FC = () => {
                   });
                 }
               }}
-              className="bg-gray-600 px-4 py-1 text-white font-bold rounded-md hover:opacity-70 transition-all ease-out duration-300 mr-2"
+              className="bg-[#A7A7A7] px-4 py-1 text-white font-bold rounded-md border-[#0F0F10] border-[1px] hover:opacity-70 transition-all ease-out duration-300 mr-2"
             >
               Add Section
             </button>
@@ -353,9 +391,9 @@ const NotationDesigner: React.FC = () => {
         </div>
         <button
           onClick={addNotation}
-          className="bg-gray-600 px-4 py-1 text-white font-bold rounded-md hover:opacity-70 transition-all ease-out duration-300 mr-2"
+          className="bg-[#FF7D34] px-4 py-1 text-white font-bold rounded-md border-[#0F0F10] border-[1px] hover:opacity-70 transition-all ease-out duration-300 mr-2"
         >
-          Add Notation
+          Save Notation
         </button>
         <div>
           <h3 className="text-lg font-bold mt-8">Current Notations</h3>
@@ -372,12 +410,17 @@ const NotationDesigner: React.FC = () => {
 
         <button
           onClick={exportConfig}
-          className="bg-black px-4 py-1 text-white font-bold rounded-md hover:opacity-70 transition-all ease-out duration-300 mt-4"
+          className="bg-[#1B1B20] px-4 py-1 text-white font-bold rounded-md border-[#0F0F10] border-[1px] hover:opacity-70 transition-all ease-out duration-300 mt-4"
         >
           Export Configuration
         </button>
+
         <div className="mt-6">
-          <h3 className="text-lg font-bold">Upload config to server</h3>
+          <h3 className="text-lg font-bold">Upload config to team</h3>
+          <select>
+            <option>Team 1</option>
+            <option>Team 2</option>
+          </select>
           <UploadConfig
             packageName={packageName}
             selectedConfig={selectedConfig}
