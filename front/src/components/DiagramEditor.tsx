@@ -200,7 +200,7 @@ const DiagramEditor = ({
   };
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full bg-white">
       <Palette title={config?.name} elements={config ? config.notations : []} />
       <div
         style={{ minHeight: "100%", maxHeight: "100%", width: "100%" }}

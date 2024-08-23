@@ -234,7 +234,7 @@ const NotationDesigner: React.FC = () => {
   };
 
   return (
-    <div className="w-full flex flex-row gap-x-4 pr-2">
+    <div className="w-full flex flex-row gap-x-4 pr-1">
       {/* Notation Designer */}
       <div className="w-2/3 rounded-md bg-white py-6 px-10">
         <h1 className="text-2xl font-extrabold mb-8">Notation Designer</h1>

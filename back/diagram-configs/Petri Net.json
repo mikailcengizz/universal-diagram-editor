@@ -1,0 +1,41 @@
+{
+  "name": "Petri Net",
+  "notations": [
+    {
+      "name": "Transition",
+      "visual": {
+        "shape": "rectangle",
+        "default-background-color": "#f9f9f9",
+        "default-border-color": "#000000",
+        "default-text-color": "#000000",
+        "default-properties": [
+          { "name": "TransitionName", "default-text": "Transition name" }
+        ]
+      }
+    },
+    {
+      "name": "Place",
+      "visual": {
+        "shape": "circle",
+        "default-background-color": "#f9f9f9",
+        "default-border-color": "#000000",
+        "default-text-color": "#000000",
+        "default-properties": [
+          { "name": "PlaceName", "default-text": "Place name" }
+        ]
+      }
+    },
+    {
+      "name": "Arc",
+      "visual": {
+        "shape": "line",
+        "default-background-color": "#f9f9f9",
+        "default-border-color": "#000000",
+        "default-text-color": "#000000",
+        "default-properties": [
+          { "name": "ArcName", "default-text": "Arc name" }
+        ]
+      }
+    }
+  ]
+}

@@ -1,12 +1,23 @@
 import { Handle, Position } from "@xyflow/react";
 import React, { useState } from "react";
 import Compartment from "../compartments/Compartment";
+import { Notation } from "../../../types/types";
 
-const RectangleNode = ({ id, data, isPalette = false }: any) => {
-  const [compartments, setCompartments] = useState(data.sections);
+interface RectangleNodeProps {
+  id: string;
+  notation: Notation;
+  isPalette?: boolean;
+}
+
+const RectangleNode = ({
+  id,
+  notation,
+  isPalette = false,
+}: RectangleNodeProps) => {
+  const [compartments, setCompartments] = useState(notation.sections);
 
   const handleCompartmentChange = (index: number, newText: string) => {
-    const updatedCompartments = compartments.map(
+    const updatedCompartments = compartments?.map(
       (compartment: any, i: number) =>
         i === index ? { ...compartment, default: newText } : compartment
     );

@@ -253,6 +253,7 @@ function SubHeader({
           </div>
         )}
 
+        {/** Dropdown for diagram type */}
         {dropdownVisibleDiagramType && (
           <div className="absolute top-0 left-[7rem] w-48 bg-white border border-gray-200 rounded shadow-lg">
             <div className="py-2">
@@ -272,6 +273,7 @@ function SubHeader({
           </div>
         )}
 
+        {/** Dropdown for display */}
         {dropdownVisibleDisplay && (
           <div className="absolute top-0 left-[16.5rem] w-48 bg-white border border-gray-200 rounded shadow-lg">
             <div className="py-2">

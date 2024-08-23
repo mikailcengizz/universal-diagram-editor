@@ -35,7 +35,13 @@ const Palette = ({ title, elements }: PaletteProps) => {
   const renderNodePreview = (element: Notation) => {
     switch (element.shape) {
       case "rectangle":
-        return <RectangleNode id="preview" data={element} isPalette={true} />;
+        return (
+          <RectangleNode
+            id="rectangle-preview"
+            notation={element}
+            isPalette={true}
+          />
+        );
       // add cases for other custom node types as needed
       default:
         return <div>{element.label}</div>;

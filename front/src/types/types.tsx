@@ -24,7 +24,7 @@ export type Shape =
   | "label"
   | "compartment";
 
-// MOF structure should be used when configuring and using languages,
+// EMOF structure should be used when configuring and using languages,
 // together with their visual representation types
 export type Type = {};
 
@@ -55,7 +55,42 @@ export type StructuralFeature = {
   multiplicityElement: MultiplicityElement;
 };
 
-export type Association = {};
+export type MultiplicityElement = {
+  isOrdered: boolean;
+  isUnique: boolean;
+  lower: number;
+  upper: number;
+};
+
+export type Feature = {
+  isStatic: boolean;
+  isLeaf: boolean;
+  isAbstract: boolean;
+  isReadOnly: boolean;
+  isDerived: boolean;
+  isDerivedUnion: boolean;
+  isID: boolean;
+};
+
+export type Aggregation = {};
+
+export type Association = {
+  memberEnd: Property[];
+  navigableOwnedEnd: Property;
+  ownedEnd: Property;
+  isDerived: boolean;
+  isDerivedUnion: boolean;
+  isID: boolean;
+  isLeaf: boolean;
+  isReadOnly: boolean;
+  isStatic: boolean;
+  isUnique: boolean;
+  isOrdered: boolean;
+  isAbstract: boolean;
+  isComposite: boolean;
+  isNavigable: boolean;
+  isSubstitutable: boolean;
+};
 
 export type Operation = {
   isOrdered: boolean;
@@ -70,6 +105,28 @@ export type Parameter = {
   direction: ParameterDirectionKind;
   multiplicityElement: MultiplicityElement;
   typedElement: TypedElement;
+};
+
+export type ParameterDirectionKind = {};
+
+export type NamedElement = {
+  name: string;
+  qualifiedName: string;
+  visibility: VisibilityKind;
+};
+
+export type PackageableElement = {
+  visibility: VisibilityKind;
+};
+
+export type VisibilityKind = {};
+
+export type TypedElement = {
+  type: Type;
+};
+
+export type Comment = {
+  body: string;
 };
 
 // MAPPING
