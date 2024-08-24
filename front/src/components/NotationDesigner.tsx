@@ -4,7 +4,7 @@ import UploadConfig from "./UploadConfig";
 import axios from "axios";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import PreviewNode from "./notation_representations/nodes/PreviewNode";
-import type { Shape } from "../types/types";
+import type { Notations, Shape } from "../types/types";
 import {
   FormControl,
   InputLabel,
@@ -28,22 +28,24 @@ const inputStyle =
   "border-[1px] border-solid border-[#C8C8C8] rounded-md w-60 h-[38px] px-[16px] py-2 text-[#595959]";
 
 const NotationDesigner: React.FC = () => {
-  const [notations, setNotations] = useState<Notation[]>([]);
+  const [notations, setNotations] = useState<Notations>({
+    classifiers: [],
+    features: [],
+    relations: [],
+  });
   const [availableConfigs, setAvailableConfigs] = useState<ConfigListItem[]>(
     []
   );
   const [selectedConfig, setSelectedConfig] = useState<string | null>("");
   const [packageName, setPackageName] = useState<string>("");
   const [currentNotation, setCurrentNotation] = useState<Notation>({
-    name: "",
-    label: "",
-    shape: "rectangle",
-    style: null,
-    sourceId: null,
-    targetId: null,
-    sections: [],
-    mappings: [],
-    rules: {},
+    category: null,
+    styleProperties: {
+      border: [],
+      general: [],
+      other: [],
+    },
+    semanticProperties: [],
   });
 
   useEffect(() => {
@@ -91,16 +93,25 @@ const NotationDesigner: React.FC = () => {
   }, [selectedConfig]);
 
   const addNotation = () => {
-    if (!currentNotation!.name) {
+    if (!currentNotation!.semanticProperties.find((n) => n.name !== "")) {
       alert("Please enter a notation name.");
       return;
     }
-    setNotations([...notations, currentNotation!]);
+    const currentNotationCategory = currentNotation!.category!;
+    const updatedNotations = { ...notations };
+    if (currentNotationCategory === "classifier") {
+      updatedNotations.classifiers.push(currentNotation!);
+    } else if (currentNotationCategory === "feature") {
+      updatedNotations.features.push(currentNotation!);
+    } else if (currentNotationCategory === "relation") {
+      updatedNotations.relations.push(currentNotation!);
+    }
+    setNotations(updatedNotations);
   };
 
   const handleSectionChange = (index: number, field: string, value: string) => {
     // Create a new array for sections with updated values
-    const updatedSections = currentNotation.sections!.map((section, idx) =>
+    /* const updatedSections = currentNotation.sections!.map((section, idx) =>
       idx === index ? { ...section, [field]: value } : section
     );
 
@@ -109,18 +120,23 @@ const NotationDesigner: React.FC = () => {
       sections: updatedSections,
     };
 
-    setCurrentNotation(newCurrentNotation);
+    setCurrentNotation(newCurrentNotation); */
   };
 
   const handleShapeChange = (e: SelectChangeEvent<string | null>) => {
     const newCurrentNotation = currentNotation!;
-    newCurrentNotation.shape = e.target.value as Shape;
+    const shape = e.target.value as Shape;
+    newCurrentNotation.semanticProperties.find(
+      (n) => n.name === "Shape"
+    )!.default = shape;
     setCurrentNotation(newCurrentNotation);
   };
 
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newCurrentNotation = currentNotation!;
-    newCurrentNotation.label = e.target.value;
+    newCurrentNotation.semanticProperties.find(
+      (n) => n.name === "Name"
+    )!.default = e.target.value;
     setCurrentNotation(newCurrentNotation);
   };
 
@@ -128,27 +144,16 @@ const NotationDesigner: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement>,
     ruleName: string
   ) => {
-    const newCurrentNotation = currentNotation!;
+    /* const newCurrentNotation = currentNotation!;
     newCurrentNotation.rules![ruleName] = e.target.value;
-    setCurrentNotation(newCurrentNotation);
+    setCurrentNotation(newCurrentNotation); */
   };
 
   const handleNotationNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newCurrentNotation = {
-      ...currentNotation,
-      name: e.target.value,
-    };
-    const index = newCurrentNotation.mappings.findIndex(
-      (m: any) => m.shape === currentNotation?.shape
-    );
-    if (index !== -1) {
-      newCurrentNotation.mappings[index].metamodel = e.target.value;
-    } else {
-      newCurrentNotation.mappings.push({
-        shape: currentNotation?.shape!,
-        metamodel: e.target.value,
-      });
-    }
+    const newCurrentNotation = currentNotation!;
+    newCurrentNotation.semanticProperties.find(
+      (n) => n.name === "Name"
+    )!.default = e.target.value;
     setCurrentNotation(newCurrentNotation);
   };
 
@@ -161,11 +166,11 @@ const NotationDesigner: React.FC = () => {
       alert("Please enter a configuration name.");
       return;
     }
-    if (notations.length === 0) {
+    if (notations.classifiers.length === 0) {
       alert("Please add at least one notation.");
       return;
     }
-    if (!currentNotation?.name) {
+    if (!currentNotation?.semanticProperties.find((n) => n.name !== "")) {
       alert("Please enter a notation name.");
       return;
     }
@@ -183,53 +188,22 @@ const NotationDesigner: React.FC = () => {
   };
 
   const previewNotation = () => {
-    switch (currentNotation.shape) {
+    switch (
+      currentNotation.styleProperties.general.find((n) => n.name === "Shape")!
+        .default
+    ) {
       case "rectangle":
-        return (
-          <PreviewNode
-            key={currentNotation.name}
-            shape={currentNotation.shape}
-            label={currentNotation.label}
-            rules={currentNotation.rules}
-            sections={currentNotation.sections}
-            type={currentNotation}
-          />
-        );
+        return <></>;
       case "label":
-        return <div>{currentNotation.label}</div>;
+        return <></>;
       case "compartment":
-        return (
-          <div
-            style={{
-              border: "1px solid black",
-              borderRadius: "5px",
-              backgroundColor: "white",
-              padding: "10px",
-              minWidth: "150px",
-            }}
-          >
-            <div style={{ paddingBottom: "5px" }}>
-              <strong>{currentNotation.label}</strong>
-            </div>
-          </div>
-        );
+        return <></>;
       case "arrow":
-        return (
-          <div style={{ width: "0", height: "0", border: "10px solid" }} />
-        );
+        return <></>;
       case "dot":
-        return (
-          <div
-            style={{
-              width: "10px",
-              height: "10px",
-              borderRadius: "50%",
-              backgroundColor: "black",
-            }}
-          />
-        );
+        return <></>;
       default:
-        return <div>{currentNotation.label}</div>;
+        return <></>;
     }
   };
 
@@ -313,95 +287,16 @@ const NotationDesigner: React.FC = () => {
           <label>Notation Name</label>
           <input
             type="text"
-            value={currentNotation.name}
+            value={
+              currentNotation.semanticProperties.find((n) => n.name === "Name")!
+                .default!
+            }
             placeholder="Notation name"
             className={inputStyle}
             onChange={(e) => handleNotationNameChange(e)}
           />
         </div>
 
-        {/* Label is an element of its own, so ownly show default label text when editing a label notation */}
-        {currentNotation?.shape === "label" && (
-          <div style={{ marginBottom: "20px" }}>
-            <label>Default Label Text: </label>
-            <input
-              type="text"
-              value={currentNotation.label!}
-              onChange={handleLabelChange}
-              className="border-2 border-lightgray"
-            />
-          </div>
-        )}
-        {currentNotation?.shape === "rectangle" && (
-          <div className="mb-5 flex flex-col gap-1 w-60">
-            <label>Sections</label>
-            {currentNotation.sections!.map((section, index) => (
-              <div key={index} className="flex flex-row gap-x-2">
-                <input
-                  type="text"
-                  placeholder="Section name"
-                  value={section.name}
-                  onChange={(e) =>
-                    handleSectionChange(index, "name", e.target.value)
-                  }
-                  className={inputStyle}
-                />
-                <input
-                  type="text"
-                  placeholder="Default text"
-                  value={section.default}
-                  onChange={(e) =>
-                    handleSectionChange(index, "default", e.target.value)
-                  }
-                  className={inputStyle}
-                />
-              </div>
-            ))}
-            <button
-              onClick={() => {
-                if (!currentNotation.sections) {
-                  setCurrentNotation({
-                    ...currentNotation!,
-                    sections: [{ name: "", default: "" }],
-                  });
-                } else {
-                  setCurrentNotation({
-                    ...currentNotation!,
-                    sections: [
-                      ...currentNotation!.sections!,
-                      { name: "", default: "" },
-                    ],
-                  });
-                }
-              }}
-              className="bg-[#A7A7A7] px-4 py-1 text-white font-bold rounded-md border-[#0F0F10] border-[1px] hover:opacity-70 transition-all ease-out duration-300 mr-2"
-            >
-              Add Section
-            </button>
-          </div>
-        )}
-        <div className="mb-5 flex flex-col gap-1 w-60">
-          <h3 className="font-bold">Rules and Constraints</h3>
-          <div>
-            <label>Max source connections</label>
-            <input
-              type="number"
-              onChange={(e) => handleRuleChange(e, "maxSourceConnections")}
-              className={inputStyle}
-              placeholder="0"
-            />
-          </div>
-          <div>
-            <label>Max target connections</label>
-            <input
-              type="number"
-              onChange={(e) => handleRuleChange(e, "maxTargetConnections")}
-              className={inputStyle}
-              placeholder="0"
-            />
-          </div>
-          {/* more rule fields as necessary */}
-        </div>
         <button
           onClick={addNotation}
           className="bg-[#FF7D34] px-4 py-1 w-60 text-white font-bold rounded-md border-[#0F0F10] border-[1px] hover:opacity-70 transition-all ease-out duration-300 mr-2"
@@ -413,11 +308,28 @@ const NotationDesigner: React.FC = () => {
           <h3 className="text-lg font-bold mt-8">Current Notations</h3>
           <input type="text" className={inputStyle} placeholder="Search..." />
           <ul>
-            {notations &&
-              notations.length > 0 &&
-              notations.map((n) => (
-                <li key={n.name}>
-                  {n.name} ({n.shape}) <CloseOutlinedIcon />
+            {notations.classifiers &&
+              notations.classifiers.length > 0 &&
+              notations.classifiers.map((n) => (
+                <li
+                  key={
+                    n.semanticProperties.find(
+                      (property) => property.name === "Name"
+                    )?.default
+                  }
+                >
+                  {
+                    n.semanticProperties.find(
+                      (property) => property.name === "Name"
+                    )?.default
+                  }{" "}
+                  (
+                  {
+                    n.styleProperties.general.find(
+                      (property) => property.name === "shape"
+                    )?.default
+                  }
+                  ) <CloseOutlinedIcon />
                 </li>
               ))}
           </ul>

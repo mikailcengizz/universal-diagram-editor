@@ -1,9 +1,9 @@
 {
-  "name": "UML Class Diagram",
+  "name": "UML Class Diagram New",
   "notations": {
     "classifiers": [
       {
-        "style-properties": {
+        "styleProperties": {
           "border": [
             { "name": "Border Color", "default": "#000000" },
             { "name": "Border Width", "default": 1 },
@@ -19,14 +19,14 @@
             { "name": "Label Font Size", "default": 14 }
           ]
         },
-        "semantic-properties": [
+        "semanticProperties": [
           { "name": "Name", "default": "ClassName" },
           { "name": "Abstract", "default": "false" },
           { "name": "Interface", "default": "false" }
         ]
       },
       {
-        "style-properties": {
+        "styleProperties": {
           "border": [
             { "name": "Border Color", "default": "#000000" },
             { "name": "Border Width", "default": 1 },
@@ -42,12 +42,12 @@
             { "name": "Label Font Size", "default": 14 }
           ]
         },
-        "semantic-properties": [{ "name": "Name", "default": "InterfaceName" }]
+        "semanticProperties": [{ "name": "Name", "default": "InterfaceName" }]
       }
     ],
     "features": [
       {
-        "style-properties": {
+        "styleProperties": {
           "border": [
             { "name": "Border Color", "default": "#000000" },
             { "name": "Border Width", "default": 0 },
@@ -63,7 +63,7 @@
             { "name": "Label Font Size", "default": 10 }
           ]
         },
-        "semantic-properties": [
+        "semanticProperties": [
           { "name": "Name", "default": "AttributeName" },
           { "name": "Derived", "default": "false" },
           { "name": "Ordered", "default": "true" },
@@ -76,7 +76,7 @@
         ]
       },
       {
-        "style-properties": {
+        "styleProperties": {
           "border": [
             { "name": "Border Color", "default": "#000000" },
             { "name": "Border Width", "default": 0 },
@@ -92,7 +92,7 @@
             { "name": "Label Font Size", "default": 10 }
           ]
         },
-        "semantic-properties": [
+        "semanticProperties": [
           { "name": "Name", "default": "OperationName" },
           { "name": "Ordered", "default": "true" },
           { "name": "Unique", "default": "true" },
@@ -103,7 +103,7 @@
     ],
     "relations": [
       {
-        "style-properties": {
+        "styleProperties": {
           "general": [
             { "name": "Line Style", "default": "solid" },
             { "name": "Line Width", "default": 1 },
@@ -117,7 +117,7 @@
             { "name": "Target Arrow", "default": "inputArrow" }
           ]
         },
-        "semantic-properties": [
+        "semanticProperties": [
           { "name": "Name", "default": "RelationName" },
           { "name": "Derived", "default": "false" },
           { "name": "Ordered", "default": "true" },

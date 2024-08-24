@@ -14,15 +14,14 @@ const RectangleNode = ({
   notation,
   isPalette = false,
 }: RectangleNodeProps) => {
-  const [compartments, setCompartments] = useState(notation.sections);
+  /* const [compartments, setCompartments] = useState(notation.sections || []);
 
   const handleCompartmentChange = (index: number, newText: string) => {
-    const updatedCompartments = compartments?.map(
-      (compartment: any, i: number) =>
-        i === index ? { ...compartment, default: newText } : compartment
+    const updatedCompartments = compartments.map((compartment, i) =>
+      i === index ? { ...compartment, default: newText } : compartment
     );
     setCompartments(updatedCompartments);
-  };
+  }; */
 
   return (
     <div
@@ -30,36 +29,42 @@ const RectangleNode = ({
       style={{
         border: "1px solid black",
         borderRadius: "5px",
-        backgroundColor: "white",
-        padding: "10px",
+        backgroundColor: notation.styleProperties.general
+          .find((prop) => prop.name === "Color")
+          ?.default.toString(),
+        padding: "6px 0",
         minWidth: "150px",
-        textAlign: "center",
       }}
     >
-      {/* Render each section */}
-      {compartments &&
-        compartments.map((section: any, index: number) => (
-          <Compartment
-            key={index}
-            text={section.default}
-            onChange={(newText) => handleCompartmentChange(index, newText)}
-          />
-        ))}
+      <span className="w-full text-center block border-b-[1px] border-black pb-1">
+        {
+          notation.semanticProperties.find((prop) => prop.name === "Name")
+            ?.default
+        }
+      </span>
 
-      {/* Handles for connections */}
+      {/* {compartments.map((section, index) => (
+        <Compartment
+          key={index}
+          text={section.default}
+          style={{ fontSize: `${notation.styleProperties.other[2].default}px` }}
+          onChange={(newText) => handleCompartmentChange(index, newText)}
+        />
+      ))} */}
+
       {!isPalette && id && (
         <>
           <Handle
             type="source"
             position={Position.Bottom}
             style={{ background: "#555" }}
-            id={`source-${id}`} // Unique id for the source handle
+            id={`source-${id}`}
           />
           <Handle
             type="target"
             position={Position.Top}
             style={{ background: "#555" }}
-            id={`target-${id}`} // Unique id for the target handle
+            id={`target-${id}`}
           />
         </>
       )}

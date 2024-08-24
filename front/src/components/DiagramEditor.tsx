@@ -55,7 +55,10 @@ const DiagramEditor = ({
   setEdges,
 }: DiagramEditorProps) => {
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
-  const [config, setConfig] = useState<Config | null>(null);
+  const [config, setConfig] = useState<Config | null>({
+    name: "",
+    notations: { classifiers: [], features: [], relations: [] },
+  });
 
   useEffect(() => {
     if (configFilename) {
@@ -124,7 +127,12 @@ const DiagramEditor = ({
       const label = event.dataTransfer.getData("element-label");
 
       // find the element configuration based on the type
-      const elementConfig = config?.notations.find((el) => el.name === name);
+      const elementConfig = config?.notations.classifiers
+        .flat()
+        .find(
+          (el) =>
+            el.semanticProperties.find((prop) => prop.name === "Name")?.default
+        );
 
       if (!elementConfig) {
         console.log("Element configuration not found.");
@@ -141,7 +149,9 @@ const DiagramEditor = ({
       // Generate a unique ID using the name and count
       const uniqueId = `${name}${elementCount[name]}`;
 
-      const shape = elementConfig.shape; // extract shape from config
+      const shape = elementConfig.styleProperties.general.find(
+        (property) => property.name === "Shape"
+      )?.default; // extract shape from config
 
       // convert the screen coordinates to the flow's coordinate system
       const position = reactFlowInstance.screenToFlowPosition({
@@ -151,11 +161,15 @@ const DiagramEditor = ({
 
       const newNode: Node = {
         id: uniqueId,
-        type: shape, // use shape as the node type
+        type: shape!.toString(), // use shape as the node type
         position,
         data: {
-          label: label || elementConfig.label,
-          sections: elementConfig.sections as any[],
+          label:
+            label ||
+            elementConfig.semanticProperties.find(
+              (prop) => prop.name === "Name"
+            )?.default,
+          sections: [],
         },
       };
 
@@ -201,7 +215,7 @@ const DiagramEditor = ({
 
   return (
     <div className="flex h-full bg-white">
-      <Palette title={config?.name} elements={config ? config.notations : []} />
+      <Palette title={config?.name} elements={config!.notations} />
       <div
         style={{ minHeight: "100%", maxHeight: "100%", width: "100%" }}
         className="border-2"

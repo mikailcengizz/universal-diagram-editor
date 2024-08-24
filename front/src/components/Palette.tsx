@@ -1,40 +1,33 @@
 import React from "react";
-import { Notation } from "../types/types";
 import RectangleNode from "./notation_representations/nodes/RectangleNode";
+import { Notation, Notations } from "../types/types";
 
 interface PaletteProps {
   title: string | undefined;
-  elements: Notation[];
+  elements: Notations;
 }
 
 const Palette = ({ title, elements }: PaletteProps) => {
   const onDragStart = (event: React.DragEvent, element: Notation) => {
-    event.dataTransfer.setData("application/reactflow", element.name);
-    event.dataTransfer.setData("element-label", element.label!);
+    event.dataTransfer.setData(
+      "application/reactflow",
+      element.semanticProperties.find((prop) => prop.name === "Name")?.default!
+    );
+    event.dataTransfer.setData(
+      "element-label",
+      element.semanticProperties.find((prop) => prop.name === "Name")?.default!
+    );
     event.dataTransfer.effectAllowed = "move";
-    console.log("onDragStart - element dragged:", element); // log the dragged element
-
-    // Create a temporary element to use as the drag image
-    const dragImage = document.createElement("div");
-    dragImage.style.width = "100px"; // adjust size as needed
-    dragImage.style.height = "50px";
-    dragImage.style.backgroundColor = "white";
-    dragImage.style.border = "1px solid black";
-    dragImage.style.textAlign = "center";
-    dragImage.style.lineHeight = "50px";
-    dragImage.innerText = element.label || "Dragging...";
-
-    // Make the drag image invisible to avoid showing it in the DOM
-    document.body.appendChild(dragImage);
-    event.dataTransfer.setDragImage(dragImage, 50, 25);
-
-    // Remove the drag image after a short delay
-    setTimeout(() => document.body.removeChild(dragImage), 0);
+    console.log("onDragStart - element dragged:", element);
   };
 
   const renderNodePreview = (element: Notation) => {
-    switch (element.shape) {
-      case "rectangle":
+    switch (
+      element.styleProperties.general.find(
+        (property) => property.name === "Shape"
+      )?.default
+    ) {
+      case "square":
         return (
           <RectangleNode
             id="rectangle-preview"
@@ -42,9 +35,16 @@ const Palette = ({ title, elements }: PaletteProps) => {
             isPalette={true}
           />
         );
-      // add cases for other custom node types as needed
+      // Add cases for other shapes as needed
       default:
-        return <div>{element.label}</div>;
+        return (
+          <div>
+            {
+              element.semanticProperties.find((prop) => prop.name === "Name")
+                ?.default!
+            }
+          </div>
+        );
     }
   };
 
@@ -59,10 +59,13 @@ const Palette = ({ title, elements }: PaletteProps) => {
       }}
     >
       <h4>{title || "Palette"}</h4>
-      <div className="flex">
-        {elements.map((element) => (
+      <div className="flex flex-wrap">
+        {elements.classifiers.map((element: Notation) => (
           <div
-            key={element.name}
+            key={
+              element.semanticProperties.find((prop) => prop.name === "Name")
+                ?.default!
+            }
             onDragStart={(event) => onDragStart(event, element)}
             draggable
             style={{
