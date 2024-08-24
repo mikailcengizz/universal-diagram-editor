@@ -1,5 +1,7 @@
 // NOTATION DESIGNER
 
+import { EdgeProps } from "@xyflow/react";
+
 export interface Config {
   name: string;
   notations: Notations;
@@ -49,10 +51,12 @@ export interface CustomNodeData {
   relations: Notation[];
 }
 
-export interface CustomEdgeData {
-  label: string;
-  notation: Notation;
-  relations: Notation[];
+export interface CustomEdgeProps extends EdgeProps {
+  data: {
+    onEdgeClick?: () => void;
+    type: string;
+    [key: string]: any; // Allow for additional properties if necessary
+  };
 }
 
 // used to list config in dropdowns

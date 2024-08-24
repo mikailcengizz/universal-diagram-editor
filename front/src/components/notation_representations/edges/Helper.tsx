@@ -17,9 +17,8 @@ const createEdgeTypesFromConfig = (config: Config) => {
       case "bi-directional":
         edgeTypes[relationType] = BiDirectionalReferenceEdge;
         break;
-      // Add more cases for other relation types...
       default:
-        edgeTypes[relationType!] = ReferenceEdge; // Fallback to a default edge component
+        edgeTypes[relationType!] = ReferenceEdge;
         break;
     }
   });

@@ -85,7 +85,14 @@ const DiagramEditor = ({
 
       const newEdge = {
         ...params,
-        type: selectedEdgeType, // Use the selected edge type
+        type: selectedEdgeType,
+        data: {
+          type: selectedEdgeType,
+          onEdgeClick: () => {
+            console.log("Edge clicked:", params.source, params.target);
+            // Handle additional logic here if needed
+          },
+        },
       };
 
       setEdges((eds) => addEdge(newEdge, eds));
@@ -208,6 +215,34 @@ const DiagramEditor = ({
   return (
     <div className="flex h-full bg-white">
       <ReactFlowProvider>
+        {/* Define SVG markers for Edges */}
+        <svg style={{ height: 0, width: 0 }}>
+          <defs>
+            <marker
+              id="arrow"
+              viewBox="0 0 10 10"
+              refX="5"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#000" />
+            </marker>
+            <marker
+              id="arrowClosed"
+              viewBox="0 0 10 10"
+              refX="5"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#000" />
+            </marker>
+          </defs>
+        </svg>
+
         <Palette title={config?.name} elements={config!.notations} />
         <div
           style={{ minHeight: "100%", maxHeight: "100%", width: "100%" }}

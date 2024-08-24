@@ -129,6 +129,34 @@
           { "name": "Upper Bound", "default": "1" },
           { "name": "Volatile", "default": "false" }
         ]
+      },
+      {
+        "styleProperties": {
+          "general": [
+            { "name": "Line Style", "default": "solid" },
+            { "name": "Line Width", "default": 1 },
+            { "name": "Line Color", "default": "#000000" },
+            { "name": "Shape", "default": "bi-directional" }
+          ],
+          "other": [
+            { "name": "Label Color", "default": "#000000" },
+            { "name": "Label Font Size", "default": 14 },
+            { "name": "Routing Style", "default": "manhattan" },
+            { "name": "Source Arrow", "default": "none" },
+            { "name": "Target Arrow", "default": "inputArrow" }
+          ]
+        },
+        "semanticProperties": [
+          { "name": "Name", "default": "BiDirectionalName" },
+          { "name": "Derived", "default": "false" },
+          { "name": "Ordered", "default": "true" },
+          { "name": "Transient", "default": "false" },
+          { "name": "Unique", "default": "true" },
+          { "name": "Unsettable", "default": "false" },
+          { "name": "Lower Bound", "default": "0" },
+          { "name": "Upper Bound", "default": "1" },
+          { "name": "Volatile", "default": "false" }
+        ]
       }
     ]
   }
