@@ -107,7 +107,8 @@
           "general": [
             { "name": "Line Style", "default": "solid" },
             { "name": "Line Width", "default": 1 },
-            { "name": "Line Color", "default": "#000000" }
+            { "name": "Line Color", "default": "#000000" },
+            { "name": "Shape", "default": "reference" }
           ],
           "other": [
             { "name": "Label Color", "default": "#000000" },

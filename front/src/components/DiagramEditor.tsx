@@ -16,8 +16,8 @@ import { Config, CustomNodeData } from "../types/types";
 import Palette from "./Palette";
 import configService from "../services/ConfigService";
 import SquareNode from "./notation_representations/nodes/SquareNode";
-import ArrowEdge from "./notation_representations/edges/ArrowEdge";
 import ReactFlowWithInstance from "./ReactFlowWithInstance";
+import createEdgeTypesFromConfig from "./notation_representations/edges/Helper";
 
 const nodeTypes = {
   square: SquareNode,
@@ -26,10 +26,6 @@ const nodeTypes = {
   parallelogram: ParallelogramNode,
   generalized: GeneralizedNode,
   oval: OvalNode, */
-};
-
-const edgeTypes = {
-  arrow: ArrowEdge,
 };
 
 interface DiagramEditorProps {
@@ -72,6 +68,8 @@ const DiagramEditor = ({
     }
   }, [configFilename]);
 
+  const edgeTypes = config ? createEdgeTypesFromConfig(config) : {};
+
   // TODO: set initial nodes and edges from local storage,
   useEffect(() => {
     /* if (config) {
@@ -82,9 +80,17 @@ const DiagramEditor = ({
   }, [config]);
 
   const onConnect = useCallback(
-    (params: Edge | Connection) =>
-      setEdges((eds) => addEdge({ ...params, type: "arrow" }, eds)),
-    []
+    (params: Edge | Connection) => {
+      const selectedEdgeType = "reference";
+
+      const newEdge = {
+        ...params,
+        type: selectedEdgeType, // Use the selected edge type
+      };
+
+      setEdges((eds) => addEdge(newEdge, eds));
+    },
+    [setEdges]
   );
 
   const onNodesChange: OnNodesChange = useCallback(

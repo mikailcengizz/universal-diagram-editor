@@ -37,6 +37,35 @@ const FeatureDropdown = ({
   );
 };
 
+const EdgeTypeDropdown = ({
+  onSelectEdgeType,
+}: {
+  onSelectEdgeType: (type: string) => void;
+}) => {
+  const edgeTypes = ["arrow", "bi-directional", "reference"]; // Add your edge types here
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        backgroundColor: "white",
+        border: "1px solid black",
+        zIndex: 10,
+      }}
+    >
+      {edgeTypes.map((type, index) => (
+        <div
+          key={index}
+          style={{ padding: "5px", cursor: "pointer" }}
+          onClick={() => onSelectEdgeType(type)}
+        >
+          {type}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 interface SquareNodeProps {
   id: string;
   isPalette?: boolean;
