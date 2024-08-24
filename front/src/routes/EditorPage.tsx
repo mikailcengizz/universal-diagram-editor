@@ -1,9 +1,8 @@
 import { useParams } from "react-router-dom";
-import {} from "reactflow";
 import DiagramEditor from "../components/DiagramEditor";
 import SubHeader from "../components/SubHeader";
 import { useRef, useState } from "react";
-import { Edge, Node } from "@xyflow/react";
+import { Edge, Node, useEdgesState, useNodesState } from "@xyflow/react";
 
 export default function EditorPage() {
   const [selectedConfig, setSelectedConfig] = useState<string | null>(null);

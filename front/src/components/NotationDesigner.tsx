@@ -189,7 +189,7 @@ const NotationDesigner: React.FC = () => {
 
   const previewNotation = () => {
     switch (
-      currentNotation.styleProperties.general.find((n) => n.name === "Shape")!
+      currentNotation.styleProperties.general!.find((n) => n.name === "Shape")!
         .default
     ) {
       case "rectangle":
@@ -325,7 +325,7 @@ const NotationDesigner: React.FC = () => {
                   }{" "}
                   (
                   {
-                    n.styleProperties.general.find(
+                    n.styleProperties.general!.find(
                       (property) => property.name === "shape"
                     )?.default
                   }

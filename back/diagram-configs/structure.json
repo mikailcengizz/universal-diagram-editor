@@ -118,7 +118,7 @@
           ]
         },
         "semanticProperties": [
-          { "name": "Name", "default": "RelationName" },
+          { "name": "Name", "default": "ReferenceName" },
           { "name": "Derived", "default": "false" },
           { "name": "Ordered", "default": "true" },
           { "name": "Transient", "default": "false" },

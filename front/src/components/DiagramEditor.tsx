@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   addEdge,
   applyNodeChanges,
@@ -9,23 +9,18 @@ import {
   OnNodesChange,
   OnEdgesChange,
   ReactFlowProvider,
-  ReactFlow,
 } from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
 import { parseStringPromise } from "xml2js";
-import { Config, Notation } from "../types/types";
+import { Config, CustomNodeData } from "../types/types";
 import Palette from "./Palette";
 import configService from "../services/ConfigService";
-import RectangleNode from "./notation_representations/nodes/RectangleNode";
-import DiamondNode from "./notation_representations/nodes/DiamondNode";
-import ParallelogramNode from "./notation_representations/nodes/ParallelogramNode";
-import CustomEdge from "./notation_representations/edges/CustomEdge";
-import GeneralizedNode from "./notation_representations/nodes/PreviewNode";
-import OvalNode from "./notation_representations/nodes/OvalNode";
-import CircleNode from "./notation_representations/nodes/CircleNode";
+import SquareNode from "./notation_representations/nodes/SquareNode";
+import ArrowEdge from "./notation_representations/edges/ArrowEdge";
 import ReactFlowWithInstance from "./ReactFlowWithInstance";
 
 const nodeTypes = {
-  rectangle: RectangleNode,
+  square: SquareNode,
   /* circle: CircleNode,
   diamond: DiamondNode,
   parallelogram: ParallelogramNode,
@@ -34,7 +29,7 @@ const nodeTypes = {
 };
 
 const edgeTypes = {
-  custom: CustomEdge,
+  arrow: ArrowEdge,
 };
 
 interface DiagramEditorProps {
@@ -87,7 +82,8 @@ const DiagramEditor = ({
   }, [config]);
 
   const onConnect = useCallback(
-    (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
+    (params: Edge | Connection) =>
+      setEdges((eds) => addEdge({ ...params, type: "arrow" }, eds)),
     []
   );
 
@@ -123,54 +119,44 @@ const DiagramEditor = ({
         return;
       }
 
-      const name = event.dataTransfer.getData("application/reactflow");
-      const label = event.dataTransfer.getData("element-label");
+      const dragData = JSON.parse(
+        event.dataTransfer.getData("application/reactflow")
+      );
+      const { notation, features, relations } = dragData;
 
-      // find the element configuration based on the type
-      const elementConfig = config?.notations.classifiers
-        .flat()
-        .find(
-          (el) =>
-            el.semanticProperties.find((prop) => prop.name === "Name")?.default
-        );
+      const name = notation.semanticProperties.find(
+        (prop: any) => prop.name === "Name"
+      )?.default;
 
-      if (!elementConfig) {
-        console.log("Element configuration not found.");
-        return;
-      }
-
-      // Update the count for this element type
       if (!elementCount[name]) {
         elementCount[name] = 1; // Initialize if it doesn't exist
       } else {
         elementCount[name] += 1; // Increment the count
       }
 
-      // Generate a unique ID using the name and count
       const uniqueId = `${name}${elementCount[name]}`;
 
-      const shape = elementConfig.styleProperties.general.find(
-        (property) => property.name === "Shape"
-      )?.default; // extract shape from config
+      const shape = notation.styleProperties.general.find(
+        (property: any) => property.name === "Shape"
+      )?.default;
 
-      // convert the screen coordinates to the flow's coordinate system
       const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
 
+      const nodeData: CustomNodeData = {
+        label: name || "New Node",
+        notation: notation, // Pass the full notation object
+        features: features || [], // Pass the features array
+        relations: relations || [],
+      };
+
       const newNode: Node = {
         id: uniqueId,
-        type: shape!.toString(), // use shape as the node type
+        type: shape!.toString(),
         position,
-        data: {
-          label:
-            label ||
-            elementConfig.semanticProperties.find(
-              (prop) => prop.name === "Name"
-            )?.default,
-          sections: [],
-        },
+        data: nodeData as any,
       };
 
       console.log("Node dropped:", newNode);
@@ -215,13 +201,13 @@ const DiagramEditor = ({
 
   return (
     <div className="flex h-full bg-white">
-      <Palette title={config?.name} elements={config!.notations} />
-      <div
-        style={{ minHeight: "100%", maxHeight: "100%", width: "100%" }}
-        className="border-2"
-        ref={diagramAreaRef}
-      >
-        <ReactFlowProvider>
+      <ReactFlowProvider>
+        <Palette title={config?.name} elements={config!.notations} />
+        <div
+          style={{ minHeight: "100%", maxHeight: "100%", width: "100%" }}
+          className="border-2"
+          ref={diagramAreaRef}
+        >
           <div style={{ flexGrow: 1, height: "100%", cursor: "grab" }}>
             <ReactFlowWithInstance
               nodes={nodes}
@@ -238,8 +224,8 @@ const DiagramEditor = ({
               snapGrid={[15, 15]}
             />
           </div>
-        </ReactFlowProvider>
-      </div>
+        </div>
+      </ReactFlowProvider>
 
       <div>
         <h3 className="font-bold">Import from XMI</h3>

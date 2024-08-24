@@ -1,5 +1,5 @@
 import React from "react";
-import RectangleNode from "./notation_representations/nodes/RectangleNode";
+import SquareNode from "./notation_representations/nodes/SquareNode";
 import { Notation, Notations } from "../types/types";
 
 interface PaletteProps {
@@ -9,32 +9,35 @@ interface PaletteProps {
 
 const Palette = ({ title, elements }: PaletteProps) => {
   const onDragStart = (event: React.DragEvent, element: Notation) => {
+    const dragData = {
+      notation: element,
+      features: elements.features, // Pass the features related to this element
+    };
+
     event.dataTransfer.setData(
       "application/reactflow",
-      element.semanticProperties.find((prop) => prop.name === "Name")?.default!
-    );
-    event.dataTransfer.setData(
-      "element-label",
-      element.semanticProperties.find((prop) => prop.name === "Name")?.default!
+      JSON.stringify(dragData)
     );
     event.dataTransfer.effectAllowed = "move";
-    console.log("onDragStart - element dragged:", element);
+    console.log("onDragStart - element dragged:", dragData);
   };
 
   const renderNodePreview = (element: Notation) => {
+    const data = {
+      label: element.semanticProperties.find((prop) => prop.name === "Name")
+        ?.default!,
+      notation: element,
+      features: elements.features,
+      relations: elements.relations,
+    };
+
     switch (
-      element.styleProperties.general.find(
+      element.styleProperties.general!.find(
         (property) => property.name === "Shape"
       )?.default
     ) {
       case "square":
-        return (
-          <RectangleNode
-            id="rectangle-preview"
-            notation={element}
-            isPalette={true}
-          />
-        );
+        return <SquareNode id="square-preview" isPalette={true} data={data} />;
       // Add cases for other shapes as needed
       default:
         return (
