@@ -1,0 +1,147 @@
+{
+  "package": "UML Class Diagram New New",
+  "notations": [
+    {
+      "name": "Class",
+      "properties": [
+        {
+          "name": "Class name",
+          "defaultValue": "ClassName",
+          "dataType": "String",
+          "elementType": null,
+          "isUnique": false
+        },
+        {
+          "name": "Attributes",
+          "defaultValue": null,
+          "dataType": "Collection",
+          "elementType": "Attribute",
+          "isUnique": false
+        },
+        {
+          "name": "Operations",
+          "defaultValue": null,
+          "dataType": "Collection",
+          "elementType": "Operation",
+          "isUnique": false
+        },
+        {
+          "name": "Package",
+          "defaultValue": null,
+          "dataType": "Package",
+          "elementType": null,
+          "isUnique": false
+        },
+        {
+          "name": "Abstract",
+          "defaultValue": false,
+          "dataType": "Boolean",
+          "elementType": null,
+          "isUnique": false
+        },
+        {
+          "name": "Parameters",
+          "defaultValue": null,
+          "dataType": "Collection",
+          "elementType": "Parameter",
+          "isUnique": false
+        },
+        {
+          "name": "Constraints",
+          "defaultValue": "",
+          "dataType": "Text",
+          "elementType": null,
+          "isUnique": false
+        }
+      ],
+      "description": "This is a class",
+      "graphicalRepresentation": [
+        {
+          "shape": "square",
+          "style": {
+            "backgroundColor": "#f9f9f9",
+            "borderColor": "#000000",
+            "borderWidth": 1,
+            "borderStyle": "solid"
+          },
+          "position": {
+            "x": 30,
+            "y": 150
+          }
+        },
+        {
+          "shape": "text",
+          "text": "Class name",
+          "generator": null,
+          "style": {
+            "color": "#000000",
+            "fontSize": 14,
+            "alignment": "center"
+          },
+          "position": {
+            "x": 30,
+            "y": 150,
+            "extent": {
+              "width": 100,
+              "height": 120
+            }
+          }
+        },
+        {
+          "shape": "compartments",
+          "generator": "AttributesForNotation",
+          "style": {
+            "color": "#000000",
+            "fontSize": 14,
+            "alignment": "left"
+          },
+          "position": {
+            "x": 30,
+            "y": 70,
+            "extent": {
+              "width": 100,
+              "height": 10
+            }
+          }
+        },
+        {
+          "shape": "compartments",
+          "generator": "OperationsForNotation",
+          "style": {
+            "color": "#000000",
+            "fontSize": 14,
+            "alignment": "left"
+          },
+          "position": {
+            "x": 30,
+            "y": 50,
+            "extent": {
+              "width": 100,
+              "height": 10
+            }
+          }
+        },
+        {
+          "shape": "connector",
+          "style": {
+            "color": "#000000"
+          },
+          "position": {
+            "x": 30,
+            "y": 100
+          }
+        },
+        {
+          "shape": "connector",
+          "style": {
+            "color": "#000000"
+          },
+          "position": {
+            "x": 130,
+            "y": 100
+          }
+        }
+      ]
+    }
+  ]
+}

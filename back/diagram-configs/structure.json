@@ -3,6 +3,7 @@
   "notations": {
     "classifiers": [
       {
+        "name": "Class",
         "styleProperties": {
           "border": [
             { "name": "Border Color", "default": "#000000" },
@@ -26,6 +27,7 @@
         ]
       },
       {
+        "name": "Interface",
         "styleProperties": {
           "border": [
             { "name": "Border Color", "default": "#000000" },
@@ -47,6 +49,7 @@
     ],
     "features": [
       {
+        "name": "Attribute",
         "styleProperties": {
           "border": [
             { "name": "Border Color", "default": "#000000" },
@@ -76,6 +79,7 @@
         ]
       },
       {
+        "name": "Operation",
         "styleProperties": {
           "border": [
             { "name": "Border Color", "default": "#000000" },
@@ -103,6 +107,7 @@
     ],
     "relations": [
       {
+        "name": "Reference",
         "styleProperties": {
           "general": [
             { "name": "Line Style", "default": "solid" },
@@ -131,6 +136,7 @@
         ]
       },
       {
+        "name": "Bi-directional",
         "styleProperties": {
           "general": [
             { "name": "Line Style", "default": "solid" },
