@@ -12,20 +12,15 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { parseStringPromise } from "xml2js";
-import { Config, CustomNodeData } from "../types/types";
+import { Config, CustomNodeData, DragData, Notation } from "../types/types";
 import Palette from "./Palette";
 import configService from "../services/ConfigService";
-import SquareNode from "./notation_representations/nodes/SquareNode";
 import ReactFlowWithInstance from "./ReactFlowWithInstance";
 import createEdgeTypesFromConfig from "./notation_representations/edges/Helper";
+import CombineObjectShapesNode from "./notation_representations/nodes/CombineObjectShapesNode";
 
 const nodeTypes = {
-  square: SquareNode,
-  /* circle: CircleNode,
-  diamond: DiamondNode,
-  parallelogram: ParallelogramNode,
-  generalized: GeneralizedNode,
-  oval: OvalNode, */
+  objectNode: CombineObjectShapesNode,
 };
 
 interface DiagramEditorProps {
@@ -47,8 +42,8 @@ const DiagramEditor = ({
 }: DiagramEditorProps) => {
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [config, setConfig] = useState<Config | null>({
-    name: "",
-    notations: { classifiers: [], features: [], relations: [] },
+    packageName: "",
+    notations: { objects: [], relationships: [], roles: [] },
   });
 
   useEffect(() => {
@@ -81,7 +76,7 @@ const DiagramEditor = ({
 
   const onConnect = useCallback(
     (params: Edge | Connection) => {
-      const selectedEdgeType = "reference";
+      const selectedEdgeType = "Association";
 
       const newEdge = {
         ...params,
@@ -112,7 +107,6 @@ const DiagramEditor = ({
 
   const onLoad = useCallback((instance: any) => {
     setReactFlowInstance(instance);
-    console.log("React Flow instance set:", instance);
   }, []);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -132,14 +126,12 @@ const DiagramEditor = ({
         return;
       }
 
-      const dragData = JSON.parse(
-        event.dataTransfer.getData("application/reactflow")
+      const dragData: DragData = JSON.parse(
+        event.dataTransfer.getData("palette-item")
       );
-      const { notation, features, relations } = dragData;
+      const { notation } = dragData;
 
-      const name = notation.semanticProperties.find(
-        (prop: any) => prop.name === "Name"
-      )?.default;
+      const name = notation.name; // notation being dropped
 
       if (!elementCount[name]) {
         elementCount[name] = 1; // Initialize if it doesn't exist
@@ -147,11 +139,9 @@ const DiagramEditor = ({
         elementCount[name] += 1; // Increment the count
       }
 
-      const uniqueId = `${name}${elementCount[name]}`;
+      const uniqueId = `${name}${elementCount[name]}`; // unique node id
 
-      const shape = notation.styleProperties.general.find(
-        (property: any) => property.name === "Shape"
-      )?.default;
+      const nodeType = notation.type + "Node"; // objectNode, relationshipNode, roleNode
 
       const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX,
@@ -159,15 +149,13 @@ const DiagramEditor = ({
       });
 
       const nodeData: CustomNodeData = {
-        label: name || "New Node",
-        notation: notation, // Pass the full notation object
-        features: features || [], // Pass the features array
-        relations: relations || [],
+        notation,
+        position,
       };
 
       const newNode: Node = {
         id: uniqueId,
-        type: shape!.toString(),
+        type: nodeType,
         position,
         data: nodeData as any,
       };
@@ -243,7 +231,7 @@ const DiagramEditor = ({
           </defs>
         </svg>
 
-        <Palette title={config?.name} elements={config!.notations} />
+        <Palette title={config?.packageName} notations={config!.notations} />
         <div
           style={{ minHeight: "100%", maxHeight: "100%", width: "100%" }}
           className="border-2"

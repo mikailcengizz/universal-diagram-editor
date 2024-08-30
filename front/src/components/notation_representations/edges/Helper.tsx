@@ -5,13 +5,11 @@ import ReferenceEdge from "./ReferenceEdge";
 const createEdgeTypesFromConfig = (config: Config) => {
   const edgeTypes: any = {};
 
-  config.notations.relations.forEach((relation) => {
-    const relationType = relation.styleProperties.general!.find(
-      (prop) => prop.name === "Shape"
-    )?.default;
+  config.notations.relationships.forEach((relation) => {
+    const relationType = relation.name;
 
     switch (relationType) {
-      case "reference":
+      case "Association":
         edgeTypes[relationType] = ReferenceEdge;
         break;
       case "bi-directional":

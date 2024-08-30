@@ -3,52 +3,73 @@
 import { EdgeProps } from "@xyflow/react";
 
 export interface Config {
-  name: string;
+  packageName: string;
   notations: Notations;
 }
 
 // New Notations structure to accommodate classifiers, features, and relations
 export interface Notations {
-  classifiers: Notation[];
-  features: Notation[];
-  relations: Notation[];
+  objects: Notation[];
+  relationships: Notation[];
+  roles: Notation[];
 }
 
 export interface Notation {
-  category: NotationCategory | null;
-  styleProperties: StyleProperties;
-  semanticProperties: Array<SemanticProperty>;
-  compartments?: Notation[];
+  name: string;
+  type: NotationType;
+  properties: Property[];
+  description: string;
+  graphicalRepresentation: NotationRepresentationItem[];
 }
 
-export type NotationCategory = "classifier" | "feature" | "relation";
+export interface NotationRepresentationItem {
+  shape: Shape;
+  text?: string;
+  generator?: string | null;
+  style: StyleProperties;
+  position: Position;
+}
+
+export interface Position {
+  x: number;
+  y: number;
+  extent?: {
+    width: number;
+    height: number;
+  };
+}
 
 export interface StyleProperties {
-  border: Array<Property> | null;
-  general: Array<Property> | null;
-  other: Array<Property> | null;
+  color?: string;
+  fontSize?: number;
+  alignment?: Alignment;
+  backgroundColor?: string;
+  borderColor?: string;
+  borderStyle?: string;
+  borderWidth?: number;
 }
+
+export type Alignment = "left" | "center" | "right";
+
+export type Shape = "square" | "line" | "compartment" | "text" | "connector";
+
+export type NotationType = "object" | "relationship" | "role";
+
+export type DataType = "String" | "Collection" | "Package" | "Boolean" | "Text";
 
 export interface Property {
   name: string;
-  default: string | number;
+  defaultValue: string | number | boolean;
+  dataType: DataType;
+  elementType: string;
+  isUnique: boolean;
 }
-
-export interface SemanticProperty {
-  name: string;
-  default: string;
-}
-
-// MAPPING
-export type Mapping = { shape: Shape; metamodel: string };
 
 // DIAGRAM EDITOR
 
 export interface CustomNodeData {
-  label: string;
   notation: Notation;
-  features: Notation[];
-  relations: Notation[];
+  position?: Position;
 }
 
 export interface CustomEdgeProps extends EdgeProps {
@@ -65,11 +86,8 @@ export interface ConfigListItem {
   filename: string;
 }
 
-// SHAPE
-export type Shape =
-  | "rectangle"
-  | "circle"
-  | "arrow"
-  | "dot"
-  | "label"
-  | "compartment";
+// PALETTE
+export interface DragData {
+  notation: Notation;
+  notationType: NotationType;
+}

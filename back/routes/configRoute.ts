@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import type { Callback } from '../types/types';
+import type { Callback } from "../types/types";
 
 const fs = require("fs");
 const express = require("express");
@@ -12,7 +12,8 @@ const storage = multer.diskStorage({
     cb(null, "./diagram-configs");
   },
   filename: (req: Request, file: Express.Multer.File, cb: Callback) => {
-    const originalName = file.originalname+".json" || "default-config-name.json";
+    const originalName =
+      file.originalname + ".json" || "default-config-name.json";
     cb(null, originalName);
   },
 });
@@ -34,7 +35,7 @@ router.get("/list", (req: Request, res: Response) => {
     const configs = files.map((file: Express.Multer.File) => {
       const content = fs.readFileSync(`${configDir}/${file}`, "utf-8");
       const config = JSON.parse(content);
-      return { filename: file, name: config.name };
+      return { filename: file, name: config.packageName };
     });
     res.json(configs);
   });

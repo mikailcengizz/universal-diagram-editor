@@ -1,53 +1,43 @@
 import React from "react";
-import SquareNode from "./notation_representations/nodes/SquareNode";
-import { Notation, Notations } from "../types/types";
+import { DragData, Notation, Notations } from "../types/types";
+import CombineObjectShapesNode from "./notation_representations/nodes/CombineObjectShapesNode";
+import CombineRelationshipShapesNode from "./notation_representations/nodes/CombineRelationshipShapesNode";
+import CombineRoleShapesNode from "./notation_representations/nodes/CombineRoleShapesNode";
 
 interface PaletteProps {
   title: string | undefined;
-  elements: Notations;
+  notations: Notations;
 }
 
-const Palette = ({ title, elements }: PaletteProps) => {
-  const onDragStart = (event: React.DragEvent, element: Notation) => {
-    const dragData = {
-      notation: element,
-      features: elements.features, // Pass the features related to this element
+const Palette = ({ title, notations }: PaletteProps) => {
+  const onDragStart = (event: React.DragEvent, notation: Notation) => {
+    const dragData: DragData = {
+      notation: notation,
+      notationType: notation.type,
     };
 
-    event.dataTransfer.setData(
-      "application/reactflow",
-      JSON.stringify(dragData)
-    );
+    event.dataTransfer.setData("palette-item", JSON.stringify(dragData));
     event.dataTransfer.effectAllowed = "move";
     console.log("onDragStart - element dragged:", dragData);
   };
 
-  const renderNodePreview = (element: Notation) => {
-    const data = {
-      label: element.semanticProperties.find((prop) => prop.name === "Name")
-        ?.default!,
-      notation: element,
-      features: elements.features,
-      relations: elements.relations,
-    };
+  const renderNodePreview = (notation: Notation) => {
+    const notationType = notation.type;
 
-    switch (
-      element.styleProperties.general!.find(
-        (property) => property.name === "Shape"
-      )?.default
-    ) {
-      case "square":
-        return <SquareNode id="square-preview" isPalette={true} data={data} />;
-      // Add cases for other shapes as needed
-      default:
+    switch (notationType) {
+      case "object":
         return (
-          <div>
-            {
-              element.semanticProperties.find((prop) => prop.name === "Name")
-                ?.default!
-            }
-          </div>
+          <CombineObjectShapesNode
+            key={notation.name}
+            id={notation.name}
+            isPalette={true}
+            data={{ notation }}
+          />
         );
+      case "relationship":
+        return <CombineRelationshipShapesNode />;
+      case "role":
+        return <CombineRoleShapesNode />;
     }
   };
 
@@ -62,14 +52,37 @@ const Palette = ({ title, elements }: PaletteProps) => {
       }}
     >
       <h4>{title || "Palette"}</h4>
-      <div className="flex flex-wrap">
-        {elements.classifiers.map((element: Notation) => (
+      <h2>Objects</h2>
+      <div className="grid grid-cols-2">
+        {notations.objects.map((notation: Notation) => (
           <div
-            key={
-              element.semanticProperties.find((prop) => prop.name === "Name")
-                ?.default!
-            }
-            onDragStart={(event) => onDragStart(event, element)}
+            key={notation.name}
+            style={{
+              padding: "10px",
+              border: "1px solid #ccc",
+              backgroundColor: "transparent",
+              maxWidth: "75px",
+              width: "75px",
+              maxHeight: "75px",
+              height: "75px",
+            }}
+          >
+            <div
+              onDragStart={(event) => onDragStart(event, notation)}
+              draggable
+              className="h-full w-full cursor-grab"
+            >
+              {renderNodePreview(notation)}
+            </div>
+          </div>
+        ))}
+      </div>
+      <h2>Relationships</h2>
+      <div className="flex flex-wrap">
+        {notations.relationships.map((notation: Notation) => (
+          <div
+            key={notation.name}
+            onDragStart={(event) => onDragStart(event, notation)}
             draggable
             style={{
               margin: "10px",
@@ -79,7 +92,26 @@ const Palette = ({ title, elements }: PaletteProps) => {
               backgroundColor: "#fff",
             }}
           >
-            {renderNodePreview(element)}
+            {renderNodePreview(notation)}
+          </div>
+        ))}
+      </div>
+      <h2>Roles</h2>
+      <div className="flex flex-wrap">
+        {notations.roles.map((notation: Notation) => (
+          <div
+            key={notation.name}
+            onDragStart={(event) => onDragStart(event, notation)}
+            draggable
+            style={{
+              margin: "10px",
+              padding: "10px",
+              border: "1px solid #ccc",
+              cursor: "grab",
+              backgroundColor: "#fff",
+            }}
+          >
+            {renderNodePreview(notation)}
           </div>
         ))}
       </div>

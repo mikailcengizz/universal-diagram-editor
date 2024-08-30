@@ -1,19 +1,23 @@
 {
-  "name": "UML Class Diagram Old",
+  "packageName": "UML Class Diagram Old",
   "notations": [
     {
-      "name": "Class",
-      "label": "",
-      "shape": "rectangle",
-      "style": null,
-      "sourceId": null,
-      "targetId": null,
-      "sections": [
-        { "name": "ClassName", "default": "ClassName" },
-        { "name": "Attribute", "default": "Attribute" }
-      ],
-      "mappings": [{ "shape": "rectangle", "metamodel": "Class" }],
-      "rules": {}
+      "objects": [
+        {
+          "name": "Class",
+          "label": "",
+          "shape": "rectangle",
+          "style": null,
+          "sourceId": null,
+          "targetId": null,
+          "sections": [
+            { "name": "ClassName", "default": "ClassName" },
+            { "name": "Attribute", "default": "Attribute" }
+          ],
+          "mappings": [{ "shape": "rectangle", "metamodel": "Class" }],
+          "rules": {}
+        }
+      ]
     }
   ]
 }

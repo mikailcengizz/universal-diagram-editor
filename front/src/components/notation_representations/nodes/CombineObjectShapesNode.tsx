@@ -1,0 +1,225 @@
+import React, { useEffect, useRef, useState } from "react";
+import { CustomNodeData, Notation } from "../../../types/types";
+import { Handle, Position } from "@xyflow/react";
+
+interface CombineObjectShapesNodeProps {
+  id: string;
+  isPalette?: boolean;
+  data: CustomNodeData;
+}
+
+const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
+  id,
+  isPalette = false,
+  data: initialData,
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [data, setData] = useState<CustomNodeData>(initialData);
+
+  // Calculate the max width and max height when node is rendered on the canvas to know our selection area when moving node around
+  const maxWidth = Math.max(
+    ...data.notation.graphicalRepresentation.map(
+      (item) => item.position.extent?.width || 100
+    )
+  );
+
+  const maxHeight = Math.max(
+    ...data.notation.graphicalRepresentation.map(
+      (item) => item.position.extent?.height || 100
+    )
+  );
+
+  // Calculate the minimum x and y coordinates
+  const minX = Math.min(
+    ...data.notation.graphicalRepresentation
+      .filter((item) => isPalette && item.shape !== "connector")
+      .map((item) => item.position.x)
+  );
+  const minY = Math.min(
+    ...data.notation.graphicalRepresentation
+      .filter((item) => isPalette && item.shape !== "connector")
+      .map((item) => item.position.y)
+  );
+
+  // Adjust positions based on the minimum x and y to normalize the coordinates
+  const adjustedRepresentation = data.notation.graphicalRepresentation.map(
+    (item) => {
+      let newX = item.position.x - minX;
+      let newY = item.position.y - minY;
+      if (item.position.x === minX) {
+        newX = 0; // if the x is the minimum, set it to 0 so that it starts from the left
+      }
+      if (item.position.y === minY) {
+        newY = 0; // if the y is the minimum, set it to 0 so that it starts from the top
+      }
+      return {
+        ...item,
+        position: {
+          ...item.position,
+          x: newX,
+          y: newY,
+        },
+      };
+    }
+  );
+
+  // Calculate scale factor based on container size and max element size
+  useEffect(() => {
+    if (containerRef.current && isPalette) {
+      const containerWidth = containerRef.current.offsetWidth;
+      const containerHeight = containerRef.current.offsetHeight;
+      const maxX = Math.max(
+        ...adjustedRepresentation.map(
+          (item) => item.position.x + (item.position.extent?.width || 100)
+        )
+      );
+      const maxY = Math.max(
+        ...adjustedRepresentation.map(
+          (item) => item.position.y + (item.position.extent?.height || 100)
+        )
+      );
+
+      const scaleX = containerWidth / maxX;
+      const scaleY = containerHeight / maxY;
+      const newScale = Math.min(scaleX, scaleY, 1); // Choose the smaller scale to fit within the container
+
+      // Set a minimum scale to avoid making content too small
+      const minScale = 0.5;
+      setScale(Math.max(newScale, minScale));
+    }
+  }, [adjustedRepresentation]);
+
+  // Filter and sort the shapes according to the specified rendering order
+  // adjust notation size when rendering in palette
+  const rectangles = adjustedRepresentation.filter(
+    (representationItem) => representationItem.shape === "square"
+  );
+  const compartments = adjustedRepresentation.filter(
+    (representationItem) => representationItem.shape === "compartment"
+  );
+  const texts = adjustedRepresentation.filter(
+    (representationItem) => representationItem.shape === "text"
+  );
+  const connectors = adjustedRepresentation.filter(
+    (representationItem) => representationItem.shape === "connector"
+  );
+
+  // Handle text change
+  const handleTextChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    originalIndex: number
+  ) => {
+    const newText = event.target.value;
+    setData((prevData) => {
+      const newRepresentation = [...prevData.notation.graphicalRepresentation];
+      newRepresentation[originalIndex] = {
+        ...newRepresentation[originalIndex],
+        text: newText,
+      };
+      return {
+        ...prevData,
+        notation: {
+          ...prevData.notation,
+          graphicalRepresentation: newRepresentation,
+        },
+      };
+    });
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        position: "relative",
+        width: isPalette ? "100%" : `${maxWidth}px`,
+        height: isPalette ? "100%" : `${maxHeight}px`,
+        transform: `scale(${scale})`,
+        transformOrigin: "top left",
+        padding: `${(1 - scale) * 50}%`, // add padding to help center the content when scaled down
+      }}
+    >
+      {/* Render rectangles in the background */}
+      {rectangles.map((rect, index) => (
+        <div
+          key={index}
+          style={{
+            position: "absolute",
+            left: `${rect.position.x}px`,
+            top: `${rect.position.y}px`,
+            width: `${rect.position.extent?.width || 100}px`,
+            height: `${rect.position.extent?.height || 100}px`,
+            backgroundColor: rect.style.backgroundColor,
+            borderColor: rect.style.borderColor,
+            borderWidth: rect.style.borderWidth,
+            borderStyle: rect.style.borderStyle,
+          }}
+        />
+      ))}
+
+      {/* Render compartments - handle positioning downwards based on compartment rectangle size */}
+      {compartments.map((compartment, index) => (
+        <div
+          key={index}
+          style={{
+            position: "absolute",
+            left: `${compartment.position.x}px`, // Correcting x and y
+            top: `${compartment.position.y}px`, // Correcting x and y
+            width: `${compartment.position.extent?.width || 100}px`,
+            height: `${compartment.position.extent?.height || 10}px`,
+            borderColor: "transparent",
+            borderWidth: 0,
+          }}
+        />
+      ))}
+
+      {/* Render texts in the front */}
+      {texts.map((textItem, idx) => {
+        const originalIndex = data.notation.graphicalRepresentation.findIndex(
+          (item) => item === textItem
+        );
+        const propertyFromText = data.notation.properties.find(
+          (prop) => prop.name === textItem.text
+        );
+
+        return (
+          <input
+            key={idx}
+            type={propertyFromText?.dataType}
+            style={{
+              position: "absolute",
+              left: `${textItem.position.x}px`,
+              top: `${textItem.position.y}px`,
+              width: `${textItem.position.extent?.width || 100}px`,
+              height: `${textItem.position.extent?.height || 20}px`,
+              color: textItem.style.color,
+              backgroundColor: "transparent",
+              fontSize: `${textItem.style.fontSize}px`,
+              textAlign: textItem.style.alignment as
+                | "left"
+                | "center"
+                | "right",
+            }}
+            value={textItem.text}
+            onChange={(e) => handleTextChange(e, originalIndex)}
+          />
+        );
+      })}
+
+      {/* Render connectors in the front */}
+      {!isPalette &&
+        id &&
+        connectors.map((connector, index) => (
+          <Handle
+            type={connector.style.alignment === "left" ? "source" : "target"} // can not set exact position on connector so will stick with this for now
+            position={connector.style.alignment as Position} // temp
+            style={{ background: connector.style.color }}
+            id={`source-${index}`}
+            key={index}
+          />
+        ))}
+    </div>
+  );
+};
+
+export default CombineObjectShapesNode;

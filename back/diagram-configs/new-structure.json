@@ -1,147 +1,270 @@
 {
-  "package": "UML Class Diagram New New",
-  "notations": [
-    {
-      "name": "Class",
-      "properties": [
-        {
-          "name": "Class name",
-          "defaultValue": "ClassName",
-          "dataType": "String",
-          "elementType": null,
-          "isUnique": false
-        },
-        {
-          "name": "Attributes",
-          "defaultValue": null,
-          "dataType": "Collection",
-          "elementType": "Attribute",
-          "isUnique": false
-        },
-        {
-          "name": "Operations",
-          "defaultValue": null,
-          "dataType": "Collection",
-          "elementType": "Operation",
-          "isUnique": false
-        },
-        {
-          "name": "Package",
-          "defaultValue": null,
-          "dataType": "Package",
-          "elementType": null,
-          "isUnique": false
-        },
-        {
-          "name": "Abstract",
-          "defaultValue": false,
-          "dataType": "Boolean",
-          "elementType": null,
-          "isUnique": false
-        },
-        {
-          "name": "Parameters",
-          "defaultValue": null,
-          "dataType": "Collection",
-          "elementType": "Parameter",
-          "isUnique": false
-        },
-        {
-          "name": "Constraints",
-          "defaultValue": "",
-          "dataType": "Text",
-          "elementType": null,
-          "isUnique": false
-        }
-      ],
-      "description": "This is a class",
-      "graphicalRepresentation": [
-        {
-          "shape": "square",
-          "style": {
-            "backgroundColor": "#f9f9f9",
-            "borderColor": "#000000",
-            "borderWidth": 1,
-            "borderStyle": "solid"
+  "packageName": "UML Class Diagram New New",
+  "notations": {
+    "objects": [
+      {
+        "name": "Class",
+        "type": "object",
+        "properties": [
+          {
+            "name": "Class name",
+            "defaultValue": "ClassName",
+            "dataType": "String",
+            "elementType": null,
+            "isUnique": false
           },
-          "position": {
-            "x": 30,
-            "y": 150
+          {
+            "name": "Attributes",
+            "defaultValue": null,
+            "dataType": "Collection",
+            "elementType": "Attribute",
+            "isUnique": false
+          },
+          {
+            "name": "Operations",
+            "defaultValue": null,
+            "dataType": "Collection",
+            "elementType": "Operation",
+            "isUnique": false
+          },
+          {
+            "name": "Package",
+            "defaultValue": null,
+            "dataType": "Package",
+            "elementType": null,
+            "isUnique": false
+          },
+          {
+            "name": "Abstract",
+            "defaultValue": false,
+            "dataType": "Boolean",
+            "elementType": null,
+            "isUnique": false
+          },
+          {
+            "name": "Parameters",
+            "defaultValue": null,
+            "dataType": "Collection",
+            "elementType": "Parameter",
+            "isUnique": false
+          },
+          {
+            "name": "Constraints",
+            "defaultValue": "",
+            "dataType": "Text",
+            "elementType": null,
+            "isUnique": false
           }
-        },
-        {
-          "shape": "text",
-          "text": "Class name",
-          "generator": null,
-          "style": {
-            "color": "#000000",
-            "fontSize": 14,
-            "alignment": "center"
+        ],
+        "description": "This is a class",
+        "graphicalRepresentation": [
+          {
+            "shape": "square",
+            "style": {
+              "backgroundColor": "#f9f9f9",
+              "borderColor": "#000000",
+              "borderWidth": 1,
+              "borderStyle": "solid"
+            },
+            "position": {
+              "x": 30,
+              "y": 150
+            }
           },
-          "position": {
-            "x": 30,
-            "y": 150,
-            "extent": {
-              "width": 100,
-              "height": 120
+          {
+            "shape": "text",
+            "text": "Class name",
+            "generator": null,
+            "style": {
+              "color": "#000000",
+              "fontSize": 14,
+              "alignment": "center"
+            },
+            "position": {
+              "x": 30,
+              "y": 150,
+              "extent": {
+                "width": 100,
+                "height": 30
+              }
+            }
+          },
+          {
+            "shape": "compartment",
+            "generator": "attributesForNotation",
+            "style": {
+              "color": "#000000",
+              "fontSize": 14,
+              "alignment": "left"
+            },
+            "position": {
+              "x": 30,
+              "y": 180,
+              "extent": {
+                "width": 100,
+                "height": 10
+              }
+            }
+          },
+          {
+            "shape": "compartment",
+            "generator": "OperationsForNotation",
+            "style": {
+              "color": "#000000",
+              "fontSize": 14,
+              "alignment": "left"
+            },
+            "position": {
+              "x": 30,
+              "y": 200,
+              "extent": {
+                "width": 100,
+                "height": 10
+              }
+            }
+          },
+          {
+            "shape": "connector",
+            "style": {
+              "color": "#000000",
+              "alignment": "left"
+            },
+            "position": {
+              "x": 30,
+              "y": 180
+            }
+          },
+          {
+            "shape": "connector",
+            "style": {
+              "color": "#000000",
+              "alignment": "right"
+            },
+            "position": {
+              "x": 130,
+              "y": 180
             }
           }
-        },
-        {
-          "shape": "compartments",
-          "generator": "AttributesForNotation",
-          "style": {
-            "color": "#000000",
-            "fontSize": 14,
-            "alignment": "left"
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "name": "Association",
+        "properties": [
+          {
+            "name": "Association name",
+            "defaultValue": "",
+            "dataType": "String",
+            "elementType": null,
+            "isUnique": false
           },
-          "position": {
-            "x": 30,
-            "y": 70,
-            "extent": {
-              "width": 100,
-              "height": 10
+          {
+            "name": "Derived",
+            "defaultValue": false,
+            "dataType": "Boolean",
+            "elementType": null,
+            "isUnique": false
+          },
+          {
+            "name": "Derivation rules",
+            "defaultValue": null,
+            "dataType": "Collection",
+            "elementType": "String",
+            "isUnique": false
+          }
+        ],
+        "description": "This is an association",
+        "graphicalRepresentation": [
+          {
+            "shape": "line",
+            "style": {
+              "color": "#000000"
+            },
+            "position": {
+              "x": 50,
+              "y": 30,
+              "extent": {
+                "width": 50,
+                "height": 50
+              }
+            }
+          },
+          {
+            "shape": "text",
+            "text": "Association name",
+            "generator": null,
+            "style": {
+              "color": "#000000",
+              "fontSize": 14,
+              "alignment": "center"
+            },
+            "position": {
+              "x": 75,
+              "y": 40,
+              "extent": {
+                "width": 100,
+                "height": 120
+              }
             }
           }
-        },
-        {
-          "shape": "compartments",
-          "generator": "OperationsForNotation",
-          "style": {
-            "color": "#000000",
-            "fontSize": 14,
-            "alignment": "left"
+        ]
+      }
+    ],
+    "roles": [
+      {
+        "name": "Association role",
+        "properties": [
+          {
+            "name": "Role name",
+            "defaultValue": "",
+            "dataType": "String",
+            "elementType": null,
+            "isUnique": false
           },
-          "position": {
-            "x": 30,
-            "y": 50,
-            "extent": {
-              "width": 100,
-              "height": 10
+          {
+            "name": "Multiplicity",
+            "defaultValue": "",
+            "dataType": "String",
+            "elementType": null,
+            "isUnique": false,
+            "values": ["0..1", "1", "0..*", "1..*", "*"]
+          }
+        ],
+        "description": "This is a association role",
+        "graphicalRepresentation": [
+          {
+            "shape": "polyline",
+            "style": {
+              "borderColor": "#000000",
+              "borderWidth": 1,
+              "borderStyle": "solid"
+            },
+            "position": {
+              "x": 130,
+              "y": 70,
+              "extent": {
+                "width": 12,
+                "height": 15
+              }
+            }
+          },
+          {
+            "shape": "text",
+            "text": "Multiplicity",
+            "generator": null,
+            "style": {
+              "color": "#000000",
+              "fontSize": 14,
+              "alignment": "center"
+            },
+            "position": {
+              "x": 110,
+              "y": 70
             }
           }
-        },
-        {
-          "shape": "connector",
-          "style": {
-            "color": "#000000"
-          },
-          "position": {
-            "x": 30,
-            "y": 100
-          }
-        },
-        {
-          "shape": "connector",
-          "style": {
-            "color": "#000000"
-          },
-          "position": {
-            "x": 130,
-            "y": 100
-          }
-        }
-      ]
-    }
-  ]
+        ]
+      }
+    ]
+  }
 }

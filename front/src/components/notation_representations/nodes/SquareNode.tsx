@@ -1,16 +1,20 @@
 import { Handle, Position } from "@xyflow/react";
 import React, { useState } from "react";
 import Compartment from "../compartments/Compartment";
-import { CustomNodeData, Notation } from "../../../types/types";
+import {
+  CustomNodeData,
+  Notation,
+  NotationRepresentationItem,
+} from "../../../types/types";
 import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 
 // Dropdown/Toolbar component
-const FeatureDropdown = ({
-  features,
-  onSelectFeature,
+/* const CompartmentsDropdown = ({
+  compartments,
+  onSelectCompartment,
 }: {
-  features: Notation[];
-  onSelectFeature: (feature: Notation) => void;
+  compartments: NotationRepresentationItem[];
+  onSelectCompartment: (compartment: NotationRepresentationItem) => void;
 }) => {
   return (
     <div
@@ -23,26 +27,38 @@ const FeatureDropdown = ({
         zIndex: 10,
       }}
     >
-      {features.map((feature, index) => (
-        <div
-          key={index}
-          style={{ padding: "5px", cursor: "pointer" }}
-          onClick={() => onSelectFeature(feature)}
-        >
-          {feature.semanticProperties.find((prop) => prop.name === "Name")
-            ?.default || "Feature"}
-        </div>
+      {compartments.map((compartment, index) => (
+        <>
+          {compartment.generator === "attributesForNotation" && (
+            <div
+              key={index}
+              style={{ padding: "5px", cursor: "pointer" }}
+              onClick={() => onSelectCompartment(compartment)}
+            >
+              Attribute
+            </div>
+          )}
+          {compartment.generator === "operationsForNotation" && (
+            <div
+              key={index}
+              style={{ padding: "5px", cursor: "pointer" }}
+              onClick={() => onSelectCompartment(compartment)}
+            >
+              Operation
+            </div>
+          )}
+        </>
       ))}
     </div>
   );
-};
+}; */
 
-const EdgeTypeDropdown = ({
+/* const EdgeTypeDropdown = ({
   onSelectEdgeType,
 }: {
   onSelectEdgeType: (type: string) => void;
 }) => {
-  const edgeTypes = ["arrow", "bi-directional", "reference"]; // Add your edge types here
+  const edgeTypes = ["Association"]; // Add your edge types here
 
   return (
     <div
@@ -64,7 +80,7 @@ const EdgeTypeDropdown = ({
       ))}
     </div>
   );
-};
+}; */
 
 interface SquareNodeProps {
   id: string;
@@ -72,7 +88,7 @@ interface SquareNodeProps {
   data?: CustomNodeData;
 }
 
-const SquareNode = ({ id, isPalette = false, data }: SquareNodeProps) => {
+/* const SquareNode = ({ id, isPalette = false, data }: SquareNodeProps) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [compartments, setCompartments] = useState<Notation[]>([]);
   const { notation, features } = data!;
@@ -173,7 +189,6 @@ const SquareNode = ({ id, isPalette = false, data }: SquareNodeProps) => {
         </span>
       )}
 
-      {/* Render compartments */}
       {compartments.length > 0 &&
         compartments.map((compartment, index) => (
           <Compartment
@@ -198,7 +213,6 @@ const SquareNode = ({ id, isPalette = false, data }: SquareNodeProps) => {
           />
         ))}
 
-      {/* Add feature button */}
       <AddCircleOutlineOutlinedIcon
         onClick={() => setShowDropdown(!showDropdown)}
         style={{
@@ -209,7 +223,6 @@ const SquareNode = ({ id, isPalette = false, data }: SquareNodeProps) => {
         }}
       />
 
-      {/* Dropdown/toolbar for features */}
       {showDropdown && (
         <FeatureDropdown
           features={features}
@@ -217,7 +230,6 @@ const SquareNode = ({ id, isPalette = false, data }: SquareNodeProps) => {
         />
       )}
 
-      {/* Handles for connections */}
       {!isPalette && id && (
         <>
           <Handle
@@ -236,6 +248,7 @@ const SquareNode = ({ id, isPalette = false, data }: SquareNodeProps) => {
       )}
     </div>
   );
-};
+}; 
 
 export default SquareNode;
+*/
