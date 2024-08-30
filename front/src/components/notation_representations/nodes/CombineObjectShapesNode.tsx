@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { CustomNodeData, Notation } from "../../../types/types";
+import { CustomNodeData, Notation, Property } from "../../../types/types";
 import { Handle, Position } from "@xyflow/react";
+import dataTypeHelper from "../helpers/DataTypeHelper";
 
 interface CombineObjectShapesNodeProps {
   id: string;
@@ -15,7 +16,7 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
-  const [data, setData] = useState<CustomNodeData>(initialData);
+  const [data, setData] = useState<CustomNodeData>({ ...initialData });
 
   // Calculate the max width and max height when node is rendered on the canvas to know our selection area when moving node around
   const maxWidth = Math.max(
@@ -90,6 +91,26 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
     }
   }, [adjustedRepresentation]);
 
+  // Handle text change
+  const handleTextChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    originalIndex: number,
+    propertyFromText: Property | undefined
+  ) => {
+    const newDefaultValue = event.target.value;
+
+    // update the default value of the property
+    propertyFromText!.defaultValue = newDefaultValue;
+
+    // update the data
+    const newData = { ...data };
+    newData.notation.properties = data.notation.properties.map((prop) =>
+      prop.name === propertyFromText!.name ? propertyFromText! : prop
+    );
+
+    setData(newData);
+  };
+
   // Filter and sort the shapes according to the specified rendering order
   // adjust notation size when rendering in palette
   const rectangles = adjustedRepresentation.filter(
@@ -104,28 +125,6 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
   const connectors = adjustedRepresentation.filter(
     (representationItem) => representationItem.shape === "connector"
   );
-
-  // Handle text change
-  const handleTextChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    originalIndex: number
-  ) => {
-    const newText = event.target.value;
-    setData((prevData) => {
-      const newRepresentation = [...prevData.notation.graphicalRepresentation];
-      newRepresentation[originalIndex] = {
-        ...newRepresentation[originalIndex],
-        text: newText,
-      };
-      return {
-        ...prevData,
-        notation: {
-          ...prevData.notation,
-          graphicalRepresentation: newRepresentation,
-        },
-      };
-    });
-  };
 
   return (
     <div
@@ -182,28 +181,56 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
           (prop) => prop.name === textItem.text
         );
 
-        return (
-          <input
-            key={idx}
-            type={propertyFromText?.dataType}
-            style={{
-              position: "absolute",
-              left: `${textItem.position.x}px`,
-              top: `${textItem.position.y}px`,
-              width: `${textItem.position.extent?.width || 100}px`,
-              height: `${textItem.position.extent?.height || 20}px`,
-              color: textItem.style.color,
-              backgroundColor: "transparent",
-              fontSize: `${textItem.style.fontSize}px`,
-              textAlign: textItem.style.alignment as
-                | "left"
-                | "center"
-                | "right",
-            }}
-            value={textItem.text}
-            onChange={(e) => handleTextChange(e, originalIndex)}
-          />
-        );
+        // we dont want editable field in palette notations
+        if (isPalette) {
+          return (
+            <span
+              key={idx}
+              style={{
+                position: "absolute",
+                left: `${textItem.position.x}px`,
+                top: `${textItem.position.y}px`,
+                width: `${textItem.position.extent?.width || 100}px`,
+                height: `${textItem.position.extent?.height || 20}px`,
+                color: textItem.style.color,
+                fontSize: `${textItem.style.fontSize}px`,
+                textAlign: textItem.style.alignment as
+                  | "left"
+                  | "center"
+                  | "right",
+              }}
+            >
+              {textItem.text}
+            </span>
+          );
+        } else {
+          return (
+            <input
+              key={idx}
+              type={dataTypeHelper.determineInputFieldType(
+                propertyFromText!.dataType
+              )}
+              style={{
+                position: "absolute",
+                left: `${textItem.position.x}px`,
+                top: `${textItem.position.y}px`,
+                width: `${textItem.position.extent?.width || 100}px`,
+                height: `${textItem.position.extent?.height || 20}px`,
+                color: textItem.style.color,
+                backgroundColor: "transparent",
+                fontSize: `${textItem.style.fontSize}px`,
+                textAlign: textItem.style.alignment as
+                  | "left"
+                  | "center"
+                  | "right",
+              }}
+              value={propertyFromText?.defaultValue as string | number}
+              onChange={(e) =>
+                handleTextChange(e, originalIndex, propertyFromText)
+              }
+            />
+          );
+        }
       })}
 
       {/* Render connectors in the front */}
