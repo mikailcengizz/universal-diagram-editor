@@ -19,7 +19,13 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [data, setData] = useState<CustomNodeData>({ ...initialData });
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isNodeModalOpen, setIsNodeModalOpen] = useState(false);
+  const [isNodeAttributeModalOpen, setIsNodeAttributeModalOpen] =
+    useState(false); // second layer modal for node attributes
+  const [isNodeOperationModalOpen, setIsNodeOperationModalOpen] =
+    useState(false); // second layer modal for node operations
+  const [attributeBeingEdited, setAttributeBeingEdited] =
+    useState<Property | null>(null);
 
   // Calculate the max width and max height when node is rendered on the canvas to know our selection area when moving node around
   const maxWidth = Math.max(
@@ -114,14 +120,6 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
     setData(newData);
   };
 
-  const handleDoubleClick = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
   // Filter and sort the shapes according to the specified rendering order
   // adjust notation size when rendering in palette
   const rectangles = adjustedRepresentation.filter(
@@ -140,7 +138,7 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
   return (
     <div
       ref={containerRef}
-      onDoubleClick={handleDoubleClick}
+      onDoubleClick={() => setIsNodeModalOpen(true)}
       style={{
         position: "relative",
         width: isPalette ? "100%" : `${maxWidth}px`,
@@ -267,9 +265,12 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
         ))}
 
       {/* Modal for double click */}
-      <CustomModal isOpen={isModalOpen} onClose={handleCloseModal}>
-        <h2>{data.notation.name} Details</h2>
-        <p>Here you can edit the properties of the notation</p>
+      <CustomModal
+        isOpen={isNodeModalOpen}
+        onClose={() => setIsNodeModalOpen(false)}
+        zIndex={5}
+      >
+        <h2 className="font-semibold">{data.notation.name} Details</h2>
 
         <div>
           {data.notation.properties.map((property, index) => {
@@ -292,7 +293,16 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
                   />
                   <br />
                   <div className="flex flex-row w-full">
-                    <div className="w-1/2 bg-black text-white text-center">
+                    <div
+                      className="w-1/2 bg-black text-white text-center"
+                      onClick={() => {
+                        if (property.elementType === "Attribute") {
+                          setIsNodeAttributeModalOpen(true);
+                        } else if (property.elementType === "Operation") {
+                          setIsNodeOperationModalOpen(true);
+                        }
+                      }}
+                    >
                       Add
                     </div>
                     <div className="w-1/2 text-center border-[1px] border-solid border-black">
@@ -320,6 +330,17 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
             );
           })}
         </div>
+      </CustomModal>
+
+      {/* Attribute modal */}
+      {/* Add or modify attributes */}
+      <CustomModal
+        isOpen={isNodeAttributeModalOpen}
+        onClose={() => setIsNodeAttributeModalOpen(false)}
+        zIndex={10}
+      >
+        <h2>Attribute</h2>
+        <input type="text" placeholder="Name" />
       </CustomModal>
     </div>
   );

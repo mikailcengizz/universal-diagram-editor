@@ -4,12 +4,14 @@ import CloseIcon from "@mui/icons-material/Close";
 interface CustomModalProps {
   isOpen: boolean;
   onClose: () => void;
+  zIndex?: number;
   children: React.ReactNode;
 }
 
 const CustomModal: React.FC<CustomModalProps> = ({
   isOpen,
   onClose,
+  zIndex,
   children,
 }) => {
   if (!isOpen) return null;
@@ -26,6 +28,8 @@ const CustomModal: React.FC<CustomModalProps> = ({
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
+        zIndex: zIndex || 10,
+        cursor: "unset",
       }}
     >
       <div
@@ -36,6 +40,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
           padding: "20px",
           borderRadius: "8px",
           minWidth: "300px",
+          cursor: "unset",
         }}
       >
         <button
