@@ -156,14 +156,14 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
         />
       ))}
 
-      {/* Render compartments - handle positioning downwards based on compartment rectangle size */}
+      {/* Render compartments */}
       {compartments.map((compartment, index) => (
         <div
           key={index}
           style={{
             position: "absolute",
-            left: `${compartment.position.x}px`, // Correcting x and y
-            top: `${compartment.position.y}px`, // Correcting x and y
+            left: `${compartment.position.x}px`,
+            top: `${compartment.position.y}px`,
             width: `${compartment.position.extent?.width || 100}px`,
             height: `${compartment.position.extent?.height || 10}px`,
             borderColor: "transparent",
