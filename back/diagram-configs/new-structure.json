@@ -108,7 +108,7 @@
           },
           {
             "shape": "compartment",
-            "generator": "OperationsForNotation",
+            "generator": "operationsForNotation",
             "style": {
               "color": "#000000",
               "fontSize": 14,

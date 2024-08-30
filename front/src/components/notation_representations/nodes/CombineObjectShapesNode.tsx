@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { CustomNodeData, Notation, Property } from "../../../types/types";
 import { Handle, Position } from "@xyflow/react";
 import dataTypeHelper from "../helpers/DataTypeHelper";
+import Modal from "../ui_elements/Modal";
+import CustomModal from "../ui_elements/Modal";
 
 interface CombineObjectShapesNodeProps {
   id: string;
@@ -17,6 +19,7 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [data, setData] = useState<CustomNodeData>({ ...initialData });
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Calculate the max width and max height when node is rendered on the canvas to know our selection area when moving node around
   const maxWidth = Math.max(
@@ -111,6 +114,14 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
     setData(newData);
   };
 
+  const handleDoubleClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   // Filter and sort the shapes according to the specified rendering order
   // adjust notation size when rendering in palette
   const rectangles = adjustedRepresentation.filter(
@@ -129,6 +140,7 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
   return (
     <div
       ref={containerRef}
+      onDoubleClick={handleDoubleClick}
       style={{
         position: "relative",
         width: isPalette ? "100%" : `${maxWidth}px`,
@@ -157,20 +169,28 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
       ))}
 
       {/* Render compartments */}
-      {compartments.map((compartment, index) => (
-        <div
-          key={index}
-          style={{
-            position: "absolute",
-            left: `${compartment.position.x}px`,
-            top: `${compartment.position.y}px`,
-            width: `${compartment.position.extent?.width || 100}px`,
-            height: `${compartment.position.extent?.height || 10}px`,
-            borderColor: "transparent",
-            borderWidth: 0,
-          }}
-        />
-      ))}
+      {compartments.map((compartment, index) => {
+        const generatorName = compartment.generator;
+
+        if (generatorName === "attributesForNotation") {
+        } else if (generatorName === "operationsForNotation") {
+        }
+
+        return (
+          <div
+            key={index}
+            style={{
+              position: "absolute",
+              left: `${compartment.position.x}px`,
+              top: `${compartment.position.y}px`,
+              width: `${compartment.position.extent?.width || 100}px`,
+              height: `${compartment.position.extent?.height || 10}px`,
+              borderColor: "transparent",
+              borderWidth: 0,
+            }}
+          />
+        );
+      })}
 
       {/* Render texts in the front */}
       {texts.map((textItem, idx) => {
@@ -245,6 +265,62 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
             key={index}
           />
         ))}
+
+      {/* Modal for double click */}
+      <CustomModal isOpen={isModalOpen} onClose={handleCloseModal}>
+        <h2>{data.notation.name} Details</h2>
+        <p>Here you can edit the properties of the notation</p>
+
+        <div>
+          {data.notation.properties.map((property, index) => {
+            const propertyDataType = property.dataType;
+
+            if (propertyDataType === "Collection") {
+              // show a text area for all items in the collection and
+              // allow the user to add items through a new modal by clicking a button and
+              // allow the user to remove items by selecting the item and clicking a remove button
+              return (
+                <div key={index}>
+                  <label>{property.name}</label>
+                  <br />
+                  <textarea
+                    value={property.defaultValue as string}
+                    onChange={(e) => {
+                      property.defaultValue = e.target.value;
+                      setData({ ...data });
+                    }}
+                  />
+                  <br />
+                  <div className="flex flex-row w-full">
+                    <div className="w-1/2 bg-black text-white text-center">
+                      Add
+                    </div>
+                    <div className="w-1/2 text-center border-[1px] border-solid border-black">
+                      Remove
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <div key={index}>
+                <label>{property.name}</label>
+                <input
+                  type={dataTypeHelper.determineInputFieldType(
+                    property.dataType
+                  )}
+                  value={property.defaultValue as string | number}
+                  onChange={(e) => {
+                    property.defaultValue = e.target.value;
+                    setData({ ...data });
+                  }}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </CustomModal>
     </div>
   );
 };
