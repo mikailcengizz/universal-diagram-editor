@@ -5,7 +5,7 @@ import {
   NotationRepresentationItem,
   Property,
 } from "../../../types/types";
-import { Handle, Position } from "@xyflow/react";
+import { Handle, NodeResizer, Position } from "@xyflow/react";
 import dataTypeHelper from "../helpers/DataTypeHelper";
 import Modal from "../ui_elements/Modal";
 import CustomModal from "../ui_elements/Modal";
@@ -14,16 +14,36 @@ interface CombineObjectShapesNodeProps {
   id: string;
   isPalette?: boolean;
   data: CustomNodeData;
+  selected?: boolean;
 }
 
 const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
   id,
   isPalette = false,
   data: initialData,
+  selected,
 }) => {
+  const [data, setData] = useState<CustomNodeData>({ ...initialData });
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
-  const [data, setData] = useState<CustomNodeData>({ ...initialData });
+  // Calculate the max width and max height when node is rendered on the canvas
+  // to know our selection area when moving the node around
+  const maxWidth = Math.max(
+    ...data.notation.graphicalRepresentation.map(
+      (item) => item.position.extent?.width || 100
+    )
+  );
+
+  const maxHeight = Math.max(
+    ...data.notation.graphicalRepresentation.map(
+      (item) => item.position.extent?.height || 100
+    )
+  );
+
+  const [containerSize, setContainerSize] = useState({
+    width: maxWidth,
+    height: maxHeight,
+  });
   const [isNodeModalOpen, setIsNodeModalOpen] = useState(false);
   const [isNodeAttributeModalOpen, setIsNodeAttributeModalOpen] =
     useState(false); // second layer modal for node attributes
@@ -39,20 +59,6 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
     derived: false,
     constraints: "",
   });
-
-  // Calculate the max width and max height when node is rendered on the canvas
-  // to know our selection area when moving the node around
-  const maxWidth = Math.max(
-    ...data.notation.graphicalRepresentation.map(
-      (item) => item.position.extent?.width || 100
-    )
-  );
-
-  const maxHeight = Math.max(
-    ...data.notation.graphicalRepresentation.map(
-      (item) => item.position.extent?.height || 100
-    )
-  );
 
   let adjustedRepresentation: NotationRepresentationItem[] = [];
   console.log("initialData", initialData);
@@ -134,6 +140,26 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
     }
   }, [adjustedRepresentation]);
 
+  useEffect(() => {
+    if (containerRef.current) {
+      const { width, height } = containerRef.current.getBoundingClientRect();
+      setContainerSize({ width, height }); // for extending the node when resizing
+    }
+  }, []);
+
+  const handleResize = (
+    event: any,
+    { width, height }: { width: number; height: number }
+  ) => {
+    const aspectRatio = containerSize.width / containerSize.height;
+    const newWidth = width;
+    const newHeight = newWidth / aspectRatio;
+    const newScale = newWidth / containerSize.width;
+
+    setContainerSize({ width: newWidth, height: newHeight });
+    setScale(newScale);
+  };
+
   // Handle text change
   const handleTextChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -211,8 +237,8 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
       onDoubleClick={() => setIsNodeModalOpen(true)}
       style={{
         position: "relative",
-        width: isPalette ? "100%" : `${maxWidth}px`,
-        height: isPalette ? "100%" : `${maxHeight}px`,
+        width: isPalette ? "100%" : `${containerSize.width}px`,
+        height: isPalette ? "100%" : `${containerSize.height}px`,
         transform: `scale(${scale})`,
         transformOrigin: "top left",
         padding: `${(1 - scale) * 50}%`, // add padding to help center the content when scaled down
@@ -252,36 +278,52 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
           console.log("compartment", compartment);
 
           return (
-            <div
-              key={index}
-              style={{
-                position: "absolute",
-                left: `${compartment.position.x}px`,
-                top: `${compartment.position.y}px`,
-                width: `${compartment.position.extent?.width || 100}px`,
-                height: `${compartment.position.extent?.height || 10}px`,
-                borderColor: "transparent",
-                borderWidth: 0,
-                fontSize: `${compartment.style.fontSize}px`,
-              }}
-            >
+            <>
               {attributeProperty.defaultValue &&
                 (attributeProperty.defaultValue as Array<any>).map(
                   (attribute, idx) => (
-                    <div key={idx}>
-                      {attribute.name}: {attribute.dataType} [
-                      {attribute.multiplicity}]
-                      {attribute.visibility &&
-                        `, Visibility: ${attribute.visibility}`}
-                      {attribute.unique && ", Unique"}
-                      {attribute.derived && ", Derived"}
-                      {attribute.constraints &&
-                        `, Constraints: ${attribute.constraints}`}
-                      {` = ${attribute.defaultValue}`}
+                    <div
+                      key={index}
+                      style={{
+                        position: "absolute",
+                        left: `${compartment.position.x}px`,
+                        top: `${compartment.position.y}px`,
+                        width: `${compartment.position.extent?.width || 100}px`,
+                        height: `${
+                          compartment.position.extent?.height || 10
+                        }px`,
+                        maxWidth: `${
+                          compartment.position.extent?.width || 100
+                        }px`,
+                        maxHeight: `${
+                          compartment.position.extent?.height || 10
+                        }px`,
+                        borderLeft: "transparent",
+                        borderTopColor: "black",
+                        borderWidth: 1,
+                        fontSize: `${compartment.style.fontSize}px`,
+                        zIndex: 2,
+                        wordWrap: "break-word",
+                        padding: "2px 5px",
+                        overflowX: "hidden",
+                        overflowY: "scroll",
+                      }}
+                    >
+                      <div key={idx}>
+                        {attribute.name}: {attribute.dataType} [
+                        {attribute.multiplicity}]
+                        {attribute.visibility &&
+                          `, Visibility: ${attribute.visibility}`}
+                        {attribute.unique && ", Unique"}
+                        {attribute.derived && ", Derived"}
+                        {attribute.constraints &&
+                          `, Constraints: ${attribute.constraints}`}
+                        {` = ${attribute.defaultValue}`}
+                      </div>
                     </div>
                   )
                 )}
-            </div>
+            </>
           );
         } else if (generatorName === "operationsForNotation") {
         }
@@ -376,6 +418,17 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
             key={index}
           />
         ))}
+
+      {/* Node resizer */}
+      {!isPalette && selected && (
+        <NodeResizer
+          color="#ff0071"
+          isVisible={selected}
+          minWidth={100}
+          minHeight={30}
+          onResize={handleResize}
+        />
+      )}
 
       {/* Modal for double click */}
       <CustomModal
@@ -549,7 +602,12 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
         <label>Constraints</label>
         <br />
         <textarea name="constraints" />
-        <button onClick={handleAttributeSubmit}>Add Attribute</button>
+        <button
+          className="bg-black text-white px-2 py-[2px] font-semibold"
+          onClick={handleAttributeSubmit}
+        >
+          Add Attribute
+        </button>
       </CustomModal>
     </div>
   );
