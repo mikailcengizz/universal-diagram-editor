@@ -59,7 +59,7 @@ export type DataType = "String" | "Collection" | "Package" | "Boolean" | "Text";
 
 export interface Property {
   name: string;
-  defaultValue: string | number | boolean;
+  defaultValue: string | number | boolean | Array<any>;
   dataType: DataType;
   elementType: string;
   isUnique: boolean;

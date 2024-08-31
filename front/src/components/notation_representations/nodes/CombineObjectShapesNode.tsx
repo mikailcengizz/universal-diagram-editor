@@ -1,5 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { CustomNodeData, Notation, Property } from "../../../types/types";
+import {
+  CustomNodeData,
+  Notation,
+  NotationRepresentationItem,
+  Property,
+} from "../../../types/types";
 import { Handle, Position } from "@xyflow/react";
 import dataTypeHelper from "../helpers/DataTypeHelper";
 import Modal from "../ui_elements/Modal";
@@ -24,10 +29,19 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
     useState(false); // second layer modal for node attributes
   const [isNodeOperationModalOpen, setIsNodeOperationModalOpen] =
     useState(false); // second layer modal for node operations
-  const [attributeBeingEdited, setAttributeBeingEdited] =
-    useState<Property | null>(null);
+  const [newAttribute, setNewAttribute] = useState({
+    name: "",
+    dataType: "",
+    defaultValue: "",
+    multiplicity: "",
+    visibility: "",
+    unique: false,
+    derived: false,
+    constraints: "",
+  });
 
-  // Calculate the max width and max height when node is rendered on the canvas to know our selection area when moving node around
+  // Calculate the max width and max height when node is rendered on the canvas
+  // to know our selection area when moving the node around
   const maxWidth = Math.max(
     ...data.notation.graphicalRepresentation.map(
       (item) => item.position.extent?.width || 100
@@ -40,39 +54,59 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
     )
   );
 
-  // Calculate the minimum x and y coordinates
-  const minX = Math.min(
-    ...data.notation.graphicalRepresentation
-      .filter((item) => isPalette && item.shape !== "connector")
-      .map((item) => item.position.x)
-  );
-  const minY = Math.min(
-    ...data.notation.graphicalRepresentation
-      .filter((item) => isPalette && item.shape !== "connector")
-      .map((item) => item.position.y)
-  );
+  let adjustedRepresentation: NotationRepresentationItem[] = [];
+  console.log("initialData", initialData);
+  if (initialData.notation.graphicalRepresentation.length > 0) {
+    const validGraphicalItems =
+      initialData.notation.graphicalRepresentation.filter(
+        (item) =>
+          (!isPalette || (isPalette && item.shape !== "connector")) &&
+          item.position.x !== undefined &&
+          item.position.y !== undefined
+      ); // Only filter out connectors if isPalette is true
+    // sometimes the x and y are undefined when the notation is on the canvas
+    console.log("validGraphicalItems", validGraphicalItems);
 
-  // Adjust positions based on the minimum x and y to normalize the coordinates
-  const adjustedRepresentation = data.notation.graphicalRepresentation.map(
-    (item) => {
-      let newX = item.position.x - minX;
-      let newY = item.position.y - minY;
-      if (item.position.x === minX) {
-        newX = 0; // if the x is the minimum, set it to 0 so that it starts from the left
-      }
-      if (item.position.y === minY) {
-        newY = 0; // if the y is the minimum, set it to 0 so that it starts from the top
-      }
-      return {
-        ...item,
-        position: {
-          ...item.position,
-          x: newX,
-          y: newY,
-        },
-      };
+    // only adjust the representation if there are valid graphical items
+    if (validGraphicalItems.length > 0) {
+      // Calculate the minimum x and y coordinates from the valid graphical items
+      const minX = Math.min(
+        ...validGraphicalItems.map((item) => item.position.x)
+      );
+      const minY = Math.min(
+        ...validGraphicalItems.map((item) => item.position.y)
+      );
+      adjustedRepresentation = initialData.notation.graphicalRepresentation.map(
+        (item) => {
+          let newX = item.position.x - minX;
+          let newY = item.position.y - minY;
+
+          if (item.position.x === minX) {
+            newX = 0; // if the x is the minimum, set it to 0 so that it starts from the left
+          }
+          if (item.position.y === minY) {
+            newY = 0; // if the y is the minimum, set it to 0 so that it starts from the top
+          }
+          console.log("item", item);
+          console.log("minX", minX);
+          console.log("minY", minY);
+          console.log("newX", newX);
+          console.log("newY", newY);
+
+          return {
+            ...item,
+            position: {
+              ...item.position,
+              x: newX,
+              y: newY,
+            },
+          };
+        }
+      );
     }
-  );
+  }
+
+  console.log("adjustedRepresentation", adjustedRepresentation);
 
   // Calculate scale factor based on container size and max element size
   useEffect(() => {
@@ -120,14 +154,50 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
     setData(newData);
   };
 
+  const handleAttributeSubmit = () => {
+    // Find the "Attributes" collection
+    const attributesProperty = data.notation.properties.find(
+      (prop) => prop.elementType === "Attribute"
+    );
+
+    if (attributesProperty) {
+      console.log("attributesProperty", attributesProperty);
+      const attributes = attributesProperty.defaultValue
+        ? (attributesProperty.defaultValue as Array<any>)
+        : [];
+      console.log("attributes", attributes);
+
+      attributes.push({ ...newAttribute });
+
+      attributesProperty.defaultValue = attributes;
+
+      setData({ ...data });
+    }
+
+    // Reset and close the modal
+    setNewAttribute({
+      name: "",
+      dataType: "",
+      defaultValue: "",
+      multiplicity: "",
+      visibility: "",
+      unique: false,
+      derived: false,
+      constraints: "",
+    });
+    setIsNodeAttributeModalOpen(false);
+  };
+
   // Filter and sort the shapes according to the specified rendering order
   // adjust notation size when rendering in palette
   const rectangles = adjustedRepresentation.filter(
     (representationItem) => representationItem.shape === "square"
   );
+  console.log("adjusted rectangles", rectangles);
   const compartments = adjustedRepresentation.filter(
     (representationItem) => representationItem.shape === "compartment"
   );
+  console.log("adjusted compartments", compartments);
   const texts = adjustedRepresentation.filter(
     (representationItem) => representationItem.shape === "text"
   );
@@ -149,31 +219,74 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
       }}
     >
       {/* Render rectangles in the background */}
-      {rectangles.map((rect, index) => (
-        <div
-          key={index}
-          style={{
-            position: "absolute",
-            left: `${rect.position.x}px`,
-            top: `${rect.position.y}px`,
-            width: `${rect.position.extent?.width || 100}px`,
-            height: `${rect.position.extent?.height || 100}px`,
-            backgroundColor: rect.style.backgroundColor,
-            borderColor: rect.style.borderColor,
-            borderWidth: rect.style.borderWidth,
-            borderStyle: rect.style.borderStyle,
-          }}
-        />
-      ))}
+      {rectangles.map((rect, index) => {
+        console.log("rect", rect);
+
+        return (
+          <div
+            key={index}
+            style={{
+              position: "absolute",
+              left: `${rect.position.x}px`,
+              top: `${rect.position.y}px`,
+              width: `${rect.position.extent?.width || 100}px`,
+              height: `${rect.position.extent?.height || 100}px`,
+              backgroundColor: rect.style.backgroundColor,
+              borderColor: rect.style.borderColor,
+              borderWidth: rect.style.borderWidth,
+              borderStyle: rect.style.borderStyle,
+            }}
+          />
+        );
+      })}
 
       {/* Render compartments */}
       {compartments.map((compartment, index) => {
         const generatorName = compartment.generator;
 
         if (generatorName === "attributesForNotation") {
+          const attributeProperty = data.notation.properties.find(
+            (prop) => prop.elementType === "Attribute"
+          )!;
+          console.log("generating attributes", attributeProperty);
+          console.log("compartment", compartment);
+
+          return (
+            <div
+              key={index}
+              style={{
+                position: "absolute",
+                left: `${compartment.position.x}px`,
+                top: `${compartment.position.y}px`,
+                width: `${compartment.position.extent?.width || 100}px`,
+                height: `${compartment.position.extent?.height || 10}px`,
+                borderColor: "transparent",
+                borderWidth: 0,
+                fontSize: `${compartment.style.fontSize}px`,
+              }}
+            >
+              {attributeProperty.defaultValue &&
+                (attributeProperty.defaultValue as Array<any>).map(
+                  (attribute, idx) => (
+                    <div key={idx}>
+                      {attribute.name}: {attribute.dataType} [
+                      {attribute.multiplicity}]
+                      {attribute.visibility &&
+                        `, Visibility: ${attribute.visibility}`}
+                      {attribute.unique && ", Unique"}
+                      {attribute.derived && ", Derived"}
+                      {attribute.constraints &&
+                        `, Constraints: ${attribute.constraints}`}
+                      {` = ${attribute.defaultValue}`}
+                    </div>
+                  )
+                )}
+            </div>
+          );
         } else if (generatorName === "operationsForNotation") {
         }
 
+        /* Default case for rendering direct text and not generator elements */
         return (
           <div
             key={index}
@@ -284,17 +397,29 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
                 <div key={index}>
                   <label>{property.name}</label>
                   <br />
-                  <textarea
-                    value={property.defaultValue as string}
-                    onChange={(e) => {
-                      property.defaultValue = e.target.value;
-                      setData({ ...data });
-                    }}
-                  />
+                  {/* Show all items in the collection */}
+                  <div className="bg-white h-10 overflow-y-scroll">
+                    {property.defaultValue &&
+                      (property.defaultValue as Array<any>).map(
+                        (item: any, idx: number) => (
+                          <div key={idx}>
+                            {item.name}: {item.dataType} [{item.multiplicity}]
+                            {item.visibility &&
+                              `, Visibility: ${item.visibility}`}
+                            {item.unique && ", Unique"}
+                            {item.derived && ", Derived"}
+                            {item.constraints &&
+                              `, Constraints: ${item.constraints}`}
+                            {` = ${item.defaultValue}`}
+                          </div>
+                        )
+                      )}
+                  </div>
                   <br />
+                  {/* Add and remove buttons */}
                   <div className="flex flex-row w-full">
                     <div
-                      className="w-1/2 bg-black text-white text-center"
+                      className="w-1/2 bg-black text-white text-center cursor-pointer"
                       onClick={() => {
                         if (property.elementType === "Attribute") {
                           setIsNodeAttributeModalOpen(true);
@@ -305,7 +430,7 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
                     >
                       Add
                     </div>
-                    <div className="w-1/2 text-center border-[1px] border-solid border-black">
+                    <div className="w-1/2 text-center border-[1px] border-solid border-black cursor-pointer">
                       Remove
                     </div>
                   </div>
@@ -340,7 +465,91 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
         zIndex={10}
       >
         <h2>Attribute</h2>
-        <input type="text" placeholder="Name" />
+        {/* TODO: temporary hard coded fields, we need to get these from somewhere where an attribute can be defined*/}
+        <label>Name</label>
+        <br />
+        <input
+          type="text"
+          value={newAttribute.name}
+          onChange={(e) =>
+            setNewAttribute({ ...newAttribute, name: e.target.value })
+          }
+        />
+        <br />
+        <label>Data type</label>
+        <br />
+        <input
+          type="text"
+          value={newAttribute.dataType}
+          onChange={(e) =>
+            setNewAttribute({ ...newAttribute, dataType: e.target.value })
+          }
+        />
+        <label>Default value</label>
+        <br />
+        <input
+          type="text"
+          value={newAttribute.defaultValue}
+          onChange={(e) =>
+            setNewAttribute({ ...newAttribute, defaultValue: e.target.value })
+          }
+        />
+        <label>Multiplicity</label>
+        <br />
+        <select
+          name="multiplicity"
+          value={newAttribute.multiplicity}
+          onChange={(e) =>
+            setNewAttribute({ ...newAttribute, multiplicity: e.target.value })
+          }
+        >
+          <option value="0..1">0..1</option>
+          <option value="0..*">0..*</option>
+          <option value="1">1</option>
+          <option value="1..*">1..*</option>
+          <option value="*">*</option>
+        </select>
+        <br />
+        <label>Visibility</label>
+        <br />
+        <select
+          name="visibility"
+          value={newAttribute.visibility}
+          onChange={(e) =>
+            setNewAttribute({ ...newAttribute, visibility: e.target.value })
+          }
+        >
+          <option value="public">public</option>
+          <option value="protected">protected</option>
+          <option value="private">private</option>
+          <option value="package">package</option>
+          <option value="published">published</option>
+        </select>
+        <br />
+        <label>Unique</label>
+        <input
+          type="checkbox"
+          name="unique"
+          checked={newAttribute.unique}
+          onChange={(e) =>
+            setNewAttribute({ ...newAttribute, unique: e.target.checked })
+          }
+        />
+        <br />
+        <label>Derived</label>
+        <input
+          type="checkbox"
+          name="derived"
+          checked={newAttribute.derived}
+          onChange={(e) =>
+            setNewAttribute({ ...newAttribute, derived: e.target.checked })
+          }
+        />
+        <br />
+        <label>Constraints</label>
+        <br />
+        <textarea name="constraints" />
+        <button onClick={handleAttributeSubmit}>Add Attribute</button>
       </CustomModal>
     </div>
   );
