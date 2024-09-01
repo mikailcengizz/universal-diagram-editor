@@ -1,5 +1,5 @@
 import React from "react";
-import CustomModal from "../../../../ui_elements/Modal";
+import CustomModal from "../../../../../ui_elements/Modal";
 
 interface ModalAddAttributeProps {
   isNodeAttributeModalOpen: boolean;

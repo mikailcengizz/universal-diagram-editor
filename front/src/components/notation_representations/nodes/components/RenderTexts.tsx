@@ -4,7 +4,7 @@ import {
   NotationRepresentationItem,
   Property,
 } from "../../../../types/types";
-import dataTypeHelper from "../../helpers/TypeHelper";
+import dataTypeHelper from "../../../helpers/TypeHelper";
 
 interface RenderTextsProps {
   isPalette: boolean;

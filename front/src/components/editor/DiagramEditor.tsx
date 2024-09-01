@@ -12,12 +12,12 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { parseStringPromise } from "xml2js";
-import { Config, CustomNodeData, DragData, Notation } from "../types/types";
-import Palette from "./Palette";
-import configService from "../services/ConfigService";
-import ReactFlowWithInstance from "./ReactFlowWithInstance";
-import createEdgeTypesFromConfig from "./notation_representations/edges/Helper";
-import CombineObjectShapesNode from "./notation_representations/nodes/CombineObjectShapesNode";
+import { Config, CustomNodeData, DragData, Notation } from "../../types/types";
+import Palette from "./PaletteEditorPanel";
+import configService from "../../services/ConfigService";
+import ReactFlowWithInstance from "../ReactFlowWithInstance";
+import createEdgeTypesFromConfig from "../notation_representations/edges/Helper";
+import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
 
 const nodeTypes = {
   objectNode: CombineObjectShapesNode,

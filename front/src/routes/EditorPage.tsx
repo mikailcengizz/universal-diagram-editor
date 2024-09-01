@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
-import DiagramEditor from "../components/DiagramEditor";
-import SubHeader from "../components/SubHeader";
+import DiagramEditor from "../components/editor/DiagramEditor";
+import SubHeader from "../components/editor/SubHeader";
 import { useRef, useState } from "react";
 import { Edge, Node, useEdgesState, useNodesState } from "@xyflow/react";
 

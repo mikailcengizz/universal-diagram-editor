@@ -1,12 +1,11 @@
 import React from "react";
-import CustomModal from "../../../../ui_elements/Modal";
+import CustomModal from "../../../../../ui_elements/Modal";
 import {
   Attribute,
   CustomNodeData,
   Operation,
 } from "../../../../../../types/types";
-import dataTypeHelper from "../../../../helpers/TypeHelper";
-import typeHelper from "../../../../helpers/TypeHelper";
+import typeHelper from "../../../../../helpers/TypeHelper";
 
 interface ModalDoubleClickNotationProps {
   isNodeModalOpen: boolean;
@@ -127,7 +126,7 @@ function ModalDoubleClickNotation({
             <div key={index}>
               <label>{property.name}</label>
               <input
-                type={dataTypeHelper.determineInputFieldType(property.dataType)}
+                type={typeHelper.determineInputFieldType(property.dataType)}
                 value={property.defaultValue as string | number}
                 onChange={(e) => {
                   property.defaultValue = e.target.value;

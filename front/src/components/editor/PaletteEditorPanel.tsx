@@ -1,15 +1,15 @@
 import React from "react";
-import { DragData, Notation, Notations } from "../types/types";
-import CombineObjectShapesNode from "./notation_representations/nodes/CombineObjectShapesNode";
-import CombineRelationshipShapesNode from "./notation_representations/nodes/CombineRelationshipShapesNode";
-import CombineRoleShapesNode from "./notation_representations/nodes/CombineRoleShapesNode";
+import { DragData, Notation, Notations } from "../../types/types";
+import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
+import CombineRelationshipShapesNode from "../notation_representations/nodes/CombineRelationshipShapesNode";
+import CombineRoleShapesNode from "../notation_representations/nodes/CombineRoleShapesNode";
 
-interface PaletteProps {
+interface PaletteEditorPanelProps {
   title: string | undefined;
   notations: Notations;
 }
 
-const Palette = ({ title, notations }: PaletteProps) => {
+const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
   const onDragStart = (event: React.DragEvent, notation: Notation) => {
     const dragData: DragData = {
       notation: notation,
@@ -120,4 +120,4 @@ const Palette = ({ title, notations }: PaletteProps) => {
   );
 };
 
-export default Palette;
+export default PaletteEditorPanel;

@@ -14,7 +14,7 @@ import {
 import React from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
-import { Notation, Property } from "../types/types";
+import { Notation, Property } from "../../types/types";
 
 interface NotationDesignerConfigurePanelProps {
   selectedNotationType: string;
@@ -45,8 +45,10 @@ function NotationDesignerConfigurePanel({
 }: NotationDesignerConfigurePanelProps) {
   return (
     <>
+      <h2 className="text-xl font-bold">Configure Panel</h2>
+      <br />
       {/* Notation type selection */}
-      <FormControl>
+      <FormControl className="w-1/3">
         <InputLabel>Select Category</InputLabel>
         <Select
           value={selectedNotationType || ""}
@@ -60,26 +62,27 @@ function NotationDesignerConfigurePanel({
 
       {/* Package name */}
       <TextField
+        className="w-1/3"
         label="Package Name"
         value={packageName}
         onChange={(e) => setPackageName(e.target.value)}
-        fullWidth
         margin="normal"
       />
 
       {/* Notation Name */}
       <TextField
+        className="w-1/3"
         label="Notation Name"
         value={currentNotation.name}
         onChange={(e) =>
           setCurrentNotation({ ...currentNotation, name: e.target.value })
         }
-        fullWidth
         margin="normal"
       />
 
       {/* Description */}
       <TextField
+        className="w-1/3"
         label="Description"
         value={currentNotation.description}
         onChange={(e) =>
@@ -88,59 +91,61 @@ function NotationDesignerConfigurePanel({
             description: e.target.value,
           })
         }
-        fullWidth
         margin="normal"
         multiline
       />
+      <br />
 
       {/* Properties Section */}
       <h3>Properties</h3>
-      <List>
-        {currentNotation.properties.map((prop, index) => (
-          <ListItem key={index}>
-            <ListItemText
-              primary={`${prop.name} (${prop.dataType})`}
-              secondary={prop.defaultValue?.toString() || ""}
-            />
-            <ListItemSecondaryAction>
-              <IconButton
-                edge="end"
-                onClick={() =>
-                  setCurrentNotation({
-                    ...currentNotation,
-                    properties: currentNotation.properties.filter(
-                      (_, i) => i !== index
-                    ),
-                  })
-                }
-              >
-                <DeleteIcon />
-              </IconButton>
-            </ListItemSecondaryAction>
-          </ListItem>
-        ))}
-      </List>
+      {currentNotation.properties.length > 0 && (
+        <List>
+          {currentNotation.properties.map((prop, index) => (
+            <ListItem key={index}>
+              <ListItemText
+                primary={`${prop.name} (${prop.dataType})`}
+                secondary={prop.defaultValue?.toString() || ""}
+              />
+              <ListItemSecondaryAction>
+                <IconButton
+                  edge="end"
+                  onClick={() =>
+                    setCurrentNotation({
+                      ...currentNotation,
+                      properties: currentNotation.properties.filter(
+                        (_, i) => i !== index
+                      ),
+                    })
+                  }
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </ListItemSecondaryAction>
+            </ListItem>
+          ))}
+        </List>
+      )}
       <div className="flex">
         <TextField
+          className="w-1/3"
           label="Property Name"
           value={newProperty.name}
           onChange={(e) =>
             setNewProperty({ ...newProperty, name: e.target.value })
           }
-          fullWidth
           margin="normal"
         />
         <TextField
+          className="w-1/3"
           label="Data Type"
           value={newProperty.dataType}
           onChange={(e) =>
             setNewProperty({ ...newProperty, dataType: e.target.value })
           }
-          fullWidth
           margin="normal"
         />
-        <IconButton onClick={handleAddProperty}>
-          <AddIcon />
+        <IconButton onClick={handleAddProperty} size="small">
+          <AddIcon fontSize="small" />
         </IconButton>
       </div>
 

@@ -9,9 +9,9 @@ import {
   Property,
 } from "../../../types/types";
 import { Handle, NodeResizer, Position } from "@xyflow/react";
-import dataTypeHelper from "../helpers/TypeHelper";
-import Modal from "../ui_elements/Modal";
-import CustomModal from "../ui_elements/Modal";
+import dataTypeHelper from "../../helpers/TypeHelper";
+import Modal from "../../ui_elements/Modal";
+import CustomModal from "../../ui_elements/Modal";
 import RenderConnectors from "./components/RenderConnectors";
 import ModalDoubleClickNotation from "./components/modals/first_layer/ModalDoubleClickNotation";
 import ModalAddAttribute from "./components/modals/second_layer/ModalAddAttribute";

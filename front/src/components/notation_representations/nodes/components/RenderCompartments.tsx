@@ -5,7 +5,7 @@ import {
   NotationRepresentationItem,
   Operation,
 } from "../../../../types/types";
-import typeHelper from "../../helpers/TypeHelper";
+import typeHelper from "../../../helpers/TypeHelper";
 
 interface RenderCompartmentsProps {
   compartments: NotationRepresentationItem[];

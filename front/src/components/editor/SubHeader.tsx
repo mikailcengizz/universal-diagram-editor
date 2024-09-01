@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import ArrowDropDownOutlinedIcon from "@mui/icons-material/ArrowDropDownOutlined";
-import configService from "../services/ConfigService";
-import { ConfigListItem } from "../types/types";
+import configService from "../../services/ConfigService";
+import { ConfigListItem } from "../../types/types";
 import { ArrowRightOutlined } from "@mui/icons-material";
 import * as htmlToImage from "html-to-image";
 import { saveAs } from "file-saver";

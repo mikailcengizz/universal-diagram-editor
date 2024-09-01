@@ -7,8 +7,7 @@ import {
   Notations,
   NotationType,
   Property,
-  StyleProperties,
-} from "../types/types";
+} from "../../types/types";
 import axios from "axios";
 import { SelectChangeEvent } from "@mui/material";
 import NotationDesignerConfigurePanel from "./NotationDesignerConfigurePanel";
@@ -164,6 +163,13 @@ const NotationDesigner = () => {
       updatedNotations.roles.push(currentNotation);
     }
     setNotations(updatedNotations);
+    setCurrentNotation({
+      name: "",
+      type: "object",
+      properties: [],
+      description: "",
+      graphicalRepresentation: [],
+    });
   };
 
   const exportConfig = () => {
@@ -182,12 +188,17 @@ const NotationDesigner = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white min-h-screen w-full">
-      <div className="bg-[#1B1B20] px-8 py-2">
-        <span>
-          Go to {isConfigurePanelOpen ? "draw panel" : "configure panel"}
-        </span>
+    <div className="flex flex-col h-full bg-white min-h-screen px-12 pt-4 w-full">
+      <div className="w-full">
+        <div
+          className="bg-[#1B1B20] px-8 py-2 w-fit rounded-md text-white cursor-pointer float-right"
+          onClick={() => setIsConfigurePanelOpen(!isConfigurePanelOpen)}
+        >
+          Switch to {isConfigurePanelOpen ? "draw panel" : "configure panel"}
+        </div>
       </div>
+      <br />
+
       {isConfigurePanelOpen ? (
         <NotationDesignerConfigurePanel
           selectedNotationType={selectedNotationType!}

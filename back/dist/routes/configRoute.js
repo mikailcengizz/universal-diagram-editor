@@ -30,7 +30,6 @@ router.get("/list", (req, res) => {
         const configs = files.map((file) => {
             const content = fs.readFileSync(`${configDir}/${file}`, "utf-8");
             const config = JSON.parse(content);
-            console.log("Returning config list", config.packageName);
             return { filename: file, name: config.packageName };
         });
         res.json(configs);

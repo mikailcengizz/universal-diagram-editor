@@ -1,7 +1,7 @@
 import React from "react";
-import CustomModal from "../../../../ui_elements/Modal";
+import CustomModal from "../../../../../ui_elements/Modal";
 import { CustomNodeData, Operation } from "../../../../../../types/types";
-import typeHelper from "../../../../helpers/TypeHelper";
+import typeHelper from "../../../../../helpers/TypeHelper";
 
 interface ModalAddOperationProps {
   data: CustomNodeData;
