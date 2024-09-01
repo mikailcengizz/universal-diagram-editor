@@ -1,7 +1,12 @@
 import React from "react";
 import CustomModal from "../../../../ui_elements/Modal";
-import { CustomNodeData } from "../../../../../../types/types";
-import dataTypeHelper from "../../../../helpers/DataTypeHelper";
+import {
+  Attribute,
+  CustomNodeData,
+  Operation,
+} from "../../../../../../types/types";
+import dataTypeHelper from "../../../../helpers/TypeHelper";
+import typeHelper from "../../../../helpers/TypeHelper";
 
 interface ModalDoubleClickNotationProps {
   isNodeModalOpen: boolean;
@@ -37,6 +42,17 @@ function ModalDoubleClickNotation({
           const propertyDataType = property.dataType;
 
           if (propertyDataType === "Collection") {
+            if (property.elementType === "Operation") {
+              console.log("property.defaultValue", property.defaultValue);
+              console.log(
+                "Array.isArray(property.defaultValue)",
+                Array.isArray(property.defaultValue)
+              );
+              console.log(
+                "(property.defaultValue as Array<Operation>)",
+                property.defaultValue as Array<Operation>
+              );
+            }
             // show a text area for all items in the collection and
             // allow the user to add items through a new modal by clicking a button and
             // allow the user to remove items by selecting the item and clicking a remove button
@@ -47,19 +63,40 @@ function ModalDoubleClickNotation({
                 {/* Show all items in the collection */}
                 <div className="bg-white h-10 overflow-y-scroll">
                   {property.defaultValue &&
-                    (property.defaultValue as Array<any>).map(
-                      (item: any, idx: number) => (
-                        <div key={idx}>
-                          {item.name}: {item.dataType} [{item.multiplicity}]
-                          {item.visibility &&
-                            `, Visibility: ${item.visibility}`}
-                          {item.unique && ", Unique"}
-                          {item.derived && ", Derived"}
-                          {item.constraints &&
-                            `, Constraints: ${item.constraints}`}
-                          {` = ${item.defaultValue}`}
-                        </div>
-                      )
+                    Array.isArray(property.defaultValue) && (
+                      <>
+                        {property.elementType === "Attribute" &&
+                          (property.defaultValue as Array<Attribute>).map(
+                            (item: Attribute, idx: number) => (
+                              <div key={idx}>
+                                {typeHelper.determineVisibilityIcon(
+                                  item.visibility
+                                )}{" "}
+                                {item.name}: {item.dataType}{" "}
+                                {item.multiplicity && [item.multiplicity]}
+                                {item.defaultValue && ` = ${item.defaultValue}`}
+                              </div>
+                            )
+                          )}
+
+                        {property.elementType === "Operation" &&
+                          (property.defaultValue as Array<Operation>).map(
+                            (item: Operation, idx: number) => (
+                              <div key={idx}>
+                                {typeHelper.determineVisibilityIcon(
+                                  item.visibility
+                                )}{" "}
+                                {item.name}(
+                                {item.parameters.map((parameter, index) => (
+                                  <span key={index}>
+                                    {parameter.name}: {parameter.dataType}
+                                  </span>
+                                ))}
+                                ): {item.returnType}
+                              </div>
+                            )
+                          )}
+                      </>
                     )}
                 </div>
                 <br />
@@ -85,6 +122,7 @@ function ModalDoubleClickNotation({
             );
           }
 
+          // Properties that are not collections
           return (
             <div key={index}>
               <label>{property.name}</label>

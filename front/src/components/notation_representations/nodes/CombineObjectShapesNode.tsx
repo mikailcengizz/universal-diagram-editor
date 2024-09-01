@@ -9,7 +9,7 @@ import {
   Property,
 } from "../../../types/types";
 import { Handle, NodeResizer, Position } from "@xyflow/react";
-import dataTypeHelper from "../helpers/DataTypeHelper";
+import dataTypeHelper from "../helpers/TypeHelper";
 import Modal from "../ui_elements/Modal";
 import CustomModal from "../ui_elements/Modal";
 import RenderConnectors from "./components/RenderConnectors";
@@ -66,7 +66,7 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
     dataType: "",
     defaultValue: "",
     multiplicity: "",
-    visibility: "",
+    visibility: "public",
     unique: false,
     derived: false,
     constraints: "",
@@ -78,7 +78,7 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
     preconditions: "",
     postconditions: "",
     body: "",
-    visibility: "",
+    visibility: "public",
   });
   const [modifyingParameter, setModifyingParameter] = useState<Parameter>({
     name: "",
@@ -87,7 +87,6 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
   });
 
   let adjustedRepresentation: NotationRepresentationItem[] = [];
-  console.log("initialData", initialData);
   if (initialData.notation.graphicalRepresentation.length > 0) {
     const validGraphicalItems =
       initialData.notation.graphicalRepresentation.filter(
@@ -97,7 +96,6 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
           item.position.y !== undefined
       ); // Only filter out connectors if isPalette is true
     // sometimes the x and y are undefined when the notation is on the canvas
-    console.log("validGraphicalItems", validGraphicalItems);
 
     // only adjust the representation if there are valid graphical items
     if (validGraphicalItems.length > 0) {
@@ -119,11 +117,6 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
           if (item.position.y === minY) {
             newY = 0; // if the y is the minimum, set it to 0 so that it starts from the top
           }
-          console.log("item", item);
-          console.log("minX", minX);
-          console.log("minY", minY);
-          console.log("newX", newX);
-          console.log("newY", newY);
 
           return {
             ...item,
@@ -137,8 +130,6 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
       );
     }
   }
-
-  console.log("adjustedRepresentation", adjustedRepresentation);
 
   // Calculate scale factor based on container size and max element size
   useEffect(() => {
@@ -177,13 +168,24 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
     event: any,
     { width, height }: { width: number; height: number }
   ) => {
+    // Calculate the aspect ratio of the container
     const aspectRatio = containerSize.width / containerSize.height;
+
+    // Maintain aspect ratio: calculate the new height based on the aspect ratio and the new width
     const newWidth = width;
     const newHeight = newWidth / aspectRatio;
+
+    // Calculate the new scale factor based on the width change
     const newScale = newWidth / containerSize.width;
 
+    // Update the container size and scale
     setContainerSize({ width: newWidth, height: newHeight });
     setScale(newScale);
+
+    // Update the container's transform style to apply the new scale
+    if (containerRef.current) {
+      containerRef.current.style.transform = `scale(${newScale})`;
+    }
   };
 
   // Handle text change
@@ -213,11 +215,9 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
     );
 
     if (attributesProperty) {
-      console.log("attributesProperty", attributesProperty);
       const attributes = attributesProperty.defaultValue
         ? (attributesProperty.defaultValue as Array<any>)
         : [];
-      console.log("attributes", attributes);
 
       attributes.push({ ...modifiyingAttribute });
 
@@ -232,7 +232,7 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
       dataType: "",
       defaultValue: "",
       multiplicity: "",
-      visibility: "",
+      visibility: "public",
       unique: false,
       derived: false,
       constraints: "",
@@ -278,7 +278,7 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
       preconditions: "",
       postconditions: "",
       body: "",
-      visibility: "",
+      visibility: "public",
     });
     setIsNodeOperationModalOpen(false);
   };
@@ -294,10 +294,19 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
         ? (operationProperty.defaultValue as Array<any>)
         : [];
       const newModifyingOperation = { ...modifyingOperation };
-      newModifyingOperation.parameters = [
-        ...newModifyingOperation.parameters,
-        { ...modifyingParameter },
-      ];
+
+      // Find the index of the parameter we are modifying
+      const parameterIndex = newModifyingOperation.parameters.findIndex(
+        (parameter) => parameter.name === modifyingParameter.name
+      );
+
+      // If the parameter already exists, update it
+      if (parameterIndex !== -1) {
+        newModifyingOperation.parameters[parameterIndex] = modifyingParameter;
+      } else {
+        // Otherwise, add the new parameter
+        newModifyingOperation.parameters.push(modifyingParameter);
+      }
 
       // Find the index of the operation we are modifying
       const operationIndex = operations.findIndex(
@@ -314,6 +323,7 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
 
       operationProperty.defaultValue = operations;
 
+      setModifyingOperation(newModifyingOperation);
       setData({ ...data });
     }
   };
@@ -323,11 +333,9 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
   const rectangles = adjustedRepresentation.filter(
     (representationItem) => representationItem.shape === "square"
   );
-  console.log("adjusted rectangles", rectangles);
   const compartments = adjustedRepresentation.filter(
     (representationItem) => representationItem.shape === "compartment"
   );
-  console.log("adjusted compartments", compartments);
   const texts = adjustedRepresentation.filter(
     (representationItem) => representationItem.shape === "text"
   );

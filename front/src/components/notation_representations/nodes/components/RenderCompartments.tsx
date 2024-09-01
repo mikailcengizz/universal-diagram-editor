@@ -1,8 +1,11 @@
 import React from "react";
 import {
+  Attribute,
   CustomNodeData,
   NotationRepresentationItem,
+  Operation,
 } from "../../../../types/types";
+import typeHelper from "../../helpers/TypeHelper";
 
 interface RenderCompartmentsProps {
   compartments: NotationRepresentationItem[];
@@ -24,8 +27,6 @@ function RenderCompartments({
           const attributeProperty = data.notation.properties.find(
             (prop) => prop.elementType === "Attribute"
           )!;
-          console.log("generating attributes", attributeProperty);
-          console.log("compartment", compartment);
 
           const attributeHeight = compartment.position.extent?.height || 10; // Default height for each attribute
           const compartmentX = compartment.position.x;
@@ -34,7 +35,7 @@ function RenderCompartments({
           return (
             <>
               {attributeProperty.defaultValue &&
-                (attributeProperty.defaultValue as Array<any>).map(
+                (attributeProperty.defaultValue as Array<Attribute>).map(
                   (attribute, idx) => (
                     <div
                       key={idx}
@@ -57,15 +58,13 @@ function RenderCompartments({
                       }}
                     >
                       <div key={idx}>
-                        {attribute.name}: {attribute.dataType} [
-                        {attribute.multiplicity}]
-                        {attribute.visibility &&
-                          `, Visibility: ${attribute.visibility}`}
-                        {attribute.unique && ", Unique"}
-                        {attribute.derived && ", Derived"}
-                        {attribute.constraints &&
-                          `, Constraints: ${attribute.constraints}`}
-                        {` = ${attribute.defaultValue}`}
+                        {typeHelper.determineVisibilityIcon(
+                          attribute.visibility
+                        )}{" "}
+                        {attribute.name}: {attribute.dataType}{" "}
+                        {attribute.multiplicity && [attribute.multiplicity]}
+                        {attribute.defaultValue &&
+                          ` = ${attribute.defaultValue}`}
                       </div>
                     </div>
                   )
@@ -76,8 +75,6 @@ function RenderCompartments({
           const operationProperty = data.notation.properties.find(
             (prop) => prop.elementType === "Operation"
           )!;
-          console.log("generating operations", operationProperty);
-          console.log("compartment", compartment);
 
           const operationHeight = compartment.position.extent?.height || 10; // Default height for each operation
           const compartmentX = compartment.position.x;
@@ -86,7 +83,7 @@ function RenderCompartments({
           return (
             <>
               {operationProperty.defaultValue &&
-                (operationProperty.defaultValue as Array<any>).map(
+                (operationProperty.defaultValue as Array<Operation>).map(
                   (operation, idx) => (
                     <div
                       key={idx}
@@ -109,15 +106,18 @@ function RenderCompartments({
                       }}
                     >
                       <div key={idx}>
-                        {operation.name}: {operation.dataType} [
-                        {operation.multiplicity}]
-                        {operation.visibility &&
-                          `, Visibility: ${operation.visibility}`}
-                        {operation.unique && ", Unique"}
-                        {operation.derived && ", Derived"}
-                        {operation.constraints &&
-                          `, Constraints: ${operation.constraints}`}
-                        {` = ${operation.defaultValue}`}
+                        {typeHelper.determineVisibilityIcon(
+                          operation.visibility
+                        )}{" "}
+                        {operation.name}
+                        {operation.parameters.map((parameter, index) => (
+                          <span key={index}>
+                            {parameter.name}: {parameter.dataType}{" "}
+                            {parameter.defaultValue &&
+                              `= ${parameter.defaultValue}`}
+                          </span>
+                        ))}
+                        {operation.returnType && `: ${operation.returnType}`}
                       </div>
                     </div>
                   )

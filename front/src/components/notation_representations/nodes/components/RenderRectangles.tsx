@@ -10,8 +10,6 @@ function RenderRectangles({ rectangles, isPalette }: RenderRectanglesProps) {
   return (
     <>
       {rectangles.map((rect, index) => {
-        console.log("rect", rect);
-
         return (
           <div
             key={index}

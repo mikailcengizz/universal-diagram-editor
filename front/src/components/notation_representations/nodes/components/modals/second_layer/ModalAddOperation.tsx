@@ -1,6 +1,7 @@
 import React from "react";
 import CustomModal from "../../../../ui_elements/Modal";
 import { CustomNodeData, Operation } from "../../../../../../types/types";
+import typeHelper from "../../../../helpers/TypeHelper";
 
 interface ModalAddOperationProps {
   data: CustomNodeData;
@@ -47,26 +48,26 @@ function ModalAddOperation({
       />
       <br />
       <label>Parameters</label>
+
       <br />
       {/* Show all parameters of the operation we are adding or modifying */}
       <div className="bg-white h-10 overflow-y-scroll">
         {operationProperty &&
           operationProperty.defaultValue &&
-          (operationProperty.defaultValue as any[]).map((operation, index) => {
-            return (
-              <div key={index}>
-                {operation.name}: {operation.dataType} [{operation.multiplicity}
-                ]
-                {operation.visibility &&
-                  `, Visibility: ${operation.visibility}`}
-                {operation.unique && ", Unique"}
-                {operation.derived && ", Derived"}
-                {operation.constraints &&
-                  `, Constraints: ${operation.constraints}`}
-                {` = ${operation.defaultValue}`}
-              </div>
-            );
-          })}
+          (operationProperty.defaultValue as Operation[]).map(
+            (operation, index) => {
+              return (
+                <div key={index}>
+                  {operation.parameters.map((parameter, index) => (
+                    <span key={index}>
+                      {parameter.name}: {parameter.dataType}{" "}
+                      {parameter.defaultValue && `= ${parameter.defaultValue}`}
+                    </span>
+                  ))}
+                </div>
+              );
+            }
+          )}
       </div>
       <br />
       {/* Add and remove buttons for parameters */}
