@@ -1,14 +1,25 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
+  Attribute,
   CustomNodeData,
   Notation,
   NotationRepresentationItem,
+  Operation,
+  Parameter,
   Property,
 } from "../../../types/types";
 import { Handle, NodeResizer, Position } from "@xyflow/react";
 import dataTypeHelper from "../helpers/DataTypeHelper";
 import Modal from "../ui_elements/Modal";
 import CustomModal from "../ui_elements/Modal";
+import RenderConnectors from "./components/RenderConnectors";
+import ModalDoubleClickNotation from "./components/modals/first_layer/ModalDoubleClickNotation";
+import ModalAddAttribute from "./components/modals/second_layer/ModalAddAttribute";
+import ModalAddParameter from "./components/modals/third_layer/ModalAddParameter";
+import ModalAddOperation from "./components/modals/second_layer/ModalAddOperation";
+import RenderTexts from "./components/RenderTexts";
+import RenderCompartments from "./components/RenderCompartments";
+import RenderRectangles from "./components/RenderRectangles";
 
 interface CombineObjectShapesNodeProps {
   id: string;
@@ -49,7 +60,8 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
     useState(false); // second layer modal for node attributes
   const [isNodeOperationModalOpen, setIsNodeOperationModalOpen] =
     useState(false); // second layer modal for node operations
-  const [newAttribute, setNewAttribute] = useState({
+  const [isAddParameterModalOpen, setIsAddParameterModalOpen] = useState(false); // third layer modal for adding parameters to operations
+  const [modifiyingAttribute, setModifyingAttribute] = useState<Attribute>({
     name: "",
     dataType: "",
     defaultValue: "",
@@ -58,6 +70,20 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
     unique: false,
     derived: false,
     constraints: "",
+  });
+  const [modifyingOperation, setModifyingOperation] = useState<Operation>({
+    name: "",
+    parameters: [],
+    returnType: "",
+    preconditions: "",
+    postconditions: "",
+    body: "",
+    visibility: "",
+  });
+  const [modifyingParameter, setModifyingParameter] = useState<Parameter>({
+    name: "",
+    dataType: "",
+    defaultValue: "",
   });
 
   let adjustedRepresentation: NotationRepresentationItem[] = [];
@@ -193,7 +219,7 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
         : [];
       console.log("attributes", attributes);
 
-      attributes.push({ ...newAttribute });
+      attributes.push({ ...modifiyingAttribute });
 
       attributesProperty.defaultValue = attributes;
 
@@ -201,7 +227,7 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
     }
 
     // Reset and close the modal
-    setNewAttribute({
+    setModifyingAttribute({
       name: "",
       dataType: "",
       defaultValue: "",
@@ -245,179 +271,30 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
       }}
     >
       {/* Render rectangles in the background */}
-      {rectangles.map((rect, index) => {
-        console.log("rect", rect);
-
-        return (
-          <div
-            key={index}
-            style={{
-              position: "absolute",
-              left: `${rect.position.x}px`,
-              top: `${rect.position.y}px`,
-              width: `${rect.position.extent?.width || 100}px`,
-              height: `${rect.position.extent?.height || 100}px`,
-              backgroundColor: rect.style.backgroundColor,
-              borderColor: rect.style.borderColor,
-              borderWidth: rect.style.borderWidth,
-              borderStyle: rect.style.borderStyle,
-            }}
-          />
-        );
-      })}
+      <RenderRectangles rectangles={rectangles} isPalette={isPalette} />
 
       {/* Render compartments */}
-      {compartments.map((compartment, index) => {
-        const generatorName = compartment.generator;
-
-        if (generatorName === "attributesForNotation") {
-          const attributeProperty = data.notation.properties.find(
-            (prop) => prop.elementType === "Attribute"
-          )!;
-          console.log("generating attributes", attributeProperty);
-          console.log("compartment", compartment);
-
-          return (
-            <>
-              {attributeProperty.defaultValue &&
-                (attributeProperty.defaultValue as Array<any>).map(
-                  (attribute, idx) => (
-                    <div
-                      key={index}
-                      style={{
-                        position: "absolute",
-                        left: `${compartment.position.x}px`,
-                        top: `${compartment.position.y}px`,
-                        width: `${compartment.position.extent?.width || 100}px`,
-                        height: `${
-                          compartment.position.extent?.height || 10
-                        }px`,
-                        maxWidth: `${
-                          compartment.position.extent?.width || 100
-                        }px`,
-                        maxHeight: `${
-                          compartment.position.extent?.height || 10
-                        }px`,
-                        borderLeft: "transparent",
-                        borderTopColor: "black",
-                        borderWidth: 1,
-                        fontSize: `${compartment.style.fontSize}px`,
-                        zIndex: 2,
-                        wordWrap: "break-word",
-                        padding: "2px 5px",
-                        overflowX: "hidden",
-                        overflowY: "scroll",
-                      }}
-                    >
-                      <div key={idx}>
-                        {attribute.name}: {attribute.dataType} [
-                        {attribute.multiplicity}]
-                        {attribute.visibility &&
-                          `, Visibility: ${attribute.visibility}`}
-                        {attribute.unique && ", Unique"}
-                        {attribute.derived && ", Derived"}
-                        {attribute.constraints &&
-                          `, Constraints: ${attribute.constraints}`}
-                        {` = ${attribute.defaultValue}`}
-                      </div>
-                    </div>
-                  )
-                )}
-            </>
-          );
-        } else if (generatorName === "operationsForNotation") {
-        }
-
-        /* Default case for rendering direct text and not generator elements */
-        return (
-          <div
-            key={index}
-            style={{
-              position: "absolute",
-              left: `${compartment.position.x}px`,
-              top: `${compartment.position.y}px`,
-              width: `${compartment.position.extent?.width || 100}px`,
-              height: `${compartment.position.extent?.height || 10}px`,
-              borderColor: "transparent",
-              borderWidth: 0,
-            }}
-          />
-        );
-      })}
+      <RenderCompartments
+        compartments={compartments}
+        data={data}
+        isPalette={isPalette}
+      />
 
       {/* Render texts in the front */}
-      {texts.map((textItem, idx) => {
-        const originalIndex = data.notation.graphicalRepresentation.findIndex(
-          (item) => item === textItem
-        );
-        const propertyFromText = data.notation.properties.find(
-          (prop) => prop.name === textItem.text
-        );
-
-        // we dont want editable field in palette notations
-        if (isPalette) {
-          return (
-            <span
-              key={idx}
-              style={{
-                position: "absolute",
-                left: `${textItem.position.x}px`,
-                top: `${textItem.position.y}px`,
-                width: `${textItem.position.extent?.width || 100}px`,
-                height: `${textItem.position.extent?.height || 20}px`,
-                color: textItem.style.color,
-                fontSize: `${textItem.style.fontSize}px`,
-                textAlign: textItem.style.alignment as
-                  | "left"
-                  | "center"
-                  | "right",
-              }}
-            >
-              {textItem.text}
-            </span>
-          );
-        } else {
-          return (
-            <input
-              key={idx}
-              type={dataTypeHelper.determineInputFieldType(
-                propertyFromText!.dataType
-              )}
-              style={{
-                position: "absolute",
-                left: `${textItem.position.x}px`,
-                top: `${textItem.position.y}px`,
-                width: `${textItem.position.extent?.width || 100}px`,
-                height: `${textItem.position.extent?.height || 20}px`,
-                color: textItem.style.color,
-                backgroundColor: "transparent",
-                fontSize: `${textItem.style.fontSize}px`,
-                textAlign: textItem.style.alignment as
-                  | "left"
-                  | "center"
-                  | "right",
-              }}
-              value={propertyFromText?.defaultValue as string | number}
-              onChange={(e) =>
-                handleTextChange(e, originalIndex, propertyFromText)
-              }
-            />
-          );
-        }
-      })}
+      <RenderTexts
+        data={data}
+        handleTextChange={handleTextChange}
+        isPalette={isPalette}
+        texts={texts}
+      />
 
       {/* Render connectors in the front */}
-      {!isPalette &&
-        id &&
-        connectors.map((connector, index) => (
-          <Handle
-            type={connector.style.alignment === "left" ? "source" : "target"} // can not set exact position on connector so will stick with this for now
-            position={connector.style.alignment as Position} // temp
-            style={{ background: connector.style.color }}
-            id={`source-${index}`}
-            key={index}
-          />
-        ))}
+      <RenderConnectors
+        isPalette={isPalette}
+        connectors={connectors}
+        id={id}
+        key={id}
+      />
 
       {/* Node resizer */}
       {!isPalette && selected && (
@@ -431,184 +308,45 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
       )}
 
       {/* Modal for double click */}
-      <CustomModal
-        isOpen={isNodeModalOpen}
-        onClose={() => setIsNodeModalOpen(false)}
-        zIndex={5}
-      >
-        <h2 className="font-semibold">{data.notation.name} Details</h2>
-
-        <div>
-          {data.notation.properties.map((property, index) => {
-            const propertyDataType = property.dataType;
-
-            if (propertyDataType === "Collection") {
-              // show a text area for all items in the collection and
-              // allow the user to add items through a new modal by clicking a button and
-              // allow the user to remove items by selecting the item and clicking a remove button
-              return (
-                <div key={index}>
-                  <label>{property.name}</label>
-                  <br />
-                  {/* Show all items in the collection */}
-                  <div className="bg-white h-10 overflow-y-scroll">
-                    {property.defaultValue &&
-                      (property.defaultValue as Array<any>).map(
-                        (item: any, idx: number) => (
-                          <div key={idx}>
-                            {item.name}: {item.dataType} [{item.multiplicity}]
-                            {item.visibility &&
-                              `, Visibility: ${item.visibility}`}
-                            {item.unique && ", Unique"}
-                            {item.derived && ", Derived"}
-                            {item.constraints &&
-                              `, Constraints: ${item.constraints}`}
-                            {` = ${item.defaultValue}`}
-                          </div>
-                        )
-                      )}
-                  </div>
-                  <br />
-                  {/* Add and remove buttons */}
-                  <div className="flex flex-row w-full">
-                    <div
-                      className="w-1/2 bg-black text-white text-center cursor-pointer"
-                      onClick={() => {
-                        if (property.elementType === "Attribute") {
-                          setIsNodeAttributeModalOpen(true);
-                        } else if (property.elementType === "Operation") {
-                          setIsNodeOperationModalOpen(true);
-                        }
-                      }}
-                    >
-                      Add
-                    </div>
-                    <div className="w-1/2 text-center border-[1px] border-solid border-black cursor-pointer">
-                      Remove
-                    </div>
-                  </div>
-                </div>
-              );
-            }
-
-            return (
-              <div key={index}>
-                <label>{property.name}</label>
-                <input
-                  type={dataTypeHelper.determineInputFieldType(
-                    property.dataType
-                  )}
-                  value={property.defaultValue as string | number}
-                  onChange={(e) => {
-                    property.defaultValue = e.target.value;
-                    setData({ ...data });
-                  }}
-                />
-              </div>
-            );
-          })}
-        </div>
-      </CustomModal>
+      <ModalDoubleClickNotation
+        data={data}
+        isNodeAttributeModalOpen={isNodeAttributeModalOpen}
+        isNodeModalOpen={isNodeModalOpen}
+        isNodeOperationModalOpen={isNodeOperationModalOpen}
+        setData={setData}
+        setIsNodeAttributeModalOpen={setIsNodeAttributeModalOpen}
+        setIsNodeModalOpen={setIsNodeModalOpen}
+        setIsNodeOperationModalOpen={setIsNodeOperationModalOpen}
+      />
 
       {/* Attribute modal */}
       {/* Add or modify attributes */}
-      <CustomModal
-        isOpen={isNodeAttributeModalOpen}
-        onClose={() => setIsNodeAttributeModalOpen(false)}
-        zIndex={10}
-      >
-        <h2>Attribute</h2>
-        {/* TODO: temporary hard coded fields, we need to get these from somewhere where an attribute can be defined*/}
-        <label>Name</label>
-        <br />
-        <input
-          type="text"
-          value={newAttribute.name}
-          onChange={(e) =>
-            setNewAttribute({ ...newAttribute, name: e.target.value })
-          }
-        />
-        <br />
-        <label>Data type</label>
-        <br />
-        <input
-          type="text"
-          value={newAttribute.dataType}
-          onChange={(e) =>
-            setNewAttribute({ ...newAttribute, dataType: e.target.value })
-          }
-        />
-        <label>Default value</label>
-        <br />
-        <input
-          type="text"
-          value={newAttribute.defaultValue}
-          onChange={(e) =>
-            setNewAttribute({ ...newAttribute, defaultValue: e.target.value })
-          }
-        />
-        <label>Multiplicity</label>
-        <br />
-        <select
-          name="multiplicity"
-          value={newAttribute.multiplicity}
-          onChange={(e) =>
-            setNewAttribute({ ...newAttribute, multiplicity: e.target.value })
-          }
-        >
-          <option value="0..1">0..1</option>
-          <option value="0..*">0..*</option>
-          <option value="1">1</option>
-          <option value="1..*">1..*</option>
-          <option value="*">*</option>
-        </select>
-        <br />
-        <label>Visibility</label>
-        <br />
-        <select
-          name="visibility"
-          value={newAttribute.visibility}
-          onChange={(e) =>
-            setNewAttribute({ ...newAttribute, visibility: e.target.value })
-          }
-        >
-          <option value="public">public</option>
-          <option value="protected">protected</option>
-          <option value="private">private</option>
-          <option value="package">package</option>
-          <option value="published">published</option>
-        </select>
-        <br />
-        <label>Unique</label>
-        <input
-          type="checkbox"
-          name="unique"
-          checked={newAttribute.unique}
-          onChange={(e) =>
-            setNewAttribute({ ...newAttribute, unique: e.target.checked })
-          }
-        />
-        <br />
-        <label>Derived</label>
-        <input
-          type="checkbox"
-          name="derived"
-          checked={newAttribute.derived}
-          onChange={(e) =>
-            setNewAttribute({ ...newAttribute, derived: e.target.checked })
-          }
-        />
-        <br />
-        <label>Constraints</label>
-        <br />
-        <textarea name="constraints" />
-        <button
-          className="bg-black text-white px-2 py-[2px] font-semibold"
-          onClick={handleAttributeSubmit}
-        >
-          Add Attribute
-        </button>
-      </CustomModal>
+      <ModalAddAttribute
+        handleAttributeSubmit={handleAttributeSubmit}
+        isNodeAttributeModalOpen={isNodeAttributeModalOpen}
+        newAttribute={modifiyingAttribute}
+        setIsNodeAttributeModalOpen={setIsNodeAttributeModalOpen}
+        setNewAttribute={setModifyingAttribute}
+      />
+
+      {/* Operation modal */}
+      {/* Add or modify operations */}
+      <ModalAddOperation
+        data={data}
+        isNodeOperationModalOpen={isNodeOperationModalOpen}
+        modifyingOperation={modifyingOperation}
+        setModifyingOperation={setModifyingOperation}
+        setIsNodeOperationModalOpen={setIsNodeOperationModalOpen}
+        setIsAddParameterModalOpen={setIsAddParameterModalOpen}
+      />
+
+      {/* Add parameter modal */}
+      <ModalAddParameter
+        isAddParameterModalOpen={isAddParameterModalOpen}
+        setIsAddParameterModalOpen={setIsAddParameterModalOpen}
+        modifyingParameter={modifyingParameter}
+        setModifyingParameter={setModifyingParameter}
+      />
     </div>
   );
 };

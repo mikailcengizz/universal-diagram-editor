@@ -65,6 +65,33 @@ export interface Property {
   isUnique: boolean;
 }
 
+export interface Attribute {
+  name: string;
+  dataType: string;
+  defaultValue: string;
+  multiplicity: string;
+  visibility: string;
+  unique: boolean;
+  derived: boolean;
+  constraints: string;
+}
+
+export interface Operation {
+  name: string;
+  parameters: Parameter[];
+  returnType: string;
+  preconditions: string;
+  postconditions: string;
+  body: string;
+  visibility: string;
+}
+
+export interface Parameter {
+  name: string;
+  dataType: string;
+  defaultValue: string;
+}
+
 // DIAGRAM EDITOR
 
 export interface CustomNodeData {

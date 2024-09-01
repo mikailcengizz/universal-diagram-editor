@@ -78,7 +78,10 @@
             "style": {
               "color": "#000000",
               "fontSize": 14,
-              "alignment": "center"
+              "alignment": "center",
+              "borderColor": "#000000",
+              "borderWidth": 1,
+              "borderStyle": "solid"
             },
             "position": {
               "x": 30,
@@ -102,7 +105,7 @@
               "y": 180,
               "extent": {
                 "width": 100,
-                "height": 20
+                "height": 30
               }
             }
           },
@@ -119,7 +122,7 @@
               "y": 200,
               "extent": {
                 "width": 100,
-                "height": 10
+                "height": 30
               }
             }
           },
