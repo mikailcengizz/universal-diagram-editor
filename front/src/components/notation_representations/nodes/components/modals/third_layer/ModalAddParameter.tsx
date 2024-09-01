@@ -14,6 +14,7 @@ interface ModalAddParameterProps {
     dataType: string;
     defaultValue: string;
   }) => void;
+  handleParameterSubmit: () => void;
 }
 
 function ModalAddParameter({
@@ -21,6 +22,7 @@ function ModalAddParameter({
   setIsAddParameterModalOpen,
   modifyingParameter,
   setModifyingParameter,
+  handleParameterSubmit,
 }: ModalAddParameterProps) {
   return (
     <CustomModal
@@ -67,6 +69,15 @@ function ModalAddParameter({
           })
         }
       />
+      <button
+        className="bg-black text-white px-2 py-[2px] font-semibold"
+        onClick={() => {
+          handleParameterSubmit();
+          setIsAddParameterModalOpen(false);
+        }}
+      >
+        Add Parameter
+      </button>
     </CustomModal>
   );
 }

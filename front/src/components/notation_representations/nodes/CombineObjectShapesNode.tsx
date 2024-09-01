@@ -240,6 +240,84 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
     setIsNodeAttributeModalOpen(false);
   };
 
+  const handleOperationSubmit = () => {
+    // Find the operation property
+    const operationProperty = data.notation.properties.find(
+      (prop) => prop.elementType === "Operation"
+    );
+
+    if (operationProperty) {
+      const operations = operationProperty.defaultValue
+        ? (operationProperty.defaultValue as Array<any>)
+        : [];
+      const newModifyingOperation = { ...modifyingOperation };
+
+      // Find the index of the operation we are modifying
+      const operationIndex = operations.findIndex(
+        (operation) => operation.name === newModifyingOperation.name
+      );
+
+      // If the operation already exists, update it
+      if (operationIndex !== -1) {
+        operations[operationIndex] = newModifyingOperation;
+      } else {
+        // Otherwise, add the new operation
+        operations.push(newModifyingOperation);
+      }
+
+      operationProperty.defaultValue = operations;
+
+      setData({ ...data });
+    }
+
+    // Reset and close the modal
+    setModifyingOperation({
+      name: "",
+      parameters: [],
+      returnType: "",
+      preconditions: "",
+      postconditions: "",
+      body: "",
+      visibility: "",
+    });
+    setIsNodeOperationModalOpen(false);
+  };
+
+  const handleParameterSubmit = () => {
+    // Find the operation property
+    const operationProperty = data.notation.properties.find(
+      (prop) => prop.elementType === "Operation"
+    );
+
+    if (operationProperty) {
+      const operations = operationProperty.defaultValue
+        ? (operationProperty.defaultValue as Array<any>)
+        : [];
+      const newModifyingOperation = { ...modifyingOperation };
+      newModifyingOperation.parameters = [
+        ...newModifyingOperation.parameters,
+        { ...modifyingParameter },
+      ];
+
+      // Find the index of the operation we are modifying
+      const operationIndex = operations.findIndex(
+        (operation) => operation.name === newModifyingOperation.name
+      );
+
+      // If the operation already exists, update it
+      if (operationIndex !== -1) {
+        operations[operationIndex] = newModifyingOperation;
+      } else {
+        // Otherwise, add the new operation
+        operations.push(newModifyingOperation);
+      }
+
+      operationProperty.defaultValue = operations;
+
+      setData({ ...data });
+    }
+  };
+
   // Filter and sort the shapes according to the specified rendering order
   // adjust notation size when rendering in palette
   const rectangles = adjustedRepresentation.filter(
@@ -338,6 +416,7 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
         setModifyingOperation={setModifyingOperation}
         setIsNodeOperationModalOpen={setIsNodeOperationModalOpen}
         setIsAddParameterModalOpen={setIsAddParameterModalOpen}
+        handleOperationSubmit={handleOperationSubmit}
       />
 
       {/* Add parameter modal */}
@@ -346,6 +425,7 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
         setIsAddParameterModalOpen={setIsAddParameterModalOpen}
         modifyingParameter={modifyingParameter}
         setModifyingParameter={setModifyingParameter}
+        handleParameterSubmit={handleParameterSubmit}
       />
     </div>
   );
