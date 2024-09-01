@@ -127,30 +127,45 @@ const NotationDesigner = () => {
   };
 
   const handleAddGraphicalElement = () => {
-    setCurrentNotation({
-      ...currentNotation,
-      graphicalRepresentation: [
-        ...currentNotation.graphicalRepresentation,
-        newGraphicalElement,
-      ],
-    });
-    setNewGraphicalElement({
-      shape: "square",
-      style: {
-        backgroundColor: "#ffffff",
-        borderColor: "#000000",
-        borderWidth: 1,
-        borderStyle: "solid",
-      },
-      position: {
-        x: 0,
-        y: 0,
-        extent: {
-          width: 100,
-          height: 100,
+    // Check if the necessary fields are populated
+    if (
+      newGraphicalElement.shape &&
+      newGraphicalElement.position &&
+      newGraphicalElement.position.x !== undefined &&
+      newGraphicalElement.position.y !== undefined &&
+      newGraphicalElement.style
+    ) {
+      // Add the new graphical element to the current notation's graphical representation
+      setCurrentNotation({
+        ...currentNotation,
+        graphicalRepresentation: [
+          ...currentNotation.graphicalRepresentation,
+          newGraphicalElement,
+        ],
+      });
+
+      // Reset the new graphical element to a default state
+      setNewGraphicalElement({
+        shape: "square",
+        style: {
+          backgroundColor: "#ffffff",
+          borderColor: "#000000",
+          borderWidth: 1,
+          borderStyle: "solid",
         },
-      },
-    });
+        position: {
+          x: 0,
+          y: 0,
+          extent: {
+            width: 100,
+            height: 100,
+          },
+        },
+      });
+    } else {
+      // Handle cases where required fields are missing
+      console.error("New graphical element is missing required fields.");
+    }
   };
 
   const saveNotation = () => {
@@ -217,9 +232,6 @@ const NotationDesigner = () => {
         <NotationDesignerDrawPanel
           currentNotation={currentNotation}
           setCurrentNotation={setCurrentNotation}
-          handleAddGraphicalElement={handleAddGraphicalElement}
-          newGraphicalElement={newGraphicalElement}
-          setNewGraphicalElement={setNewGraphicalElement}
         />
       )}
     </div>

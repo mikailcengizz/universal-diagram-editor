@@ -5,9 +5,6 @@ import PaletteDrawPanel from "./PaletteDrawPanel";
 interface NotationDesignerDrawPanelProps {
   currentNotation: Notation;
   setCurrentNotation: (value: any) => void;
-  newGraphicalElement: any;
-  setNewGraphicalElement: (value: any) => void;
-  handleAddGraphicalElement: () => void;
 }
 
 const gridSize = 10; // Size of the grid squares
@@ -15,33 +12,53 @@ const gridSize = 10; // Size of the grid squares
 function NotationDesignerDrawPanel({
   currentNotation,
   setCurrentNotation,
-  newGraphicalElement,
-  setNewGraphicalElement,
-  handleAddGraphicalElement,
 }: NotationDesignerDrawPanelProps) {
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+
+    const shapeData = event.dataTransfer.getData("shape");
+    const elementIndex = event.dataTransfer.getData("elementIndex");
+
+    const grid = event.currentTarget.getBoundingClientRect();
+    const x = Math.round((event.clientX - grid.left) / gridSize) * gridSize;
+    const y = Math.round((event.clientY - grid.top) / gridSize) * gridSize;
+
+    if (shapeData) {
+      // New element from the palette
+      const newElement = JSON.parse(shapeData);
+      newElement.position = { x, y };
+
+      setCurrentNotation({
+        ...currentNotation,
+        graphicalRepresentation: [
+          ...currentNotation.graphicalRepresentation,
+          newElement,
+        ],
+      });
+    } else if (elementIndex !== null) {
+      // Repositioning existing element
+      const index = parseInt(elementIndex);
+      const updatedRepresentation = [
+        ...currentNotation.graphicalRepresentation,
+      ];
+
+      updatedRepresentation[index] = {
+        ...updatedRepresentation[index],
+        position: { x, y },
+      };
+
+      setCurrentNotation({
+        ...currentNotation,
+        graphicalRepresentation: updatedRepresentation,
+      });
+    }
+  };
+
   const handleDragStart = (
     event: React.DragEvent<HTMLDivElement>,
     index: number
   ) => {
     event.dataTransfer.setData("elementIndex", index.toString());
-  };
-
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
-    const elementIndex = parseInt(event.dataTransfer.getData("elementIndex"));
-    const grid = event.currentTarget.getBoundingClientRect();
-    const x = Math.round((event.clientX - grid.left) / gridSize) * gridSize;
-    const y = Math.round((event.clientY - grid.top) / gridSize) * gridSize;
-
-    const updatedRepresentation = [...currentNotation.graphicalRepresentation];
-    updatedRepresentation[elementIndex] = {
-      ...updatedRepresentation[elementIndex],
-      position: { ...updatedRepresentation[elementIndex].position, x, y },
-    };
-
-    setCurrentNotation({
-      ...currentNotation,
-      graphicalRepresentation: updatedRepresentation,
-    });
   };
 
   return (
