@@ -8,12 +8,14 @@ import PaymentOutlinedIcon from "@mui/icons-material/PaymentOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import NavigateBeforeOutlinedIcon from "@mui/icons-material/NavigateBeforeOutlined";
+import { useLocation } from "react-router-dom";
 
 const itemCSS =
   "mx-auto my-2 hover:bg-[#494950] rounded-md p-2 cursor-pointer hover:scale-125 transform transition duration-200 ease-in-out";
 
 function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const location = useLocation();
 
   const handleToggle = () => {
     setIsCollapsed(!isCollapsed);
@@ -28,25 +30,41 @@ function Sidebar() {
       >
         {!isCollapsed && (
           <div className="flex flex-col w-full">
-            <div className={itemCSS}>
+            <div
+              className={`${itemCSS} ${
+                location.pathname === "/" ? "bg-[#494950]" : ""
+              }`}
+            >
               <a href="/" className="font-bold">
                 <HomeOutlinedIcon />
               </a>
             </div>
 
-            <div className={itemCSS}>
+            <div
+              className={`${itemCSS} ${
+                location.pathname === "/editor" ? "bg-[#494950]" : ""
+              }`}
+            >
               <a href="/editor">
                 <SchemaOutlinedIcon />
               </a>
             </div>
 
-            <div className={itemCSS}>
+            <div
+              className={`${itemCSS} ${
+                location.pathname === "/designer" ? "bg-[#494950]" : ""
+              }`}
+            >
               <a href="/designer">
                 <ModeEditOutlineOutlinedIcon />
               </a>
             </div>
 
-            <div className={itemCSS}>
+            <div
+              className={`${itemCSS} ${
+                location.pathname === "/teams" ? "bg-[#494950]" : ""
+              }`}
+            >
               <a href="/teams">
                 <PeopleAltOutlinedIcon />
               </a>
@@ -65,22 +83,38 @@ function Sidebar() {
 
         {!isCollapsed && (
           <div className="flex flex-col justify-end">
-            <div className={itemCSS}>
+            <div
+              className={`${itemCSS} ${
+                location.pathname === "/notifications" ? "bg-[#494950]" : ""
+              }`}
+            >
               <a href="/notifications">
                 <NotificationsNoneOutlinedIcon />
               </a>
             </div>
-            <div className={itemCSS}>
+            <div
+              className={`${itemCSS} ${
+                location.pathname === "/payments" ? "bg-[#494950]" : ""
+              }`}
+            >
               <a href="/payments">
                 <PaymentOutlinedIcon />
               </a>
             </div>
-            <div className={itemCSS}>
+            <div
+              className={`${itemCSS} ${
+                location.pathname === "/settings" ? "bg-[#494950]" : ""
+              }`}
+            >
               <a href="/settings">
                 <SettingsOutlinedIcon />
               </a>
             </div>
-            <div className={itemCSS}>
+            <div
+              className={`${itemCSS} ${
+                location.pathname === "/profile" ? "bg-[#494950]" : ""
+              }`}
+            >
               <a href="/profile">
                 <AccountCircleOutlinedIcon />
               </a>

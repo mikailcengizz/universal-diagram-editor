@@ -9,6 +9,7 @@ import ErrorPage from "./routes/ErrorPage";
 import RootLayout from "./routes/RootLayout";
 import EditorPage from "./routes/EditorPage";
 import DesignerPage from "./routes/DesignerPage";
+import TeamsPage from "./routes/TeamsPage";
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
       {
         path: "editor",
         element: <EditorPage />,
+      },
+      {
+        path: "teams",
+        element: <TeamsPage />,
       },
     ],
   },

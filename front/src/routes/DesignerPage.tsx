@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import {} from "reactflow";
 import NotationDesigner from "../components/NotationDesigner";
 
-export default function EditorPage() {
+export default function DesignerPage() {
   return (
     <div id="designer">
       <div>

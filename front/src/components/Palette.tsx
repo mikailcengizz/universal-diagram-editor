@@ -50,6 +50,7 @@ const Palette = ({ title, notations }: PaletteProps) => {
         backgroundColor: "#f4f4f4",
         borderRight: "1px solid #ddd",
       }}
+      className="overflow-y-scroll"
     >
       <h4>{title || "Palette"}</h4>
       <h2>Objects</h2>

@@ -234,7 +234,7 @@ const DiagramEditor = ({
         <Palette title={config?.packageName} notations={config!.notations} />
         <div
           style={{ minHeight: "100%", maxHeight: "100%", width: "100%" }}
-          className="border-2"
+          className="border-2 overflow-y-scroll"
           ref={diagramAreaRef}
         >
           <div style={{ flexGrow: 1, height: "100%", cursor: "grab" }}>

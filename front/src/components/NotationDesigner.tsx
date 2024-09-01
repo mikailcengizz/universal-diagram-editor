@@ -3,20 +3,18 @@ import {
   Config,
   ConfigListItem,
   Notation,
+  NotationRepresentationItem,
   Notations,
   NotationType,
+  Property,
   StyleProperties,
 } from "../types/types";
 import axios from "axios";
-import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-} from "@mui/material";
+import { SelectChangeEvent } from "@mui/material";
+import NotationDesignerConfigurePanel from "./NotationDesignerConfigurePanel";
+import NotationDesignerDrawPanel from "./NotationDesignerDrawPanel";
 
-const NotationDesigner: React.FC = () => {
+const NotationDesigner = () => {
   const [notations, setNotations] = useState<Notations>({
     objects: [],
     relationships: [],
@@ -36,6 +34,33 @@ const NotationDesigner: React.FC = () => {
   });
   const [selectedNotationType, setSelectedNotationType] =
     useState<NotationType>();
+  const [newProperty, setNewProperty] = useState<Property>({
+    name: "",
+    defaultValue: "",
+    dataType: "String",
+    elementType: "",
+    isUnique: false,
+  });
+  const [newGraphicalElement, setNewGraphicalElement] =
+    useState<NotationRepresentationItem>({
+      shape: "square",
+      style: {
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderStyle: "solid",
+      },
+      position: {
+        x: 0,
+        y: 0,
+        extent: {
+          width: 100,
+          height: 100,
+        },
+      },
+    });
+  const [isConfigurePanelOpen, setIsConfigurePanelOpen] =
+    useState<boolean>(true);
 
   useEffect(() => {
     // Fetch available configurations from the server
@@ -88,6 +113,47 @@ const NotationDesigner: React.FC = () => {
     });
   };
 
+  const handleAddProperty = () => {
+    setCurrentNotation({
+      ...currentNotation,
+      properties: [...currentNotation.properties, newProperty],
+    });
+    setNewProperty({
+      name: "",
+      defaultValue: "",
+      dataType: "String",
+      elementType: "",
+      isUnique: false,
+    });
+  };
+
+  const handleAddGraphicalElement = () => {
+    setCurrentNotation({
+      ...currentNotation,
+      graphicalRepresentation: [
+        ...currentNotation.graphicalRepresentation,
+        newGraphicalElement,
+      ],
+    });
+    setNewGraphicalElement({
+      shape: "square",
+      style: {
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderStyle: "solid",
+      },
+      position: {
+        x: 0,
+        y: 0,
+        extent: {
+          width: 100,
+          height: 100,
+        },
+      },
+    });
+  };
+
   const saveNotation = () => {
     const updatedNotations = { ...notations };
     if (selectedNotationType === "object") {
@@ -116,23 +182,35 @@ const NotationDesigner: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white">
-      {/* Notation type selection */}
-      <FormControl>
-        <InputLabel>Select Category</InputLabel>
-        <Select
-          value={selectedNotationType || ""}
-          onChange={handleNotationTypeChange}
-        >
-          <MenuItem value="object">Object</MenuItem>
-          <MenuItem value="relationship">Relationship</MenuItem>
-          <MenuItem value="role">Role</MenuItem>
-        </Select>
-      </FormControl>
-
-      {/* Save and export buttons */}
-      <button onClick={saveNotation}>Save Notation</button>
-      <button onClick={exportConfig}>Export Configuration</button>
+    <div className="flex flex-col h-full bg-white min-h-screen w-full">
+      <div className="bg-[#1B1B20] px-8 py-2">
+        <span>
+          Go to {isConfigurePanelOpen ? "draw panel" : "configure panel"}
+        </span>
+      </div>
+      {isConfigurePanelOpen ? (
+        <NotationDesignerConfigurePanel
+          selectedNotationType={selectedNotationType!}
+          handleNotationTypeChange={handleNotationTypeChange}
+          packageName={packageName}
+          setPackageName={setPackageName}
+          currentNotation={currentNotation}
+          setCurrentNotation={setCurrentNotation}
+          newProperty={newProperty}
+          setNewProperty={setNewProperty}
+          handleAddProperty={handleAddProperty}
+          saveNotation={saveNotation}
+          exportConfig={exportConfig}
+        />
+      ) : (
+        <NotationDesignerDrawPanel
+          currentNotation={currentNotation}
+          setCurrentNotation={setCurrentNotation}
+          handleAddGraphicalElement={handleAddGraphicalElement}
+          newGraphicalElement={newGraphicalElement}
+          setNewGraphicalElement={setNewGraphicalElement}
+        />
+      )}
     </div>
   );
 };
