@@ -145,7 +145,12 @@ function NotationDesignerConfigurePanel({
       </div>
 
       {/* Save and export buttons */}
-      <button onClick={saveNotation}>Save Notation</button>
+      <button
+        onClick={saveNotation}
+        className="bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer float-right hover:opacity-85 trransition duration-300 ease-in-out float-left mt-4"
+      >
+        <span className="text-sm">Save Notation</span>
+      </button>
     </div>
   );
 }
