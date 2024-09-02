@@ -47,6 +47,8 @@ export interface StyleProperties {
   borderColor?: string;
   borderStyle?: string;
   borderWidth?: number;
+  borderRadius?: number;
+  zIndex?: number;
 }
 
 export type Alignment = "left" | "center" | "right";

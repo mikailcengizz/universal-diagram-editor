@@ -44,7 +44,7 @@ function NotationDesignerConfigurePanel({
   exportConfig,
 }: NotationDesignerConfigurePanelProps) {
   return (
-    <>
+    <div className="px-12 pt-4">
       <h2 className="text-xl font-bold">Configure Panel</h2>
       <br />
       {/* Notation type selection */}
@@ -66,7 +66,6 @@ function NotationDesignerConfigurePanel({
         label="Package Name"
         value={packageName}
         onChange={(e) => setPackageName(e.target.value)}
-        margin="normal"
       />
 
       {/* Notation Name */}
@@ -77,7 +76,6 @@ function NotationDesignerConfigurePanel({
         onChange={(e) =>
           setCurrentNotation({ ...currentNotation, name: e.target.value })
         }
-        margin="normal"
       />
 
       {/* Description */}
@@ -91,7 +89,6 @@ function NotationDesignerConfigurePanel({
             description: e.target.value,
           })
         }
-        margin="normal"
         multiline
       />
       <br />
@@ -133,7 +130,6 @@ function NotationDesignerConfigurePanel({
           onChange={(e) =>
             setNewProperty({ ...newProperty, name: e.target.value })
           }
-          margin="normal"
         />
         <TextField
           className="w-1/3"
@@ -142,7 +138,6 @@ function NotationDesignerConfigurePanel({
           onChange={(e) =>
             setNewProperty({ ...newProperty, dataType: e.target.value })
           }
-          margin="normal"
         />
         <IconButton onClick={handleAddProperty} size="small">
           <AddIcon fontSize="small" />
@@ -152,7 +147,7 @@ function NotationDesignerConfigurePanel({
       {/* Save and export buttons */}
       <button onClick={saveNotation}>Save Notation</button>
       <button onClick={exportConfig}>Export Configuration</button>
-    </>
+    </div>
   );
 }
 

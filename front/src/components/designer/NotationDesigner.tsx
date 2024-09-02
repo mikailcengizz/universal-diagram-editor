@@ -203,8 +203,8 @@ const NotationDesigner = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white min-h-screen px-12 pt-4 w-full">
-      <div className="w-full">
+    <div className="flex flex-col h-full bg-white min-h-screen w-full">
+      <div className="w-full px-12 py-4">
         <div
           className="bg-[#1B1B20] px-8 py-2 w-fit rounded-md text-white cursor-pointer float-right"
           onClick={() => setIsConfigurePanelOpen(!isConfigurePanelOpen)}
@@ -212,7 +212,6 @@ const NotationDesigner = () => {
           Switch to {isConfigurePanelOpen ? "draw panel" : "configure panel"}
         </div>
       </div>
-      <br />
 
       {isConfigurePanelOpen ? (
         <NotationDesignerConfigurePanel
