@@ -12,6 +12,7 @@ import axios from "axios";
 import { SelectChangeEvent } from "@mui/material";
 import NotationDesignerConfigurePanel from "./NotationDesignerConfigurePanel";
 import NotationDesignerDrawPanel from "./NotationDesignerDrawPanel";
+import AutorenewIcon from "@mui/icons-material/Autorenew";
 
 const NotationDesigner = () => {
   const [notations, setNotations] = useState<Notations>({
@@ -187,29 +188,17 @@ const NotationDesigner = () => {
     });
   };
 
-  const exportConfig = () => {
-    if (!packageName) {
-      alert("Please enter a configuration name.");
-      return;
-    }
-    const config = { name: packageName, notations };
-    const blob = new Blob([JSON.stringify(config)], {
-      type: "application/json",
-    });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `${packageName}-config.json`;
-    link.click();
-  };
-
   return (
     <div className="flex flex-col h-full bg-white min-h-screen w-full">
       <div className="w-full px-12 py-4">
         <div
-          className="bg-[#1B1B20] px-8 py-2 w-fit rounded-md text-white cursor-pointer float-right"
+          className="bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer float-right hover:opacity-85 trransition duration-300 ease-in-out"
           onClick={() => setIsConfigurePanelOpen(!isConfigurePanelOpen)}
         >
-          Switch to {isConfigurePanelOpen ? "draw panel" : "configure panel"}
+          <span className="text-sm">
+            Switch to {isConfigurePanelOpen ? "draw panel" : "configure panel"}
+          </span>
+          <AutorenewIcon className="ml-1" fontSize="small" />
         </div>
       </div>
 
@@ -225,7 +214,6 @@ const NotationDesigner = () => {
           setNewProperty={setNewProperty}
           handleAddProperty={handleAddProperty}
           saveNotation={saveNotation}
-          exportConfig={exportConfig}
         />
       ) : (
         <NotationDesignerDrawPanel

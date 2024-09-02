@@ -27,7 +27,6 @@ interface NotationDesignerConfigurePanelProps {
   setNewProperty: (value: any) => void;
   handleAddProperty: () => void;
   saveNotation: () => void;
-  exportConfig: () => void;
 }
 
 function NotationDesignerConfigurePanel({
@@ -41,19 +40,20 @@ function NotationDesignerConfigurePanel({
   setNewProperty,
   handleAddProperty,
   saveNotation,
-  exportConfig,
 }: NotationDesignerConfigurePanelProps) {
   return (
     <div className="px-12 pt-4">
-      <h2 className="text-xl font-bold">Configure Panel</h2>
-      <br />
+      <h2 className="text-xl font-bold mb-2">Configure Panel</h2>
       {/* Notation type selection */}
       <FormControl className="w-1/3">
-        <InputLabel>Select Category</InputLabel>
         <Select
           value={selectedNotationType || ""}
           onChange={handleNotationTypeChange}
+          displayEmpty
         >
+          <MenuItem value="" disabled>
+            Select Notation Type
+          </MenuItem>
           <MenuItem value="object">Object</MenuItem>
           <MenuItem value="relationship">Relationship</MenuItem>
           <MenuItem value="role">Role</MenuItem>
@@ -146,7 +146,6 @@ function NotationDesignerConfigurePanel({
 
       {/* Save and export buttons */}
       <button onClick={saveNotation}>Save Notation</button>
-      <button onClick={exportConfig}>Export Configuration</button>
     </div>
   );
 }
