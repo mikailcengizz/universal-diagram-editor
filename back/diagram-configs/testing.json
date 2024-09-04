@@ -1,0 +1,24 @@
+{
+  "name": "testing",
+  "notations": {
+    "objects": [
+      {
+        "name": "Class",
+        "type": "object",
+        "properties": [
+          {
+            "name": "Class name",
+            "defaultValue": "ClassName",
+            "dataType": "String",
+            "elementType": "",
+            "isUnique": "false"
+          }
+        ],
+        "description": "hggigi",
+        "graphicalRepresentation": []
+      }
+    ],
+    "relationships": [],
+    "roles": []
+  }
+}

@@ -11,7 +11,7 @@ export default function EditorPage() {
   const [edges, setEdges] = useState<Edge[]>([]);
 
   return (
-    <div id="editor">
+    <div id="editor" className="overflow-y-hidden">
       <SubHeader
         onSelectConfig={setSelectedConfig}
         diagramAreaRef={diagramAreaRef}

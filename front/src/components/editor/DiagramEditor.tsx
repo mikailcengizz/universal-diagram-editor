@@ -42,7 +42,7 @@ const DiagramEditor = ({
 }: DiagramEditorProps) => {
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [config, setConfig] = useState<Config | null>({
-    packageName: "",
+    name: "",
     notations: { objects: [], relationships: [], roles: [] },
   });
 
@@ -231,7 +231,7 @@ const DiagramEditor = ({
           </defs>
         </svg>
 
-        <Palette title={config?.packageName} notations={config!.notations} />
+        <Palette title={config?.name} notations={config!.notations} />
         <div
           style={{ minHeight: "100%", maxHeight: "100%", width: "100%" }}
           className="border-2 overflow-y-scroll"

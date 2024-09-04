@@ -15,19 +15,20 @@ import NotationDesignerDrawPanel from "./NotationDesignerDrawPanel";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 
 const NotationDesigner = () => {
-  const [notations, setNotations] = useState<Notations>({
-    objects: [],
-    relationships: [],
-    roles: [],
-  });
   const [availableConfigs, setAvailableConfigs] = useState<ConfigListItem[]>(
     []
   );
-  const [selectedConfig, setSelectedConfig] = useState<string | null>("");
-  const [packageName, setPackageName] = useState<string>("");
+  const [selectedConfig, setSelectedConfig] = useState<Config>({
+    name: "",
+    notations: {
+      objects: [],
+      relationships: [],
+      roles: [],
+    },
+  });
   const [currentNotation, setCurrentNotation] = useState<Notation>({
     name: "",
-    type: "object",
+    type: "",
     properties: [],
     description: "",
     graphicalRepresentation: [],
@@ -61,6 +62,7 @@ const NotationDesigner = () => {
     });
   const [isConfigurePanelOpen, setIsConfigurePanelOpen] =
     useState<boolean>(true);
+  const [isConfigLoaded, setIsConfigLoaded] = useState<boolean>(false);
 
   useEffect(() => {
     // Fetch available configurations from the server
@@ -81,27 +83,43 @@ const NotationDesigner = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedConfig) {
+    // Only load config if it's not loaded yet or when a new config name is selected
+    if (selectedConfig.name && !isConfigLoaded) {
       const loadConfig = async () => {
         try {
           const response = await axios.get(
-            `/config/get-config/${selectedConfig}`,
+            `/config/get-config-by-name/${selectedConfig.name}`,
             {
               headers: {
                 Authorization: "Basic " + btoa("test@hotmail.com:test123"),
               },
             }
           );
+          if (
+            !response.data ||
+            response.data === "" ||
+            response.data === null
+          ) {
+            return;
+          }
           const config = response.data as Config;
-          setNotations(config.notations);
-          setPackageName(config.packageName);
+          setSelectedConfig(config);
+          setIsConfigLoaded(true); // Mark config as loaded
+          setCurrentNotation({
+            name: "",
+            type: "",
+            properties: [],
+            description: "",
+            graphicalRepresentation: [],
+          });
+          console.log("Config loaded:", config);
         } catch (error) {
           console.error("Error loading configuration:", error);
         }
       };
       loadConfig();
     }
-  }, [selectedConfig]);
+  }, [selectedConfig.name, isConfigLoaded]);
 
   const handleNotationTypeChange = (e: SelectChangeEvent<string>) => {
     const value = e.target.value as NotationType;
@@ -170,18 +188,62 @@ const NotationDesigner = () => {
   };
 
   const saveNotation = () => {
-    const updatedNotations = { ...notations };
-    if (selectedNotationType === "object") {
-      updatedNotations.objects.push(currentNotation);
+    // Save in the frontend
+    const updatedNotations = { ...selectedConfig!.notations };
+    if (currentNotation.type === "object") {
+      const alreadyExists = selectedConfig.notations.objects.findIndex(
+        (n) => n.name === currentNotation.name
+      );
+      if (alreadyExists !== -1) {
+        updatedNotations.objects[alreadyExists] = currentNotation;
+      } else {
+        updatedNotations.objects.push(currentNotation);
+      }
     } else if (selectedNotationType === "relationship") {
-      updatedNotations.relationships.push(currentNotation);
+      const alreadyExists = selectedConfig.notations.relationships.findIndex(
+        (n) => n.name === currentNotation.name
+      );
+      if (alreadyExists !== -1) {
+        updatedNotations.relationships[alreadyExists] = currentNotation;
+      } else {
+        updatedNotations.relationships.push(currentNotation);
+      }
     } else if (selectedNotationType === "role") {
-      updatedNotations.roles.push(currentNotation);
+      const alreadyExists = selectedConfig.notations.roles.findIndex(
+        (n) => n.name === currentNotation.name
+      );
+      if (alreadyExists !== -1) {
+        updatedNotations.roles[alreadyExists] = currentNotation;
+      } else {
+        updatedNotations.roles.push(currentNotation);
+      }
     }
-    setNotations(updatedNotations);
+    setSelectedConfig({ ...selectedConfig!, notations: updatedNotations });
+
+    // Save in the backend
+    const saveConfig = async () => {
+      try {
+        await axios.post(
+          "/config/save",
+          {
+            name: selectedConfig?.name,
+            notations: updatedNotations,
+          },
+          {
+            headers: {
+              Authorization: "Basic " + btoa("test@hotmail.com:test123"),
+            },
+          }
+        );
+      } catch (error) {
+        console.error("Error saving configuration:", error);
+      }
+    };
+    saveConfig();
+
     setCurrentNotation({
       name: "",
-      type: "object",
+      type: "",
       properties: [],
       description: "",
       graphicalRepresentation: [],
@@ -189,8 +251,8 @@ const NotationDesigner = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white min-h-screen w-full">
-      <div className="w-full px-12 py-4">
+    <div className="flex flex-col h-full bg-white min-h-screen w-full px-12 pt-4 pb-8">
+      <div className="w-full">
         <div
           className="bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer float-right hover:opacity-85 trransition duration-300 ease-in-out"
           onClick={() => setIsConfigurePanelOpen(!isConfigurePanelOpen)}
@@ -206,13 +268,17 @@ const NotationDesigner = () => {
         <NotationDesignerConfigurePanel
           selectedNotationType={selectedNotationType!}
           handleNotationTypeChange={handleNotationTypeChange}
-          packageName={packageName}
-          setPackageName={setPackageName}
           currentNotation={currentNotation}
           setCurrentNotation={setCurrentNotation}
           newProperty={newProperty}
           setNewProperty={setNewProperty}
           handleAddProperty={handleAddProperty}
+          availableConfigs={availableConfigs}
+          selectedConfig={selectedConfig}
+          setSelectedConfig={(config) => {
+            setSelectedConfig(config);
+            setIsConfigLoaded(false); // Reset flag if a new config is selected
+          }}
           saveNotation={saveNotation}
         />
       ) : (

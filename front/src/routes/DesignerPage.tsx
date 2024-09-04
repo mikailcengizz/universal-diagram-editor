@@ -5,7 +5,7 @@ import NotationDesigner from "../components/designer/NotationDesigner";
 
 export default function DesignerPage() {
   return (
-    <div id="designer">
+    <div id="designer" className="overflow-y-auto max-h-screen">
       <div>
         <NotationDesigner />
       </div>

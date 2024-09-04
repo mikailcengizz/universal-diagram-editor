@@ -3,7 +3,7 @@
 import { EdgeProps } from "@xyflow/react";
 
 export interface Config {
-  packageName: string;
+  name: string;
   notations: Notations;
 }
 
@@ -55,7 +55,7 @@ export type Alignment = "left" | "center" | "right";
 
 export type Shape = "square" | "line" | "compartment" | "text" | "connector";
 
-export type NotationType = "object" | "relationship" | "role";
+export type NotationType = "object" | "relationship" | "role" | "";
 
 export type DataType = "String" | "Collection" | "Package" | "Boolean" | "Text";
 
