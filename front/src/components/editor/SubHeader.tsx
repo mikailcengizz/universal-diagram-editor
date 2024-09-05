@@ -8,7 +8,7 @@ import { saveAs } from "file-saver";
 import { Edge, Node as ReactFlowNode } from "@xyflow/react";
 
 interface SubHeaderProps {
-  onSelectConfig: (configFilename: string) => void;
+  onSelectConfig: (configName: string) => void;
   diagramAreaRef: React.RefObject<HTMLDivElement>;
   nodes: ReactFlowNode[];
   edges: Edge[];
@@ -262,7 +262,7 @@ function SubHeader({
                   key={index}
                   className={dropdownItemCSS}
                   onClick={() => {
-                    onSelectConfig(config.filename);
+                    onSelectConfig(config.name);
                     setDropdownVisibleDiagramType(false);
                   }}
                 >

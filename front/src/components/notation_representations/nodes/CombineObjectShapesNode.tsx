@@ -2,16 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Attribute,
   CustomNodeData,
-  Notation,
   NotationRepresentationItem,
   Operation,
   Parameter,
   Property,
 } from "../../../types/types";
-import { Handle, NodeResizer, Position } from "@xyflow/react";
-import dataTypeHelper from "../../helpers/TypeHelper";
-import Modal from "../../ui_elements/Modal";
-import CustomModal from "../../ui_elements/Modal";
+import { NodeResizer } from "@xyflow/react";
 import RenderConnectors from "./components/RenderConnectors";
 import ModalDoubleClickNotation from "./components/modals/first_layer/ModalDoubleClickNotation";
 import ModalAddAttribute from "./components/modals/second_layer/ModalAddAttribute";
@@ -24,6 +20,7 @@ import RenderRectangles from "./components/RenderRectangles";
 interface CombineObjectShapesNodeProps {
   id: string;
   isPalette?: boolean;
+  isNotationSlider?: boolean;
   data: CustomNodeData;
   selected?: boolean;
 }
@@ -31,12 +28,13 @@ interface CombineObjectShapesNodeProps {
 const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
   id,
   isPalette = false,
+  isNotationSlider = false, // only used for slider item width
   data: initialData,
   selected,
 }) => {
   const [data, setData] = useState<CustomNodeData>({ ...initialData });
   const containerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(1); // used for palette scaling
   // Calculate the max width and max height when node is rendered on the canvas
   // to know our selection area when moving the node around
   const maxWidth = Math.max(
@@ -106,56 +104,56 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
       const minY = Math.min(
         ...validGraphicalItems.map((item) => item.position.y)
       );
-      adjustedRepresentation = initialData.notation.graphicalRepresentation.map(
-        (item) => {
-          let newX = item.position.x - minX;
-          let newY = item.position.y - minY;
+      adjustedRepresentation = validGraphicalItems.map((item) => {
+        let newX = item.position.x - minX;
+        let newY = item.position.y - minY;
 
-          if (item.position.x === minX) {
-            newX = 0; // if the x is the minimum, set it to 0 so that it starts from the left
-          }
-          if (item.position.y === minY) {
-            newY = 0; // if the y is the minimum, set it to 0 so that it starts from the top
-          }
-
-          return {
-            ...item,
-            position: {
-              ...item.position,
-              x: newX,
-              y: newY,
-            },
-          };
+        if (item.position.x === minX) {
+          newX = 0; // if the x is the minimum, set it to 0 so that it starts from the left
         }
-      );
+        if (item.position.y === minY) {
+          newY = 0; // if the y is the minimum, set it to 0 so that it starts from the top
+        }
+
+        return {
+          ...item,
+          position: {
+            ...item.position,
+            x: newX,
+            y: newY,
+          },
+        };
+      });
     }
   }
 
-  // Calculate scale factor based on container size and max element size
+  const maxX = Math.max(
+    ...adjustedRepresentation.map(
+      (item) => item.position.x + (item.position.extent?.width || 100)
+    )
+  );
+  const maxY = Math.max(
+    ...adjustedRepresentation.map(
+      (item) => item.position.y + (item.position.extent?.height || 100)
+    )
+  );
+
+  // Set the size constraints for the grid columns
+  const maxGridCellSize = isNotationSlider ? 97 : 54;
+
+  // Calculate the scaling factor to fit the graphical representation into the grid column
   useEffect(() => {
     if (containerRef.current && isPalette) {
-      const containerWidth = containerRef.current.offsetWidth;
-      const containerHeight = containerRef.current.offsetHeight;
-      const maxX = Math.max(
-        ...adjustedRepresentation.map(
-          (item) => item.position.x + (item.position.extent?.width || 100)
-        )
-      );
-      const maxY = Math.max(
-        ...adjustedRepresentation.map(
-          (item) => item.position.y + (item.position.extent?.height || 100)
-        )
-      );
+      const scaleX = maxGridCellSize / maxX;
+      const scaleY = maxGridCellSize / maxY;
 
-      const scaleX = containerWidth / maxX;
-      const scaleY = containerHeight / maxY;
-      const newScale = Math.min(scaleX, scaleY, 1); // Choose the smaller scale to fit within the container
+      // Choose the smaller scale to fit within the container
+      const newScale = Math.min(scaleX, scaleY, 1);
 
-      // Set a minimum scale to avoid making content too small
-      const minScale = 0.5;
-      setScale(Math.max(newScale, minScale));
+      // Set the scale, ensuring it does not exceed the grid cell size
+      setScale(newScale);
     }
-  }, [adjustedRepresentation]);
+  }, [maxX, maxY, isPalette]);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -353,7 +351,9 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
         height: isPalette ? "100%" : `${containerSize.height}px`,
         transform: `scale(${scale})`,
         transformOrigin: "top left",
-        padding: `${(1 - scale) * 50}%`, // add padding to help center the content when scaled down
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
       }}
     >
       {/* Render rectangles in the background */}

@@ -62,9 +62,7 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
               padding: "10px",
               border: "1px solid #ccc",
               backgroundColor: "transparent",
-              maxWidth: "75px",
               width: "75px",
-              maxHeight: "75px",
               height: "75px",
             }}
           >

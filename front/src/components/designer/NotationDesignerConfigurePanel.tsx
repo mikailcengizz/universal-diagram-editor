@@ -9,21 +9,12 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
-  TextareaAutosize,
   TextField,
 } from "@mui/material";
 import React from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
-import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import AddIcon from "@mui/icons-material/Add";
-import {
-  Config,
-  ConfigListItem,
-  Notation,
-  Notations,
-  Property,
-} from "../../types/types";
-import Slider from "react-slick";
+import { Config, ConfigListItem, Notation, Property } from "../../types/types";
 import SimpleSlider from "../ui_elements/NotationsSlider";
 
 var notationsSliderSettings = {
@@ -70,7 +61,7 @@ function NotationDesignerConfigurePanel({
   ];
 
   return (
-    <div>
+    <div className="px-12 pb-24">
       <h2 className="text-xl font-bold mb-2">Configure Panel</h2>
 
       <div className="flex flex-col gap-y-2">
@@ -268,6 +259,7 @@ function NotationDesignerConfigurePanel({
           <SimpleSlider
             settings={notationsSliderSettings}
             notations={allNotations}
+            setCurrentNotation={setCurrentNotation}
           />
         </div>
       </div>

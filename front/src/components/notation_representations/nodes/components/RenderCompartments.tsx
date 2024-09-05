@@ -34,7 +34,8 @@ function RenderCompartments({
 
           return (
             <>
-              {attributeProperty.defaultValue &&
+              {attributeProperty &&
+                attributeProperty.defaultValue &&
                 (attributeProperty.defaultValue as Array<Attribute>).map(
                   (attribute, idx) => (
                     <div

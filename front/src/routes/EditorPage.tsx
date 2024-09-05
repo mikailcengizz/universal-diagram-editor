@@ -5,7 +5,9 @@ import { useRef, useState } from "react";
 import { Edge, Node, useEdgesState, useNodesState } from "@xyflow/react";
 
 export default function EditorPage() {
-  const [selectedConfig, setSelectedConfig] = useState<string | null>(null);
+  const [selectedConfigName, setSelectedConfigName] = useState<string | null>(
+    null
+  );
   const diagramAreaRef = useRef<HTMLDivElement>(null); // ref for the diagram area
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
@@ -13,14 +15,14 @@ export default function EditorPage() {
   return (
     <div id="editor" className="overflow-y-hidden">
       <SubHeader
-        onSelectConfig={setSelectedConfig}
+        onSelectConfig={setSelectedConfigName}
         diagramAreaRef={diagramAreaRef}
         nodes={nodes}
         edges={edges}
       />
       <div>
         <DiagramEditor
-          configFilename={selectedConfig}
+          selectedConfigName={selectedConfigName}
           diagramAreaRef={diagramAreaRef}
           nodes={nodes}
           setNodes={setNodes}

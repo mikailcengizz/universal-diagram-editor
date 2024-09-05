@@ -66,11 +66,7 @@ function RenderTexts({
                 position: "absolute",
                 left: `${textItem.position.x}px`,
                 top: `${textItem.position.y}px`,
-                width: `${
-                  isPalette
-                    ? (textItem.position.extent?.width || 100) + "px"
-                    : "100%"
-                } `,
+                width: `${textItem.position.extent?.width || 100}px`,
                 height: `${textItem.position.extent?.height || 20}px`,
                 color: textItem.style.color,
                 backgroundColor: "transparent",

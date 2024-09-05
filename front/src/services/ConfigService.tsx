@@ -13,6 +13,12 @@ class ConfigService {
     });
   }
 
+  getConfigByName(name: string) {
+    return axios.get(CONFIG_API_BASE_URL + "/get-config-by-name/" + name, {
+      headers,
+    });
+  }
+
   getConfigList() {
     return axios.get(CONFIG_API_BASE_URL + "/list", {
       headers,

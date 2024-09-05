@@ -13,7 +13,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import { parseStringPromise } from "xml2js";
 import { Config, CustomNodeData, DragData, Notation } from "../../types/types";
-import Palette from "./PaletteEditorPanel";
+import PaletteEditorPanel from "./PaletteEditorPanel";
 import configService from "../../services/ConfigService";
 import ReactFlowWithInstance from "../ReactFlowWithInstance";
 import createEdgeTypesFromConfig from "../notation_representations/edges/Helper";
@@ -24,7 +24,7 @@ const nodeTypes = {
 };
 
 interface DiagramEditorProps {
-  configFilename: string | null;
+  selectedConfigName: string | null;
   diagramAreaRef: React.RefObject<HTMLDivElement>;
   nodes: Node[];
   setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
@@ -33,7 +33,7 @@ interface DiagramEditorProps {
 }
 
 const DiagramEditor = ({
-  configFilename,
+  selectedConfigName,
   diagramAreaRef,
   nodes,
   setNodes,
@@ -47,11 +47,12 @@ const DiagramEditor = ({
   });
 
   useEffect(() => {
-    if (configFilename) {
+    if (selectedConfigName) {
+      console.log("Selected config name:", selectedConfigName);
       const fetchConfig = async () => {
         try {
-          const response = await configService.getConfigByFilename(
-            configFilename
+          const response = await configService.getConfigByName(
+            selectedConfigName
           );
           setConfig(response.data);
           console.log("Config fetched:", response.data); // Log the fetched configuration
@@ -61,7 +62,7 @@ const DiagramEditor = ({
       };
       fetchConfig();
     }
-  }, [configFilename]);
+  }, [selectedConfigName]);
 
   const edgeTypes = config ? createEdgeTypesFromConfig(config) : {};
 
@@ -231,7 +232,10 @@ const DiagramEditor = ({
           </defs>
         </svg>
 
-        <Palette title={config?.name} notations={config!.notations} />
+        <PaletteEditorPanel
+          title={config?.name}
+          notations={config!.notations}
+        />
         <div
           style={{ minHeight: "100%", maxHeight: "100%", width: "100%" }}
           className="border-2 overflow-y-scroll"

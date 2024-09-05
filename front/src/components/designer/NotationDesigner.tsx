@@ -13,6 +13,7 @@ import { SelectChangeEvent } from "@mui/material";
 import NotationDesignerConfigurePanel from "./NotationDesignerConfigurePanel";
 import NotationDesignerDrawPanel from "./NotationDesignerDrawPanel";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
+import configService from "../../services/ConfigService";
 
 const NotationDesigner = () => {
   const [availableConfigs, setAvailableConfigs] = useState<ConfigListItem[]>(
@@ -42,24 +43,6 @@ const NotationDesigner = () => {
     elementType: "",
     isUnique: false,
   });
-  const [newGraphicalElement, setNewGraphicalElement] =
-    useState<NotationRepresentationItem>({
-      shape: "square",
-      style: {
-        backgroundColor: "#ffffff",
-        borderColor: "#000000",
-        borderWidth: 1,
-        borderStyle: "solid",
-      },
-      position: {
-        x: 0,
-        y: 0,
-        extent: {
-          width: 100,
-          height: 100,
-        },
-      },
-    });
   const [isConfigurePanelOpen, setIsConfigurePanelOpen] =
     useState<boolean>(true);
   const [isConfigLoaded, setIsConfigLoaded] = useState<boolean>(false);
@@ -87,13 +70,8 @@ const NotationDesigner = () => {
     if (selectedConfig.name && !isConfigLoaded) {
       const loadConfig = async () => {
         try {
-          const response = await axios.get(
-            `/config/get-config-by-name/${selectedConfig.name}`,
-            {
-              headers: {
-                Authorization: "Basic " + btoa("test@hotmail.com:test123"),
-              },
-            }
+          const response = await configService.getConfigByName(
+            selectedConfig.name
           );
           if (
             !response.data ||
@@ -143,48 +121,6 @@ const NotationDesigner = () => {
       elementType: "",
       isUnique: false,
     });
-  };
-
-  const handleAddGraphicalElement = () => {
-    // Check if the necessary fields are populated
-    if (
-      newGraphicalElement.shape &&
-      newGraphicalElement.position &&
-      newGraphicalElement.position.x !== undefined &&
-      newGraphicalElement.position.y !== undefined &&
-      newGraphicalElement.style
-    ) {
-      // Add the new graphical element to the current notation's graphical representation
-      setCurrentNotation({
-        ...currentNotation,
-        graphicalRepresentation: [
-          ...currentNotation.graphicalRepresentation,
-          newGraphicalElement,
-        ],
-      });
-
-      // Reset the new graphical element to a default state
-      setNewGraphicalElement({
-        shape: "square",
-        style: {
-          backgroundColor: "#ffffff",
-          borderColor: "#000000",
-          borderWidth: 1,
-          borderStyle: "solid",
-        },
-        position: {
-          x: 0,
-          y: 0,
-          extent: {
-            width: 100,
-            height: 100,
-          },
-        },
-      });
-    } else {
-      // Handle cases where required fields are missing
-      console.error("New graphical element is missing required fields.");
-    }
   };
 
   const saveNotation = () => {
@@ -251,8 +187,8 @@ const NotationDesigner = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white min-h-screen w-full px-12 pt-4 pb-8">
-      <div className="w-full">
+    <div className="flex flex-col h-full bg-white min-h-screen w-full ">
+      <div className="w-full pt-4 pb-4 px-12">
         <div
           className="bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer float-right hover:opacity-85 trransition duration-300 ease-in-out"
           onClick={() => setIsConfigurePanelOpen(!isConfigurePanelOpen)}
@@ -285,6 +221,7 @@ const NotationDesigner = () => {
         <NotationDesignerDrawPanel
           currentNotation={currentNotation}
           setCurrentNotation={setCurrentNotation}
+          saveNotation={saveNotation}
         />
       )}
     </div>
