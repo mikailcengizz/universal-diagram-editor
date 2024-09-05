@@ -35,12 +35,14 @@ function ModalDoubleClickSquare({
     }
   }, [selectedElementIndex, currentNotation]);
 
-  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleStyleChange = (e: any) => {
+    console.log("e.target.name", e.target.name);
+    console.log("e.target.value", e.target.value);
     setSquare({
       ...square!,
       style: {
         ...square!.style,
-        backgroundColor: e.target.value,
+        [e.target.name]: e.target.value,
       },
     });
   };
@@ -60,14 +62,15 @@ function ModalDoubleClickSquare({
 
   const handleSave = () => {
     console.log("selectedElementIndex", selectedElementIndex);
-    if (selectedElementIndex === null) return;
+    if (selectedElementIndex === null || !square) return;
 
     const updatedRepresentation = [...currentNotation.graphicalRepresentation];
-    updatedRepresentation[selectedElementIndex].style.backgroundColor =
-      square!.style.backgroundColor;
-    updatedRepresentation[selectedElementIndex].position.extent = {
-      width: square!.position.extent!.width,
-      height: square!.position.extent!.height,
+
+    // Update the entire style and position objects in one go
+    updatedRepresentation[selectedElementIndex] = {
+      ...updatedRepresentation[selectedElementIndex],
+      style: { ...square.style }, // Copy the entire style object
+      position: { ...square.position }, // Copy the entire position object
     };
 
     setCurrentNotation({
@@ -86,14 +89,43 @@ function ModalDoubleClickSquare({
     >
       <h2 className="font-semibold">Square Details</h2>
       <div>
+        <h3>Style</h3>
         <div>
           <label>Background color</label>
           <input
             type="color"
+            name="backgroundColor"
             value={square?.style.backgroundColor}
-            onChange={handleColorChange}
+            onChange={handleStyleChange}
           />
         </div>
+        <div>
+          <label>Border color</label>
+          <input
+            type="color"
+            name="borderColor"
+            value={square?.style.borderColor}
+            onChange={handleStyleChange}
+          />
+        </div>
+        <div>
+          <label>Border width</label>
+          <input
+            type="number"
+            name="borderWidth"
+            value={square?.style.borderWidth}
+            onChange={handleStyleChange}
+          />
+        </div>
+        <div>
+          <label>Border style</label>
+          <select onChange={(e) => handleStyleChange(e)} name="borderStyle">
+            <option value="solid">Solid</option>
+            <option value="dotted">Dotted</option>
+            <option value="dashed">Dashed</option>
+          </select>
+        </div>
+        <h3>Size</h3>
         <div>
           <label>Width</label>
           <input
@@ -110,14 +142,24 @@ function ModalDoubleClickSquare({
             onChange={handleSizeChange}
           />
         </div>
-        <div className="mt-4">
-          <button
-            onClick={handleSave}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md"
-          >
-            Save
-          </button>
+        <h3>Position</h3>
+        <div>
+          <label>X</label>
+          <input type="number" value={square?.position.x} />
         </div>
+        <div>
+          <label>Y</label>
+          <input type="number" value={square?.position.y} />
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <button
+          onClick={handleSave}
+          className="px-4 py-2 bg-black text-white rounded-md"
+        >
+          Save
+        </button>
       </div>
     </CustomModal>
   );

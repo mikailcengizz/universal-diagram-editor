@@ -484,6 +484,9 @@ const NotationDesignerDrawPanelGrid = ({
           setIsCompartmentModalOpen(isOpen);
           if (!isOpen) handleCloseModal();
         }}
+        currentNotation={currentNotation}
+        setCurrentNotation={setCurrentNotation}
+        selectedElementIndex={selectedElementIndex}
       />
 
       <ModalDoubleClickConnector

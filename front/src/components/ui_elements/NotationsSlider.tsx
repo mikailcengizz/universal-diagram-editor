@@ -20,7 +20,7 @@ function NotationsSlider({
 }: NotationsSliderProps) {
   const updatedSettings = {
     ...settings,
-    infinite: notations.length > 1, // Disable infinite scroll when there's only 1 slide
+    infinite: notations.length > 5, // Disable infinite scroll when there's only 5 slides
   };
 
   const renderNodePreview = (notation: Notation) => {
@@ -44,6 +44,8 @@ function NotationsSlider({
     }
   };
 
+  console.log("notations_from_slider", notations);
+
   return (
     <Slider {...updatedSettings} className="mt-2">
       {notations.map((notation, index) => (
@@ -52,7 +54,12 @@ function NotationsSlider({
           className="border-[1px] border-black text-center h-28 p-2 cursor-pointer"
           onClick={() => setCurrentNotation(notation)}
         >
-          {renderNodePreview(notation)}
+          {/** If the notation has a graphical representation, render it otherwise render its name */}
+          {notation.graphicalRepresentation.length > 0 ? (
+            renderNodePreview(notation)
+          ) : (
+            <span>{notation.name}</span>
+          )}
         </div>
       ))}
     </Slider>

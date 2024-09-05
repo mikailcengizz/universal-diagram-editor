@@ -41,17 +41,6 @@ function ModalDoubleClickNotation({
           const propertyDataType = property.dataType;
 
           if (propertyDataType === "Collection") {
-            if (property.elementType === "Operation") {
-              console.log("property.defaultValue", property.defaultValue);
-              console.log(
-                "Array.isArray(property.defaultValue)",
-                Array.isArray(property.defaultValue)
-              );
-              console.log(
-                "(property.defaultValue as Array<Operation>)",
-                property.defaultValue as Array<Operation>
-              );
-            }
             // show a text area for all items in the collection and
             // allow the user to add items through a new modal by clicking a button and
             // allow the user to remove items by selecting the item and clicking a remove button
