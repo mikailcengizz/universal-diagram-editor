@@ -3,6 +3,7 @@ import { DragData, Notation, Notations } from "../../types/types";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
 import CombineRelationshipShapesNode from "../notation_representations/edges/CombineRelationshipShapesEdge";
 import CombineRoleShapesNode from "../notation_representations/nodes/CombineRoleShapesNode";
+import { Position } from "@xyflow/react";
 
 interface PaletteEditorPanelProps {
   title: string | undefined;
@@ -35,16 +36,21 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
           />
         );
       case "relationship":
+        const { x, y, targetX, targetY } =
+          notation.graphicalRepresentation[0].position;
         return (
           <CombineRelationshipShapesNode
             key={notation.name}
             id={notation.name}
             isPalette={true}
+            isNotationSlider={true}
             data={{ notation }}
-            sourceX={0}
-            sourceY={0}
-            targetX={0}
-            targetY={0}
+            sourceX={x}
+            sourceY={y}
+            targetX={targetX!}
+            targetY={targetY!}
+            sourcePosition={Position.Right}
+            targetPosition={Position.Left}
           />
         );
       case "role":

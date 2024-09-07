@@ -55,8 +55,27 @@ function CombineRelationshipShapesEdge({
     targetPosition,
   });
 
+  console.log("CombineRelationshipShapesEdge edgePath:", edgePath);
+
+  // Manually render the line for palette or notation slider context
   if (isPalette || isNotationSlider) {
-    return <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />;
+    return (
+      <svg width="100%" height="100%">
+        <line
+          x1={sourceX}
+          y1={sourceY}
+          x2={targetX}
+          y2={targetY}
+          stroke={
+            data.notation.graphicalRepresentation[0].style.backgroundColor
+          }
+          strokeWidth={
+            data.notation.graphicalRepresentation[0].position.extent?.width
+          }
+          markerEnd={markerEnd}
+        />
+      </svg>
+    );
   }
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
