@@ -1,0 +1,84 @@
+{
+  "name": "Petri Net",
+  "notations": {
+    "objects": [
+      {
+        "name": "Transition",
+        "type": "object",
+        "properties": [],
+        "description": "A petri net transition",
+        "graphicalRepresentation": [
+          {
+            "shape": "square",
+            "icon": {
+              "type": {
+                "type": {},
+                "compare": null
+              },
+              "key": null,
+              "ref": null,
+              "props": {},
+              "_owner": null,
+              "_store": {}
+            },
+            "style": {
+              "backgroundColor": "#f9f9f9",
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "borderStyle": "solid",
+              "zIndex": 1
+            },
+            "position": {
+              "x": 980,
+              "y": 360,
+              "extent": {
+                "width": 60,
+                "height": 60
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Place",
+        "type": "object",
+        "properties": [],
+        "description": "This is a place",
+        "graphicalRepresentation": [
+          {
+            "shape": "square",
+            "icon": {
+              "type": {
+                "type": {},
+                "compare": null
+              },
+              "key": null,
+              "ref": null,
+              "props": {},
+              "_owner": null,
+              "_store": {}
+            },
+            "style": {
+              "backgroundColor": "#f9f9f9",
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "borderStyle": "solid",
+              "zIndex": 1,
+              "borderRadius": "50"
+            },
+            "position": {
+              "x": 950,
+              "y": 350,
+              "extent": {
+                "width": 50,
+                "height": 50
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "relationships": [],
+    "roles": []
+  }
+}

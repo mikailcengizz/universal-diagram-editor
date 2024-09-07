@@ -90,7 +90,6 @@ const NotationDesigner = () => {
             description: "",
             graphicalRepresentation: [],
           });
-          console.log("Config loaded:", config);
         } catch (error) {
           console.error("Error loading configuration:", error);
         }

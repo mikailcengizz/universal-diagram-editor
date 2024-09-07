@@ -162,7 +162,6 @@ const NotationDesignerDrawPanelGrid = ({
     event: React.DragEvent<HTMLDivElement>,
     index: number
   ) => {
-    console.log("drag start", index);
     event.dataTransfer.setData("elementIndex", index.toString());
   };
 

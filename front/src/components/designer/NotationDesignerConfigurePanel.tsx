@@ -11,7 +11,7 @@ import {
   SelectChangeEvent,
   TextField,
 } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { Config, ConfigListItem, Notation, Property } from "../../types/types";
@@ -25,6 +25,10 @@ var notationsSliderSettings = {
   arrows: true,
   dots: false,
 };
+
+const configureTextfieldStyle = "w-1/3 2xl:w-[350px]";
+
+const propertyTextfieldStyle = "w-1/6 2xl:w-[250px]";
 
 interface NotationDesignerConfigurePanelProps {
   selectedNotationType: string;
@@ -54,11 +58,16 @@ function NotationDesignerConfigurePanel({
   saveNotation,
 }: NotationDesignerConfigurePanelProps) {
   // Combine all notations into one array
-  const allNotations: Notation[] = [
-    ...selectedConfig.notations.objects,
-    ...selectedConfig.notations.relationships,
-    ...selectedConfig.notations.roles,
-  ];
+  const [allNotations, setAllNotations] = useState<Notation[]>([]);
+
+  useEffect(() => {
+    const allNotations: Notation[] = [
+      ...selectedConfig.notations.objects,
+      ...selectedConfig.notations.relationships,
+      ...selectedConfig.notations.roles,
+    ];
+    setAllNotations(allNotations);
+  }, [selectedConfig]);
 
   return (
     <div className="px-12 pb-24">
@@ -67,7 +76,7 @@ function NotationDesignerConfigurePanel({
       <div className="flex flex-col gap-y-2">
         {/* Configuration name */}
         <Autocomplete
-          className="w-1/3"
+          className={configureTextfieldStyle}
           freeSolo
           options={availableConfigs.map(
             (availableConfig) => availableConfig?.name
@@ -82,14 +91,14 @@ function NotationDesignerConfigurePanel({
           renderInput={(params) => (
             <TextField
               {...params}
-              className="w-1/3"
+              className={configureTextfieldStyle}
               placeholder="Configuration Name"
             />
           )}
         />
 
         {/* Notation type selection */}
-        <FormControl className="w-1/3">
+        <FormControl className={configureTextfieldStyle}>
           <Select
             value={currentNotation.type || ""}
             onChange={handleNotationTypeChange}
@@ -106,7 +115,7 @@ function NotationDesignerConfigurePanel({
 
         {/* Notation Name */}
         <Autocomplete
-          className="w-1/3"
+          className={configureTextfieldStyle}
           freeSolo
           options={
             currentNotation.type === "object"
@@ -136,7 +145,7 @@ function NotationDesignerConfigurePanel({
           renderInput={(params) => (
             <TextField
               {...params}
-              className="w-1/3"
+              className={configureTextfieldStyle}
               placeholder="Notation Name"
             />
           )}
@@ -145,7 +154,7 @@ function NotationDesignerConfigurePanel({
         {/* Description */}
         <textarea
           id="configure-notation-input"
-          className="w-1/3"
+          className={configureTextfieldStyle}
           placeholder="Description"
           value={currentNotation.description}
           onChange={(e) =>
@@ -185,9 +194,9 @@ function NotationDesignerConfigurePanel({
             ))}
           </List>
         )}
-        <div className="flex items-center">
+        <div className="flex items-center gap-x-2">
           <TextField
-            className="w-1/6"
+            className={propertyTextfieldStyle}
             placeholder="Property Name"
             value={newProperty.name}
             onChange={(e) =>
@@ -195,7 +204,7 @@ function NotationDesignerConfigurePanel({
             }
           />
           <TextField
-            className="w-1/6"
+            className={propertyTextfieldStyle}
             placeholder="Data Type"
             value={newProperty.dataType}
             onChange={(e) =>
@@ -203,7 +212,7 @@ function NotationDesignerConfigurePanel({
             }
           />
           <TextField
-            className="w-1/6"
+            className={propertyTextfieldStyle}
             placeholder="Default Value"
             value={newProperty.defaultValue}
             onChange={(e) =>
@@ -211,7 +220,7 @@ function NotationDesignerConfigurePanel({
             }
           />
           <TextField
-            className="w-1/6"
+            className={propertyTextfieldStyle}
             placeholder="Element Type"
             value={newProperty.elementType}
             onChange={(e) =>
@@ -219,7 +228,7 @@ function NotationDesignerConfigurePanel({
             }
           />
           <Select
-            className="w-1/6"
+            className={propertyTextfieldStyle}
             value={newProperty.isUnique || ""}
             onChange={(e) =>
               setNewProperty({ ...newProperty, isUnique: e.target.value })
@@ -232,11 +241,7 @@ function NotationDesignerConfigurePanel({
             <MenuItem value="true">True</MenuItem>
             <MenuItem value="false">False</MenuItem>
           </Select>
-          <IconButton
-            onClick={handleAddProperty}
-            size="small"
-            style={{ height: "fit-content" }}
-          >
+          <IconButton onClick={handleAddProperty} size="small" id="icon-button">
             <AddIcon fontSize="small" />
           </IconButton>
         </div>
@@ -244,7 +249,7 @@ function NotationDesignerConfigurePanel({
         {/* Save and export buttons */}
         <button
           onClick={saveNotation}
-          className="bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer float-right hover:opacity-85 trransition duration-300 ease-in-out float-left mt-4"
+          className="bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer hover:opacity-85 trransition duration-300 ease-in-out float-left mt-4"
         >
           <span className="text-sm">Save Notation</span>
         </button>

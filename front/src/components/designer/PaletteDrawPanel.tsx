@@ -68,7 +68,6 @@ function PaletteDrawPanel({ saveNotation }: PaletteDrawPanelProps) {
     shape: any
   ) => {
     event.dataTransfer.setData("shape", JSON.stringify(shape));
-    console.log("drag start", shape);
   };
 
   return (

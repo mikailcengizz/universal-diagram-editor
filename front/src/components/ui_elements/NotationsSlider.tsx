@@ -44,14 +44,12 @@ function NotationsSlider({
     }
   };
 
-  console.log("notations_from_slider", notations);
-
   return (
     <Slider {...updatedSettings} className="mt-2">
       {notations.map((notation, index) => (
         <div
           key={index}
-          className="border-[1px] border-black text-center h-28 p-2 cursor-pointer"
+          className="border-[1px] border-black text-center h-28 p-2 cursor-pointer content-center"
           onClick={() => setCurrentNotation(notation)}
         >
           {/** If the notation has a graphical representation, render it otherwise render its name */}

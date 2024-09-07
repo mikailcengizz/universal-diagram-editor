@@ -29,6 +29,7 @@ function RenderRectangles({ rectangles, isPalette }: RenderRectanglesProps) {
               borderColor: rect.style.borderColor,
               borderWidth: rect.style.borderWidth,
               borderStyle: rect.style.borderStyle,
+              borderRadius: rect.style.borderRadius + "px",
             }}
           />
         );

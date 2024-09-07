@@ -22,8 +22,6 @@ function ModalDoubleClickSquare({
 }: ModalDoubleClickSquareProps) {
   const [square, setSquare] = useState<NotationRepresentationItem>();
 
-  console.log("selectedElementIndexFromModal", selectedElementIndex);
-
   // This useEffect ensures that the modal's fields are populated with the current values
   useEffect(() => {
     if (selectedElementIndex !== null && selectedElementIndex >= 0) {
@@ -36,8 +34,6 @@ function ModalDoubleClickSquare({
   }, [selectedElementIndex, currentNotation]);
 
   const handleStyleChange = (e: any) => {
-    console.log("e.target.name", e.target.name);
-    console.log("e.target.value", e.target.value);
     setSquare({
       ...square!,
       style: {
@@ -114,6 +110,15 @@ function ModalDoubleClickSquare({
             type="number"
             name="borderWidth"
             value={square?.style.borderWidth}
+            onChange={handleStyleChange}
+          />
+        </div>
+        <div>
+          <label>Border radius</label>
+          <input
+            type="number"
+            name="borderRadius"
+            value={square?.style.borderRadius || 0}
             onChange={handleStyleChange}
           />
         </div>
