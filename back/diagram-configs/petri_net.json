@@ -78,7 +78,15 @@
         ]
       }
     ],
-    "relationships": [],
+    "relationships": [
+      {
+        "name": "Arc",
+        "type": "relationship",
+        "properties": [],
+        "description": "This is an Arc",
+        "graphicalRepresentation": []
+      }
+    ],
     "roles": []
   }
 }

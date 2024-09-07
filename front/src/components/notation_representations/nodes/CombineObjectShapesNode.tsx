@@ -25,13 +25,13 @@ interface CombineObjectShapesNodeProps {
   selected?: boolean;
 }
 
-const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
+const CombineObjectShapesNode = ({
   id,
   isPalette = false,
   isNotationSlider = false, // only used for slider item width
   data: initialData,
   selected,
-}) => {
+}: CombineObjectShapesNodeProps) => {
   const [data, setData] = useState<CustomNodeData>({ ...initialData });
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1); // used for palette scaling
@@ -357,10 +357,7 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
       }}
     >
       {/* Render rectangles in the background */}
-      <RenderRectangles
-        rectangles={rectangles}
-        isPalette={isPalette}
-      />
+      <RenderRectangles rectangles={rectangles} isPalette={isPalette} />
 
       {/* Render compartments */}
       <RenderCompartments

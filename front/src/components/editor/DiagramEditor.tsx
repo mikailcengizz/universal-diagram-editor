@@ -16,11 +16,15 @@ import { Config, CustomNodeData, DragData, Notation } from "../../types/types";
 import PaletteEditorPanel from "./PaletteEditorPanel";
 import configService from "../../services/ConfigService";
 import ReactFlowWithInstance from "../ReactFlowWithInstance";
-import createEdgeTypesFromConfig from "../notation_representations/edges/Helper";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
+import CombineRelationshipShapesNode from "../notation_representations/nodes/CombineRelationshipShapesNode";
 
 const nodeTypes = {
   objectNode: CombineObjectShapesNode,
+};
+
+const edgeTypes = {
+  edgeNode: CombineRelationshipShapesNode,
 };
 
 interface DiagramEditorProps {
@@ -63,8 +67,6 @@ const DiagramEditor = ({
       fetchConfig();
     }
   }, [selectedConfigName]);
-
-  const edgeTypes = config ? createEdgeTypesFromConfig(config) : {};
 
   // TODO: set initial nodes and edges from local storage,
   useEffect(() => {
