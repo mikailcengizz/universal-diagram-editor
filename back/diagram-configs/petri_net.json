@@ -84,7 +84,37 @@
         "type": "relationship",
         "properties": [],
         "description": "This is an Arc",
-        "graphicalRepresentation": []
+        "graphicalRepresentation": [
+          {
+            "shape": "line",
+            "icon": {
+              "type": {
+                "type": {},
+                "compare": null
+              },
+              "key": null,
+              "ref": null,
+              "props": {},
+              "_owner": null,
+              "_store": {}
+            },
+            "style": {
+              "backgroundColor": "#000000",
+              "borderWidth": 0,
+              "zIndex": 2
+            },
+            "position": {
+              "x": 10,
+              "y": 20,
+              "targetX": 50,
+              "targetY": 20,
+              "extent": {
+                "width": 5,
+                "height": 0
+              }
+            }
+          }
+        ]
       }
     ],
     "roles": []

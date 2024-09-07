@@ -23,6 +23,7 @@ const NotationDesignerDrawPanelGrid = ({
   const [isTextModalOpen, setIsTextModalOpen] = useState(false);
   const [isCompartmentModalOpen, setIsCompartmentModalOpen] = useState(false);
   const [isConnectorModalOpen, setIsConnectorModalOpen] = useState(false);
+  const [isLineModalOpen, setIsLineModalOpen] = useState(false);
 
   // Flag to track if any modal is open
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -113,9 +114,10 @@ const NotationDesignerDrawPanelGrid = ({
 
       newElement.position = {
         x: x - extent.width / 2,
-        y: y - extent.height / 2,
+        y: y - (extent.height ?? 0) / 2,
         extent,
       };
+      console.log("newElement", newElement);
 
       // Add new element to the graphicalRepresentation
       setCurrentNotation({
@@ -138,7 +140,7 @@ const NotationDesignerDrawPanelGrid = ({
           ...updatedRepresentation[index],
           position: {
             x: x - extent.width / 2,
-            y: y - extent.height / 2,
+            y: y - (extent.height ?? 0) / 2,
             extent,
           },
         };

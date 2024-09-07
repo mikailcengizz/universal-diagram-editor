@@ -17,14 +17,14 @@ import PaletteEditorPanel from "./PaletteEditorPanel";
 import configService from "../../services/ConfigService";
 import ReactFlowWithInstance from "../ReactFlowWithInstance";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
-import CombineRelationshipShapesNode from "../notation_representations/nodes/CombineRelationshipShapesNode";
+import CombineRelationshipShapesEdge from "../notation_representations/edges/CombineRelationshipShapesEdge";
 
 const nodeTypes = {
   objectNode: CombineObjectShapesNode,
 };
 
 const edgeTypes = {
-  edgeNode: CombineRelationshipShapesNode,
+  edge: CombineRelationshipShapesEdge,
 };
 
 interface DiagramEditorProps {

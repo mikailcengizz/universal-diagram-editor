@@ -137,7 +137,7 @@ const NotationDesigner = () => {
       } else {
         updatedNotations.objects.push(currentNotation);
       }
-    } else if (selectedNotationType === "relationship") {
+    } else if (currentNotation.type === "relationship") {
       const alreadyExists = selectedConfig.notations.relationships.findIndex(
         (n) => n.name === currentNotation.name
       );
@@ -146,7 +146,7 @@ const NotationDesigner = () => {
       } else {
         updatedNotations.relationships.push(currentNotation);
       }
-    } else if (selectedNotationType === "role") {
+    } else if (currentNotation.type === "role") {
       const alreadyExists = selectedConfig.notations.roles.findIndex(
         (n) => n.name === currentNotation.name
       );

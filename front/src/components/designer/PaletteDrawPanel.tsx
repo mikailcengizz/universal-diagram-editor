@@ -3,6 +3,8 @@ import CropSquareIcon from "@mui/icons-material/CropSquare";
 import TitleIcon from "@mui/icons-material/Title";
 import SmartButtonIcon from "@mui/icons-material/SmartButton";
 import CircleIcon from "@mui/icons-material/Circle";
+import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";
+import zIndex from "@mui/material/styles/zIndex";
 
 const shapes = [
   {
@@ -55,6 +57,16 @@ const shapes = [
       borderWidth: 1,
       zIndex: 2,
     },
+  },
+  {
+    shape: "line",
+    icon: <HorizontalRuleIcon />,
+    style: {
+      backgroundColor: "#000000",
+      borderWidth: 0,
+      zIndex: 2,
+    },
+    position: { extent: { width: 50, height: 2 } },
   },
 ];
 

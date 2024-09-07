@@ -1,7 +1,7 @@
 import React from "react";
 import { DragData, Notation, Notations } from "../../types/types";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
-import CombineRelationshipShapesNode from "../notation_representations/nodes/CombineRelationshipShapesNode";
+import CombineRelationshipShapesNode from "../notation_representations/edges/CombineRelationshipShapesEdge";
 import CombineRoleShapesNode from "../notation_representations/nodes/CombineRoleShapesNode";
 
 interface PaletteEditorPanelProps {
@@ -35,7 +35,18 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
           />
         );
       case "relationship":
-        return <CombineRelationshipShapesNode />;
+        return (
+          <CombineRelationshipShapesNode
+            key={notation.name}
+            id={notation.name}
+            isPalette={true}
+            data={{ notation }}
+            sourceX={0}
+            sourceY={0}
+            targetX={0}
+            targetY={0}
+          />
+        );
       case "role":
         return <CombineRoleShapesNode />;
     }

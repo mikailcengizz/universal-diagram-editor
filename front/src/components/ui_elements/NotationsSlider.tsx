@@ -4,8 +4,9 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { Notation } from "../../types/types";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
-import CombineRelationshipShapesNode from "../notation_representations/nodes/CombineRelationshipShapesNode";
+import CombineRelationshipShapesNode from "../notation_representations/edges/CombineRelationshipShapesEdge";
 import CombineRoleShapesNode from "../notation_representations/nodes/CombineRoleShapesNode";
+import { Position } from "@xyflow/react";
 
 interface NotationsSliderProps {
   settings: {};
@@ -38,13 +39,27 @@ function NotationsSlider({
           />
         );
       case "relationship":
-        return <CombineRelationshipShapesNode />;
+        const { x, y, targetX, targetY } =
+          notation.graphicalRepresentation[0].position;
+        return (
+          <CombineRelationshipShapesNode
+            key={notation.name}
+            id={notation.name}
+            isPalette={true}
+            isNotationSlider={true}
+            data={{ notation }}
+            sourceX={x}
+            sourceY={y}
+            targetX={targetX!}
+            targetY={targetY!}
+            sourcePosition={Position.Right}
+            targetPosition={Position.Left}
+          />
+        );
       case "role":
         return <CombineRoleShapesNode />;
     }
   };
-
-  console.log("NotationsSlider notations", notations);
 
   return (
     <Slider {...updatedSettings} className="mt-2">

@@ -33,9 +33,11 @@ export interface NotationRepresentationItem {
 export interface Position {
   x: number;
   y: number;
+  targetX?: number; // optional for edges
+  targetY?: number; // optional for edges
   extent?: {
     width: number;
-    height: number;
+    height?: number; // optional for edges
   };
 }
 
