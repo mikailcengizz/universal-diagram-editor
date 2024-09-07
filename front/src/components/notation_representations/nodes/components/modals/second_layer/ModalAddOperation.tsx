@@ -22,7 +22,7 @@ function ModalAddOperation({
   setIsAddParameterModalOpen,
   handleOperationSubmit,
 }: ModalAddOperationProps) {
-  const operationProperty = data.notation.properties.find(
+  const operationProperty = data.nodeNotation.properties!.find(
     (property) => property.elementType === "Operation"
   );
 

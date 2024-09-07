@@ -1,11 +1,5 @@
-import {
-  getBezierPath,
-  useReactFlow,
-  EdgeLabelRenderer,
-  Position,
-  BaseEdge,
-} from "@xyflow/react";
-import React from "react";
+import { getBezierPath, useReactFlow, Position, BaseEdge } from "@xyflow/react";
+import React, { useState } from "react";
 import { CustomNodeData } from "../../../types/types";
 
 interface CombineRelationshipShapesEdgeProps {
@@ -33,19 +27,12 @@ function CombineRelationshipShapesEdge({
   targetPosition,
   style = {},
   markerEnd,
-  data,
+  data: initialData,
   isPalette = false,
   isNotationSlider = false,
 }: CombineRelationshipShapesEdgeProps) {
-  console.log("CombineRelationshipShapesEdge data:", data);
-  console.log(
-    "CombineRelationshipShapesEdge positions:",
-    sourceX,
-    sourceY,
-    targetX,
-    targetY
-  );
-
+  const [data, setData] = useState<CustomNodeData>({ ...initialData });
+  const [isEdgeModalOpen, setIsEdgeModalOpen] = useState(false);
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
@@ -55,7 +42,14 @@ function CombineRelationshipShapesEdge({
     targetPosition,
   });
 
-  console.log("CombineRelationshipShapesEdge edgePath:", edgePath);
+  const edgeStyles = {
+    strokeWidth:
+      data.nodeNotation.graphicalRepresentation![0].position.extent?.width,
+    stroke: data.nodeNotation.graphicalRepresentation![0].style.backgroundColor,
+    ...style,
+  };
+
+  console.log("modal open", isEdgeModalOpen);
 
   // Manually render the line for palette or notation slider context
   if (isPalette || isNotationSlider) {
@@ -66,12 +60,8 @@ function CombineRelationshipShapesEdge({
           y1={sourceY}
           x2={targetX}
           y2={targetY}
-          stroke={
-            data.notation.graphicalRepresentation[0].style.backgroundColor
-          }
-          strokeWidth={
-            data.notation.graphicalRepresentation[0].position.extent?.width
-          }
+          stroke={edgeStyles.stroke}
+          strokeWidth={edgeStyles.strokeWidth}
           markerEnd={markerEnd}
         />
       </svg>
@@ -85,26 +75,31 @@ function CombineRelationshipShapesEdge({
     setEdges((edges) => edges.filter((edge) => edge.id !== id));
   };
 
+  const handleDoubleClick = () => {
+    if (data.onDoubleClick) {
+      data.onDoubleClick(id, data); // Access the onDoubleClick function
+    } else {
+      console.error("onDoubleClick function is not defined");
+    }
+  };
+
   return (
     <>
-      <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
-      <EdgeLabelRenderer>
-        <div
-          style={{
-            position: "absolute",
-            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-            fontSize: 12,
-            // everything inside EdgeLabelRenderer has no pointer events by default
-            // if you have an interactive element, set pointer-events: all
-            pointerEvents: "all",
-          }}
-          className="nodrag nopan"
-        >
-          <button className="edgebutton" onClick={onEdgeClick}>
-            ×
-          </button>
-        </div>
-      </EdgeLabelRenderer>
+      <BaseEdge path={edgePath} markerEnd={markerEnd} style={edgeStyles} />
+
+      {/* Transparent overlay to capture double-click */}
+      <svg style={{ position: "absolute", pointerEvents: "none" }}>
+        <line
+          x1={sourceX}
+          y1={sourceY}
+          x2={targetX}
+          y2={targetY}
+          stroke="transparent"
+          strokeWidth={Number(edgeStyles.strokeWidth) + 10} // Increase the invisible hit area
+          onDoubleClick={handleDoubleClick} // Capture the double-click event
+          style={{ cursor: "pointer", pointerEvents: "all" }}
+        />
+      </svg>
     </>
   );
 }

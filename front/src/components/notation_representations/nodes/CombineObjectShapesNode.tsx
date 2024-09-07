@@ -38,13 +38,13 @@ const CombineObjectShapesNode = ({
   // Calculate the max width and max height when node is rendered on the canvas
   // to know our selection area when moving the node around
   const maxWidth = Math.max(
-    ...data.notation.graphicalRepresentation.map(
+    ...data.nodeNotation.graphicalRepresentation!.map(
       (item) => item.position.extent?.width || 100
     )
   );
 
   const maxHeight = Math.max(
-    ...data.notation.graphicalRepresentation.map(
+    ...data.nodeNotation.graphicalRepresentation!.map(
       (item) => item.position.extent?.height || 100
     )
   );
@@ -85,9 +85,9 @@ const CombineObjectShapesNode = ({
   });
 
   let adjustedRepresentation: NotationRepresentationItem[] = [];
-  if (initialData.notation.graphicalRepresentation.length > 0) {
+  if (initialData.nodeNotation.graphicalRepresentation!.length > 0) {
     const validGraphicalItems =
-      initialData.notation.graphicalRepresentation.filter(
+      initialData.nodeNotation.graphicalRepresentation!.filter(
         (item) =>
           (!isPalette || (isPalette && item.shape !== "connector")) &&
           item.position.x !== undefined &&
@@ -199,8 +199,9 @@ const CombineObjectShapesNode = ({
 
     // update the data
     const newData = { ...data };
-    newData.notation.properties = data.notation.properties.map((prop) =>
-      prop.name === propertyFromText!.name ? propertyFromText! : prop
+    newData.nodeNotation.properties = data.nodeNotation.properties!.map(
+      (prop) =>
+        prop.name === propertyFromText!.name ? propertyFromText! : prop
     );
 
     setData(newData);
@@ -208,7 +209,7 @@ const CombineObjectShapesNode = ({
 
   const handleAttributeSubmit = () => {
     // Find the "Attributes" collection
-    const attributesProperty = data.notation.properties.find(
+    const attributesProperty = data.nodeNotation.properties!.find(
       (prop) => prop.elementType === "Attribute"
     );
 
@@ -240,7 +241,7 @@ const CombineObjectShapesNode = ({
 
   const handleOperationSubmit = () => {
     // Find the operation property
-    const operationProperty = data.notation.properties.find(
+    const operationProperty = data.nodeNotation.properties!.find(
       (prop) => prop.elementType === "Operation"
     );
 
@@ -283,7 +284,7 @@ const CombineObjectShapesNode = ({
 
   const handleParameterSubmit = () => {
     // Find the operation property
-    const operationProperty = data.notation.properties.find(
+    const operationProperty = data.nodeNotation.properties!.find(
       (prop) => prop.elementType === "Operation"
     );
 

@@ -51,7 +51,7 @@ const NotationDesignerDrawPanelGrid = ({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (selectedElementIndex !== null) {
         const updatedRepresentation = [
-          ...currentNotation.graphicalRepresentation,
+          ...currentNotation.graphicalRepresentation!,
         ];
         const element = updatedRepresentation[selectedElementIndex];
         const currentPosition = element.position;
@@ -104,7 +104,7 @@ const NotationDesignerDrawPanelGrid = ({
     const x = Math.round((event.clientX - grid.left) / gridSize) * gridSize;
     const y = Math.round((event.clientY - grid.top) / gridSize) * gridSize;
 
-    const updatedRepresentation = [...currentNotation.graphicalRepresentation];
+    const updatedRepresentation = [...currentNotation.graphicalRepresentation!];
     console.log("updatedRepresentation", updatedRepresentation);
 
     // If shapeData exists, this means we are adding a new element from the palette
@@ -219,7 +219,7 @@ const NotationDesignerDrawPanelGrid = ({
     event.stopPropagation();
     event.preventDefault();
 
-    const updatedRepresentation = [...currentNotation.graphicalRepresentation];
+    const updatedRepresentation = [...currentNotation.graphicalRepresentation!];
     const element = updatedRepresentation[index];
 
     const startX = event.clientX;
@@ -496,6 +496,9 @@ const NotationDesignerDrawPanelGrid = ({
           setIsConnectorModalOpen(isOpen);
           if (!isOpen) handleCloseModal();
         }}
+        currentNotation={currentNotation}
+        setCurrentNotation={setCurrentNotation}
+        selectedElementIndex={selectedElementIndex}
       />
     </>
   );

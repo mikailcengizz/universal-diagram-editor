@@ -17,9 +17,9 @@ export interface Notations {
 export interface Notation {
   name: string;
   type: NotationType;
-  properties: Property[];
-  description: string;
-  graphicalRepresentation: NotationRepresentationItem[];
+  properties?: Property[];
+  description?: string;
+  graphicalRepresentation?: NotationRepresentationItem[];
 }
 
 export interface NotationRepresentationItem {
@@ -99,8 +99,10 @@ export interface Parameter {
 // DIAGRAM EDITOR
 
 export interface CustomNodeData {
-  notation: Notation;
+  notations: Notations;
+  nodeNotation: Notation;
   position?: Position;
+  onDoubleClick?: (id: any, data: any) => void;
 }
 
 export interface CustomEdgeProps extends EdgeProps {

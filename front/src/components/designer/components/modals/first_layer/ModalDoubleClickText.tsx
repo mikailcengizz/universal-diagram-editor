@@ -19,7 +19,7 @@ function ModalDoubleClickText({
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (selectedElementIndex === null) return;
 
-    const updatedRepresentation = [...currentNotation.graphicalRepresentation];
+    const updatedRepresentation = [...currentNotation.graphicalRepresentation!];
     updatedRepresentation[selectedElementIndex].text = e.target.value;
 
     setCurrentNotation({
@@ -31,7 +31,7 @@ function ModalDoubleClickText({
   const handleFontSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (selectedElementIndex === null) return;
 
-    const updatedRepresentation = [...currentNotation.graphicalRepresentation];
+    const updatedRepresentation = [...currentNotation.graphicalRepresentation!];
     updatedRepresentation[selectedElementIndex].style.fontSize = parseInt(
       e.target.value
     );

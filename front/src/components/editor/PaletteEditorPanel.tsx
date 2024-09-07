@@ -32,19 +32,19 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
             key={notation.name}
             id={notation.name}
             isPalette={true}
-            data={{ notation }}
+            data={{ nodeNotation: notation, notations: notations }}
           />
         );
       case "relationship":
         const { x, y, targetX, targetY } =
-          notation.graphicalRepresentation[0].position;
+          notation.graphicalRepresentation![0].position;
         return (
           <CombineRelationshipShapesNode
             key={notation.name}
             id={notation.name}
             isPalette={true}
             isNotationSlider={true}
-            data={{ notation }}
+            data={{ nodeNotation: notation, notations: notations }}
             sourceX={x}
             sourceY={y}
             targetX={targetX!}

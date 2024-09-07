@@ -14,7 +14,13 @@ import {
 import React, { useEffect, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
-import { Config, ConfigListItem, Notation, Property } from "../../types/types";
+import {
+  Config,
+  ConfigListItem,
+  Notation,
+  Notations,
+  Property,
+} from "../../types/types";
 import NotationsSlider from "../ui_elements/NotationsSlider";
 
 var notationsSliderSettings = {
@@ -41,6 +47,7 @@ interface NotationDesignerConfigurePanelProps {
   availableConfigs: ConfigListItem[];
   selectedConfig: Config;
   setSelectedConfig: (value: Config) => void;
+  notations: Notations;
   allNotations: Notation[];
   saveNotation: () => void;
 }
@@ -56,6 +63,7 @@ function NotationDesignerConfigurePanel({
   availableConfigs,
   selectedConfig,
   setSelectedConfig,
+  notations,
   allNotations,
   saveNotation,
 }: NotationDesignerConfigurePanelProps) {
@@ -157,9 +165,9 @@ function NotationDesignerConfigurePanel({
 
         {/* Properties Section */}
         <h3>Properties</h3>
-        {currentNotation.properties.length > 0 && (
+        {currentNotation.properties!.length > 0 && (
           <List>
-            {currentNotation.properties.map((prop, index) => (
+            {currentNotation.properties!.map((prop, index) => (
               <ListItem key={index}>
                 <ListItemText
                   primary={`${prop.name} (${prop.dataType})`}
@@ -171,7 +179,7 @@ function NotationDesignerConfigurePanel({
                     onClick={() =>
                       setCurrentNotation({
                         ...currentNotation,
-                        properties: currentNotation.properties.filter(
+                        properties: currentNotation.properties!.filter(
                           (_, i) => i !== index
                         ),
                       })
@@ -253,7 +261,8 @@ function NotationDesignerConfigurePanel({
           />
           <NotationsSlider
             settings={notationsSliderSettings}
-            notations={allNotations}
+            notations={notations}
+            allNotations={allNotations}
             setCurrentNotation={setCurrentNotation}
           />
         </div>

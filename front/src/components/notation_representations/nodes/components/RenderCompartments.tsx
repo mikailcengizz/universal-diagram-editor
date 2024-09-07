@@ -24,7 +24,7 @@ function RenderCompartments({
         const generatorName = compartment.generator;
 
         if (generatorName === "attributesForNotation") {
-          const attributeProperty = data.notation.properties.find(
+          const attributeProperty = data.nodeNotation.properties!.find(
             (prop) => prop.elementType === "Attribute"
           )!;
 
@@ -73,7 +73,7 @@ function RenderCompartments({
             </>
           );
         } else if (generatorName === "operationsForNotation") {
-          const operationProperty = data.notation.properties.find(
+          const operationProperty = data.nodeNotation.properties!.find(
             (prop) => prop.elementType === "Operation"
           )!;
 

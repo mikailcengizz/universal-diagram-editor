@@ -114,7 +114,7 @@ const NotationDesigner = () => {
   const handleAddProperty = () => {
     setCurrentNotation({
       ...currentNotation,
-      properties: [...currentNotation.properties, newProperty],
+      properties: [...currentNotation.properties!, newProperty],
     });
     setNewProperty({
       name: "",
@@ -210,6 +210,7 @@ const NotationDesigner = () => {
             setSelectedConfig(config);
             setIsConfigLoaded(false); // Reset flag if a new config is selected
           }}
+          notations={selectedConfig.notations}
           allNotations={allNotations}
           saveNotation={saveNotation}
         />

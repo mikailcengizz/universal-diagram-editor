@@ -26,7 +26,7 @@ function ModalDoubleClickCompartment({
   useEffect(() => {
     if (selectedElementIndex !== null && selectedElementIndex >= 0) {
       const selectedElement =
-        currentNotation.graphicalRepresentation[selectedElementIndex];
+        currentNotation.graphicalRepresentation![selectedElementIndex];
       if (selectedElement) {
         setCompartment(selectedElement);
       }
@@ -77,7 +77,7 @@ function ModalDoubleClickCompartment({
     console.log("selectedElementIndex", selectedElementIndex);
     if (selectedElementIndex === null || !compartment) return;
 
-    const updatedRepresentation = [...currentNotation.graphicalRepresentation];
+    const updatedRepresentation = [...currentNotation.graphicalRepresentation!];
 
     // Update the entire style and position objects in one go
     updatedRepresentation[selectedElementIndex] = {

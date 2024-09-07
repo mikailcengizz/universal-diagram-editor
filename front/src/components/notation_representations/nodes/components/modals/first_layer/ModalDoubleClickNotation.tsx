@@ -34,97 +34,130 @@ function ModalDoubleClickNotation({
       onClose={() => setIsNodeModalOpen(false)}
       zIndex={5}
     >
-      <h2 className="font-semibold">{data.notation.name} Details</h2>
+      <h2 className="font-semibold">{data.nodeNotation.name!} Details</h2>
 
       <div>
-        {data.notation.properties.map((property, index) => {
-          const propertyDataType = property.dataType;
+        {data.nodeNotation.properties &&
+          data.nodeNotation.properties.map((property, index) => {
+            const propertyDataType = property.dataType;
 
-          if (propertyDataType === "Collection") {
-            // show a text area for all items in the collection and
-            // allow the user to add items through a new modal by clicking a button and
-            // allow the user to remove items by selecting the item and clicking a remove button
+            if (propertyDataType === "Collection") {
+              // show a text area for all items in the collection and
+              // allow the user to add items through a new modal by clicking a button and
+              // allow the user to remove items by selecting the item and clicking a remove button
+              return (
+                <div key={index}>
+                  <label>{property.name}</label>
+                  <br />
+                  {/* Show all items in the collection */}
+                  <div className="bg-white h-10 overflow-y-scroll">
+                    {property.defaultValue &&
+                      Array.isArray(property.defaultValue) && (
+                        <>
+                          {property.elementType === "Attribute" &&
+                            (property.defaultValue as Array<Attribute>).map(
+                              (item: Attribute, idx: number) => (
+                                <div key={idx}>
+                                  {typeHelper.determineVisibilityIcon(
+                                    item.visibility
+                                  )}{" "}
+                                  {item.name}: {item.dataType}{" "}
+                                  {item.multiplicity && [item.multiplicity]}
+                                  {item.defaultValue &&
+                                    ` = ${item.defaultValue}`}
+                                </div>
+                              )
+                            )}
+
+                          {property.elementType === "Operation" &&
+                            (property.defaultValue as Array<Operation>).map(
+                              (item: Operation, idx: number) => (
+                                <div key={idx}>
+                                  {typeHelper.determineVisibilityIcon(
+                                    item.visibility
+                                  )}{" "}
+                                  {item.name}(
+                                  {item.parameters.map((parameter, index) => (
+                                    <span key={index}>
+                                      {parameter.name}: {parameter.dataType}
+                                    </span>
+                                  ))}
+                                  ): {item.returnType}
+                                </div>
+                              )
+                            )}
+                        </>
+                      )}
+                  </div>
+                  <br />
+                  {/* Add and remove buttons */}
+                  <div className="flex flex-row w-full">
+                    <div
+                      className="w-1/2 bg-black text-white text-center cursor-pointer"
+                      onClick={() => {
+                        if (property.elementType === "Attribute") {
+                          setIsNodeAttributeModalOpen(true);
+                        } else if (property.elementType === "Operation") {
+                          setIsNodeOperationModalOpen(true);
+                        }
+                      }}
+                    >
+                      Add
+                    </div>
+                    <div className="w-1/2 text-center border-[1px] border-solid border-black cursor-pointer">
+                      Remove
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            // Properties that are not collections
             return (
               <div key={index}>
                 <label>{property.name}</label>
-                <br />
-                {/* Show all items in the collection */}
-                <div className="bg-white h-10 overflow-y-scroll">
-                  {property.defaultValue &&
-                    Array.isArray(property.defaultValue) && (
-                      <>
-                        {property.elementType === "Attribute" &&
-                          (property.defaultValue as Array<Attribute>).map(
-                            (item: Attribute, idx: number) => (
-                              <div key={idx}>
-                                {typeHelper.determineVisibilityIcon(
-                                  item.visibility
-                                )}{" "}
-                                {item.name}: {item.dataType}{" "}
-                                {item.multiplicity && [item.multiplicity]}
-                                {item.defaultValue && ` = ${item.defaultValue}`}
-                              </div>
-                            )
-                          )}
-
-                        {property.elementType === "Operation" &&
-                          (property.defaultValue as Array<Operation>).map(
-                            (item: Operation, idx: number) => (
-                              <div key={idx}>
-                                {typeHelper.determineVisibilityIcon(
-                                  item.visibility
-                                )}{" "}
-                                {item.name}(
-                                {item.parameters.map((parameter, index) => (
-                                  <span key={index}>
-                                    {parameter.name}: {parameter.dataType}
-                                  </span>
-                                ))}
-                                ): {item.returnType}
-                              </div>
-                            )
-                          )}
-                      </>
-                    )}
-                </div>
-                <br />
-                {/* Add and remove buttons */}
-                <div className="flex flex-row w-full">
-                  <div
-                    className="w-1/2 bg-black text-white text-center cursor-pointer"
-                    onClick={() => {
-                      if (property.elementType === "Attribute") {
-                        setIsNodeAttributeModalOpen(true);
-                      } else if (property.elementType === "Operation") {
-                        setIsNodeOperationModalOpen(true);
-                      }
-                    }}
-                  >
-                    Add
-                  </div>
-                  <div className="w-1/2 text-center border-[1px] border-solid border-black cursor-pointer">
-                    Remove
-                  </div>
-                </div>
+                <input
+                  type={typeHelper.determineInputFieldType(property.dataType)}
+                  value={property.defaultValue as string | number}
+                  onChange={(e) => {
+                    property.defaultValue = e.target.value;
+                    setData({ ...data });
+                  }}
+                />
               </div>
             );
-          }
+          })}
 
-          // Properties that are not collections
-          return (
-            <div key={index}>
-              <label>{property.name}</label>
-              <input
-                type={typeHelper.determineInputFieldType(property.dataType)}
-                value={property.defaultValue as string | number}
-                onChange={(e) => {
-                  property.defaultValue = e.target.value;
-                  setData({ ...data });
-                }}
-              />
-            </div>
-          );
-        })}
+        {data.nodeNotation.type === "relationship" && (
+          <div>
+            <label>Relation Type</label>
+            <select name="relationType">
+              {data.notations.relationships.map((relationship, index) => (
+                <option key={index} value={relationship.name}>
+                  {relationship.name}
+                </option>
+              ))}
+            </select>
+            {/* <label>Source Role</label>
+            <input
+              type="text"
+              value={data.notation.sourceRole}
+              onChange={(e) => {
+                data.notation.sourceRole = e.target.value;
+                setData({ ...data });
+              }}
+            /> 
+            <label>Target Role</label>
+            <input
+              type="text"
+              value={data.notation.targetRole}
+              onChange={(e) => {
+                data.notation.targetRole = e.target.value;
+                setData({ ...data });
+              }}
+            /> */}
+          </div>
+        )}
       </div>
     </CustomModal>
   );

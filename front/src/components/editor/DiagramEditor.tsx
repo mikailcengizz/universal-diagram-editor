@@ -18,6 +18,8 @@ import configService from "../../services/ConfigService";
 import ReactFlowWithInstance from "../ReactFlowWithInstance";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
 import CombineRelationshipShapesEdge from "../notation_representations/edges/CombineRelationshipShapesEdge";
+import CustomModal from "../ui_elements/Modal";
+import ModalDoubleClickNotation from "../notation_representations/nodes/components/modals/first_layer/ModalDoubleClickNotation";
 
 const nodeTypes = {
   objectNode: CombineObjectShapesNode,
@@ -50,6 +52,9 @@ const DiagramEditor = ({
     notations: { objects: [], relationships: [], roles: [] },
   });
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalData, setModalData] = useState<CustomNodeData | null>(null);
+
   useEffect(() => {
     if (selectedConfigName) {
       console.log("Selected config name:", selectedConfigName);
@@ -68,6 +73,11 @@ const DiagramEditor = ({
     }
   }, [selectedConfigName]);
 
+  const onDoubleClickEdge = (edgeId: string, data: CustomNodeData) => {
+    setModalData(data); // Set the data to be displayed in the modal
+    setIsModalOpen(true); // Open the modal
+  };
+
   // TODO: set initial nodes and edges from local storage,
   useEffect(() => {
     /* if (config) {
@@ -79,23 +89,23 @@ const DiagramEditor = ({
 
   const onConnect = useCallback(
     (params: Edge | Connection) => {
-      const selectedEdgeType = "Association";
+      const defaultEdge = config!.notations.relationships[0];
+
+      const data: CustomNodeData = {
+        notations: config!.notations,
+        nodeNotation: defaultEdge,
+      };
 
       const newEdge = {
         ...params,
-        type: selectedEdgeType,
-        data: {
-          type: selectedEdgeType,
-          onEdgeClick: () => {
-            console.log("Edge clicked:", params.source, params.target);
-            // Handle additional logic here if needed
-          },
-        },
+        type: "edge",
+        // passing data to the combined edge component
+        data: data as any,
       };
 
       setEdges((eds) => addEdge(newEdge, eds));
     },
-    [setEdges]
+    [setEdges, config]
   );
 
   const onNodesChange: OnNodesChange = useCallback(
@@ -152,8 +162,9 @@ const DiagramEditor = ({
       });
 
       const nodeData: CustomNodeData = {
-        notation,
-        position,
+        notations: config!.notations,
+        nodeNotation: notation,
+        position: position,
       };
 
       const newNode: Node = {
@@ -246,7 +257,13 @@ const DiagramEditor = ({
           <div style={{ flexGrow: 1, height: "100%", cursor: "grab" }}>
             <ReactFlowWithInstance
               nodes={nodes}
-              edges={edges}
+              edges={edges.map((edge) => ({
+                ...edge,
+                data: {
+                  ...edge.data,
+                  onDoubleClick: onDoubleClickEdge,
+                },
+              }))}
               onConnect={onConnect}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
@@ -261,6 +278,20 @@ const DiagramEditor = ({
           </div>
         </div>
       </ReactFlowProvider>
+
+      {/* Modal */}
+      {isModalOpen && modalData && (
+        <ModalDoubleClickNotation
+          data={modalData}
+          isNodeAttributeModalOpen={false}
+          isNodeModalOpen={isModalOpen}
+          isNodeOperationModalOpen={false}
+          setData={setModalData}
+          setIsNodeAttributeModalOpen={() => {}}
+          setIsNodeModalOpen={setIsModalOpen}
+          setIsNodeOperationModalOpen={() => {}}
+        />
+      )}
 
       <div>
         <h3 className="font-bold">Import from XMI</h3>

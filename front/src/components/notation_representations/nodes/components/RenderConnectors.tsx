@@ -22,7 +22,11 @@ function RenderConnectors({
             type={connector.style.alignment === "left" ? "source" : "target"} // can not set exact position on connector so will stick with this for now
             position={connector.style.alignment as Position} // temp
             style={{ background: connector.style.color }}
-            id={`source-${index}`}
+            id={`${
+              connector.style.alignment === "right"
+                ? `source-${index} `
+                : `target-${index}`
+            }`}
             key={index}
           />
         ))}

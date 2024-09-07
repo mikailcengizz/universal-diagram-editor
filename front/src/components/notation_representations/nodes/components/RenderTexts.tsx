@@ -26,10 +26,11 @@ function RenderTexts({
   return (
     <>
       {texts.map((textItem, idx) => {
-        const originalIndex = data.notation.graphicalRepresentation.findIndex(
-          (item) => item === textItem
-        );
-        const propertyFromText = data.notation.properties.find(
+        const originalIndex =
+          data.nodeNotation.graphicalRepresentation!.findIndex(
+            (item) => item === textItem
+          );
+        const propertyFromText = data.nodeNotation.properties!.find(
           (prop) => prop.name === textItem.text
         );
 
