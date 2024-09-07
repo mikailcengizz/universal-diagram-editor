@@ -22,7 +22,6 @@ const NotationDesigner = () => {
     notations: {
       objects: [],
       relationships: [],
-      roles: [],
     },
   });
   const [currentNotation, setCurrentNotation] = useState<Notation>({
@@ -51,7 +50,6 @@ const NotationDesigner = () => {
       const allNotations = [
         ...selectedConfig.notations.objects,
         ...selectedConfig.notations.relationships,
-        ...selectedConfig.notations.roles,
       ];
       setAllNotations(allNotations);
     }
@@ -145,15 +143,6 @@ const NotationDesigner = () => {
         updatedNotations.relationships[alreadyExists] = currentNotation;
       } else {
         updatedNotations.relationships.push(currentNotation);
-      }
-    } else if (currentNotation.type === "role") {
-      const alreadyExists = selectedConfig.notations.roles.findIndex(
-        (n) => n.name === currentNotation.name
-      );
-      if (alreadyExists !== -1) {
-        updatedNotations.roles[alreadyExists] = currentNotation;
-      } else {
-        updatedNotations.roles.push(currentNotation);
       }
     }
     setSelectedConfig({ ...selectedConfig!, notations: updatedNotations });

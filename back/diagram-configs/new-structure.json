@@ -154,6 +154,8 @@
     "relationships": [
       {
         "name": "Association",
+        "type": "relationship",
+        "description": "This is an association",
         "properties": [
           {
             "name": "Association name",
@@ -177,7 +179,6 @@
             "isUnique": false
           }
         ],
-        "description": "This is an association",
         "graphicalRepresentation": [
           {
             "shape": "line",
@@ -187,9 +188,11 @@
             "position": {
               "x": 50,
               "y": 30,
+              "targetX": 150,
+              "targetY": 30,
               "extent": {
-                "width": 50,
-                "height": 50
+                "width": 1,
+                "height": 0
               }
             }
           },
@@ -211,60 +214,78 @@
               }
             }
           }
-        ]
-      }
-    ],
-    "roles": [
-      {
-        "name": "Association role",
-        "properties": [
+        ],
+        "roles": [
           {
-            "name": "Role name",
-            "defaultValue": "",
-            "dataType": "String",
-            "elementType": null,
-            "isUnique": false
+            "name": "Source",
+            "properties": [
+              {
+                "name": "Role name",
+                "defaultValue": "",
+                "dataType": "String",
+                "elementType": null,
+                "isUnique": false
+              },
+              {
+                "name": "Multiplicity",
+                "defaultValue": "",
+                "dataType": "String",
+                "elementType": null,
+                "isUnique": false,
+                "values": ["0..1", "1", "0..*", "1..*", "*"]
+              }
+            ],
+            "graphicalRepresentation": [
+              {
+                "marker": "closedArrow",
+                "position": {
+                  "x": 50,
+                  "y": 30
+                }
+              }
+            ]
           },
           {
-            "name": "Multiplicity",
-            "defaultValue": "",
-            "dataType": "String",
-            "elementType": null,
-            "isUnique": false,
-            "values": ["0..1", "1", "0..*", "1..*", "*"]
+            "name": "Target",
+            "properties": [
+              {
+                "name": "Role name",
+                "defaultValue": "",
+                "dataType": "String",
+                "elementType": null,
+                "isUnique": false
+              },
+              {
+                "name": "Multiplicity",
+                "defaultValue": "",
+                "dataType": "String",
+                "elementType": null,
+                "isUnique": false,
+                "values": ["0..1", "1", "0..*", "1..*", "*"]
+              }
+            ],
+            "graphicalRepresentation": [
+              {
+                "shape": "marker",
+                "marker": "closedArrow",
+                "position": {
+                  "x": 150,
+                  "y": 30
+                }
+              }
+            ]
           }
         ],
-        "description": "This is a association role",
-        "graphicalRepresentation": [
+        "markers": [
           {
-            "shape": "polyline",
-            "style": {
-              "borderColor": "#000000",
-              "borderWidth": 1,
-              "borderStyle": "solid"
-            },
-            "position": {
-              "x": 130,
-              "y": 70,
-              "extent": {
-                "width": 12,
-                "height": 15
-              }
-            }
+            "id": "openArrow",
+            "description": "Closed arrow marker",
+            "svgDefinition": "<path d='M 0 0 L 10 5 L 0 10 Z' fill='black' />"
           },
           {
-            "shape": "text",
-            "text": "Multiplicity",
-            "generator": null,
-            "style": {
-              "color": "#000000",
-              "fontSize": 14,
-              "alignment": "center"
-            },
-            "position": {
-              "x": 110,
-              "y": 70
-            }
+            "id": "closedArrow",
+            "description": "Open arrow marker",
+            "svgDefinition": "<path d='M 0 0 L 10 5 L 0 10' fill='none' stroke='black' />"
           }
         ]
       }

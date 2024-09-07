@@ -112,25 +112,6 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
           </div>
         ))}
       </div>
-      <h2>Roles</h2>
-      <div className="flex flex-wrap">
-        {notations.roles.map((notation: Notation) => (
-          <div
-            key={notation.name}
-            onDragStart={(event) => onDragStart(event, notation)}
-            draggable
-            style={{
-              margin: "10px",
-              padding: "10px",
-              border: "1px solid #ccc",
-              cursor: "grab",
-              backgroundColor: "#fff",
-            }}
-          >
-            {renderNodePreview(notation)}
-          </div>
-        ))}
-      </div>
     </aside>
   );
 };

@@ -404,6 +404,9 @@ const CombineObjectShapesNode = ({
         setIsNodeAttributeModalOpen={setIsNodeAttributeModalOpen}
         setIsNodeModalOpen={setIsNodeModalOpen}
         setIsNodeOperationModalOpen={setIsNodeOperationModalOpen}
+        onDataUpdate={(updatedData) => {
+          setData(updatedData);
+        }}
       />
 
       {/* Attribute modal */}

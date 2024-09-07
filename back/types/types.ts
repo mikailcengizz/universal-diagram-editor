@@ -9,7 +9,6 @@ export interface Config {
 export interface Notations {
   objects: Notation[];
   relationships: Notation[];
-  roles: Notation[];
 }
 
 export interface Notation {
@@ -18,6 +17,7 @@ export interface Notation {
   properties: Property[];
   description: string;
   graphicalRepresentation: NotationRepresentationItem[];
+  roles?: Notation[];
 }
 
 export interface NotationRepresentationItem {

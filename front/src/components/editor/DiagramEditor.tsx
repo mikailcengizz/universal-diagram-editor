@@ -18,7 +18,6 @@ import configService from "../../services/ConfigService";
 import ReactFlowWithInstance from "../ReactFlowWithInstance";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
 import CombineRelationshipShapesEdge from "../notation_representations/edges/CombineRelationshipShapesEdge";
-import CustomModal from "../ui_elements/Modal";
 import ModalDoubleClickNotation from "../notation_representations/nodes/components/modals/first_layer/ModalDoubleClickNotation";
 
 const nodeTypes = {
@@ -49,11 +48,12 @@ const DiagramEditor = ({
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [config, setConfig] = useState<Config | null>({
     name: "",
-    notations: { objects: [], relationships: [], roles: [] },
+    notations: { objects: [], relationships: [] },
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState<CustomNodeData | null>(null);
+  const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null); // Store the selected edge ID
 
   useEffect(() => {
     if (selectedConfigName) {
@@ -64,6 +64,9 @@ const DiagramEditor = ({
             selectedConfigName
           );
           setConfig(response.data);
+          // clear canvas when new config is selected
+          setNodes([]);
+          setEdges([]);
           console.log("Config fetched:", response.data); // Log the fetched configuration
         } catch (error) {
           console.error("Error fetching configuration: ", error);
@@ -75,7 +78,19 @@ const DiagramEditor = ({
 
   const onDoubleClickEdge = (edgeId: string, data: CustomNodeData) => {
     setModalData(data); // Set the data to be displayed in the modal
+    setSelectedEdgeId(edgeId); // Store the selected edge ID
     setIsModalOpen(true); // Open the modal
+  };
+
+  const onEdgeDataChange = (edgeId: string, updatedData: any) => {
+    console.log("Updating edge:", edgeId, updatedData); // Add this for debugging
+    setEdges((edges) =>
+      edges.map((edge) =>
+        edge.id === edgeId
+          ? { ...edge, data: updatedData, key: Date.now() }
+          : edge
+      )
+    );
   };
 
   // TODO: set initial nodes and edges from local storage,
@@ -217,34 +232,6 @@ const DiagramEditor = ({
   return (
     <div className="flex h-full bg-white">
       <ReactFlowProvider>
-        {/* Define SVG markers for Edges */}
-        <svg style={{ height: 0, width: 0 }}>
-          <defs>
-            <marker
-              id="arrow"
-              viewBox="0 0 10 10"
-              refX="5"
-              refY="5"
-              markerWidth="6"
-              markerHeight="6"
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#000" />
-            </marker>
-            <marker
-              id="arrowClosed"
-              viewBox="0 0 10 10"
-              refX="5"
-              refY="5"
-              markerWidth="6"
-              markerHeight="6"
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#000" />
-            </marker>
-          </defs>
-        </svg>
-
         <PaletteEditorPanel
           title={config?.name}
           notations={config!.notations}
@@ -286,10 +273,16 @@ const DiagramEditor = ({
           isNodeAttributeModalOpen={false}
           isNodeModalOpen={isModalOpen}
           isNodeOperationModalOpen={false}
-          setData={setModalData}
+          setData={(newData) => {
+            setModalData(newData);
+            onEdgeDataChange(selectedEdgeId!, newData);
+          }}
           setIsNodeAttributeModalOpen={() => {}}
           setIsNodeModalOpen={setIsModalOpen}
           setIsNodeOperationModalOpen={() => {}}
+          onDataUpdate={(updatedData) => {
+            onEdgeDataChange(selectedEdgeId!, updatedData);
+          }}
         />
       )}
 

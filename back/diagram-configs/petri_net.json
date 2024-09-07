@@ -163,6 +163,37 @@
             "style": {
               "backgroundColor": "#000000",
               "borderWidth": 0,
+              "pattern": "solid",
+              "zIndex": 2
+            },
+            "position": {
+              "x": 10,
+              "y": 20,
+              "targetX": 50,
+              "targetY": 20,
+              "extent": {
+                "width": 2,
+                "height": 0
+              }
+            }
+          },
+          {
+            "shape": "doubleLine",
+            "icon": {
+              "type": {
+                "type": {},
+                "compare": null
+              },
+              "key": null,
+              "ref": null,
+              "props": {},
+              "_owner": null,
+              "_store": {}
+            },
+            "style": {
+              "backgroundColor": "#000000",
+              "borderWidth": 0,
+              "pattern": "solid",
               "zIndex": 2
             },
             "position": {

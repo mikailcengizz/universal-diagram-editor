@@ -11,7 +11,6 @@ export interface Config {
 export interface Notations {
   objects: Notation[];
   relationships: Notation[];
-  roles: Notation[];
 }
 
 export interface Notation {
@@ -20,10 +19,19 @@ export interface Notation {
   properties?: Property[];
   description?: string;
   graphicalRepresentation?: NotationRepresentationItem[];
+  roles?: Notation[];
+  markers?: Marker[];
+}
+
+export interface Marker {
+  id: string;
+  description: string;
+  svgDefinition: string;
 }
 
 export interface NotationRepresentationItem {
   shape: Shape;
+  marker?: string;
   text?: string;
   generator?: string | null;
   style: StyleProperties;
@@ -50,12 +58,22 @@ export interface StyleProperties {
   borderStyle?: string;
   borderWidth?: number;
   borderRadius?: number;
+  pattern?: Pattern;
   zIndex?: number;
 }
 
+export type Pattern = "dotted" | "dashed" | "solid";
+
 export type Alignment = "left" | "center" | "right";
 
-export type Shape = "square" | "line" | "compartment" | "text" | "connector";
+export type Shape =
+  | "square"
+  | "compartment"
+  | "text"
+  | "connector"
+  | "marker"
+  | "line"
+  | "doubleLine";
 
 export type NotationType = "object" | "relationship" | "role" | "";
 
@@ -67,6 +85,7 @@ export interface Property {
   dataType: DataType;
   elementType: string;
   isUnique: boolean;
+  values?: string[];
 }
 
 export interface Attribute {

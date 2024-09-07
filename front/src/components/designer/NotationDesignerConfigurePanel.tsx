@@ -83,7 +83,7 @@ function NotationDesignerConfigurePanel({
           onInputChange={(event, newInputValue) => {
             setSelectedConfig({
               name: newInputValue,
-              notations: { objects: [], relationships: [], roles: [] },
+              notations: { objects: [], relationships: [] },
             });
           }}
           renderInput={(params) => (
@@ -120,11 +120,9 @@ function NotationDesignerConfigurePanel({
               ? selectedConfig.notations.objects.map(
                   (notation) => notation?.name
                 )
-              : currentNotation.type === "relationship"
-              ? selectedConfig.notations.relationships.map(
+              : selectedConfig.notations.relationships.map(
                   (notation) => notation?.name
                 )
-              : selectedConfig.notations.roles.map((notation) => notation?.name)
           } // List of existing notation names
           value={currentNotation.name}
           onInputChange={(event, newInputValue) => {
@@ -164,7 +162,7 @@ function NotationDesignerConfigurePanel({
         />
 
         {/* Properties Section */}
-        <h3>Properties</h3>
+        <h3 className="text-xl font-bold">Properties</h3>
         {currentNotation.properties!.length > 0 && (
           <List>
             {currentNotation.properties!.map((prop, index) => (
@@ -243,6 +241,269 @@ function NotationDesignerConfigurePanel({
             <AddIcon fontSize="small" />
           </IconButton>
         </div>
+
+        <h3 className="text-xl font-bold">Roles</h3>
+        {/* Roles section */}
+        {currentNotation.type === "relationship" &&
+          currentNotation.roles?.map((role) => {
+            if (role.name === "Source") {
+              return (
+                // Source role properties
+                <>
+                  <h3 className="font-bold">Source Role Marker</h3>
+                  <select
+                    className="w-1/6 2xl:w-[250px] border-black border-2 rounded-md"
+                    name="sourceMarker"
+                    value={
+                      currentNotation.roles![0].graphicalRepresentation![0]
+                        .marker
+                    }
+                    onChange={(e) => {
+                      setCurrentNotation({
+                        ...currentNotation,
+                        roles: currentNotation.roles!.map((r) =>
+                          r.name === role.name
+                            ? {
+                                ...r,
+                                graphicalRepresentation: {
+                                  ...r.graphicalRepresentation!,
+                                  marker: e.target.value,
+                                },
+                              }
+                            : r
+                        ),
+                      });
+                    }}
+                  >
+                    <option value="ArrowClosed">Arrow Closed</option>
+                    <option value="ArrowOpen">Arrow Open</option>
+                  </select>
+                  <h3 className="font-bold">Source Role Properties</h3>
+                  {role.properties!.length > 0 && (
+                    <List>
+                      {role.properties!.map((prop, index) => (
+                        <ListItem key={index}>
+                          <ListItemText
+                            primary={`${prop.name} (${prop.dataType})`}
+                            secondary={prop.defaultValue?.toString() || ""}
+                          />
+                          <ListItemSecondaryAction>
+                            <IconButton
+                              edge="end"
+                              onClick={() =>
+                                setCurrentNotation({
+                                  ...currentNotation,
+                                  properties:
+                                    currentNotation.properties!.filter(
+                                      (_, i) => i !== index
+                                    ),
+                                })
+                              }
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </ListItemSecondaryAction>
+                        </ListItem>
+                      ))}
+                    </List>
+                  )}
+                  <div className="flex items-center gap-x-2">
+                    <TextField
+                      className={propertyTextfieldStyle}
+                      placeholder="Property Name"
+                      value={newProperty.name}
+                      onChange={(e) =>
+                        setNewProperty({ ...newProperty, name: e.target.value })
+                      }
+                    />
+                    <TextField
+                      className={propertyTextfieldStyle}
+                      placeholder="Data Type"
+                      value={newProperty.dataType}
+                      onChange={(e) =>
+                        setNewProperty({
+                          ...newProperty,
+                          dataType: e.target.value,
+                        })
+                      }
+                    />
+                    <TextField
+                      className={propertyTextfieldStyle}
+                      placeholder="Default Value"
+                      value={newProperty.defaultValue}
+                      onChange={(e) =>
+                        setNewProperty({
+                          ...newProperty,
+                          defaultValue: e.target.value,
+                        })
+                      }
+                    />
+                    <TextField
+                      className={propertyTextfieldStyle}
+                      placeholder="Element Type"
+                      value={newProperty.elementType}
+                      onChange={(e) =>
+                        setNewProperty({
+                          ...newProperty,
+                          elementType: e.target.value,
+                        })
+                      }
+                    />
+                    <Select
+                      className={propertyTextfieldStyle}
+                      value={newProperty.isUnique || ""}
+                      onChange={(e) =>
+                        setNewProperty({
+                          ...newProperty,
+                          isUnique: e.target.value,
+                        })
+                      }
+                      displayEmpty
+                    >
+                      <MenuItem value="" disabled>
+                        Unique
+                      </MenuItem>
+                      <MenuItem value="true">True</MenuItem>
+                      <MenuItem value="false">False</MenuItem>
+                    </Select>
+                    <IconButton
+                      onClick={handleAddProperty}
+                      size="small"
+                      id="icon-button"
+                    >
+                      <AddIcon fontSize="small" />
+                    </IconButton>
+                  </div>
+                </>
+              );
+            } else {
+              return (
+                // Target role properties
+                <>
+                  <h3 className="font-bold">Target Role Marker</h3>
+                  <select
+                    className="w-1/6 2xl:w-[250px] border-black border-2 rounded-md"
+                    name="targetMarker"
+                    onChange={(e) => {
+                      setCurrentNotation({
+                        ...currentNotation,
+                        roles: currentNotation.roles!.map((r) =>
+                          r.name === role.name
+                            ? {
+                                ...r,
+                                graphicalRepresentation: {
+                                  ...r.graphicalRepresentation!,
+                                  marker: e.target.value,
+                                },
+                              }
+                            : r
+                        ),
+                      });
+                    }}
+                  >
+                    <option value="ArrowClosed">Arrow Closed</option>
+                    <option value="ArrowOpen">Arrow Open</option>
+                  </select>
+                  <h3 className="font-bold">Target Role Properties</h3>
+                  {role.properties!.length > 0 && (
+                    <List>
+                      {role.properties!.map((prop, index) => (
+                        <ListItem key={index}>
+                          <ListItemText
+                            primary={`${prop.name} (${prop.dataType})`}
+                            secondary={prop.defaultValue?.toString() || ""}
+                          />
+                          <ListItemSecondaryAction>
+                            <IconButton
+                              edge="end"
+                              onClick={() =>
+                                setCurrentNotation({
+                                  ...currentNotation,
+                                  properties:
+                                    currentNotation.properties!.filter(
+                                      (_, i) => i !== index
+                                    ),
+                                })
+                              }
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </ListItemSecondaryAction>
+                        </ListItem>
+                      ))}
+                    </List>
+                  )}
+                  <div className="flex items-center gap-x-2">
+                    <TextField
+                      className={propertyTextfieldStyle}
+                      placeholder="Property Name"
+                      value={newProperty.name}
+                      onChange={(e) =>
+                        setNewProperty({ ...newProperty, name: e.target.value })
+                      }
+                    />
+                    <TextField
+                      className={propertyTextfieldStyle}
+                      placeholder="Data Type"
+                      value={newProperty.dataType}
+                      onChange={(e) =>
+                        setNewProperty({
+                          ...newProperty,
+                          dataType: e.target.value,
+                        })
+                      }
+                    />
+                    <TextField
+                      className={propertyTextfieldStyle}
+                      placeholder="Default Value"
+                      value={newProperty.defaultValue}
+                      onChange={(e) =>
+                        setNewProperty({
+                          ...newProperty,
+                          defaultValue: e.target.value,
+                        })
+                      }
+                    />
+                    <TextField
+                      className={propertyTextfieldStyle}
+                      placeholder="Element Type"
+                      value={newProperty.elementType}
+                      onChange={(e) =>
+                        setNewProperty({
+                          ...newProperty,
+                          elementType: e.target.value,
+                        })
+                      }
+                    />
+                    <Select
+                      className={propertyTextfieldStyle}
+                      value={newProperty.isUnique || ""}
+                      onChange={(e) =>
+                        setNewProperty({
+                          ...newProperty,
+                          isUnique: e.target.value,
+                        })
+                      }
+                      displayEmpty
+                    >
+                      <MenuItem value="" disabled>
+                        Unique
+                      </MenuItem>
+                      <MenuItem value="true">True</MenuItem>
+                      <MenuItem value="false">False</MenuItem>
+                    </Select>
+                    <IconButton
+                      onClick={handleAddProperty}
+                      size="small"
+                      id="icon-button"
+                    >
+                      <AddIcon fontSize="small" />
+                    </IconButton>
+                  </div>
+                </>
+              );
+            }
+          })}
 
         {/* Save and export buttons */}
         <button
