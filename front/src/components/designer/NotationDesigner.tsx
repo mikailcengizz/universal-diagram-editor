@@ -3,8 +3,6 @@ import {
   Config,
   ConfigListItem,
   Notation,
-  NotationRepresentationItem,
-  Notations,
   NotationType,
   Property,
 } from "../../types/types";
@@ -46,6 +44,18 @@ const NotationDesigner = () => {
   const [isConfigurePanelOpen, setIsConfigurePanelOpen] =
     useState<boolean>(true);
   const [isConfigLoaded, setIsConfigLoaded] = useState<boolean>(false);
+  const [allNotations, setAllNotations] = useState<Notation[]>([]);
+
+  useEffect(() => {
+    if (selectedConfig && selectedConfig.notations) {
+      const allNotations = [
+        ...selectedConfig.notations.objects,
+        ...selectedConfig.notations.relationships,
+        ...selectedConfig.notations.roles,
+      ];
+      setAllNotations(allNotations);
+    }
+  }, [selectedConfig, isConfigurePanelOpen]); // Add isConfigurePanelOpen to ensure state updates on panel switch
 
   useEffect(() => {
     // Fetch available configurations from the server
@@ -83,13 +93,6 @@ const NotationDesigner = () => {
           const config = response.data as Config;
           setSelectedConfig(config);
           setIsConfigLoaded(true); // Mark config as loaded
-          setCurrentNotation({
-            name: "",
-            type: "",
-            properties: [],
-            description: "",
-            graphicalRepresentation: [],
-          });
         } catch (error) {
           console.error("Error loading configuration:", error);
         }
@@ -104,7 +107,7 @@ const NotationDesigner = () => {
     setSelectedNotationType(value);
     setCurrentNotation({
       ...currentNotation,
-      type: e.target.value as NotationType,
+      type: value,
     });
   };
 
@@ -175,21 +178,13 @@ const NotationDesigner = () => {
       }
     };
     saveConfig();
-
-    setCurrentNotation({
-      name: "",
-      type: "",
-      properties: [],
-      description: "",
-      graphicalRepresentation: [],
-    });
   };
 
   return (
     <div className="flex flex-col h-full bg-white min-h-screen w-full ">
       <div className="w-full pt-4 pb-4 px-12">
         <div
-          className="bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer float-right hover:opacity-85 trransition duration-300 ease-in-out"
+          className="bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer float-right hover:opacity-85 transition duration-300 ease-in-out"
           onClick={() => setIsConfigurePanelOpen(!isConfigurePanelOpen)}
         >
           <span className="text-sm">
@@ -199,6 +194,7 @@ const NotationDesigner = () => {
         </div>
       </div>
 
+      {/* Pass the same currentNotation and setCurrentNotation to both panels */}
       {isConfigurePanelOpen ? (
         <NotationDesignerConfigurePanel
           selectedNotationType={selectedNotationType!}
@@ -214,6 +210,7 @@ const NotationDesigner = () => {
             setSelectedConfig(config);
             setIsConfigLoaded(false); // Reset flag if a new config is selected
           }}
+          allNotations={allNotations}
           saveNotation={saveNotation}
         />
       ) : (

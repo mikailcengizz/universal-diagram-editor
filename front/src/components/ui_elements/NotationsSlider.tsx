@@ -44,22 +44,27 @@ function NotationsSlider({
     }
   };
 
+  console.log("NotationsSlider notations", notations);
+
   return (
     <Slider {...updatedSettings} className="mt-2">
-      {notations.map((notation, index) => (
-        <div
-          key={index}
-          className="border-[1px] border-black text-center h-28 p-2 cursor-pointer content-center"
-          onClick={() => setCurrentNotation(notation)}
-        >
-          {/** If the notation has a graphical representation, render it otherwise render its name */}
-          {notation.graphicalRepresentation.length > 0 ? (
-            renderNodePreview(notation)
-          ) : (
-            <span>{notation.name}</span>
-          )}
-        </div>
-      ))}
+      {notations && notations.length > 0 ? (
+        notations.map((notation, index) => (
+          <div
+            key={index}
+            className="border-[1px] border-black text-center h-28 p-2 cursor-pointer content-center"
+            onClick={() => setCurrentNotation(notation)}
+          >
+            {notation.graphicalRepresentation.length > 0 ? (
+              renderNodePreview(notation)
+            ) : (
+              <span>{notation.name}</span>
+            )}
+          </div>
+        ))
+      ) : (
+        <div>No Notations Available</div>
+      )}
     </Slider>
   );
 }

@@ -1,4 +1,3 @@
-import React from "react";
 import { NotationRepresentationItem } from "../../../../types/types";
 
 interface RenderRectanglesProps {

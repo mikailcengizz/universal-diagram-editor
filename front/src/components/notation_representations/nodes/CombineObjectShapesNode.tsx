@@ -357,7 +357,10 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
       }}
     >
       {/* Render rectangles in the background */}
-      <RenderRectangles rectangles={rectangles} isPalette={isPalette} />
+      <RenderRectangles
+        rectangles={rectangles}
+        isPalette={isPalette}
+      />
 
       {/* Render compartments */}
       <RenderCompartments
@@ -386,10 +389,10 @@ const CombineObjectShapesNode: React.FC<CombineObjectShapesNodeProps> = ({
       {!isPalette && selected && (
         <NodeResizer
           color="#ff0071"
+          onResize={handleResize}
           isVisible={selected}
           minWidth={100}
           minHeight={30}
-          onResize={handleResize}
         />
       )}
 

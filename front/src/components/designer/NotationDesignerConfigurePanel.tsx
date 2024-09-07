@@ -15,7 +15,7 @@ import React, { useEffect, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { Config, ConfigListItem, Notation, Property } from "../../types/types";
-import SimpleSlider from "../ui_elements/NotationsSlider";
+import NotationsSlider from "../ui_elements/NotationsSlider";
 
 var notationsSliderSettings = {
   infinite: true,
@@ -41,6 +41,7 @@ interface NotationDesignerConfigurePanelProps {
   availableConfigs: ConfigListItem[];
   selectedConfig: Config;
   setSelectedConfig: (value: Config) => void;
+  allNotations: Notation[];
   saveNotation: () => void;
 }
 
@@ -55,20 +56,9 @@ function NotationDesignerConfigurePanel({
   availableConfigs,
   selectedConfig,
   setSelectedConfig,
+  allNotations,
   saveNotation,
 }: NotationDesignerConfigurePanelProps) {
-  // Combine all notations into one array
-  const [allNotations, setAllNotations] = useState<Notation[]>([]);
-
-  useEffect(() => {
-    const allNotations: Notation[] = [
-      ...selectedConfig.notations.objects,
-      ...selectedConfig.notations.relationships,
-      ...selectedConfig.notations.roles,
-    ];
-    setAllNotations(allNotations);
-  }, [selectedConfig]);
-
   return (
     <div className="px-12 pb-24">
       <h2 className="text-xl font-bold mb-2">Configure Panel</h2>
@@ -261,7 +251,7 @@ function NotationDesignerConfigurePanel({
             className="border-[1px] border-solid border-[#C8C8C8] rounded-md w-60 h-[38px] px-[16px] py-2 text-[#595959]"
             placeholder="Search..."
           />
-          <SimpleSlider
+          <NotationsSlider
             settings={notationsSliderSettings}
             notations={allNotations}
             setCurrentNotation={setCurrentNotation}
