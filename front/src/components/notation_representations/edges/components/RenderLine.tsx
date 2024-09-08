@@ -24,8 +24,9 @@ const RenderLine = ({
     { x: (sourceX + targetX) / 2, y: targetY },
   ]);
 
-  const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null); // Use ref for the SVG element
+
+  let draggingIndex: number | null = null; // Index of the anchor point being dragged
 
   // Convert the mouse coordinates to the correct SVG coordinates
   const getSVGCoords = (event: MouseEvent) => {
@@ -49,21 +50,21 @@ const RenderLine = ({
       const { x, y } = getSVGCoords(event); // Get the correct SVG coordinates
       setAnchorPoints((prev) => {
         const newAnchorPoints = [...prev];
-        newAnchorPoints[draggingIndex] = { x, y };
+        newAnchorPoints[draggingIndex!] = { x, y };
         return newAnchorPoints;
       });
     }
   };
 
   const handleMouseUp = () => {
-    setDraggingIndex(null); // Stop dragging
+    draggingIndex = null; // Stop dragging
     window.removeEventListener("mousemove", handleMouseMove); // Detach listeners
     window.removeEventListener("mouseup", handleMouseUp);
   };
 
   const handleMouseDown = (index: number, e: React.MouseEvent) => {
     e.stopPropagation(); // Stop propagation so it doesn't trigger line drag
-    setDraggingIndex(index);
+    draggingIndex = index; // Set the index of the anchor point being dragged
     window.addEventListener("mousemove", handleMouseMove); // Attach listeners to window
     window.addEventListener("mouseup", handleMouseUp);
   };
