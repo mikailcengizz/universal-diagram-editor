@@ -139,9 +139,9 @@ function CombineRelationshipShapesEdge({
           refY="5" // Center of the marker
           markerWidth="10"
           markerHeight="10"
-          orient="auto"
+          orient="auto-start-reverse"
         >
-          <path d="M 0 0 L 10 5 L 0 10 Z" fill="black" />
+          <path d="M 0 0 L 10 5 L 0 10" fill="black" />
         </marker>
       </defs>
 
