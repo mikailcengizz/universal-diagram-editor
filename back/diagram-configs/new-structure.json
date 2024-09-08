@@ -237,6 +237,7 @@
             ],
             "graphicalRepresentation": [
               {
+                "shape": "marker",
                 "marker": "closedArrow",
                 "position": {
                   "x": 50,

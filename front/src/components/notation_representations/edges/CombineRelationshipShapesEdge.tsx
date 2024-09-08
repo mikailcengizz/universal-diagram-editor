@@ -65,9 +65,6 @@ function CombineRelationshipShapesEdge({
     const sourceMarker = sourceRole?.graphicalRepresentation?.[0]?.marker;
     const targetMarker = targetRole?.graphicalRepresentation?.[0]?.marker;
 
-    console.log("Source marker from data:", sourceMarker);
-    console.log("Target marker from data:", targetMarker);
-
     setMarkers({
       source: sourceMarker,
       target: targetMarker,
@@ -120,9 +117,6 @@ function CombineRelationshipShapesEdge({
     }
   };
 
-  console.log("sourceMarker", markers.source);
-  console.log("targetMarker", markers.target);
-
   return (
     <svg width="100%" height="100%">
       <defs>
@@ -130,19 +124,19 @@ function CombineRelationshipShapesEdge({
         <marker
           id="openArrow"
           viewBox="0 0 10 10"
-          refX="10"
-          refY="5"
+          refX="9" // Move the arrowhead to start at the exact point of the source
+          refY="5" // Keep it centered
           markerWidth="10"
           markerHeight="10"
-          orient="auto"
+          orient="auto-start-reverse" // Automatically reverse the direction at the start
         >
           <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="black" />
         </marker>
         <marker
           id="closedArrow"
           viewBox="0 0 10 10"
-          refX="10"
-          refY="5"
+          refX="9" // Ensure this aligns properly with the end of the line
+          refY="5" // Center of the marker
           markerWidth="10"
           markerHeight="10"
           orient="auto"
