@@ -54,7 +54,7 @@ function CombineRelationshipShapesEdge({
     targetPosition,
   });
 
-  useEffect(() => {
+  /* useEffect(() => {
     const sourceRole = data.nodeNotation.roles?.find(
       (role) => role.name === "Source"
     );
@@ -69,7 +69,7 @@ function CombineRelationshipShapesEdge({
       source: sourceMarker,
       target: targetMarker,
     });
-  }, [data.nodeNotation.roles]);
+  }, [data.nodeNotation.roles]); */
 
   const edgeStyles = {
     strokeWidth:

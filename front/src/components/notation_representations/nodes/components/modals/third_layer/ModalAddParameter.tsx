@@ -1,19 +1,12 @@
 import React from "react";
 import CustomModal from "../../../../../ui_elements/Modal";
+import { EParameter } from "../../../../../../types/types";
 
 interface ModalAddParameterProps {
   isAddParameterModalOpen: boolean;
   setIsAddParameterModalOpen: (value: boolean) => void;
-  modifyingParameter: {
-    name: string;
-    dataType: string;
-    defaultValue: string;
-  };
-  setModifyingParameter: (value: {
-    name: string;
-    dataType: string;
-    defaultValue: string;
-  }) => void;
+  modifyingParameter: EParameter;
+  setModifyingParameter: (eParameter: EParameter) => void;
   handleParameterSubmit: () => void;
 }
 
@@ -44,7 +37,7 @@ function ModalAddParameter({
         }
       />
       <br />
-      <label>Data Type</label>
+      {/* <label>Data Type</label>
       <br />
       <input
         type="text"
@@ -52,23 +45,11 @@ function ModalAddParameter({
         onChange={(e) =>
           setModifyingParameter({
             ...modifyingParameter,
-            dataType: e.target.value,
+            eType: e.target.value,
           })
         }
       />
-      <br />
-      <label>Default Value</label>
-      <br />
-      <input
-        type="text"
-        value={modifyingParameter.defaultValue}
-        onChange={(e) =>
-          setModifyingParameter({
-            ...modifyingParameter,
-            defaultValue: e.target.value,
-          })
-        }
-      />
+      <br /> */}
       <button
         className="bg-black text-white px-2 py-[2px] font-semibold"
         onClick={() => {

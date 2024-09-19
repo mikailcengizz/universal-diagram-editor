@@ -12,7 +12,15 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { parseStringPromise } from "xml2js";
-import { Config, CustomNodeData, DragData, Notation } from "../../types/types";
+import {
+  CustomNodeData,
+  DragData,
+  EClass,
+  EClassRepresentation,
+  MetaModelFile,
+  Notation,
+  RepresentationModelFile,
+} from "../../types/types";
 import PaletteEditorPanel from "./PaletteEditorPanel";
 import configService from "../../services/ConfigService";
 import ReactFlowWithInstance from "../ReactFlowWithInstance";
@@ -46,10 +54,17 @@ const DiagramEditor = ({
   setEdges,
 }: DiagramEditorProps) => {
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
-  const [config, setConfig] = useState<Config | null>({
+  const [metaConfig, setConfig] = useState<MetaModelFile | null>({
     name: "",
-    notations: { objects: [], relationships: [] },
+    type: "meta",
+    ePackages: [],
   });
+  const [representationConfig, setRepresentationConfig] =
+    useState<RepresentationModelFile | null>({
+      name: "",
+      type: "representation",
+      ePackages: [],
+    });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState<CustomNodeData | null>(null);
@@ -100,14 +115,21 @@ const DiagramEditor = ({
       setNodes(initialNodes);
       console.log("Initial nodes set:", initialNodes);
     } */
-  }, [config]);
+  }, [metaConfig]);
 
   const onConnect = useCallback(
     (params: Edge | Connection) => {
-      const defaultEdge = config!.notations.relationships[0];
-
+      let defaultEdge: Notation = metaConfig!.ePackages[0].eClassifiers
+        .map((cls) => cls as EClass)
+        .filter((cls) => cls.name === "Association")[0] as Notation;
+      defaultEdge.graphicalRepresentation =
+        representationConfig?.ePackages[0].eClassifiers
+          .map((cls) => cls as EClassRepresentation)
+          .filter(
+            (cls) => cls.name === "Association"
+          )[0].graphicalRepresentation;
       const data: CustomNodeData = {
-        notations: config!.notations,
+        ePackages: metaConfig!.ePackages,
         nodeNotation: defaultEdge,
       };
 
@@ -120,7 +142,7 @@ const DiagramEditor = ({
 
       setEdges((eds) => addEdge(newEdge, eds));
     },
-    [setEdges, config]
+    [setEdges, metaConfig, representationConfig]
   );
 
   const onNodesChange: OnNodesChange = useCallback(
@@ -177,7 +199,7 @@ const DiagramEditor = ({
       });
 
       const nodeData: CustomNodeData = {
-        notations: config!.notations,
+        ePackages: metaConfig!.ePackages,
         nodeNotation: notation,
         position: position,
       };
@@ -192,7 +214,7 @@ const DiagramEditor = ({
       console.log("Node dropped:", newNode);
       setNodes((nds) => nds.concat(newNode));
     },
-    [reactFlowInstance, config]
+    [reactFlowInstance, metaConfig]
   );
 
   const importFromXMI = async (xmiFile: File) => {
@@ -233,8 +255,8 @@ const DiagramEditor = ({
     <div className="flex h-full bg-white">
       <ReactFlowProvider>
         <PaletteEditorPanel
-          title={config?.name}
-          notations={config!.notations}
+          title={metaConfig?.name}
+          notations={metaConfig!.ePackages}
         />
         <div
           style={{ minHeight: "100%", maxHeight: "100%", width: "100%" }}

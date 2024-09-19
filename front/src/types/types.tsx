@@ -138,6 +138,7 @@ export interface EAttribute {
   eAttributeType?: EDataType; // Name of the data type
   defaultValue?: any;
   isUnique?: boolean;
+  isDerived?: boolean;
   lowerBound?: number;
   upperBound?: number;
 }
@@ -150,7 +151,7 @@ export interface EReference {
 }
 
 export interface ETypedElement extends ENamedElement {
-  eType: EClassifier; // Name of the data type
+  eType?: EClassifier; // Name of the data type
 }
 
 export interface EOperation extends ETypedElement {

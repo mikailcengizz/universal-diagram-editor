@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from "react";
-import {
-  MetaModelFile,
-  RepresentationModelFile
-  ConfigListItem,
-  Notation,
-  NotationType,
-  Property,
-  EAttribute,
-  EClass,
-} from "../../types/types";
 import axios from "axios";
 import { SelectChangeEvent } from "@mui/material";
 import NotationDesignerConfigurePanel from "./NotationDesignerConfigurePanel";
 import NotationDesignerDrawPanel from "./NotationDesignerDrawPanel";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import configService from "../../services/ConfigService";
+import {
+  ConfigListItem,
+  EAttribute,
+  EClass,
+  MetaModelFile,
+  Notation,
+  NotationType,
+} from "../../types/types";
 
 const NotationDesigner = () => {
   const [availableConfigs, setAvailableConfigs] = useState<ConfigListItem[]>(
@@ -31,7 +29,7 @@ const NotationDesigner = () => {
     eClassifiers: [],
     eAttributes: [],
     eReferences: [],
-    eOperations : [],
+    eOperations: [],
     eSubpackages: [],
     graphicalRepresentation: [],
   });
@@ -54,14 +52,14 @@ const NotationDesigner = () => {
     if (selectedMetaConfig && selectedMetaConfig.ePackages) {
       const allPackages = selectedMetaConfig.ePackages;
       const allSubpackages = allPackages.flatMap((p) => p.eSubpackages);
-      const allClasses: EClass[] = allPackages.flatMap((p) =>
-        p.eClassifiers as EClass[]
+      const allClasses: EClass[] = allPackages.flatMap(
+        (p) => p.eClassifiers as EClass[]
       );
       const allAttributes = allClasses.flatMap((c) => c.eAttributes);
       const allNotations: Notation[] = [
-        ...allClasses as Notation[],
-        ...allAttributes as Notation[],
-        ...allSubpackages as Notation[],
+        ...(allClasses as Notation[]),
+        ...(allAttributes as Notation[]),
+        ...(allSubpackages as Notation[]),
       ];
       setAllNotations(allNotations);
     }
@@ -139,26 +137,11 @@ const NotationDesigner = () => {
   const saveNotation = () => {
     // Save in the frontend
     const updatedNotations = { ...selectedMetaConfig!.ePackages };
-    if (currentNotation.type === "object") {
-      const alreadyExists = selectedConfig.notations.objects.findIndex(
-        (n) => n.name === currentNotation.name
-      );
-      if (alreadyExists !== -1) {
-        updatedNotations.objects[alreadyExists] = currentNotation;
-      } else {
-        updatedNotations.objects.push(currentNotation);
-      }
-    } else if (currentNotation.type === "relationship") {
-      const alreadyExists = selectedConfig.notations.relationships.findIndex(
-        (n) => n.name === currentNotation.name
-      );
-      if (alreadyExists !== -1) {
-        updatedNotations.relationships[alreadyExists] = currentNotation;
-      } else {
-        updatedNotations.relationships.push(currentNotation);
-      }
-    }
-    setSelectedConfig({ ...selectedConfig!, notations: updatedNotations });
+
+    setSelectedMetaConfig({
+      ...selectedMetaConfig!,
+      ePackages: updatedNotations,
+    });
 
     // Save in the backend
     const saveConfig = async () => {
@@ -166,7 +149,8 @@ const NotationDesigner = () => {
         await axios.post(
           "/config/save",
           {
-            name: selectedConfig?.name,
+            name: selectedMetaConfig?.name,
+            type: selectedMetaConfig?.type,
             notations: updatedNotations,
           },
           {
@@ -203,16 +187,16 @@ const NotationDesigner = () => {
           handleNotationTypeChange={handleNotationTypeChange}
           currentNotation={currentNotation}
           setCurrentNotation={setCurrentNotation}
-          newProperty={newProperty}
-          setNewProperty={setNewProperty}
+          newAttribute={newAttribute}
+          setNewAttribute={setNewAttribute}
           handleAddProperty={handleAddProperty}
           availableConfigs={availableConfigs}
-          selectedConfig={selectedConfig}
-          setSelectedConfig={(config) => {
-            setSelectedConfig(config);
+          selectedMetaConfig={selectedMetaConfig}
+          setSelectedMetaConfig={(config) => {
+            setSelectedMetaConfig(config);
             setIsConfigLoaded(false); // Reset flag if a new config is selected
           }}
-          notations={selectedConfig.notations}
+          ePackages={selectedMetaConfig.ePackages}
           allNotations={allNotations}
           saveNotation={saveNotation}
         />

@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Attribute,
   CustomNodeData,
+  EAttribute,
+  EOperation,
+  EParameter,
   NotationRepresentationItem,
-  Operation,
-  Parameter,
-  Property,
 } from "../../../types/types";
 import { NodeResizer } from "@xyflow/react";
 import RenderConnectors from "./components/RenderConnectors";
@@ -59,29 +58,22 @@ const CombineObjectShapesNode = ({
   const [isNodeOperationModalOpen, setIsNodeOperationModalOpen] =
     useState(false); // second layer modal for node operations
   const [isAddParameterModalOpen, setIsAddParameterModalOpen] = useState(false); // third layer modal for adding parameters to operations
-  const [modifiyingAttribute, setModifyingAttribute] = useState<Attribute>({
+  const [modifiyingAttribute, setModifyingAttribute] = useState<EAttribute>({
     name: "",
-    dataType: "",
+    eAttributeType: undefined,
     defaultValue: "",
-    multiplicity: "",
-    visibility: "public",
-    unique: false,
-    derived: false,
-    constraints: "",
+    isUnique: false,
+    lowerBound: 0,
+    upperBound: 1,
   });
-  const [modifyingOperation, setModifyingOperation] = useState<Operation>({
+  const [modifyingOperation, setModifyingOperation] = useState<EOperation>({
     name: "",
-    parameters: [],
-    returnType: "",
-    preconditions: "",
-    postconditions: "",
-    body: "",
-    visibility: "public",
+    eParameters: [],
+    eType: undefined,
   });
-  const [modifyingParameter, setModifyingParameter] = useState<Parameter>({
+  const [modifyingParameter, setModifyingParameter] = useState<EParameter>({
     name: "",
-    dataType: "",
-    defaultValue: "",
+    eType: undefined,
   });
 
   let adjustedRepresentation: NotationRepresentationItem[] = [];
@@ -190,7 +182,7 @@ const CombineObjectShapesNode = ({
   const handleTextChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     originalIndex: number,
-    propertyFromText: Property | undefined
+    propertyFromText: EAttribute | undefined
   ) => {
     const newDefaultValue = event.target.value;
 
@@ -199,7 +191,7 @@ const CombineObjectShapesNode = ({
 
     // update the data
     const newData = { ...data };
-    newData.nodeNotation.properties = data.nodeNotation.properties!.map(
+    newData.nodeNotation.eAttributes = data.nodeNotation.eAttributes!.map(
       (prop) =>
         prop.name === propertyFromText!.name ? propertyFromText! : prop
     );
@@ -208,19 +200,32 @@ const CombineObjectShapesNode = ({
   };
 
   const handleAttributeSubmit = () => {
-    // Find the "Attributes" collection
-    const attributesProperty = data.nodeNotation.properties!.find(
-      (prop) => prop.elementType === "Attribute"
+    // Find the "Attributes" collection i.e if the classifier can have attributes
+    const attributesReference = data.nodeNotation.eReferences!.find(
+      (prop) => prop.name === "attributes"
     );
 
-    if (attributesProperty) {
-      const attributes = attributesProperty.defaultValue
-        ? (attributesProperty.defaultValue as Array<any>)
+    if (attributesReference) {
+      const attributes = data.nodeNotation.eAttributes
+        ? (data.nodeNotation.eAttributes as Array<any>)
         : [];
 
-      attributes.push({ ...modifiyingAttribute });
+      const newModifyingAttribute = { ...modifiyingAttribute };
 
-      attributesProperty.defaultValue = attributes;
+      // Find the index of the attribute we are modifying
+      const attributeIndex = attributes.findIndex(
+        (attribute) => attribute.name === newModifyingAttribute.name
+      );
+
+      // If the attribute already exists, update it
+      if (attributeIndex !== -1) {
+        attributes[attributeIndex] = newModifyingAttribute;
+      } else {
+        // Otherwise, add the new attribute
+        attributes.push(newModifyingAttribute);
+      }
+
+      data.nodeNotation.eAttributes = attributes;
 
       setData({ ...data });
     }
@@ -228,26 +233,24 @@ const CombineObjectShapesNode = ({
     // Reset and close the modal
     setModifyingAttribute({
       name: "",
-      dataType: "",
+      eAttributeType: undefined,
       defaultValue: "",
-      multiplicity: "",
-      visibility: "public",
-      unique: false,
-      derived: false,
-      constraints: "",
+      isUnique: false,
+      lowerBound: 0,
+      upperBound: 1,
     });
     setIsNodeAttributeModalOpen(false);
   };
 
   const handleOperationSubmit = () => {
-    // Find the operation property
-    const operationProperty = data.nodeNotation.properties!.find(
-      (prop) => prop.elementType === "Operation"
+    // Find the "Operations" collection i.e if the classifier can have operations
+    const operationReference = data.nodeNotation.eReferences!.find(
+      (prop) => prop.name === "operations"
     );
 
-    if (operationProperty) {
-      const operations = operationProperty.defaultValue
-        ? (operationProperty.defaultValue as Array<any>)
+    if (operationReference) {
+      const operations = data.nodeNotation.eOperations
+        ? (data.nodeNotation.eOperations as Array<any>)
         : [];
       const newModifyingOperation = { ...modifyingOperation };
 
@@ -264,7 +267,7 @@ const CombineObjectShapesNode = ({
         operations.push(newModifyingOperation);
       }
 
-      operationProperty.defaultValue = operations;
+      data.nodeNotation.eOperations = operations;
 
       setData({ ...data });
     }
@@ -272,39 +275,35 @@ const CombineObjectShapesNode = ({
     // Reset and close the modal
     setModifyingOperation({
       name: "",
-      parameters: [],
-      returnType: "",
-      preconditions: "",
-      postconditions: "",
-      body: "",
-      visibility: "public",
+      eParameters: [],
+      eType: undefined,
     });
     setIsNodeOperationModalOpen(false);
   };
 
   const handleParameterSubmit = () => {
-    // Find the operation property
-    const operationProperty = data.nodeNotation.properties!.find(
-      (prop) => prop.elementType === "Operation"
+    // Find the "Operations" collection i.e if the classifier can have operations
+    const operationReference = data.nodeNotation.eOperations!.find(
+      (prop) => prop.name === "operations"
     );
 
-    if (operationProperty) {
-      const operations = operationProperty.defaultValue
-        ? (operationProperty.defaultValue as Array<any>)
+    if (operationReference) {
+      const operations = data.nodeNotation.eOperations
+        ? (data.nodeNotation.eOperations as Array<any>)
         : [];
       const newModifyingOperation = { ...modifyingOperation };
 
       // Find the index of the parameter we are modifying
-      const parameterIndex = newModifyingOperation.parameters.findIndex(
+      const parameterIndex = newModifyingOperation.eParameters!.findIndex(
         (parameter) => parameter.name === modifyingParameter.name
       );
 
       // If the parameter already exists, update it
       if (parameterIndex !== -1) {
-        newModifyingOperation.parameters[parameterIndex] = modifyingParameter;
+        newModifyingOperation.eParameters![parameterIndex] = modifyingParameter;
       } else {
         // Otherwise, add the new parameter
-        newModifyingOperation.parameters.push(modifyingParameter);
+        newModifyingOperation.eParameters!.push(modifyingParameter);
       }
 
       // Find the index of the operation we are modifying
@@ -320,7 +319,7 @@ const CombineObjectShapesNode = ({
         operations.push(newModifyingOperation);
       }
 
-      operationProperty.defaultValue = operations;
+      data.nodeNotation.eOperations = operations;
 
       setModifyingOperation(newModifyingOperation);
       setData({ ...data });

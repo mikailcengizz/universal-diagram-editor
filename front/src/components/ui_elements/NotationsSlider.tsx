@@ -2,7 +2,7 @@ import React from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { Notation, Notations } from "../../types/types";
+import { EPackage, Notation } from "../../types/types";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
 import CombineRelationshipShapesNode from "../notation_representations/edges/CombineRelationshipShapesEdge";
 import CombineRoleShapesNode from "../notation_representations/nodes/CombineRoleShapesNode";
@@ -10,14 +10,14 @@ import { Position } from "@xyflow/react";
 
 interface NotationsSliderProps {
   settings: {};
-  notations: Notations;
+  ePackages: EPackage[];
   allNotations: Notation[];
   setCurrentNotation: (value: Notation) => void;
 }
 
 function NotationsSlider({
   settings,
-  notations,
+  ePackages,
   allNotations,
   setCurrentNotation,
 }: NotationsSliderProps) {
@@ -30,17 +30,17 @@ function NotationsSlider({
     const notationType = notation.type;
 
     switch (notationType) {
-      case "object":
+      case "EClass":
         return (
           <CombineObjectShapesNode
             key={notation.name}
             id={notation.name}
             isPalette={true}
             isNotationSlider={true}
-            data={{ notations, nodeNotation: notation }}
+            data={{ ePackages: ePackages, nodeNotation: notation }}
           />
         );
-      case "relationship":
+      case "EReference":
         const { x, y, targetX, targetY } =
           notation.graphicalRepresentation![0].position;
         return (
@@ -49,7 +49,7 @@ function NotationsSlider({
             id={notation.name}
             isPalette={true}
             isNotationSlider={true}
-            data={{ notations, nodeNotation: notation }}
+            data={{ ePackages: ePackages, nodeNotation: notation }}
             sourceX={x}
             sourceY={y}
             targetX={targetX!}
@@ -58,8 +58,8 @@ function NotationsSlider({
             targetPosition={Position.Left}
           />
         );
-      case "role":
-        return <CombineRoleShapesNode />;
+      /* case "role":
+        return <CombineRoleShapesNode />; */
     }
   };
 

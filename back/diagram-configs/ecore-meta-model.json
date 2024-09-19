@@ -23,31 +23,10 @@
               "isUnique": false,
               "lowerBound": 0,
               "upperBound": 1
-            },
-            {
-              "name": "visibility",
-              "eAttributeType": { "name": "EString" },
-              "defaultValue": "public",
-              "isUnique": false,
-              "lowerBound": 0,
-              "upperBound": 1
-            }
-          ],
-          "eReferences": [
-            {
-              "name": "attributes",
-              "eType": "Attribute",
-              "containment": true,
-              "upperBound": "*"
-            },
-            {
-              "name": "operations",
-              "eType": "Operation",
-              "containment": true,
-              "upperBound": "*"
             }
           ],
           "eOperations": [],
+          "eReferences": [],
           "eSuperTypes": [
             {
               "name": "NamedElement"

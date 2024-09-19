@@ -15,11 +15,11 @@ import React, { useEffect, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import {
-  Config,
   ConfigListItem,
+  EAttribute,
+  EPackage,
+  MetaModelFile,
   Notation,
-  Notations,
-  Property,
 } from "../../types/types";
 import NotationsSlider from "../ui_elements/NotationsSlider";
 
@@ -41,13 +41,13 @@ interface NotationDesignerConfigurePanelProps {
   handleNotationTypeChange: (e: SelectChangeEvent<string>) => void;
   currentNotation: Notation;
   setCurrentNotation: (value: any) => void;
-  newProperty: Property;
-  setNewProperty: (value: any) => void;
+  newAttribute: EAttribute;
+  setNewAttribute: (value: any) => void;
   handleAddProperty: () => void;
   availableConfigs: ConfigListItem[];
-  selectedConfig: Config;
-  setSelectedConfig: (value: Config) => void;
-  notations: Notations;
+  selectedMetaConfig: MetaModelFile;
+  setSelectedMetaConfig: (value: MetaModelFile) => void;
+  ePackages: EPackage[];
   allNotations: Notation[];
   saveNotation: () => void;
 }
@@ -57,13 +57,13 @@ function NotationDesignerConfigurePanel({
   handleNotationTypeChange,
   currentNotation,
   setCurrentNotation,
-  newProperty,
-  setNewProperty,
+  newAttribute,
+  setNewAttribute,
   handleAddProperty,
   availableConfigs,
-  selectedConfig,
-  setSelectedConfig,
-  notations,
+  selectedMetaConfig,
+  setSelectedMetaConfig,
+  ePackages,
   allNotations,
   saveNotation,
 }: NotationDesignerConfigurePanelProps) {
@@ -79,11 +79,12 @@ function NotationDesignerConfigurePanel({
           options={availableConfigs.map(
             (availableConfig) => availableConfig?.name
           )} // List of existing configuration names
-          value={selectedConfig.name}
+          value={selectedMetaConfig.name}
           onInputChange={(event, newInputValue) => {
-            setSelectedConfig({
+            setSelectedMetaConfig({
               name: newInputValue,
-              notations: { objects: [], relationships: [] },
+              type: "meta",
+              ePackages: [],
             });
           }}
           renderInput={(params) => (
@@ -116,13 +117,9 @@ function NotationDesignerConfigurePanel({
           className={configureTextfieldStyle}
           freeSolo
           options={
-            currentNotation.type === "object"
-              ? selectedConfig.notations.objects.map(
-                  (notation) => notation?.name
-                )
-              : selectedConfig.notations.relationships.map(
-                  (notation) => notation?.name
-                )
+            currentNotation.type === "EClass"
+              ? selectedMetaConfig.ePackages.map((notation) => notation?.name)
+              : selectedMetaConfig.ePackages.map((notation) => notation?.name)
           } // List of existing notation names
           value={currentNotation.name}
           onInputChange={(event, newInputValue) => {
@@ -147,28 +144,14 @@ function NotationDesignerConfigurePanel({
           )}
         />
 
-        {/* Description */}
-        <textarea
-          id="configure-notation-input"
-          className={configureTextfieldStyle}
-          placeholder="Description"
-          value={currentNotation.description}
-          onChange={(e) =>
-            setCurrentNotation({
-              ...currentNotation,
-              description: e.target.value,
-            })
-          }
-        />
-
         {/* Properties Section */}
         <h3 className="text-xl font-bold">Properties</h3>
-        {currentNotation.properties!.length > 0 && (
+        {currentNotation.eAttributes!.length > 0 && (
           <List>
-            {currentNotation.properties!.map((prop, index) => (
+            {currentNotation.eAttributes!.map((prop, index) => (
               <ListItem key={index}>
                 <ListItemText
-                  primary={`${prop.name} (${prop.dataType})`}
+                  primary={`${prop.name} (${prop.eAttributeType})`}
                   secondary={prop.defaultValue?.toString() || ""}
                 />
                 <ListItemSecondaryAction>
@@ -177,7 +160,7 @@ function NotationDesignerConfigurePanel({
                     onClick={() =>
                       setCurrentNotation({
                         ...currentNotation,
-                        properties: currentNotation.properties!.filter(
+                        properties: currentNotation.eAttributes!.filter(
                           (_, i) => i !== index
                         ),
                       })
@@ -194,40 +177,32 @@ function NotationDesignerConfigurePanel({
           <TextField
             className={propertyTextfieldStyle}
             placeholder="Property Name"
-            value={newProperty.name}
+            value={newAttribute.name}
             onChange={(e) =>
-              setNewProperty({ ...newProperty, name: e.target.value })
+              setNewAttribute({ ...newAttribute, name: e.target.value })
             }
           />
           <TextField
             className={propertyTextfieldStyle}
             placeholder="Data Type"
-            value={newProperty.dataType}
+            value={newAttribute.eAttributeType}
             onChange={(e) =>
-              setNewProperty({ ...newProperty, dataType: e.target.value })
+              setNewAttribute({ ...newAttribute, dataType: e.target.value })
             }
           />
           <TextField
             className={propertyTextfieldStyle}
             placeholder="Default Value"
-            value={newProperty.defaultValue}
+            value={newAttribute.defaultValue}
             onChange={(e) =>
-              setNewProperty({ ...newProperty, defaultValue: e.target.value })
-            }
-          />
-          <TextField
-            className={propertyTextfieldStyle}
-            placeholder="Element Type"
-            value={newProperty.elementType}
-            onChange={(e) =>
-              setNewProperty({ ...newProperty, elementType: e.target.value })
+              setNewAttribute({ ...newAttribute, defaultValue: e.target.value })
             }
           />
           <Select
             className={propertyTextfieldStyle}
-            value={newProperty.isUnique || ""}
+            value={newAttribute.isUnique || ""}
             onChange={(e) =>
-              setNewProperty({ ...newProperty, isUnique: e.target.value })
+              setNewAttribute({ ...newAttribute, isUnique: e.target.value })
             }
             displayEmpty
           >
@@ -244,7 +219,7 @@ function NotationDesignerConfigurePanel({
 
         <h3 className="text-xl font-bold">Roles</h3>
         {/* Roles section */}
-        {currentNotation.type === "relationship" &&
+        {/* {currentNotation.type === "EClass" &&
           currentNotation.roles?.map((role) => {
             if (role.name === "Source") {
               return (
@@ -503,7 +478,7 @@ function NotationDesignerConfigurePanel({
                 </>
               );
             }
-          })}
+          })} */}
 
         {/* Save and export buttons */}
         <button
@@ -522,7 +497,7 @@ function NotationDesignerConfigurePanel({
           />
           <NotationsSlider
             settings={notationsSliderSettings}
-            notations={notations}
+            ePackages={ePackages}
             allNotations={allNotations}
             setCurrentNotation={setCurrentNotation}
           />

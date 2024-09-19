@@ -1,19 +1,12 @@
 import React from "react";
 import CustomModal from "../../../../../ui_elements/Modal";
+import { EAttribute } from "../../../../../../types/types";
 
 interface ModalAddAttributeProps {
   isNodeAttributeModalOpen: boolean;
   setIsNodeAttributeModalOpen: (isOpen: boolean) => void;
-  newAttribute: {
-    name: string;
-    dataType: string;
-    defaultValue: string;
-    multiplicity: string;
-    visibility: string;
-    unique: boolean;
-    derived: boolean;
-  };
-  setNewAttribute: (newAttribute: any) => void;
+  newAttribute: EAttribute;
+  setNewAttribute: (newAttribute: EAttribute) => void;
   handleAttributeSubmit: () => void;
 }
 
@@ -42,15 +35,15 @@ function ModalAddAttribute({
         }
       />
       <br />
-      <label>Data type</label>
+      {/* <label>Data type</label>
       <br />
       <input
         type="text"
-        value={newAttribute.dataType}
+        value={newAttribute.eAttributeType?.name}
         onChange={(e) =>
-          setNewAttribute({ ...newAttribute, dataType: e.target.value })
+          setNewAttribute({ ...newAttribute, eAttributeType: e.target.value })
         }
-      />
+      /> */}
       <label>Default value</label>
       <br />
       <input
@@ -60,45 +53,35 @@ function ModalAddAttribute({
           setNewAttribute({ ...newAttribute, defaultValue: e.target.value })
         }
       />
-      <label>Multiplicity</label>
+      <label>Lower bound</label>
       <br />
-      <select
-        name="multiplicity"
-        value={newAttribute.multiplicity}
+      <input
+        name="lowerBound"
+        type="number"
+        value={newAttribute.lowerBound}
         onChange={(e) =>
-          setNewAttribute({ ...newAttribute, multiplicity: e.target.value })
+          setNewAttribute({ ...newAttribute, lowerBound: +e.target.value })
         }
-      >
-        <option value="0..1">0..1</option>
-        <option value="0..*">0..*</option>
-        <option value="1">1</option>
-        <option value="1..*">1..*</option>
-        <option value="*">*</option>
-      </select>
+      />
       <br />
-      <label>Visibility</label>
+      <label>Upper bound</label>
       <br />
-      <select
-        name="visibility"
-        value={newAttribute.visibility}
+      <input
+        name="upperBound"
+        type="number"
+        value={newAttribute.upperBound}
         onChange={(e) =>
-          setNewAttribute({ ...newAttribute, visibility: e.target.value })
+          setNewAttribute({ ...newAttribute, upperBound: +e.target.value })
         }
-      >
-        <option value="public">public</option>
-        <option value="protected">protected</option>
-        <option value="private">private</option>
-        <option value="package">package</option>
-        <option value="published">published</option>
-      </select>
+      />
       <br />
       <label>Unique</label>
       <input
         type="checkbox"
         name="unique"
-        checked={newAttribute.unique}
+        checked={newAttribute.isUnique}
         onChange={(e) =>
-          setNewAttribute({ ...newAttribute, unique: e.target.checked })
+          setNewAttribute({ ...newAttribute, isUnique: e.target.checked })
         }
       />
       <br />
@@ -106,9 +89,9 @@ function ModalAddAttribute({
       <input
         type="checkbox"
         name="derived"
-        checked={newAttribute.derived}
+        checked={newAttribute.isDerived}
         onChange={(e) =>
-          setNewAttribute({ ...newAttribute, derived: e.target.checked })
+          setNewAttribute({ ...newAttribute, isDerived: e.target.checked })
         }
       />
       <br />

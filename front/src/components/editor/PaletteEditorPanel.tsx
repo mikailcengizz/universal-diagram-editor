@@ -1,5 +1,5 @@
 import React from "react";
-import { DragData, Notation, Notations } from "../../types/types";
+import { DragData, EClass, EPackage, Notation } from "../../types/types";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
 import CombineRelationshipShapesNode from "../notation_representations/edges/CombineRelationshipShapesEdge";
 import CombineRoleShapesNode from "../notation_representations/nodes/CombineRoleShapesNode";
@@ -7,14 +7,14 @@ import { Position } from "@xyflow/react";
 
 interface PaletteEditorPanelProps {
   title: string | undefined;
-  notations: Notations;
+  notations: EPackage[];
 }
 
 const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
   const onDragStart = (event: React.DragEvent, notation: Notation) => {
     const dragData: DragData = {
       notation: notation,
-      notationType: notation.type,
+      notationType: notation.type!,
     };
 
     event.dataTransfer.setData("palette-item", JSON.stringify(dragData));
@@ -26,16 +26,16 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
     const notationType = notation.type;
 
     switch (notationType) {
-      case "object":
+      case "EClass":
         return (
           <CombineObjectShapesNode
             key={notation.name}
             id={notation.name}
             isPalette={true}
-            data={{ nodeNotation: notation, notations: notations }}
+            data={{ nodeNotation: notation, ePackages: notations }}
           />
         );
-      case "relationship":
+      case "EReference":
         const { x, y, targetX, targetY } =
           notation.graphicalRepresentation![0].position;
         return (
@@ -44,7 +44,7 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
             id={notation.name}
             isPalette={true}
             isNotationSlider={true}
-            data={{ nodeNotation: notation, notations: notations }}
+            data={{ nodeNotation: notation, ePackages: notations }}
             sourceX={x}
             sourceY={y}
             targetX={targetX!}
@@ -53,8 +53,8 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
             targetPosition={Position.Left}
           />
         );
-      case "role":
-        return <CombineRoleShapesNode />;
+      /* case "role":
+        return <CombineRoleShapesNode />; */
     }
   };
 
@@ -70,9 +70,35 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
       className="overflow-y-scroll"
     >
       <h4>{title || "Palette"}</h4>
-      <h2>Objects</h2>
+
+      <h2>Relation</h2>
+      <div className="flex flex-wrap">
+        {(
+          notations.flatMap((pkg) =>
+            pkg.eClassifiers.filter(
+              (classifier) => (classifier as EClass).name === "Association"
+            )
+          ) as Notation[]
+        ).map((notation: Notation) => (
+          <div
+            key={notation.name}
+            onDragStart={(event) => onDragStart(event, notation)}
+            draggable
+            style={{
+              margin: "10px",
+              padding: "10px",
+              border: "1px solid #ccc",
+              cursor: "grab",
+              backgroundColor: "#fff",
+            }}
+          >
+            {renderNodePreview(notation)}
+          </div>
+        ))}
+      </div>
+      <h2>Package</h2>
       <div className="grid grid-cols-2">
-        {notations.objects.map((notation: Notation) => (
+        {(notations as Notation[]).map((notation: Notation) => (
           <div
             key={notation.name}
             style={{
@@ -90,25 +116,6 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
             >
               {renderNodePreview(notation)}
             </div>
-          </div>
-        ))}
-      </div>
-      <h2>Relationships</h2>
-      <div className="flex flex-wrap">
-        {notations.relationships.map((notation: Notation) => (
-          <div
-            key={notation.name}
-            onDragStart={(event) => onDragStart(event, notation)}
-            draggable
-            style={{
-              margin: "10px",
-              padding: "10px",
-              border: "1px solid #ccc",
-              cursor: "grab",
-              backgroundColor: "#fff",
-            }}
-          >
-            {renderNodePreview(notation)}
           </div>
         ))}
       </div>
