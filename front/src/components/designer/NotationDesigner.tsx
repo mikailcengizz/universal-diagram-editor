@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import {
-  Config,
+  MetaModelFile,
+  RepresentationModelFile
   ConfigListItem,
   Notation,
   NotationType,
   Property,
+  EAttribute,
+  EClass,
 } from "../../types/types";
 import axios from "axios";
 import { SelectChangeEvent } from "@mui/material";
@@ -17,28 +20,30 @@ const NotationDesigner = () => {
   const [availableConfigs, setAvailableConfigs] = useState<ConfigListItem[]>(
     []
   );
-  const [selectedConfig, setSelectedConfig] = useState<Config>({
+  const [selectedMetaConfig, setSelectedMetaConfig] = useState<MetaModelFile>({
     name: "",
-    notations: {
-      objects: [],
-      relationships: [],
-    },
+    type: "meta",
+    ePackages: [],
   });
   const [currentNotation, setCurrentNotation] = useState<Notation>({
     name: "",
-    type: "",
-    properties: [],
-    description: "",
+    type: undefined,
+    eClassifiers: [],
+    eAttributes: [],
+    eReferences: [],
+    eOperations : [],
+    eSubpackages: [],
     graphicalRepresentation: [],
   });
   const [selectedNotationType, setSelectedNotationType] =
     useState<NotationType>();
-  const [newProperty, setNewProperty] = useState<Property>({
+  const [newAttribute, setNewAttribute] = useState<EAttribute>({
     name: "",
     defaultValue: "",
-    dataType: "String",
-    elementType: "",
+    eAttributeType: undefined,
     isUnique: false,
+    lowerBound: 0,
+    upperBound: 1,
   });
   const [isConfigurePanelOpen, setIsConfigurePanelOpen] =
     useState<boolean>(true);
@@ -46,14 +51,21 @@ const NotationDesigner = () => {
   const [allNotations, setAllNotations] = useState<Notation[]>([]);
 
   useEffect(() => {
-    if (selectedConfig && selectedConfig.notations) {
-      const allNotations = [
-        ...selectedConfig.notations.objects,
-        ...selectedConfig.notations.relationships,
+    if (selectedMetaConfig && selectedMetaConfig.ePackages) {
+      const allPackages = selectedMetaConfig.ePackages;
+      const allSubpackages = allPackages.flatMap((p) => p.eSubpackages);
+      const allClasses: EClass[] = allPackages.flatMap((p) =>
+        p.eClassifiers as EClass[]
+      );
+      const allAttributes = allClasses.flatMap((c) => c.eAttributes);
+      const allNotations: Notation[] = [
+        ...allClasses as Notation[],
+        ...allAttributes as Notation[],
+        ...allSubpackages as Notation[],
       ];
       setAllNotations(allNotations);
     }
-  }, [selectedConfig, isConfigurePanelOpen]); // Add isConfigurePanelOpen to ensure state updates on panel switch
+  }, [selectedMetaConfig, isConfigurePanelOpen]); // Add isConfigurePanelOpen to ensure state updates on panel switch
 
   useEffect(() => {
     // Fetch available configurations from the server
@@ -75,11 +87,11 @@ const NotationDesigner = () => {
 
   useEffect(() => {
     // Only load config if it's not loaded yet or when a new config name is selected
-    if (selectedConfig.name && !isConfigLoaded) {
+    if (selectedMetaConfig.name && !isConfigLoaded) {
       const loadConfig = async () => {
         try {
-          const response = await configService.getConfigByName(
-            selectedConfig.name
+          const response = await configService.getMetaConfigByName(
+            selectedMetaConfig.name
           );
           if (
             !response.data ||
@@ -88,8 +100,8 @@ const NotationDesigner = () => {
           ) {
             return;
           }
-          const config = response.data as Config;
-          setSelectedConfig(config);
+          const config = response.data as MetaModelFile;
+          setSelectedMetaConfig(config);
           setIsConfigLoaded(true); // Mark config as loaded
         } catch (error) {
           console.error("Error loading configuration:", error);
@@ -97,7 +109,7 @@ const NotationDesigner = () => {
       };
       loadConfig();
     }
-  }, [selectedConfig.name, isConfigLoaded]);
+  }, [selectedMetaConfig.name, isConfigLoaded]);
 
   const handleNotationTypeChange = (e: SelectChangeEvent<string>) => {
     const value = e.target.value as NotationType;
@@ -112,20 +124,21 @@ const NotationDesigner = () => {
   const handleAddProperty = () => {
     setCurrentNotation({
       ...currentNotation,
-      properties: [...currentNotation.properties!, newProperty],
+      eAttributes: [...currentNotation.eAttributes!, newAttribute],
     });
-    setNewProperty({
+    setNewAttribute({
       name: "",
       defaultValue: "",
-      dataType: "String",
-      elementType: "",
+      eAttributeType: undefined,
       isUnique: false,
+      lowerBound: 0,
+      upperBound: 1,
     });
   };
 
   const saveNotation = () => {
     // Save in the frontend
-    const updatedNotations = { ...selectedConfig!.notations };
+    const updatedNotations = { ...selectedMetaConfig!.ePackages };
     if (currentNotation.type === "object") {
       const alreadyExists = selectedConfig.notations.objects.findIndex(
         (n) => n.name === currentNotation.name

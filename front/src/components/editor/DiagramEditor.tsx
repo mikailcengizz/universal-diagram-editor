@@ -60,7 +60,7 @@ const DiagramEditor = ({
       console.log("Selected config name:", selectedConfigName);
       const fetchConfig = async () => {
         try {
-          const response = await configService.getConfigByName(
+          const response = await configService.getMetaConfigByName(
             selectedConfigName
           );
           setConfig(response.data);

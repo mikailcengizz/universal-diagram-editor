@@ -23,7 +23,7 @@ router.post("/upload", upload.single("file"), (req, res) => {
     res.status(200).send("Configuration uploaded successfully.");
 });
 // Endpoint to get config by 'name' field inside the configuration file
-router.get("/get-config-by-name/:name", (req, res) => {
+router.get("/get-meta-config-by-name/:name", (req, res) => {
     const requestedName = req.params.name;
     // Read all config files in the directory
     fs.readdir(configDir, (err, files) => {
@@ -35,7 +35,7 @@ router.get("/get-config-by-name/:name", (req, res) => {
             const content = fs.readFileSync(filePath, "utf-8");
             const config = JSON.parse(content);
             // Check if the 'name' field in the config matches the requested name
-            if (config.name === requestedName) {
+            if (config.name === requestedName && config.type === "meta") {
                 return res.json(config); // Return the config if name matches
             }
         }
@@ -43,11 +43,31 @@ router.get("/get-config-by-name/:name", (req, res) => {
         res.status(404).send(null);
     });
 });
-// Save configuration or update an existing one
+router.get("/get-representation-config-by-name/:name", (req, res) => {
+    const requestedName = req.params.name;
+    // Read all config files in the directory
+    fs.readdir(configDir, (err, files) => {
+        if (err) {
+            return res.status(500).send("Unable to read configurations.");
+        }
+        for (const file of files) {
+            const filePath = path.join(configDir, file);
+            const content = fs.readFileSync(filePath, "utf-8");
+            const config = JSON.parse(content);
+            // Check if the 'name' field in the config matches the requested name
+            if (config.name === requestedName && config.type === "representation") {
+                return res.json(config); // Return the config if name matches
+            }
+        }
+        // If no config is found with the matching name
+        res.status(404).send(null);
+    });
+});
+// Save configuration by type or update an existing one by type
 router.post("/save", (req, res) => {
-    const { name, notations } = req.body;
-    if (!name || !notations) {
-        return res.status(400).send("Configuration name or notations are missing.");
+    const { name, type, ePackages } = req.body;
+    if (!name || !ePackages) {
+        return res.status(400).send("Configuration name or ePackages are missing.");
     }
     // Check if a file with the same "name" exists inside the configuration file
     let configFileFound = false;
@@ -60,7 +80,7 @@ router.post("/save", (req, res) => {
             const filePath = path.join(configDir, file);
             const content = fs.readFileSync(filePath, "utf-8");
             const config = JSON.parse(content);
-            if (config.name === name) {
+            if (config.name === name && config.type === type) {
                 // Match found, update this file
                 configFileFound = true;
                 configFilename = file;
@@ -69,7 +89,8 @@ router.post("/save", (req, res) => {
         }
         const newConfig = {
             name,
-            notations,
+            type,
+            ePackages: ePackages,
         };
         if (configFileFound) {
             // Update the existing file
@@ -93,11 +114,15 @@ router.get("/list", (req, res) => {
         if (err) {
             return res.status(500).send("Unable to list configurations.");
         }
-        const configs = files.map((file) => {
+        let configs = files.map((file) => {
             const content = fs.readFileSync(`${configDir}/${file}`, "utf-8");
             const config = JSON.parse(content);
-            return { filename: file, name: config.name };
+            if (config.type === "meta") {
+                return { filename: file, name: config.name };
+            }
         });
+        configs = configs.filter((config) => config !== undefined);
+        console.log("Returning config list", configs);
         res.json(configs);
     });
 });

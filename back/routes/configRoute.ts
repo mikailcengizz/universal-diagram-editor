@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import type { Callback, Config } from "../types/types";
+import type { Callback, MetaModelFile, ModelFileType, RepresentationModelFile, EPackage } from "../types/types";
 
 const fs = require("fs");
 const express = require("express");
@@ -29,7 +29,7 @@ router.post("/upload", upload.single("file"), (req: Request, res: Response) => {
 });
 
 // Endpoint to get config by 'name' field inside the configuration file
-router.get("/get-config-by-name/:name", (req: Request, res: Response) => {
+router.get("/get-meta-config-by-name/:name", (req: Request, res: Response) => {
   const requestedName = req.params.name;
 
   // Read all config files in the directory
@@ -41,10 +41,10 @@ router.get("/get-config-by-name/:name", (req: Request, res: Response) => {
     for (const file of files) {
       const filePath = path.join(configDir, file);
       const content = fs.readFileSync(filePath, "utf-8");
-      const config: Config = JSON.parse(content);
+      const config: MetaModelFile = JSON.parse(content);
 
       // Check if the 'name' field in the config matches the requested name
-      if (config.name === requestedName) {
+      if (config.name === requestedName && config.type === "meta") {
         return res.json(config); // Return the config if name matches
       }
     }
@@ -54,12 +54,38 @@ router.get("/get-config-by-name/:name", (req: Request, res: Response) => {
   });
 });
 
-// Save configuration or update an existing one
-router.post("/save", (req: Request, res: Response) => {
-  const { name, notations } = req.body;
+router.get("/get-representation-config-by-name/:name", (req: Request, res: Response) => {
+  const requestedName = req.params.name;
 
-  if (!name || !notations) {
-    return res.status(400).send("Configuration name or notations are missing.");
+  // Read all config files in the directory
+  fs.readdir(configDir, (err: any, files: string[]) => {
+    if (err) {
+      return res.status(500).send("Unable to read configurations.");
+    }
+
+    for (const file of files) {
+      const filePath = path.join(configDir, file);
+      const content = fs.readFileSync(filePath, "utf-8");
+      const config: RepresentationModelFile = JSON.parse(content);
+
+      // Check if the 'name' field in the config matches the requested name
+      if (config.name === requestedName && config.type === "representation") {
+        return res.json(config); // Return the config if name matches
+      }
+    }
+
+    // If no config is found with the matching name
+    res.status(404).send(null);
+  });
+});
+
+
+// Save configuration by type or update an existing one by type
+router.post("/save", (req: Request, res: Response) => {
+  const { name, type, ePackages } = req.body;
+
+  if (!name || !ePackages) {
+    return res.status(400).send("Configuration name or ePackages are missing.");
   }
 
   // Check if a file with the same "name" exists inside the configuration file
@@ -74,9 +100,9 @@ router.post("/save", (req: Request, res: Response) => {
     for (const file of files) {
       const filePath = path.join(configDir, file);
       const content = fs.readFileSync(filePath, "utf-8");
-      const config: Config = JSON.parse(content);
+      const config: MetaModelFile = JSON.parse(content);
 
-      if (config.name === name) {
+      if (config.name === name && config.type === type) {
         // Match found, update this file
         configFileFound = true;
         configFilename = file;
@@ -84,9 +110,10 @@ router.post("/save", (req: Request, res: Response) => {
       }
     }
 
-    const newConfig: Config = {
+    const newConfig: MetaModelFile = {
       name,
-      notations,
+      type,
+      ePackages: ePackages,
     };
 
     if (configFileFound) {
@@ -117,11 +144,15 @@ router.get("/list", (req: Request, res: Response) => {
     if (err) {
       return res.status(500).send("Unable to list configurations.");
     }
-    const configs = files.map((file: Express.Multer.File) => {
+    let configs = files.map((file: Express.Multer.File) => {
       const content = fs.readFileSync(`${configDir}/${file}`, "utf-8");
-      const config: Config = JSON.parse(content);
-      return { filename: file, name: config.name };
+      const config: MetaModelFile = JSON.parse(content);
+      if (config.type === "meta") {
+        return { filename: file, name: config.name };
+      } 
     });
+    configs = configs.filter((config: any) => config !== undefined);
+    console.log("Returning config list", configs);
     res.json(configs);
   });
 });

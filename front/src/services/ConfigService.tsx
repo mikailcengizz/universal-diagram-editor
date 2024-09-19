@@ -13,13 +13,22 @@ class ConfigService {
     });
   }
 
-  getConfigByName(name: string) {
-    return axios.get(CONFIG_API_BASE_URL + "/get-config-by-name/" + name, {
+  getMetaConfigByName(name: string) {
+    return axios.get(CONFIG_API_BASE_URL + "/get-meta-config-by-name/" + name, {
       headers,
     });
   }
 
-  getConfigList() {
+  getRepresentationConfigByName(name: string) {
+    return axios.get(
+      CONFIG_API_BASE_URL + "/get-representation-config-by-name/" + name,
+      {
+        headers,
+      }
+    );
+  }
+
+  getMetaConfigList() {
     return axios.get(CONFIG_API_BASE_URL + "/list", {
       headers,
     });
