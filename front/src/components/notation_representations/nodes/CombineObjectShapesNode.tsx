@@ -18,16 +18,12 @@ import RenderRectangles from "./components/RenderRectangles";
 
 interface CombineObjectShapesNodeProps {
   id: string;
-  isPalette?: boolean;
-  isNotationSlider?: boolean;
   data: CustomNodeData;
   selected?: boolean;
 }
 
 const CombineObjectShapesNode = ({
   id,
-  isPalette = false,
-  isNotationSlider = false, // only used for slider item width
   data: initialData,
   selected,
 }: CombineObjectShapesNodeProps) => {
@@ -81,7 +77,7 @@ const CombineObjectShapesNode = ({
     const validGraphicalItems =
       initialData.nodeNotation.graphicalRepresentation!.filter(
         (item) =>
-          (!isPalette || (isPalette && item.shape !== "connector")) &&
+          (!data.isPalette || (data.isPalette && item.shape !== "connector")) &&
           item.position.x !== undefined &&
           item.position.y !== undefined
       ); // Only filter out connectors if isPalette is true
@@ -131,11 +127,11 @@ const CombineObjectShapesNode = ({
   );
 
   // Set the size constraints for the grid columns
-  const maxGridCellSize = isNotationSlider ? 97 : 54;
+  const maxGridCellSize = data.isNotationSlider ? 97 : 54;
 
   // Calculate the scaling factor to fit the graphical representation into the grid column
   useEffect(() => {
-    if (containerRef.current && isPalette) {
+    if (containerRef.current && data.isPalette) {
       const scaleX = maxGridCellSize / maxX;
       const scaleY = maxGridCellSize / maxY;
 
@@ -145,7 +141,7 @@ const CombineObjectShapesNode = ({
       // Set the scale, ensuring it does not exceed the grid cell size
       setScale(newScale);
     }
-  }, [maxX, maxY, isPalette]);
+  }, [maxX, maxY, data.isPalette]);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -347,8 +343,8 @@ const CombineObjectShapesNode = ({
       onDoubleClick={() => setIsNodeModalOpen(true)}
       style={{
         position: "relative",
-        width: isPalette ? "100%" : `${containerSize.width}px`,
-        height: isPalette ? "100%" : `${containerSize.height}px`,
+        width: data.isPalette ? "100%" : `${containerSize.width}px`,
+        height: data.isPalette ? "100%" : `${containerSize.height}px`,
         transform: `scale(${scale})`,
         transformOrigin: "top left",
         display: "flex",
@@ -357,33 +353,23 @@ const CombineObjectShapesNode = ({
       }}
     >
       {/* Render rectangles in the background */}
-      <RenderRectangles rectangles={rectangles} isPalette={isPalette} />
+      <RenderRectangles rectangles={rectangles} data={data} />
 
       {/* Render compartments */}
-      <RenderCompartments
-        compartments={compartments}
-        data={data}
-        isPalette={isPalette}
-      />
+      <RenderCompartments compartments={compartments} data={data} />
 
       {/* Render texts in the front */}
       <RenderTexts
         data={data}
         handleTextChange={handleTextChange}
-        isPalette={isPalette}
         texts={texts}
       />
 
       {/* Render connectors in the front */}
-      <RenderConnectors
-        isPalette={isPalette}
-        connectors={connectors}
-        id={id}
-        key={id}
-      />
+      <RenderConnectors connectors={connectors} id={id} key={id} />
 
       {/* Node resizer */}
-      {!isPalette && selected && (
+      {!data.isPalette && selected && (
         <NodeResizer
           color="#ff0071"
           onResize={handleResize}

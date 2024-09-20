@@ -12,7 +12,9 @@ import {
   MetaModelFile,
   Notation,
   NotationType,
+  RepresentationModelFile,
 } from "../../types/types";
+import typeHelper from "../helpers/TypeHelper";
 
 const NotationDesigner = () => {
   const [availableConfigs, setAvailableConfigs] = useState<ConfigListItem[]>(
@@ -23,6 +25,12 @@ const NotationDesigner = () => {
     type: "meta",
     ePackages: [],
   });
+  const [selectedRepresentationConfig, setSelectedRepresentationConfig] =
+    useState<RepresentationModelFile>({
+      name: "",
+      type: "representation",
+      ePackages: [],
+    });
   const [currentNotation, setCurrentNotation] = useState<Notation>({
     name: "",
     type: undefined,
@@ -49,21 +57,19 @@ const NotationDesigner = () => {
   const [allNotations, setAllNotations] = useState<Notation[]>([]);
 
   useEffect(() => {
-    if (selectedMetaConfig && selectedMetaConfig.ePackages) {
-      const allPackages = selectedMetaConfig.ePackages;
-      const allSubpackages = allPackages.flatMap((p) => p.eSubpackages);
-      const allClasses: EClass[] = allPackages.flatMap(
-        (p) => p.eClassifiers as EClass[]
+    if (selectedMetaConfig && selectedRepresentationConfig) {
+      const metaPackages = selectedMetaConfig.ePackages;
+      const representationPackages = selectedRepresentationConfig.ePackages;
+
+      const mergedNotations = typeHelper.mergeMetaAndRepresentation(
+        metaPackages,
+        representationPackages
       );
-      const allAttributes = allClasses.flatMap((c) => c.eAttributes);
-      const allNotations: Notation[] = [
-        ...(allClasses as Notation[]),
-        ...(allAttributes as Notation[]),
-        ...(allSubpackages as Notation[]),
-      ];
-      setAllNotations(allNotations);
+
+      // Set the merged notations
+      setAllNotations(mergedNotations);
     }
-  }, [selectedMetaConfig, isConfigurePanelOpen]); // Add isConfigurePanelOpen to ensure state updates on panel switch
+  }, [selectedMetaConfig, selectedRepresentationConfig, isConfigurePanelOpen]); // Add isConfigurePanelOpen to ensure state updates on panel switch
 
   useEffect(() => {
     // Fetch available configurations from the server
@@ -86,7 +92,7 @@ const NotationDesigner = () => {
   useEffect(() => {
     // Only load config if it's not loaded yet or when a new config name is selected
     if (selectedMetaConfig.name && !isConfigLoaded) {
-      const loadConfig = async () => {
+      const loadMetaConfig = async () => {
         try {
           const response = await configService.getMetaConfigByName(
             selectedMetaConfig.name
@@ -105,7 +111,27 @@ const NotationDesigner = () => {
           console.error("Error loading configuration:", error);
         }
       };
-      loadConfig();
+      loadMetaConfig();
+
+      const loadRepresentationConfig = async () => {
+        try {
+          const response = await configService.getRepresentationConfigByName(
+            selectedMetaConfig.name
+          );
+          if (
+            !response.data ||
+            response.data === "" ||
+            response.data === null
+          ) {
+            return;
+          }
+          const config = response.data as RepresentationModelFile;
+          setSelectedRepresentationConfig(config);
+        } catch (error) {
+          console.error("Error loading configuration:", error);
+        }
+      };
+      loadRepresentationConfig();
     }
   }, [selectedMetaConfig.name, isConfigLoaded]);
 
@@ -119,7 +145,7 @@ const NotationDesigner = () => {
     });
   };
 
-  const handleAddProperty = () => {
+  const handleAddAttribute = () => {
     setCurrentNotation({
       ...currentNotation,
       eAttributes: [...currentNotation.eAttributes!, newAttribute],
@@ -189,7 +215,7 @@ const NotationDesigner = () => {
           setCurrentNotation={setCurrentNotation}
           newAttribute={newAttribute}
           setNewAttribute={setNewAttribute}
-          handleAddProperty={handleAddProperty}
+          handleAddProperty={handleAddAttribute}
           availableConfigs={availableConfigs}
           selectedMetaConfig={selectedMetaConfig}
           setSelectedMetaConfig={(config) => {

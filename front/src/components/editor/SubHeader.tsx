@@ -35,7 +35,6 @@ function SubHeader({
     const fetchConfigs = async () => {
       try {
         const response = await configService.getMetaConfigList();
-        console.log("Fetched configurations:", response.data);
         setConfigs(response.data);
       } catch (error) {
         console.error("Error fetching configurations:", error);

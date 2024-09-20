@@ -24,7 +24,7 @@
             },
             {
               "shape": "text",
-              "text": "Class name",
+              "text": "name",
               "generator": null,
               "style": {
                 "color": "#000000",

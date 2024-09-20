@@ -3,13 +3,13 @@ import { NotationRepresentationItem } from "../../../../types/types";
 import { Handle, Position } from "@xyflow/react";
 
 interface RenderConnectorsProps {
-  isPalette: boolean;
+  isPalette?: boolean;
   id: string;
   connectors: NotationRepresentationItem[];
 }
 
 function RenderConnectors({
-  isPalette,
+  isPalette = false,
   id,
   connectors,
 }: RenderConnectorsProps) {

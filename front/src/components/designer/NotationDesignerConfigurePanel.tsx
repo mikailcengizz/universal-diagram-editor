@@ -116,11 +116,7 @@ function NotationDesignerConfigurePanel({
         <Autocomplete
           className={configureTextfieldStyle}
           freeSolo
-          options={
-            currentNotation.type === "EClass"
-              ? selectedMetaConfig.ePackages.map((notation) => notation?.name)
-              : selectedMetaConfig.ePackages.map((notation) => notation?.name)
-          } // List of existing notation names
+          options={allNotations.map((notation) => notation.name) || []} // List of existing notation names
           value={currentNotation.name}
           onInputChange={(event, newInputValue) => {
             const newNotation = allNotations.find(

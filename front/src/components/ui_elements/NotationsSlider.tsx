@@ -35,9 +35,12 @@ function NotationsSlider({
           <CombineObjectShapesNode
             key={notation.name}
             id={notation.name}
-            isPalette={true}
-            isNotationSlider={true}
-            data={{ ePackages: ePackages, nodeNotation: notation }}
+            data={{
+              notations: allNotations,
+              nodeNotation: notation,
+              isPalette: true,
+              isNotationSlider: true,
+            }}
           />
         );
       case "EReference":
@@ -49,7 +52,7 @@ function NotationsSlider({
             id={notation.name}
             isPalette={true}
             isNotationSlider={true}
-            data={{ ePackages: ePackages, nodeNotation: notation }}
+            data={{ notations: allNotations, nodeNotation: notation }}
             sourceX={x}
             sourceY={y}
             targetX={targetX!}
@@ -72,7 +75,8 @@ function NotationsSlider({
             className="border-[1px] border-black text-center h-28 p-2 cursor-pointer content-center"
             onClick={() => setCurrentNotation(notation)}
           >
-            {notation.graphicalRepresentation!.length > 0 ? (
+            {notation.graphicalRepresentation &&
+            notation.graphicalRepresentation!.length > 0 ? (
               renderNodePreview(notation)
             ) : (
               <span>{notation.name}</span>

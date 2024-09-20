@@ -1,14 +1,14 @@
 import React from "react";
 import CustomModal from "../../../../../ui_elements/Modal";
-import { CustomNodeData, Operation } from "../../../../../../types/types";
+import { CustomNodeData, EOperation } from "../../../../../../types/types";
 import typeHelper from "../../../../../helpers/TypeHelper";
 
 interface ModalAddOperationProps {
   data: CustomNodeData;
   isNodeOperationModalOpen: boolean;
   setIsNodeOperationModalOpen: (isOpen: boolean) => void;
-  modifyingOperation: Operation;
-  setModifyingOperation: (modifyingOperation: Operation) => void;
+  modifyingOperation: EOperation;
+  setModifyingOperation: (modifyingOperation: EOperation) => void;
   setIsAddParameterModalOpen: (value: boolean) => void;
   handleOperationSubmit: () => void;
 }
@@ -22,9 +22,7 @@ function ModalAddOperation({
   setIsAddParameterModalOpen,
   handleOperationSubmit,
 }: ModalAddOperationProps) {
-  const operationProperty = data.nodeNotation.properties!.find(
-    (property) => property.elementType === "Operation"
-  );
+  const operations = data.nodeNotation.eOperations!;
 
   return (
     <CustomModal
@@ -52,22 +50,19 @@ function ModalAddOperation({
       <br />
       {/* Show all parameters of the operation we are adding or modifying */}
       <div className="bg-white h-10 overflow-y-scroll">
-        {operationProperty &&
-          operationProperty.defaultValue &&
-          (operationProperty.defaultValue as Operation[]).map(
-            (operation, index) => {
-              return (
-                <div key={index}>
-                  {operation.parameters.map((parameter, index) => (
-                    <span key={index}>
-                      {parameter.name}: {parameter.dataType}{" "}
-                      {parameter.defaultValue && `= ${parameter.defaultValue}`}
-                    </span>
-                  ))}
-                </div>
-              );
-            }
-          )}
+        {operations &&
+          operations.map((operation, index) => {
+            return (
+              <div key={index}>
+                {operation.eParameters!.map((parameter, index) => (
+                  <span key={index}>
+                    {parameter.name}: {parameter.eType?.name}{" "}
+                    {/* {parameter.defaultValue && `= ${parameter.defaultValue}`} */}
+                  </span>
+                ))}
+              </div>
+            );
+          })}
       </div>
       <br />
       {/* Add and remove buttons for parameters */}
@@ -88,58 +83,19 @@ function ModalAddOperation({
       <br />
       <input
         type="text"
-        value={modifyingOperation.returnType}
+        value={modifyingOperation.eType?.name}
         onChange={(e) =>
           setModifyingOperation({
             ...modifyingOperation,
-            returnType: e.target.value,
+            eType: {
+              ...modifyingOperation.eType!,
+              name: e.target.value,
+            },
           })
         }
       />
 
-      <br />
-      <label>Preconditions</label>
-      <br />
-      <input
-        type="text"
-        value={modifyingOperation.preconditions}
-        onChange={(e) =>
-          setModifyingOperation({
-            ...modifyingOperation,
-            preconditions: e.target.value,
-          })
-        }
-      />
-
-      <br />
-      <label>Postconditions</label>
-      <br />
-      <input
-        type="text"
-        value={modifyingOperation.postconditions}
-        onChange={(e) =>
-          setModifyingOperation({
-            ...modifyingOperation,
-            postconditions: e.target.value,
-          })
-        }
-      />
-
-      <br />
-      <label>Body</label>
-      <br />
-      <input
-        type="text"
-        value={modifyingOperation.body}
-        onChange={(e) =>
-          setModifyingOperation({
-            ...modifyingOperation,
-            body: e.target.value,
-          })
-        }
-      />
-
-      <label>Visibility</label>
+      {/* <label>Visibility</label>
       <br />
       <select
         name="visibility"
@@ -157,7 +113,7 @@ function ModalAddOperation({
         <option value="package">package</option>
         <option value="published">published</option>
       </select>
-      <br />
+      <br /> */}
 
       <button
         className="bg-black text-white px-2 py-[2px] font-semibold"

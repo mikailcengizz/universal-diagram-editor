@@ -1,28 +1,22 @@
 import React from "react";
 import {
   CustomNodeData,
+  EAttribute,
   NotationRepresentationItem,
-  Property,
 } from "../../../../types/types";
 import dataTypeHelper from "../../../helpers/TypeHelper";
 
 interface RenderTextsProps {
-  isPalette: boolean;
   data: CustomNodeData;
   texts: NotationRepresentationItem[];
   handleTextChange: (
     event: React.ChangeEvent<HTMLInputElement>,
     originalIndex: number,
-    propertyFromText: Property | undefined
+    attributeFromText: EAttribute | undefined
   ) => void;
 }
 
-function RenderTexts({
-  isPalette,
-  data,
-  texts,
-  handleTextChange,
-}: RenderTextsProps) {
+function RenderTexts({ data, texts, handleTextChange }: RenderTextsProps) {
   return (
     <>
       {texts.map((textItem, idx) => {
@@ -30,12 +24,12 @@ function RenderTexts({
           data.nodeNotation.graphicalRepresentation!.findIndex(
             (item) => item === textItem
           );
-        const propertyFromText = data.nodeNotation.properties!.find(
+        const attributeFromText = data.nodeNotation.eAttributes!.find(
           (prop) => prop.name === textItem.text
         );
 
         // we dont want editable field in palette notations
-        if (isPalette) {
+        if (data.isPalette) {
           return (
             <span
               key={idx}
@@ -53,7 +47,7 @@ function RenderTexts({
                   | "right",
               }}
             >
-              {textItem.text}
+              {attributeFromText?.defaultValue}
             </span>
           );
         } else {
@@ -61,7 +55,7 @@ function RenderTexts({
             <input
               key={idx}
               type={dataTypeHelper.determineInputFieldType(
-                propertyFromText!.dataType
+                attributeFromText!.eAttributeType?.name!
               )}
               style={{
                 position: "absolute",
@@ -80,9 +74,9 @@ function RenderTexts({
                 borderWidth: textItem.style.borderWidth,
                 borderStyle: textItem.style.borderStyle,
               }}
-              value={propertyFromText?.defaultValue as string | number}
+              value={attributeFromText?.defaultValue as string | number}
               onChange={(e) =>
-                handleTextChange(e, originalIndex, propertyFromText)
+                handleTextChange(e, originalIndex, attributeFromText)
               }
             />
           );

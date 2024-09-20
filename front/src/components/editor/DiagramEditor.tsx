@@ -27,9 +27,11 @@ import ReactFlowWithInstance from "../ReactFlowWithInstance";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
 import CombineRelationshipShapesEdge from "../notation_representations/edges/CombineRelationshipShapesEdge";
 import ModalDoubleClickNotation from "../notation_representations/nodes/components/modals/first_layer/ModalDoubleClickNotation";
+import typeHelper from "../helpers/TypeHelper";
+import { all } from "axios";
 
 const nodeTypes = {
-  objectNode: CombineObjectShapesNode,
+  ClassNode: CombineObjectShapesNode,
 };
 
 const edgeTypes = {
@@ -72,8 +74,7 @@ const DiagramEditor = ({
 
   useEffect(() => {
     if (selectedConfigName) {
-      console.log("Selected config name:", selectedConfigName);
-      const fetchConfig = async () => {
+      const fetchMetaConfig = async () => {
         try {
           const response = await configService.getMetaConfigByName(
             selectedConfigName
@@ -82,12 +83,23 @@ const DiagramEditor = ({
           // clear canvas when new config is selected
           setNodes([]);
           setEdges([]);
-          console.log("Config fetched:", response.data); // Log the fetched configuration
         } catch (error) {
           console.error("Error fetching configuration: ", error);
         }
       };
-      fetchConfig();
+      fetchMetaConfig();
+
+      const fetchRepresentationConfig = async () => {
+        try {
+          const response = await configService.getRepresentationConfigByName(
+            selectedConfigName
+          );
+          setRepresentationConfig(response.data);
+        } catch (error) {
+          console.error("Error fetching representation configuration: ", error);
+        }
+      };
+      fetchRepresentationConfig();
     }
   }, [selectedConfigName]);
 
@@ -128,8 +140,14 @@ const DiagramEditor = ({
           .filter(
             (cls) => cls.name === "Association"
           )[0].graphicalRepresentation;
+
+      const allNotations = typeHelper.mergeMetaAndRepresentation(
+        metaConfig!.ePackages,
+        representationConfig!.ePackages
+      );
+
       const data: CustomNodeData = {
-        ePackages: metaConfig!.ePackages,
+        notations: allNotations,
         nodeNotation: defaultEdge,
       };
 
@@ -191,17 +209,24 @@ const DiagramEditor = ({
 
       const uniqueId = `${name}${elementCount[name]}`; // unique node id
 
-      const nodeType = notation.type + "Node"; // objectNode, relationshipNode, roleNode
+      const nodeType = notation.name + "Node"; // objectNode, relationshipNode, roleNode
 
       const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
 
+      const allNotations = typeHelper.mergeMetaAndRepresentation(
+        metaConfig!.ePackages,
+        representationConfig!.ePackages
+      );
+
       const nodeData: CustomNodeData = {
-        ePackages: metaConfig!.ePackages,
+        notations: allNotations,
         nodeNotation: notation,
         position: position,
+        isNotationSlider: false,
+        isPalette: false,
       };
 
       const newNode: Node = {
@@ -256,7 +281,10 @@ const DiagramEditor = ({
       <ReactFlowProvider>
         <PaletteEditorPanel
           title={metaConfig?.name}
-          notations={metaConfig!.ePackages}
+          notations={typeHelper.mergeMetaAndRepresentation(
+            metaConfig!.ePackages,
+            representationConfig!.ePackages
+          )}
         />
         <div
           style={{ minHeight: "100%", maxHeight: "100%", width: "100%" }}

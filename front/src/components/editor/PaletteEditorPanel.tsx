@@ -7,7 +7,7 @@ import { Position } from "@xyflow/react";
 
 interface PaletteEditorPanelProps {
   title: string | undefined;
-  notations: EPackage[];
+  notations: Notation[];
 }
 
 const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
@@ -23,16 +23,17 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
   };
 
   const renderNodePreview = (notation: Notation) => {
-    const notationType = notation.type;
-
-    switch (notationType) {
-      case "EClass":
+    switch (notation.name) {
+      case "Class":
         return (
           <CombineObjectShapesNode
             key={notation.name}
             id={notation.name}
-            isPalette={true}
-            data={{ nodeNotation: notation, ePackages: notations }}
+            data={{
+              nodeNotation: notation,
+              notations: notations,
+              isPalette: true,
+            }}
           />
         );
       case "EReference":
@@ -44,7 +45,7 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
             id={notation.name}
             isPalette={true}
             isNotationSlider={true}
-            data={{ nodeNotation: notation, ePackages: notations }}
+            data={{ nodeNotation: notation, notations: notations }}
             sourceX={x}
             sourceY={y}
             targetX={targetX!}
@@ -71,53 +72,80 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
     >
       <h4>{title || "Palette"}</h4>
 
-      <h2>Relation</h2>
-      <div className="flex flex-wrap">
-        {(
-          notations.flatMap((pkg) =>
-            pkg.eClassifiers.filter(
-              (classifier) => (classifier as EClass).name === "Association"
-            )
-          ) as Notation[]
-        ).map((notation: Notation) => (
-          <div
-            key={notation.name}
-            onDragStart={(event) => onDragStart(event, notation)}
-            draggable
-            style={{
-              margin: "10px",
-              padding: "10px",
-              border: "1px solid #ccc",
-              cursor: "grab",
-              backgroundColor: "#fff",
-            }}
-          >
-            {renderNodePreview(notation)}
-          </div>
-        ))}
-      </div>
-      <h2>Package</h2>
+      {/* Classifiers: Class, DataType, Enumeration, ETypeParameter */}
+      <h2>Classifier</h2>
       <div className="grid grid-cols-2">
-        {(notations as Notation[]).map((notation: Notation) => (
-          <div
-            key={notation.name}
-            style={{
-              padding: "10px",
-              border: "1px solid #ccc",
-              backgroundColor: "transparent",
-              width: "75px",
-              height: "75px",
-            }}
-          >
+        {notations
+          .filter(
+            (notation) =>
+              notation.name === "Class" ||
+              notation.name === "DataType" ||
+              notation.name === "Enumeration" ||
+              notation.name === "ETypeParameter"
+          )
+          .map((notation: Notation) => (
             <div
+              key={notation.name}
               onDragStart={(event) => onDragStart(event, notation)}
               draggable
-              className="h-full w-full cursor-grab"
+              style={{
+                margin: "10px",
+                padding: "10px",
+                border: "1px solid #ccc",
+                cursor: "grab",
+                backgroundColor: "#fff",
+              }}
             >
               {renderNodePreview(notation)}
             </div>
-          </div>
-        ))}
+          ))}
+      </div>
+
+      <h2>Relation</h2>
+      <div className="grid grid-cols-2">
+        {notations
+          .filter((notation) => notation.name === "Association")
+          .map((notation: Notation) => (
+            <div
+              key={notation.name}
+              onDragStart={(event) => onDragStart(event, notation)}
+              draggable
+              style={{
+                margin: "10px",
+                padding: "10px",
+                border: "1px solid #ccc",
+                cursor: "grab",
+                backgroundColor: "#fff",
+              }}
+            >
+              {renderNodePreview(notation)}
+            </div>
+          ))}
+      </div>
+      <h2>Package</h2>
+      <div className="grid grid-cols-2">
+        {notations
+          .filter((notation: Notation) => notation.name === "Package")
+          .map((notation) => (
+            <div
+              key={notation.name}
+              style={{
+                padding: "10px",
+                border: "1px solid #ccc",
+                backgroundColor: "transparent",
+                width: "75px",
+                height: "75px",
+              }}
+            >
+              <div
+                onDragStart={(event) => onDragStart(event, notation)}
+                draggable
+                className="h-full w-full cursor-grab"
+              >
+                {renderNodePreview(notation)}
+              </div>
+            </div>
+          ))}
       </div>
     </aside>
   );

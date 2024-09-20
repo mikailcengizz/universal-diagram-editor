@@ -10,7 +10,7 @@
           "eAttributes": [
             {
               "name": "name",
-              "eAttributeType": { "name": "EString" },
+              "eAttributeType": { "name": "String" },
               "defaultValue": "ClassName",
               "isUnique": true,
               "lowerBound": 1,
@@ -18,7 +18,7 @@
             },
             {
               "name": "abstract",
-              "eAttributeType": { "name": "EBoolean" },
+              "eAttributeType": { "name": "Boolean" },
               "defaultValue": false,
               "isUnique": false,
               "lowerBound": 0,
@@ -38,7 +38,7 @@
           "eAttributes": [
             {
               "name": "name",
-              "eAttributeType": { "name": "EString" },
+              "eAttributeType": { "name": "String" },
               "defaultValue": "newAttribute",
               "isUnique": true,
               "lowerBound": 1,
@@ -46,7 +46,7 @@
             },
             {
               "name": "type",
-              "eAttributeType": { "name": "EString" },
+              "eAttributeType": { "name": "String" },
               "defaultValue": "",
               "isUnique": false,
               "lowerBound": 0,
@@ -64,7 +64,7 @@
           "eAttributes": [
             {
               "name": "name",
-              "eAttributeType": { "name": "EString" },
+              "eAttributeType": { "name": "String" },
               "defaultValue": "newOperation",
               "isUnique": true,
               "lowerBound": 1,
@@ -72,7 +72,7 @@
             },
             {
               "name": "type",
-              "eAttributeType": { "name": "EString" },
+              "eAttributeType": { "name": "String" },
               "defaultValue": "",
               "isUnique": false,
               "lowerBound": 0,
@@ -98,7 +98,7 @@
           "eAttributes": [
             {
               "name": "name",
-              "eAttributeType": { "name": "EString" },
+              "eAttributeType": { "name": "String" },
               "defaultValue": "",
               "isUnique": true,
               "lowerBound": 1,
@@ -106,7 +106,7 @@
             },
             {
               "name": "type",
-              "eAttributeType": { "name": "EString" },
+              "eAttributeType": { "name": "String" },
               "defaultValue": "String",
               "isUnique": false,
               "lowerBound": 0,
@@ -124,7 +124,7 @@
           "eAttributes": [
             {
               "name": "name",
-              "eAttributeType": { "name": "EString" },
+              "eAttributeType": { "name": "String" },
               "defaultValue": "",
               "isUnique": false,
               "lowerBound": 0,
@@ -132,7 +132,7 @@
             },
             {
               "name": "derived",
-              "eAttributeType": { "name": "EBoolean" },
+              "eAttributeType": { "name": "Boolean" },
               "defaultValue": false,
               "isUnique": false,
               "lowerBound": 0,
@@ -164,7 +164,7 @@
           "eAttributes": [
             {
               "name": "name",
-              "eAttributeType": { "name": "EString" },
+              "eAttributeType": { "name": "String" },
               "isUnique": true,
               "lowerBound": 1,
               "upperBound": 1

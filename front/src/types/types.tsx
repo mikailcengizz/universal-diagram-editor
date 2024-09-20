@@ -76,9 +76,11 @@ export interface Notation {
 }
 
 export interface CustomNodeData {
-  ePackages: EPackage[];
+  notations: Notation[];
   nodeNotation: Notation;
   position?: Position;
+  isPalette?: boolean;
+  isNotationSlider?: boolean; // only used for slider item width
   onDoubleClick?: (id: any, data: any) => void;
 }
 
