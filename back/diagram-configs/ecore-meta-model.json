@@ -7,29 +7,23 @@
       "eClassifiers": [
         {
           "name": "Class",
-          "eAttributes": [
+          "abstract": false,
+          "interface": false,
+          "eSuperTypes": [],
+          "eAttributes": [],
+          "eOperations": [],
+          "eReferences": [
             {
-              "name": "name",
-              "eAttributeType": { "name": "String" },
-              "defaultValue": "ClassName",
-              "isUnique": true,
-              "lowerBound": 1,
-              "upperBound": 1
+              "name": "attributes",
+              "eType": "Attribute",
+              "containment": true,
+              "upperBound": "*"
             },
             {
-              "name": "abstract",
-              "eAttributeType": { "name": "Boolean" },
-              "defaultValue": false,
-              "isUnique": false,
-              "lowerBound": 0,
-              "upperBound": 1
-            }
-          ],
-          "eOperations": [],
-          "eReferences": [],
-          "eSuperTypes": [
-            {
-              "name": "NamedElement"
+              "name": "operations",
+              "eType": "Operation",
+              "containment": true,
+              "upperBound": "*"
             }
           ]
         },
@@ -45,19 +39,47 @@
               "upperBound": 1
             },
             {
-              "name": "type",
+              "name": "eAttributeType",
               "eAttributeType": { "name": "String" },
               "defaultValue": "",
               "isUnique": false,
               "lowerBound": 0,
               "upperBound": 1
+            },
+            {
+              "name": "lowerBound",
+              "eAttributeType": { "name": "Integer" },
+              "defaultValue": 0,
+              "isUnique": false,
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "upperBound",
+              "eAttributeType": { "name": "Integer" },
+              "defaultValue": 1,
+              "isUnique": false,
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "unique",
+              "eAttributeType": { "name": "Boolean" },
+              "defaultValue": false,
+              "isUnique": false,
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "derived",
+              "eAttributeType": { "name": "Boolean" },
+              "defaultValue": false,
+              "isUnique": false,
+              "lowerBound": 0,
+              "upperBound": 1
             }
           ],
-          "eSuperTypes": [
-            {
-              "name": "NamedElement"
-            }
-          ]
+          "eSuperTypes": []
         },
         {
           "name": "Operation",

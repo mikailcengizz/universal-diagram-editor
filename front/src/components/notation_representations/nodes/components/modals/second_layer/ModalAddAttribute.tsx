@@ -1,22 +1,37 @@
 import React from "react";
 import CustomModal from "../../../../../ui_elements/Modal";
-import { EAttribute } from "../../../../../../types/types";
+import { EAttributeInstance, Notation } from "../../../../../../types/types";
+import { useSelector } from "react-redux";
 
 interface ModalAddAttributeProps {
   isNodeAttributeModalOpen: boolean;
   setIsNodeAttributeModalOpen: (isOpen: boolean) => void;
-  newAttribute: EAttribute;
-  setNewAttribute: (newAttribute: EAttribute) => void;
+  metaAttribute: Notation;
+  newAttribute: EAttributeInstance;
+  setNewAttribute: (newAttribute: EAttributeInstance) => void;
   handleAttributeSubmit: () => void;
 }
+
+const inputStyle = "border border-gray-300 rounded-md p-1";
 
 function ModalAddAttribute({
   isNodeAttributeModalOpen,
   setIsNodeAttributeModalOpen,
+  metaAttribute,
   newAttribute,
   setNewAttribute,
   handleAttributeSubmit,
 }: ModalAddAttributeProps) {
+  // Helper function to handle updating attributes
+  // Attribute = {"name": "lowerBound"}
+  // NewAttribute = {"name": "name", "lowerBound": 0}
+  const handleAttributeChange = (attributeName: string, value: any) => {
+    setNewAttribute({
+      ...newAttribute,
+      [attributeName]: value,
+    });
+  };
+
   return (
     <CustomModal
       isOpen={isNodeAttributeModalOpen}
@@ -24,77 +39,82 @@ function ModalAddAttribute({
       zIndex={10}
     >
       <h2>Attribute</h2>
-      {/* TODO: temporary hard coded fields, we need to get these from somewhere where an attribute can be defined*/}
-      <label>Name</label>
-      <br />
-      <input
-        type="text"
-        value={newAttribute.name}
-        onChange={(e) =>
-          setNewAttribute({ ...newAttribute, name: e.target.value })
-        }
-      />
-      <br />
-      {/* <label>Data type</label>
-      <br />
-      <input
-        type="text"
-        value={newAttribute.eAttributeType?.name}
-        onChange={(e) =>
-          setNewAttribute({ ...newAttribute, eAttributeType: e.target.value })
-        }
-      /> */}
-      <label>Default value</label>
-      <br />
-      <input
-        type="text"
-        value={newAttribute.defaultValue}
-        onChange={(e) =>
-          setNewAttribute({ ...newAttribute, defaultValue: e.target.value })
-        }
-      />
-      <label>Lower bound</label>
-      <br />
-      <input
-        name="lowerBound"
-        type="number"
-        value={newAttribute.lowerBound}
-        onChange={(e) =>
-          setNewAttribute({ ...newAttribute, lowerBound: +e.target.value })
-        }
-      />
-      <br />
-      <label>Upper bound</label>
-      <br />
-      <input
-        name="upperBound"
-        type="number"
-        value={newAttribute.upperBound}
-        onChange={(e) =>
-          setNewAttribute({ ...newAttribute, upperBound: +e.target.value })
-        }
-      />
-      <br />
-      <label>Unique</label>
-      <input
-        type="checkbox"
-        name="unique"
-        checked={newAttribute.isUnique}
-        onChange={(e) =>
-          setNewAttribute({ ...newAttribute, isUnique: e.target.checked })
-        }
-      />
-      <br />
-      <label>Derived</label>
-      <input
-        type="checkbox"
-        name="derived"
-        checked={newAttribute.isDerived}
-        onChange={(e) =>
-          setNewAttribute({ ...newAttribute, isDerived: e.target.checked })
-        }
-      />
-      <br />
+      {/* Iterate over metaAttribute.eAttributes and render form fields */}
+      {metaAttribute.eAttributes!.map((attribute) => {
+        const foundAttributeValue =
+          newAttribute[attribute.name as keyof EAttributeInstance];
+
+        console.log("newAttribute", newAttribute);
+
+        return (
+          <div key={attribute.name}>
+            <label>{attribute.name}</label>
+            <br />
+            {attribute.eAttributeType?.name === "String" ? (
+              <input
+                name={attribute.name}
+                className={inputStyle}
+                type="text"
+                value={
+                  foundAttributeValue
+                    ? foundAttributeValue
+                    : attribute.defaultValue
+                }
+                onChange={(e) =>
+                  handleAttributeChange(attribute.name, e.target.value)
+                }
+              />
+            ) : attribute.eAttributeType?.name === "Integer" ? (
+              <input
+                name={attribute.name}
+                className={inputStyle}
+                type="number"
+                value={
+                  foundAttributeValue
+                    ? foundAttributeValue
+                    : attribute.defaultValue
+                }
+                onChange={(e) =>
+                  handleAttributeChange(
+                    attribute.name,
+                    parseInt(e.target.value, 10)
+                  )
+                }
+              />
+            ) : attribute.eAttributeType?.name === "Boolean" ? (
+              <input
+                name={attribute.name}
+                className={inputStyle}
+                type="checkbox"
+                checked={
+                  foundAttributeValue
+                    ? foundAttributeValue
+                    : attribute.defaultValue
+                }
+                onChange={(e) =>
+                  handleAttributeChange(attribute.name, e.target.checked)
+                }
+              />
+            ) : (
+              <input
+                name={attribute.name}
+                className={inputStyle}
+                type="text"
+                value={
+                  foundAttributeValue
+                    ? foundAttributeValue
+                    : attribute.defaultValue
+                }
+                onChange={(e) =>
+                  handleAttributeChange(attribute.name, e.target.value)
+                }
+              />
+            )}
+            <br />
+          </div>
+        );
+      })}
+
       <label>Constraints</label>
       <br />
       <textarea name="constraints" />

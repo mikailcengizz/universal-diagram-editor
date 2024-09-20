@@ -4,22 +4,41 @@ import {
   CustomNodeData,
   EOperation,
   NotationRepresentationItem,
+  InstanceModelFile,
+  EClassInstance,
 } from "../../../../types/types";
 import typeHelper from "../../../helpers/TypeHelper";
+import { useDispatch, useSelector } from "react-redux";
 
 interface RenderCompartmentsProps {
+  nodeId: string;
   compartments: NotationRepresentationItem[];
   data: CustomNodeData;
 }
 
-function RenderCompartments({ compartments, data }: RenderCompartmentsProps) {
+function RenderCompartments({
+  nodeId,
+  compartments,
+  data,
+}: RenderCompartmentsProps) {
+  const dispatch = useDispatch();
+  const instanceModel: InstanceModelFile = useSelector(
+    (state: any) => state.instanceModelStore.model
+  );
+
   return (
     <>
       {compartments.map((compartment, index) => {
         const generatorName = compartment.generator;
+        let classifier = undefined;
+        if (instanceModel.ePackages.length > 0) {
+          classifier = instanceModel.ePackages![0].eClassifiers.find(
+            (cls) => cls.id === nodeId
+          ) as EClassInstance;
+        }
 
-        if (generatorName === "attributesForNotation") {
-          const attributes = data.nodeNotation.eAttributes!.filter(
+        if (generatorName === "attributesForNotation" && classifier) {
+          const attributes = classifier.eAttributes!.filter(
             (attribute) =>
               attribute.name !== "name" &&
               attribute.name !== "abstract" &&
@@ -56,15 +75,15 @@ function RenderCompartments({ compartments, data }: RenderCompartmentsProps) {
                   >
                     <div key={idx}>
                       {/* {typeHelper.determineVisibilityIcon(attribute.visibility)}{" "} */}
-                      {attribute.name}: {attribute.eAttributeType}{" "}
-                      {[attribute.lowerBound, attribute.upperBound].join("..")}
-                      {attribute.defaultValue && ` = ${attribute.defaultValue}`}
+                      {attribute.name}{" "}
+                      {attribute.eAttributeType &&
+                        " : " + attribute.eAttributeType.name}
                     </div>
                   </div>
                 ))}
             </div>
           );
-        } else if (generatorName === "operationsForNotation") {
+        } else if (generatorName === "operationsForNotation" && classifier) {
           const operations = data.nodeNotation.eOperations!;
 
           const operationHeight = compartment.position.extent?.height || 10; // Default height for each operation
@@ -114,7 +133,7 @@ function RenderCompartments({ compartments, data }: RenderCompartmentsProps) {
         }
 
         /* Default case for rendering direct text and not generator elements */
-        return (
+        /* return (
           <div
             key={index}
             style={{
@@ -127,7 +146,7 @@ function RenderCompartments({ compartments, data }: RenderCompartmentsProps) {
               borderWidth: 0,
             }}
           />
-        );
+        ); */
       })}
     </>
   );

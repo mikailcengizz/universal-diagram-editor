@@ -16,7 +16,9 @@ import {
   CustomNodeData,
   DragData,
   EClass,
+  EClassInstance,
   EClassRepresentation,
+  InstanceModelFile,
   MetaModelFile,
   Notation,
   RepresentationModelFile,
@@ -29,6 +31,7 @@ import CombineRelationshipShapesEdge from "../notation_representations/edges/Com
 import ModalDoubleClickNotation from "../notation_representations/nodes/components/modals/first_layer/ModalDoubleClickNotation";
 import typeHelper from "../helpers/TypeHelper";
 import { all } from "axios";
+import { useDispatch, useSelector } from "react-redux";
 
 const nodeTypes = {
   ClassNode: CombineObjectShapesNode,
@@ -55,6 +58,10 @@ const DiagramEditor = ({
   edges,
   setEdges,
 }: DiagramEditorProps) => {
+  const dispatch = useDispatch();
+  const instanceModel: InstanceModelFile = useSelector(
+    (state: any) => state.instanceModelStore.model
+  );
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [metaConfig, setConfig] = useState<MetaModelFile | null>({
     name: "",
@@ -238,6 +245,32 @@ const DiagramEditor = ({
 
       console.log("Node dropped:", newNode);
       setNodes((nds) => nds.concat(newNode));
+
+      // Update instance model with new node
+      let newInstanceModel = { ...instanceModel };
+      console.log("Instance model before update:", newInstanceModel);
+
+      // Initialize root package if it doesn't exist
+      if (newInstanceModel.ePackages.length === 0) {
+        newInstanceModel.ePackages.push({
+          name: metaConfig?.ePackages[0].name!,
+          eClassifiers: [],
+          eSubpackages: [],
+        });
+      }
+
+      // Add the new node to the instance model together with its id
+      const newEClassInstance: EClassInstance = {
+        ...(notation as unknown as EClassInstance),
+        id: uniqueId,
+      };
+
+      newInstanceModel.ePackages[0].eClassifiers.push(newEClassInstance);
+
+      dispatch({
+        type: "UPDATE_MODEL",
+        payload: newInstanceModel,
+      });
     },
     [reactFlowInstance, metaConfig]
   );
@@ -319,6 +352,7 @@ const DiagramEditor = ({
       {/* Modal */}
       {isModalOpen && modalData && (
         <ModalDoubleClickNotation
+          nodeId=""
           data={modalData}
           isNodeAttributeModalOpen={false}
           isNodeModalOpen={isModalOpen}

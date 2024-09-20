@@ -2,6 +2,8 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { createTheme, ThemeProvider } from "@mui/material";
+import { Provider } from "react-redux";
+import store from "../redux/store";
 
 const theme = createTheme({
   components: {
@@ -56,14 +58,16 @@ const theme = createTheme({
 
 const RootLayout = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <div className="flex bg-[#1B1B20]">
-        <Sidebar />
-        <div className="min-h-screen max-h-screen w-full h-full">
-          <Outlet />
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>
+        <div className="flex bg-[#1B1B20]">
+          <Sidebar />
+          <div className="min-h-screen max-h-screen w-full h-full">
+            <Outlet />
+          </div>
         </div>
-      </div>
-    </ThemeProvider>
+      </ThemeProvider>
+    </Provider>
   );
 };
 

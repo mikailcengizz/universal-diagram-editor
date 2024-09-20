@@ -6,6 +6,8 @@ import { ArrowRightOutlined } from "@mui/icons-material";
 import * as htmlToImage from "html-to-image";
 import { saveAs } from "file-saver";
 import { Edge, Node as ReactFlowNode } from "@xyflow/react";
+import { useDispatch } from "react-redux";
+import { updateModel } from "../../redux/actions/instanceModelActions";
 
 interface SubHeaderProps {
   onSelectConfig: (configName: string) => void;
@@ -20,6 +22,7 @@ function SubHeader({
   nodes,
   edges,
 }: SubHeaderProps) {
+  const dispatch = useDispatch();
   const [dropdownVisibleFile, setDropdownVisibleFile] = useState(false);
   const [sidewayDropdownVisibleExportAs, setSidewayDropdownVisibleExportAs] =
     useState(false);
@@ -82,6 +85,19 @@ function SubHeader({
   const onCreateNewDiagramHandler = () => {
     onSelectConfig("");
     setDropdownVisibleFile(false);
+
+    // Clear the diagram
+    // setNodes([]);
+    // setEdges([]);
+
+    // Clear the diagram instance
+    dispatch(
+      updateModel({
+        name: "",
+        type: "instance",
+        ePackages: [],
+      })
+    );
   };
 
   const onSaveDiagramHandler = () => {

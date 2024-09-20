@@ -2,8 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   CustomNodeData,
   EAttribute,
+  EAttributeInstance,
+  EClass,
   EOperation,
   EParameter,
+  InstanceModelFile,
   NotationRepresentationItem,
 } from "../../../types/types";
 import { NodeResizer } from "@xyflow/react";
@@ -15,6 +18,11 @@ import ModalAddOperation from "./components/modals/second_layer/ModalAddOperatio
 import RenderTexts from "./components/RenderTexts";
 import RenderCompartments from "./components/RenderCompartments";
 import RenderRectangles from "./components/RenderRectangles";
+import {
+  updateAttribute,
+  updateClass,
+} from "../../../redux/actions/instanceModelActions";
+import { useDispatch, useSelector } from "react-redux";
 
 interface CombineObjectShapesNodeProps {
   id: string;
@@ -23,10 +31,14 @@ interface CombineObjectShapesNodeProps {
 }
 
 const CombineObjectShapesNode = ({
-  id,
+  id: nodeId,
   data: initialData,
   selected,
 }: CombineObjectShapesNodeProps) => {
+  const dispatch = useDispatch();
+  const instanceModel: InstanceModelFile = useSelector(
+    (state: any) => state.instanceModelStore.model
+  );
   const [data, setData] = useState<CustomNodeData>({ ...initialData });
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1); // used for palette scaling
@@ -54,14 +66,21 @@ const CombineObjectShapesNode = ({
   const [isNodeOperationModalOpen, setIsNodeOperationModalOpen] =
     useState(false); // second layer modal for node operations
   const [isAddParameterModalOpen, setIsAddParameterModalOpen] = useState(false); // third layer modal for adding parameters to operations
-  const [modifiyingAttribute, setModifyingAttribute] = useState<EAttribute>({
-    name: "",
-    eAttributeType: undefined,
-    defaultValue: "",
-    isUnique: false,
-    lowerBound: 0,
-    upperBound: 1,
-  });
+  const metaAttribute = data.notations.find(
+    (notation) => notation.name === "Attribute"
+  )!;
+  const [modifiyingAttribute, setModifyingAttribute] =
+    useState<EAttributeInstance>({
+      id: "",
+      ...metaAttribute.eAttributes?.reduce(
+        (acc, attribute) => ({
+          ...acc,
+          [attribute.name]: attribute.defaultValue,
+        }),
+        {}
+      ),
+    });
+
   const [modifyingOperation, setModifyingOperation] = useState<EOperation>({
     name: "",
     eParameters: [],
@@ -148,6 +167,18 @@ const CombineObjectShapesNode = ({
       const { width, height } = containerRef.current.getBoundingClientRect();
       setContainerSize({ width, height }); // for extending the node when resizing
     }
+
+    // initialize newAttribute with default values of the meta attribute
+    if (metaAttribute.eAttributes) {
+      metaAttribute.eAttributes.forEach((attribute) => {
+        if (!modifiyingAttribute[attribute.name as keyof EAttributeInstance]) {
+          setModifyingAttribute({
+            ...modifiyingAttribute,
+            [attribute.name]: attribute.defaultValue,
+          });
+        }
+      });
+    }
   }, []);
 
   const handleResize = (
@@ -175,66 +206,40 @@ const CombineObjectShapesNode = ({
   };
 
   // Handle text change
-  const handleTextChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    originalIndex: number,
-    propertyFromText: EAttribute | undefined
-  ) => {
-    const newDefaultValue = event.target.value;
+  const handleTextChange = (e: any, nameFromClassifier: string | undefined) => {
+    const newDefaultValue = e.target.value;
+    let newInstanceModel = { ...instanceModel };
 
-    // update the default value of the property
-    propertyFromText!.defaultValue = newDefaultValue;
-
-    // update the data
-    const newData = { ...data };
-    newData.nodeNotation.eAttributes = data.nodeNotation.eAttributes!.map(
-      (prop) =>
-        prop.name === propertyFromText!.name ? propertyFromText! : prop
-    );
-
-    setData(newData);
+    // update the name of the class
+    newInstanceModel.ePackages[0].eClassifiers.find(
+      (cls) => cls.name === data.nodeNotation.name
+    )!.name = newDefaultValue;
+    dispatch({ type: "UPDATE_MODEL", payload: newInstanceModel });
   };
 
   const handleAttributeSubmit = () => {
-    // Find the "Attributes" collection i.e if the classifier can have attributes
-    const attributesReference = data.nodeNotation.eReferences!.find(
-      (prop) => prop.name === "attributes"
-    );
-
-    if (attributesReference) {
-      const attributes = data.nodeNotation.eAttributes
-        ? (data.nodeNotation.eAttributes as Array<any>)
-        : [];
-
-      const newModifyingAttribute = { ...modifiyingAttribute };
-
-      // Find the index of the attribute we are modifying
-      const attributeIndex = attributes.findIndex(
-        (attribute) => attribute.name === newModifyingAttribute.name
-      );
-
-      // If the attribute already exists, update it
-      if (attributeIndex !== -1) {
-        attributes[attributeIndex] = newModifyingAttribute;
-      } else {
-        // Otherwise, add the new attribute
-        attributes.push(newModifyingAttribute);
-      }
-
-      data.nodeNotation.eAttributes = attributes;
-
-      setData({ ...data });
+    // give the attribute a unique id if it is a new attribute
+    let newAttribute = { ...modifiyingAttribute };
+    if (!modifiyingAttribute.id) {
+      newAttribute.id = `attribute-${Date.now()}`;
     }
+    console.log("submitting attribute", newAttribute);
+    setModifyingAttribute(newAttribute);
+
+    dispatch(updateAttribute(nodeId, newAttribute));
 
     // Reset and close the modal
-    setModifyingAttribute({
-      name: "",
-      eAttributeType: undefined,
-      defaultValue: "",
-      isUnique: false,
-      lowerBound: 0,
-      upperBound: 1,
-    });
+    // re-initialize newAttribute with default values of the meta attribute
+    if (metaAttribute.eAttributes) {
+      metaAttribute.eAttributes.forEach((attribute) => {
+        if (!modifiyingAttribute[attribute.name as keyof EAttributeInstance]) {
+          setModifyingAttribute({
+            ...modifiyingAttribute,
+            [attribute.name]: attribute.defaultValue,
+          });
+        }
+      });
+    }
     setIsNodeAttributeModalOpen(false);
   };
 
@@ -356,17 +361,22 @@ const CombineObjectShapesNode = ({
       <RenderRectangles rectangles={rectangles} data={data} />
 
       {/* Render compartments */}
-      <RenderCompartments compartments={compartments} data={data} />
+      <RenderCompartments
+        nodeId={nodeId}
+        compartments={compartments}
+        data={data}
+      />
 
       {/* Render texts in the front */}
       <RenderTexts
+        nodeId={nodeId}
         data={data}
         handleTextChange={handleTextChange}
         texts={texts}
       />
 
       {/* Render connectors in the front */}
-      <RenderConnectors connectors={connectors} id={id} key={id} />
+      <RenderConnectors connectors={connectors} id={nodeId} key={nodeId} />
 
       {/* Node resizer */}
       {!data.isPalette && selected && (
@@ -381,6 +391,7 @@ const CombineObjectShapesNode = ({
 
       {/* Modal for double click */}
       <ModalDoubleClickNotation
+        nodeId={nodeId}
         data={data}
         isNodeAttributeModalOpen={isNodeAttributeModalOpen}
         isNodeModalOpen={isNodeModalOpen}
@@ -399,14 +410,15 @@ const CombineObjectShapesNode = ({
       <ModalAddAttribute
         handleAttributeSubmit={handleAttributeSubmit}
         isNodeAttributeModalOpen={isNodeAttributeModalOpen}
+        metaAttribute={metaAttribute}
         newAttribute={modifiyingAttribute}
-        setIsNodeAttributeModalOpen={setIsNodeAttributeModalOpen}
         setNewAttribute={setModifyingAttribute}
+        setIsNodeAttributeModalOpen={setIsNodeAttributeModalOpen}
       />
 
       {/* Operation modal */}
       {/* Add or modify operations */}
-      <ModalAddOperation
+      {/* <ModalAddOperation
         data={data}
         isNodeOperationModalOpen={isNodeOperationModalOpen}
         modifyingOperation={modifyingOperation}
@@ -414,16 +426,16 @@ const CombineObjectShapesNode = ({
         setIsNodeOperationModalOpen={setIsNodeOperationModalOpen}
         setIsAddParameterModalOpen={setIsAddParameterModalOpen}
         handleOperationSubmit={handleOperationSubmit}
-      />
+      /> */}
 
       {/* Add parameter modal */}
-      <ModalAddParameter
+      {/* <ModalAddParameter
         isAddParameterModalOpen={isAddParameterModalOpen}
         setIsAddParameterModalOpen={setIsAddParameterModalOpen}
         modifyingParameter={modifyingParameter}
         setModifyingParameter={setModifyingParameter}
         handleParameterSubmit={handleParameterSubmit}
-      />
+      /> */}
     </div>
   );
 };

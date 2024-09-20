@@ -1,5 +1,53 @@
-// NOTATION DESIGNER
 import { EdgeProps } from "@xyflow/react";
+
+// ECORE INSTANCE MODEL
+export interface InstanceModelFile {
+  name: string;
+  type: ModelFileType;
+  ePackages: EPackageInstance[];
+}
+
+export interface EPackageInstance {
+  name: string;
+  eClassifiers: EClassInstance[];
+  eSubpackages: EPackageInstance[];
+}
+
+export interface EClassInstance {
+  id: string;
+  name: string;
+  abstract?: boolean;
+  interface?: boolean;
+  eSuperTypes?: EClassInstance[];
+  eAttributes?: EAttributeInstance[];
+  eReferences?: EReferenceInstance[];
+  eOperations?: EOperationInstance[];
+}
+
+export interface EAttributeInstance {
+  id: string;
+  [key: string]: any;
+}
+
+export interface EReferenceInstance {
+  name: string;
+  eReferenceType?: EClassInstance;
+}
+
+export interface EOperationInstance {
+  name: string;
+  eParameters?: EParameterInstance[];
+}
+
+export interface EParameterInstance {
+  name: string;
+}
+
+export interface EDataTypeInstance {
+  name: string;
+}
+
+// NOTATION DESIGNER
 
 export interface Marker {
   id: string;
@@ -104,7 +152,7 @@ export interface DragData {
   notationType: NotationType;
 }
 
-export type ModelFileType = "representation" | "meta";
+export type ModelFileType = "representation" | "meta" | "instance";
 
 // NEW EMF ECORE MODEL - START
 export interface MetaModelFile {
@@ -122,11 +170,15 @@ export interface EPackage extends ENamedElement {
   eSubpackages: EPackage[];
 }
 
-export abstract class EClassifier extends ENamedElement {}
+export abstract class EClassifier extends ENamedElement {
+  ePackage?: EPackage;
+  abstract?: boolean;
+  interface?: boolean;
+}
 
 export interface EClass extends EClassifier {
-  eAttributes: EAttribute[];
-  eReferences: EReference[];
+  eAttributes?: EAttribute[];
+  eReferences?: EReference[];
   eOperations?: EOperation[];
   eSuperTypes?: EClass[];
 }
@@ -135,21 +187,30 @@ export interface EDataType extends EClassifier {
   // represents data types like EString, EInt, etc.
 }
 
-export interface EAttribute {
+export abstract class TypedElement extends ENamedElement {
+  eType?: EClassifier; // Name of the data type
+  lowerBound?: number;
+  upperBound?: number;
+  isUnique?: boolean;
+}
+
+export abstract class EStructuralFeature extends TypedElement {
+  isDerived?: boolean;
+  defaultValue?: any;
+  defaultValueLiteral?: string;
+  eContainingClass?: EClass; // The class that has this feature
+}
+
+export interface EAttribute extends EStructuralFeature {
   name: string;
   eAttributeType?: EDataType; // Name of the data type
   defaultValue?: any;
-  isUnique?: boolean;
-  isDerived?: boolean;
-  lowerBound?: number;
-  upperBound?: number;
 }
 
-export interface EReference {
-  name: string;
-  eType: string;
+export interface EReference extends EStructuralFeature {
   containment?: boolean;
-  upperBound?: string;
+  eOpposite?: EReference;
+  eReferenceType?: EClass; // Name of the data type
 }
 
 export interface ETypedElement extends ENamedElement {

@@ -1,16 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CustomModal from "../../../../../ui_elements/Modal";
 import {
   CustomNodeData,
   EAttribute,
+  EAttributeInstance,
   EOperation,
+  InstanceModelFile,
   Pattern,
 } from "../../../../../../types/types";
 import typeHelper from "../../../../../helpers/TypeHelper";
+import { useDispatch, useSelector } from "react-redux";
 
 interface ModalDoubleClickNotationProps {
   isNodeModalOpen: boolean;
   setIsNodeModalOpen: (isOpen: boolean) => void;
+  nodeId: string;
   data: CustomNodeData;
   setData: (data: CustomNodeData) => void;
   isNodeAttributeModalOpen: boolean;
@@ -23,6 +27,7 @@ interface ModalDoubleClickNotationProps {
 function ModalDoubleClickNotation({
   isNodeModalOpen,
   setIsNodeModalOpen,
+  nodeId,
   data,
   setData,
   isNodeAttributeModalOpen,
@@ -31,6 +36,10 @@ function ModalDoubleClickNotation({
   setIsNodeOperationModalOpen,
   onDataUpdate,
 }: ModalDoubleClickNotationProps) {
+  const dispatch = useDispatch();
+  const instanceModel: InstanceModelFile = useSelector(
+    (state: any) => state.instanceModelStore.model
+  );
   const [relationshipTab, setRelationshipTab] = useState<number>(1);
 
   const handleNodeNotationAttributeChange = (
@@ -125,6 +134,20 @@ function ModalDoubleClickNotation({
     onDataUpdate(newData); // Update parent with new data
   };
 
+  // This should not be used to update data, but only to display the attributes of the class
+  const [classifierAttributes, setClassifierAttributes] = useState<
+    EAttributeInstance[] | undefined
+  >([]);
+  useEffect(() => {
+    if (instanceModel && instanceModel.ePackages.length > 0) {
+      const attributes = instanceModel.ePackages[0].eClassifiers.find(
+        (cls) => cls.id === nodeId
+      )?.eAttributes;
+      setClassifierAttributes(attributes);
+    }
+    console.log("Classifier attributes:", classifierAttributes);
+  }, [instanceModel]);
+
   return (
     <CustomModal
       isOpen={isNodeModalOpen}
@@ -168,10 +191,10 @@ function ModalDoubleClickNotation({
             }
           })}
 
-        {/* Field Attributes (e.g., class members inside compartments) */}
+        {/* Field Attributes (e.g., class members inside compartments) should just be listed */}
         <h3>Class Attributes</h3>
-        {data.nodeNotation.eAttributes &&
-          data.nodeNotation.eAttributes.map((attribute, index) => {
+        {classifierAttributes &&
+          classifierAttributes.map((attribute, index) => {
             if (
               attribute.name !== "name" &&
               attribute.name !== "abstract" &&
@@ -179,19 +202,7 @@ function ModalDoubleClickNotation({
             ) {
               return (
                 <div key={index}>
-                  <label>{attribute.name}</label>
-                  <input
-                    type={typeHelper.determineInputFieldType(
-                      attribute.eAttributeType!.name!
-                    )}
-                    value={attribute.defaultValue}
-                    onChange={(e) =>
-                      handleNodeNotationAttributeChange(
-                        attribute,
-                        e.target.value
-                      )
-                    }
-                  />
+                  <span>{attribute.name}</span>
                 </div>
               );
             }

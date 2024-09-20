@@ -1,0 +1,140 @@
+{
+  "name": "My UML Class Diagram",
+  "type": "instance",
+  "ePackages": [
+    {
+      "name": "UMLPackageInstance",
+      "eClassifiers": [
+        {
+          "name": "Person",
+          "abstract": false,
+          "interface": false,
+          "eSuperTypes": [],
+          "eAttributes": [
+            {
+              "name": "name",
+              "eAttributeType": { "name": "String" },
+              "defaultValue": "John Doe",
+              "isUnique": true,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "age",
+              "eAttributeType": { "name": "Integer" },
+              "defaultValue": 30,
+              "isUnique": false,
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "eOperations": [
+            {
+              "name": "getFullName",
+              "eAttributeType": { "name": "String" },
+              "defaultValue": "getFullName()",
+              "isUnique": true,
+              "lowerBound": 1,
+              "upperBound": 1,
+              "parameters": []
+            }
+          ],
+          "eReferences": [
+            {
+              "name": "attributes",
+              "eType": "Attribute",
+              "containment": true,
+              "upperBound": "*"
+            },
+            {
+              "name": "operations",
+              "eType": "Operation",
+              "containment": true,
+              "upperBound": "*"
+            }
+          ]
+        },
+        {
+          "name": "Car",
+          "eSuperTypes": [],
+          "eAttributes": [
+            {
+              "name": "model",
+              "eAttributeType": { "name": "String" },
+              "defaultValue": "Sedan",
+              "isUnique": true,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "year",
+              "eAttributeType": { "name": "Integer" },
+              "defaultValue": 2020,
+              "isUnique": false,
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "eOperations": [
+            {
+              "name": "drive",
+              "eAttributeType": { "name": "Void" },
+              "defaultValue": "drive()",
+              "isUnique": true,
+              "lowerBound": 1,
+              "upperBound": 1,
+              "parameters": []
+            }
+          ],
+          "eReferences": [
+            {
+              "name": "attributes",
+              "eType": "Attribute",
+              "containment": true,
+              "upperBound": "*"
+            },
+            {
+              "name": "operations",
+              "eType": "Operation",
+              "containment": true,
+              "upperBound": "*"
+            }
+          ]
+        },
+        {
+          "name": "Owns",
+          "eSuperTypes": [
+            {
+              "name": "NamedElement"
+            }
+          ],
+          "eAttributes": [
+            {
+              "name": "name",
+              "eAttributeType": { "name": "String" },
+              "defaultValue": "Ownership",
+              "isUnique": false,
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "eReferences": [
+            {
+              "name": "source",
+              "eType": "Person",
+              "containment": false,
+              "upperBound": 1
+            },
+            {
+              "name": "target",
+              "eType": "Car",
+              "containment": false,
+              "upperBound": 1
+            }
+          ]
+        }
+      ],
+      "eSubpackages": []
+    }
+  ]
+}
