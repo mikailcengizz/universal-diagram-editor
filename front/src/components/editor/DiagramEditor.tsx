@@ -286,8 +286,15 @@ const DiagramEditor = ({
     };
 
     const initialEdges = initializeEdges();
+
     setEdges(initialEdges);
-  }, [metaInstanceModel, representationInstanceModel, setEdges]);
+  }, [
+    metaInstanceModel,
+    representationInstanceModel,
+    setEdges,
+    metaConfig,
+    representationConfig,
+  ]);
 
   const onConnect = useCallback(
     (params: Edge | Connection) => {
@@ -338,6 +345,8 @@ const DiagramEditor = ({
       }
 
       const uniqueId = `${associationMeta.name}-${uuidv4()}`;
+
+      console.log("associationRepresentation", associationRepresentation);
 
       // Create a new edge instance notation for the association
       const associationClassInstanceNotation: InstanceNotation = {
@@ -400,6 +409,7 @@ const DiagramEditor = ({
       // Update meta instance model with new edge
       updateMetaInstanceModelWithNewNode(
         newEdge,
+        false,
         associationClassInstanceNotation
       );
 
@@ -498,6 +508,7 @@ const DiagramEditor = ({
 
   const updateMetaInstanceModelWithNewNode = (
     newNode: Node | Edge,
+    isNode: boolean, // boolean to tell if the new node is a node or an edge
     notation: InstanceNotation
   ) => {
     let newMetaInstanceModel = { ...metaInstanceModel };
@@ -515,10 +526,28 @@ const DiagramEditor = ({
     // Add the new node to the instance model together with its id
     const uniqueId = newNode.id;
     const { graphicalRepresentation, ...restOfNotation } = notation; // excludes graphical representation field from notation
-    const newEClassInstance: EClassInstance = {
+    let newEClassInstance: EClassInstance = {
       ...(restOfNotation as EClassInstance),
       id: uniqueId,
     };
+
+    if (!isNode) {
+      const newEdge = newNode as Edge;
+      // Add source and target references to the edge
+      newEClassInstance = {
+        ...newEClassInstance,
+        eReferences: [
+          {
+            name: "source",
+            id: newEdge.source,
+          },
+          {
+            name: "target",
+            id: newEdge.target,
+          },
+        ],
+      };
+    }
 
     newMetaInstanceModel.ePackages[0].eClassifiers.push(newEClassInstance);
 
@@ -568,7 +597,7 @@ const DiagramEditor = ({
     }
 
     // Add graphical representation if it exists, and if the representation config exists
-    if (representationConfig && representationConfig.ePackages[0]) {
+    if (representationConfig && representationConfig.ePackages[0] && isNode) {
       newEClassRepresentationInstance = {
         ...newEClassRepresentationInstance,
         graphicalRepresentation: [
@@ -634,7 +663,7 @@ const DiagramEditor = ({
       setNodes((nds) => nds.concat(newNode));
 
       // Update meta instance model with new node
-      updateMetaInstanceModelWithNewNode(newNode, notation);
+      updateMetaInstanceModelWithNewNode(newNode, true, notation);
 
       // Update representation instance model with new node
       updateRepresentationInstanceModelWithNewNode(newNode, true, notation);
