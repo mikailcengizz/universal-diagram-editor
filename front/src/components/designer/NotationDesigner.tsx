@@ -34,6 +34,7 @@ const NotationDesigner = () => {
       ePackages: [],
     });
   const [currentNotation, setCurrentNotation] = useState<InstanceNotation>({
+    id: "",
     name: "",
     type: undefined,
     eAttributes: [],

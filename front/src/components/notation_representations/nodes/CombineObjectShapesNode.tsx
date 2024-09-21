@@ -8,6 +8,7 @@ import {
   EParameter,
   MetaInstanceModelFile,
   NotationRepresentationItem,
+  RepresentationInstanceModelFile,
 } from "../../../types/types";
 import { NodeResizer } from "@xyflow/react";
 import RenderConnectors from "./components/RenderConnectors";
@@ -20,6 +21,7 @@ import RenderCompartments from "./components/RenderCompartments";
 import RenderRectangles from "./components/RenderRectangles";
 import { updateMetaInstanceAttribute } from "../../../redux/actions/metaInstanceModelActions";
 import { useDispatch, useSelector } from "react-redux";
+import { updateRepresentationInstanceModel } from "../../../redux/actions/representationInstanceModelActions";
 
 interface CombineObjectShapesNodeProps {
   id: string;
@@ -36,6 +38,9 @@ const CombineObjectShapesNode = ({
   const metaInstanceModel: MetaInstanceModelFile = useSelector(
     (state: any) => state.metaInstanceModelStore.model
   );
+  const representationInstanceModel: RepresentationInstanceModelFile =
+    useSelector((state: any) => state.representationInstanceModelStore.model);
+
   const [data, setData] = useState<CustomNodeData>({ ...initialData });
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1); // used for palette scaling
@@ -189,16 +194,91 @@ const CombineObjectShapesNode = ({
     const newWidth = width;
     const newHeight = newWidth / aspectRatio;
 
-    // Calculate the new scale factor based on the width change
-    const newScale = newWidth / containerSize.width;
+    // Calculate scaling factors based on the new size
+    const scaleX = newWidth / containerSize.width;
+    const scaleY = newHeight / containerSize.height;
 
     // Update the container size and scale
     setContainerSize({ width: newWidth, height: newHeight });
-    setScale(newScale);
+    setScale(scaleX); // Apply scaling uniformly for simplicity
 
     // Update the container's transform style to apply the new scale
     if (containerRef.current) {
-      containerRef.current.style.transform = `scale(${newScale})`;
+      containerRef.current.style.transform = `scale(${scaleX})`;
+    }
+
+    // Find the classifier in the representation model by referenceMetaId
+    const classifierInRepresentation =
+      representationInstanceModel.ePackages[0].eClassifiers.find(
+        (classifier) => classifier.referenceMetaId === nodeId
+      );
+
+    if (classifierInRepresentation) {
+      // Calculate max dimensions of the original graphicalRepresentation items
+      const originalMaxWidth = Math.max(
+        ...classifierInRepresentation.graphicalRepresentation!.map(
+          (item) => item.position.extent?.width || 100
+        )
+      );
+      const originalMaxHeight = Math.max(
+        ...classifierInRepresentation.graphicalRepresentation!.map(
+          (item) => item.position.extent?.height || 100
+        )
+      );
+
+      // Calculate overall scaling factor to maintain aspect ratio based on new width and height
+      const scaleFactorWidth = newWidth / originalMaxWidth;
+      const scaleFactorHeight = newHeight / originalMaxHeight;
+
+      // Ensure both X and Y scaling maintain aspect ratio
+      const uniformScaleFactor = Math.min(scaleFactorWidth, scaleFactorHeight);
+
+      // Update the extent (width and height) **and** position (x and y) for **all** items
+      const updatedGraphicalRepresentation =
+        classifierInRepresentation.graphicalRepresentation!.map((item) => {
+          return {
+            ...item,
+            position: {
+              ...item.position,
+              x: item.position.x * uniformScaleFactor, // Scale position x
+              y: item.position.y * uniformScaleFactor, // Scale position y
+              extent: {
+                width:
+                  (item.position.extent?.width || 100) * uniformScaleFactor, // Scale width
+                height:
+                  (item.position.extent?.height || 100) * uniformScaleFactor, // Scale height
+              },
+            },
+          };
+        });
+
+      // Update the classifier with the new graphicalRepresentation in the representation model
+      const updatedRepresentationInstanceModel = {
+        ...representationInstanceModel,
+        ePackages: representationInstanceModel.ePackages.map((pkg) => ({
+          ...pkg,
+          eClassifiers: pkg.eClassifiers.map((classifier) => {
+            if (classifier.referenceMetaId === nodeId) {
+              return {
+                ...classifier,
+                graphicalRepresentation: updatedGraphicalRepresentation,
+              };
+            }
+            return classifier;
+          }),
+        })),
+      };
+
+      // Dispatch the updated representation instance model to Redux
+      dispatch(
+        updateRepresentationInstanceModel(updatedRepresentationInstanceModel)
+      );
+
+      // Also save the updated model to localStorage
+      localStorage.setItem(
+        "representationInstanceModel",
+        JSON.stringify(updatedRepresentationInstanceModel)
+      );
     }
   };
 

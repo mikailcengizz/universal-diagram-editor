@@ -187,6 +187,7 @@ const DiagramEditor = ({
               (cls) => cls
             ) as MetaNotation[],
             instanceNotation: {
+              id: metaInstance.id,
               name: metaInstance.name,
               eAttributes: metaInstance.eAttributes,
               eOperations: metaInstance.eOperations,
@@ -199,7 +200,7 @@ const DiagramEditor = ({
           };
 
           const returnNode: Node = {
-            id: representationClassifier.id,
+            id: metaInstance.id,
             type: "ClassNode", // as it is a classifer node
             position: representationClassifier.position,
             data: nodeData as any,
@@ -309,7 +310,7 @@ const DiagramEditor = ({
         if (change.type === "position" && "id" in change) {
           const classifierInRepresentation =
             representationInstanceModel.ePackages[0].eClassifiers.find(
-              (classifier) => classifier.id === change.id
+              (classifier) => classifier.referenceMetaId === change.id
             );
 
           if (classifierInRepresentation) {
@@ -336,7 +337,7 @@ const DiagramEditor = ({
               ePackages: representationInstanceModel.ePackages.map((pkg) => ({
                 ...pkg,
                 eClassifiers: pkg.eClassifiers.map((classifier) => {
-                  if (classifier.id === change.id) {
+                  if (classifier.referenceMetaId === change.id) {
                     return {
                       ...classifier,
                       position: newPosition, // Update position with valid or fallback position
@@ -351,12 +352,6 @@ const DiagramEditor = ({
               updateRepresentationInstanceModel(
                 updatedRepresentationInstanceModel
               )
-            );
-
-            // Save the updated model to localStorage
-            localStorage.setItem(
-              "representationInstanceModel",
-              JSON.stringify(updatedRepresentationInstanceModel)
             );
 
             console.log("Position saved to localStorage.");

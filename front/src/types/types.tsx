@@ -169,6 +169,7 @@ export type NotationType =
 
 // DIAGRAM EDITOR
 export interface InstanceNotation {
+  id: string;
   name: string;
   type?: NotationType;
   eSubpackages?: EPackageInstance[];

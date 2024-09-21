@@ -4,6 +4,7 @@ import {
   EAttribute,
   MetaInstanceModelFile,
   NotationRepresentationItem,
+  RepresentationInstanceModelFile,
 } from "../../../../types/types";
 import dataTypeHelper from "../../../helpers/TypeHelper";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,7 +23,7 @@ function RenderTexts({
   handleTextChange,
 }: RenderTextsProps) {
   const dispatch = useDispatch();
-  const metainstanceModel: MetaInstanceModelFile = useSelector(
+  const metaInstanceModel: MetaInstanceModelFile = useSelector(
     (state: any) => state.metaInstanceModelStore.model
   );
 
@@ -33,9 +34,9 @@ function RenderTexts({
         let nameFromClassifier: string | undefined;
         if (
           textItem.text === "name" &&
-          metainstanceModel.ePackages?.length > 0
+          metaInstanceModel.ePackages?.length > 0
         ) {
-          nameFromClassifier = metainstanceModel.ePackages[0].eClassifiers.find(
+          nameFromClassifier = metaInstanceModel.ePackages[0].eClassifiers.find(
             (cls) => cls.id === nodeId
           )?.name;
         }
