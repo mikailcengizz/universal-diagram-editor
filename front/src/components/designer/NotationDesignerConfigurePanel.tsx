@@ -17,9 +17,11 @@ import AddIcon from "@mui/icons-material/Add";
 import {
   ConfigListItem,
   EAttribute,
+  EAttributeInstance,
   EPackage,
   MetaModelFile,
-  Notation,
+  InstanceNotation,
+  MetaNotation,
 } from "../../types/types";
 import NotationsSlider from "../ui_elements/NotationsSlider";
 
@@ -39,16 +41,16 @@ const propertyTextfieldStyle = "w-1/6 2xl:w-[250px]";
 interface NotationDesignerConfigurePanelProps {
   selectedNotationType: string;
   handleNotationTypeChange: (e: SelectChangeEvent<string>) => void;
-  currentNotation: Notation;
+  currentNotation: InstanceNotation;
   setCurrentNotation: (value: any) => void;
-  newAttribute: EAttribute;
+  newAttribute: EAttributeInstance;
   setNewAttribute: (value: any) => void;
   handleAddProperty: () => void;
   availableConfigs: ConfigListItem[];
   selectedMetaConfig: MetaModelFile;
   setSelectedMetaConfig: (value: MetaModelFile) => void;
   ePackages: EPackage[];
-  allNotations: Notation[];
+  allNotations: MetaNotation[];
   saveNotation: () => void;
 }
 

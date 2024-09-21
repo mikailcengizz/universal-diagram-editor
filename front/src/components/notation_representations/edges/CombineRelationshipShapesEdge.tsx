@@ -73,12 +73,14 @@ function CombineRelationshipShapesEdge({
 
   const edgeStyles = {
     strokeWidth:
-      data.nodeNotation.graphicalRepresentation![0].position.extent?.width,
-    stroke: data.nodeNotation.graphicalRepresentation![0].style.backgroundColor,
+      data.instanceNotation.graphicalRepresentation![0].position.extent?.width,
+    stroke:
+      data.instanceNotation.graphicalRepresentation![0].style.backgroundColor,
     strokeDasharray:
-      data.nodeNotation.graphicalRepresentation![0].style.pattern === "dotted"
+      data.instanceNotation.graphicalRepresentation![0].style.pattern ===
+      "dotted"
         ? "5,5"
-        : data.nodeNotation.graphicalRepresentation![0].style.pattern ===
+        : data.instanceNotation.graphicalRepresentation![0].style.pattern ===
           "dashed"
         ? "10,10"
         : "0",

@@ -1,33 +1,33 @@
-// reducers/modelReducer.js
-
 import {
-  UPDATE_MODEL,
-  UPDATE_CLASS,
-  UPDATE_ATTRIBUTE,
-  UPDATE_OPERATION,
-  UPDATE_REFERENCE,
-} from "../actions/instanceModelActions";
+  UPDATE_META_INSTANCE_MODEL,
+  UPDATE_META_INSTANCE_CLASS,
+  UPDATE_META_INSTANCE_ATTRIBUTE,
+  UPDATE_META_INSTANCE_OPERATION,
+  UPDATE_META_INSTANCE_REFERENCE,
+} from "../actions/metaInstanceModelActions";
 
 // Load the model from localStorage if available
-const storedModel = JSON.parse(localStorage.getItem("instanceModel")!) || {
+const storedMetaInstanceModel = JSON.parse(
+  localStorage.getItem("metaInstanceModel")!
+) || {
   name: "",
-  type: "instance",
+  type: "meta-instance",
   ePackages: [],
 };
 
 const initialState = {
-  model: storedModel,
+  model: storedMetaInstanceModel,
 };
 
-const modelReducer = (state = initialState, action: any) => {
+const metaInstanceModelReducer = (state = initialState, action: any) => {
   switch (action.type) {
-    case UPDATE_MODEL:
+    case UPDATE_META_INSTANCE_MODEL:
       const updatedModel = action.payload;
       // Save the entire model to localStorage
-      localStorage.setItem("instanceModel", JSON.stringify(updatedModel));
+      localStorage.setItem("metaInstanceModel", JSON.stringify(updatedModel));
       return { ...state, model: updatedModel };
 
-    case UPDATE_CLASS:
+    case UPDATE_META_INSTANCE_CLASS:
       const updatedClasses = state.model.ePackages[0].eClassifiers.map(
         (cls: any) => (cls.name === action.payload.name ? action.payload : cls)
       );
@@ -38,12 +38,12 @@ const modelReducer = (state = initialState, action: any) => {
         ],
       };
       localStorage.setItem(
-        "instanceModel",
+        "metaInstanceModel",
         JSON.stringify(updatedModelWithClass)
       );
       return { ...state, model: updatedModelWithClass };
 
-    case UPDATE_ATTRIBUTE:
+    case UPDATE_META_INSTANCE_ATTRIBUTE:
       // use the nodeId to find the class and use the attribute id to update an existing attribute or add a new one
       const classWithUpdatedAttributes =
         state.model.ePackages[0].eClassifiers.map((cls: any) => {
@@ -77,12 +77,12 @@ const modelReducer = (state = initialState, action: any) => {
       };
 
       localStorage.setItem(
-        "instanceModel",
+        "metaInstanceModel",
         JSON.stringify(updatedModelWithAttributes)
       );
       return { ...state, model: updatedModelWithAttributes };
 
-    case UPDATE_OPERATION:
+    case UPDATE_META_INSTANCE_OPERATION:
       const classWithUpdatedOperation =
         state.model.ePackages[0].eClassifiers.map((cls: any) => {
           if (cls.name === action.payload.className) {
@@ -103,12 +103,12 @@ const modelReducer = (state = initialState, action: any) => {
         ],
       };
       localStorage.setItem(
-        "instanceModel",
+        "metaInstanceModel",
         JSON.stringify(updatedModelWithOperation)
       );
       return { ...state, model: updatedModelWithOperation };
 
-    case UPDATE_REFERENCE:
+    case UPDATE_META_INSTANCE_REFERENCE:
       const classWithUpdatedReference =
         state.model.ePackages[0].eClassifiers.map((cls: any) => {
           if (cls.name === action.payload.className) {
@@ -129,7 +129,7 @@ const modelReducer = (state = initialState, action: any) => {
         ],
       };
       localStorage.setItem(
-        "instanceModel",
+        "metaInstanceModel",
         JSON.stringify(updatedModelWithReference)
       );
       return { ...state, model: updatedModelWithReference };
@@ -139,4 +139,4 @@ const modelReducer = (state = initialState, action: any) => {
   }
 };
 
-export default modelReducer;
+export default metaInstanceModelReducer;

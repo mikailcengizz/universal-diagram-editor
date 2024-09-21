@@ -2,7 +2,7 @@ import React from "react";
 import {
   CustomNodeData,
   EAttribute,
-  InstanceModelFile,
+  MetaInstanceModelFile,
   NotationRepresentationItem,
 } from "../../../../types/types";
 import dataTypeHelper from "../../../helpers/TypeHelper";
@@ -22,8 +22,8 @@ function RenderTexts({
   handleTextChange,
 }: RenderTextsProps) {
   const dispatch = useDispatch();
-  const instanceModel: InstanceModelFile = useSelector(
-    (state: any) => state.instanceModelStore.model
+  const metainstanceModel: MetaInstanceModelFile = useSelector(
+    (state: any) => state.metaInstanceModelStore.model
   );
 
   return (
@@ -31,15 +31,14 @@ function RenderTexts({
       {texts.map((textItem, idx) => {
         // If the text is "name", we need to render the name of the node
         let nameFromClassifier: string | undefined;
-        console.log("instanceModel", instanceModel);
-        if (textItem.text === "name" && instanceModel.ePackages?.length > 0) {
-          nameFromClassifier = instanceModel.ePackages[0].eClassifiers.find(
+        if (
+          textItem.text === "name" &&
+          metainstanceModel.ePackages?.length > 0
+        ) {
+          nameFromClassifier = metainstanceModel.ePackages[0].eClassifiers.find(
             (cls) => cls.id === nodeId
           )?.name;
         }
-
-        console.log("attributeFromText", nameFromClassifier);
-        console.log("data.nodeNotation", data.nodeNotation);
 
         // If the attribute is found, render the text field
         if (nameFromClassifier !== undefined) {

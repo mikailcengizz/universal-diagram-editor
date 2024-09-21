@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import CustomModal from "../../../../ui_elements/Modal";
 import {
-  Notation,
+  InstanceNotation,
   NotationRepresentationItem,
 } from "../../../../../types/types";
 
 interface ModalDoubleClickConnectorProps {
   isConnectorModalOpen: boolean;
   setIsConnectorModalOpen: (isOpen: boolean) => void;
-  currentNotation: Notation;
-  setCurrentNotation: (value: Notation) => void;
+  currentNotation: InstanceNotation;
+  setCurrentNotation: (value: InstanceNotation) => void;
   selectedElementIndex: number | null;
 }
 

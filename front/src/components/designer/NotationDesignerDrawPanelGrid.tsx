@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { NotationRepresentationItem, Notation } from "../../types/types";
+import {
+  NotationRepresentationItem,
+  InstanceNotation,
+} from "../../types/types";
 import ModalDoubleClickSquare from "./components/modals/first_layer/ModalDoubleClickSquare";
 import ModalDoubleClickText from "./components/modals/first_layer/ModalDoubleClickText";
 import ModalDoubleClickCompartment from "./components/modals/first_layer/ModalDoubleClickCompartment";
 import ModalDoubleClickConnector from "./components/modals/first_layer/ModalDoubleClickConnector";
 
 interface NotationDesignerDrawPanelGridProps {
-  currentNotation: Notation;
-  setCurrentNotation: (value: Notation) => void;
+  currentNotation: InstanceNotation;
+  setCurrentNotation: (value: InstanceNotation) => void;
   gridSize: number;
 }
 

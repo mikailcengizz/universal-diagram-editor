@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Notation, NotationRepresentationItem } from "../../types/types";
+import { InstanceNotation, NotationRepresentationItem } from "../../types/types";
 import PaletteDrawPanel from "./PaletteDrawPanel";
 import NotationDesignerDrawPanelGrid from "./NotationDesignerDrawPanelGrid";
 
 interface NotationDesignerDrawPanelProps {
-  currentNotation: Notation;
+  currentNotation: InstanceNotation;
   setCurrentNotation: (value: any) => void;
   saveNotation: () => void;
 }

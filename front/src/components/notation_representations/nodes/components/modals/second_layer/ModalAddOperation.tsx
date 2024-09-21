@@ -22,7 +22,7 @@ function ModalAddOperation({
   setIsAddParameterModalOpen,
   handleOperationSubmit,
 }: ModalAddOperationProps) {
-  const operations = data.nodeNotation.eOperations!;
+  const operations = data.instanceNotation.eOperations!;
 
   return (
     <CustomModal

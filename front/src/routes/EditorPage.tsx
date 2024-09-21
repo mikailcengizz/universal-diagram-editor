@@ -5,8 +5,10 @@ import { useRef, useState } from "react";
 import { Edge, Node, useEdgesState, useNodesState } from "@xyflow/react";
 
 export default function EditorPage() {
+  const selectedConfigNameLocalStorage =
+    localStorage.getItem("selectedConfig") || null;
   const [selectedConfigName, setSelectedConfigName] = useState<string | null>(
-    null
+    selectedConfigNameLocalStorage
   );
   const diagramAreaRef = useRef<HTMLDivElement>(null); // ref for the diagram area
   const [nodes, setNodes] = useState<Node[]>([]);

@@ -5,7 +5,7 @@ import {
   EAttribute,
   EAttributeInstance,
   EOperation,
-  InstanceModelFile,
+  MetaInstanceModelFile,
   Pattern,
 } from "../../../../../../types/types";
 import typeHelper from "../../../../../helpers/TypeHelper";
@@ -37,24 +37,23 @@ function ModalDoubleClickNotation({
   onDataUpdate,
 }: ModalDoubleClickNotationProps) {
   const dispatch = useDispatch();
-  const instanceModel: InstanceModelFile = useSelector(
-    (state: any) => state.instanceModelStore.model
+  const metaInstanceModel: MetaInstanceModelFile = useSelector(
+    (state: any) => state.metaInstanceModelStore.model
   );
   const [relationshipTab, setRelationshipTab] = useState<number>(1);
 
   const handleNodeNotationAttributeChange = (
-    attribute: EAttribute,
+    attribute: EAttributeInstance,
     value: any
   ) => {
     const newData = { ...data }; // Create a shallow copy of the data object
-    newData.nodeNotation.eAttributes = newData.nodeNotation.eAttributes!.map(
-      (prop) => {
+    newData.instanceNotation.eAttributes =
+      newData.instanceNotation.eAttributes!.map((prop) => {
         if (prop.name === attribute.name) {
           return { ...prop, defaultValue: value }; // Ensure each property is also copied
         }
         return prop;
-      }
-    );
+      });
     setData(newData); // Set the new data to trigger re-rendering
   };
 
@@ -63,14 +62,13 @@ function ModalDoubleClickNotation({
     value: any
   ) => {
     const newData = { ...data }; // Create a shallow copy of the data object
-    newData.nodeNotation.eOperations = newData.nodeNotation.eOperations!.map(
-      (prop) => {
+    newData.instanceNotation.eOperations =
+      newData.instanceNotation.eOperations!.map((prop) => {
         if (prop.name === operation.name) {
           return { ...prop, defaultValue: value }; // Ensure each property is also copied
         }
         return prop;
-      }
-    );
+      });
     setData(newData); // Set the new data to trigger re-rendering
   };
 
@@ -139,14 +137,13 @@ function ModalDoubleClickNotation({
     EAttributeInstance[] | undefined
   >([]);
   useEffect(() => {
-    if (instanceModel && instanceModel.ePackages.length > 0) {
-      const attributes = instanceModel.ePackages[0].eClassifiers.find(
+    if (metaInstanceModel && metaInstanceModel.ePackages.length > 0) {
+      const attributes = metaInstanceModel.ePackages[0].eClassifiers.find(
         (cls) => cls.id === nodeId
       )?.eAttributes;
       setClassifierAttributes(attributes);
     }
-    console.log("Classifier attributes:", classifierAttributes);
-  }, [instanceModel]);
+  }, [metaInstanceModel]);
 
   return (
     <CustomModal
@@ -154,15 +151,15 @@ function ModalDoubleClickNotation({
       onClose={() => setIsNodeModalOpen(false)}
       zIndex={5}
     >
-      <h2 className="font-semibold">{data.nodeNotation.name!} Details</h2>
+      <h2 className="font-semibold">{data.instanceNotation.name!} Details</h2>
 
       {/* Normal attributes - these are class specific, under eAttributes */}
 
       {/* Attributes with name = "Attribute" - these are fields, but under Classifier, and we add these to eAttributes of the class */}
 
       <div className="w-full">
-        {data.nodeNotation.eAttributes &&
-          data.nodeNotation.eAttributes.map((attribute, index) => {
+        {data.instanceNotation.eAttributes &&
+          data.instanceNotation.eAttributes.map((attribute, index) => {
             {
               /* Class-Specific Attributes (e.g., isAbstract, visibility) */
             }
@@ -227,8 +224,8 @@ function ModalDoubleClickNotation({
 
         {/* Field Operations (e.g., class members inside compartments) */}
         <h3>Class Operations</h3>
-        {data.nodeNotation.eOperations &&
-          data.nodeNotation.eOperations.map((operation, index) => {
+        {data.instanceNotation.eOperations &&
+          data.instanceNotation.eOperations.map((operation, index) => {
             if (
               operation.name !== "name" &&
               operation.name !== "abstract" &&
@@ -270,7 +267,7 @@ function ModalDoubleClickNotation({
 
         <br />
 
-        {data.nodeNotation.type === "EReference" && (
+        {data.instanceNotation.type === "EReference" && (
           <>
             <div className="flex flex-row w-full">
               <div className="w-1/3">

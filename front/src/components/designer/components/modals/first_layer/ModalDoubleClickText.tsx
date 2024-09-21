@@ -1,11 +1,11 @@
-import { Notation } from "../../../../../types/types";
+import { InstanceNotation } from "../../../../../types/types";
 import CustomModal from "../../../../ui_elements/Modal";
 
 interface ModalDoubleClickTextProps {
   isTextModalOpen: boolean;
   setIsTextModalOpen: (isOpen: boolean) => void;
-  currentNotation: Notation;
-  setCurrentNotation: (value: Notation) => void;
+  currentNotation: InstanceNotation;
+  setCurrentNotation: (value: InstanceNotation) => void;
   selectedElementIndex: number | null;
 }
 

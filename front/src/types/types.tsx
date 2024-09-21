@@ -1,13 +1,14 @@
 import { EdgeProps } from "@xyflow/react";
 
 // ECORE INSTANCE MODEL
-export interface InstanceModelFile {
+export interface MetaInstanceModelFile {
   name: string;
   type: ModelFileType;
   ePackages: EPackageInstance[];
 }
 
 export interface EPackageInstance {
+  id: string;
   name: string;
   eClassifiers: EClassInstance[];
   eSubpackages: EPackageInstance[];
@@ -37,13 +38,68 @@ export interface EReferenceInstance {
 export interface EOperationInstance {
   name: string;
   eParameters?: EParameterInstance[];
+  eType?: EClassInstance;
 }
 
 export interface EParameterInstance {
   name: string;
+  eType?: EClassInstance;
 }
 
 export interface EDataTypeInstance {
+  name: string;
+}
+
+// REPRESENTATION INSTANCE MODEL
+export interface RepresentationInstanceModelFile {
+  name: string;
+  type: ModelFileType;
+  ePackages: EPackageRepresentationInstance[];
+}
+
+export interface EPackageRepresentationInstance {
+  id: string;
+  referenceMetaId: string;
+  name: string;
+  position: Position;
+  graphicalRepresentation?: NotationRepresentationItem[];
+  eClassifiers: EClassRepresentationInstance[];
+  eSubpackages: EPackageRepresentationInstance[];
+}
+
+export interface EClassRepresentationInstance {
+  id: string;
+  referenceMetaId: string;
+  name: string;
+  position: Position;
+  graphicalRepresentation?: NotationRepresentationItem[];
+  eAttributes: EAttributeRepresentationInstance[];
+  eReferences: EReferenceRepresentationInstance[];
+  eOperations?: EOperationRepresentationInstance[];
+}
+
+export interface EAttributeRepresentationInstance {
+  id: string;
+  referenceMetaId: string;
+  name: string;
+}
+
+export interface EReferenceRepresentationInstance {
+  id: string;
+  referenceMetaId: string;
+  name: string;
+}
+
+export interface EOperationRepresentationInstance {
+  id: string;
+  referenceMetaId: string;
+  name: string;
+  eParameters?: EParameterRepresentationInstance[];
+}
+
+export interface EParameterRepresentationInstance {
+  id: string;
+  referenceMetaId: string;
   name: string;
 }
 
@@ -112,11 +168,22 @@ export type NotationType =
   | "EParameter";
 
 // DIAGRAM EDITOR
-export interface Notation {
+export interface InstanceNotation {
   name: string;
   type?: NotationType;
-  eClassifiers?: EClassifier[];
+  eSubpackages?: EPackageInstance[];
+  eClassifiers?: EClassInstance[];
+  eAttributes?: EAttributeInstance[];
+  eReferences?: EReferenceInstance[];
+  eOperations?: EOperationInstance[];
+  graphicalRepresentation?: NotationRepresentationItem[];
+}
+
+export interface MetaNotation {
+  name: string;
+  type?: NotationType;
   eSubpackages?: EPackage[];
+  eClassifiers?: EClass[];
   eAttributes?: EAttribute[];
   eReferences?: EReference[];
   eOperations?: EOperation[];
@@ -124,8 +191,8 @@ export interface Notation {
 }
 
 export interface CustomNodeData {
-  notations: Notation[];
-  nodeNotation: Notation;
+  metaNotations: MetaNotation[];
+  instanceNotation: InstanceNotation;
   position?: Position;
   isPalette?: boolean;
   isNotationSlider?: boolean; // only used for slider item width
@@ -148,11 +215,15 @@ export interface ConfigListItem {
 
 // PALETTE
 export interface DragData {
-  notation: Notation;
+  notation: InstanceNotation;
   notationType: NotationType;
 }
 
-export type ModelFileType = "representation" | "meta" | "instance";
+export type ModelFileType =
+  | "meta"
+  | "meta-instance"
+  | "representation"
+  | "representation-instance";
 
 // NEW EMF ECORE MODEL - START
 export interface MetaModelFile {

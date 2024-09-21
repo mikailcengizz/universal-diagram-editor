@@ -2,7 +2,7 @@ import React from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { EPackage, Notation } from "../../types/types";
+import { EPackage, InstanceNotation, MetaNotation } from "../../types/types";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
 import CombineRelationshipShapesNode from "../notation_representations/edges/CombineRelationshipShapesEdge";
 import CombineRoleShapesNode from "../notation_representations/nodes/CombineRoleShapesNode";
@@ -11,8 +11,8 @@ import { Position } from "@xyflow/react";
 interface NotationsSliderProps {
   settings: {};
   ePackages: EPackage[];
-  allNotations: Notation[];
-  setCurrentNotation: (value: Notation) => void;
+  allNotations: MetaNotation[];
+  setCurrentNotation: (value: InstanceNotation) => void;
 }
 
 function NotationsSlider({
@@ -26,7 +26,7 @@ function NotationsSlider({
     infinite: allNotations.length > 5, // Disable infinite scroll when there's only 5 slides
   };
 
-  const renderNodePreview = (notation: Notation) => {
+  const renderNodePreview = (notation: InstanceNotation) => {
     const notationType = notation.type;
 
     switch (notationType) {
@@ -36,8 +36,8 @@ function NotationsSlider({
             key={notation.name}
             id={notation.name}
             data={{
-              notations: allNotations,
-              nodeNotation: notation,
+              metaNotations: allNotations,
+              instanceNotation: notation,
               isPalette: true,
               isNotationSlider: true,
             }}
@@ -52,7 +52,7 @@ function NotationsSlider({
             id={notation.name}
             isPalette={true}
             isNotationSlider={true}
-            data={{ notations: allNotations, nodeNotation: notation }}
+            data={{ metaNotations: allNotations, instanceNotation: notation }}
             sourceX={x}
             sourceY={y}
             targetX={targetX!}
@@ -73,11 +73,11 @@ function NotationsSlider({
           <div
             key={index}
             className="border-[1px] border-black text-center h-28 p-2 cursor-pointer content-center"
-            onClick={() => setCurrentNotation(notation)}
+            onClick={() => setCurrentNotation(notation as InstanceNotation)}
           >
             {notation.graphicalRepresentation &&
             notation.graphicalRepresentation!.length > 0 ? (
-              renderNodePreview(notation)
+              renderNodePreview(notation as InstanceNotation)
             ) : (
               <span>{notation.name}</span>
             )}

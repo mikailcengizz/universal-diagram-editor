@@ -15,13 +15,19 @@ import { parseStringPromise } from "xml2js";
 import {
   CustomNodeData,
   DragData,
+  EAttribute,
   EClass,
   EClassInstance,
   EClassRepresentation,
-  InstanceModelFile,
+  EClassRepresentationInstance,
+  EReference,
+  MetaInstanceModelFile,
   MetaModelFile,
-  Notation,
+  InstanceNotation,
+  RepresentationInstanceModelFile,
   RepresentationModelFile,
+  MetaNotation,
+  Position,
 } from "../../types/types";
 import PaletteEditorPanel from "./PaletteEditorPanel";
 import configService from "../../services/ConfigService";
@@ -32,6 +38,9 @@ import ModalDoubleClickNotation from "../notation_representations/nodes/componen
 import typeHelper from "../helpers/TypeHelper";
 import { all } from "axios";
 import { useDispatch, useSelector } from "react-redux";
+import { updateRepresentationInstanceModel } from "../../redux/actions/representationInstanceModelActions";
+import { updateMetaInstanceModel } from "../../redux/actions/metaInstanceModelActions";
+import { updateSelectedConfig } from "../../redux/actions/selectedConfigActions";
 
 const nodeTypes = {
   ClassNode: CombineObjectShapesNode,
@@ -59,9 +68,12 @@ const DiagramEditor = ({
   setEdges,
 }: DiagramEditorProps) => {
   const dispatch = useDispatch();
-  const instanceModel: InstanceModelFile = useSelector(
-    (state: any) => state.instanceModelStore.model
+  const metaInstanceModel: MetaInstanceModelFile = useSelector(
+    (state: any) => state.metaInstanceModelStore.model
   );
+  const representationInstanceModel: RepresentationInstanceModelFile =
+    useSelector((state: any) => state.representationInstanceModelStore.model);
+
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [metaConfig, setConfig] = useState<MetaModelFile | null>({
     name: "",
@@ -107,6 +119,8 @@ const DiagramEditor = ({
         }
       };
       fetchRepresentationConfig();
+
+      dispatch(updateSelectedConfig(selectedConfigName));
     }
   }, [selectedConfigName]);
 
@@ -136,11 +150,128 @@ const DiagramEditor = ({
     } */
   }, [metaConfig]);
 
+  // Load the instance models from local storage
+  useEffect(() => {
+    const metaInstance = JSON.parse(localStorage.getItem("metaInstanceModel")!);
+    const representationInstance = JSON.parse(
+      localStorage.getItem("representationInstanceModel")!
+    );
+
+    if (metaInstance && representationInstance) {
+      dispatch(updateMetaInstanceModel(metaInstance));
+      dispatch(updateRepresentationInstanceModel(representationInstance));
+    }
+  }, [dispatch]);
+
+  useEffect(() => {
+    const initializeNodes = (): Node[] => {
+      if (
+        !representationInstanceModel ||
+        !metaInstanceModel ||
+        representationInstanceModel.ePackages.length === 0
+      )
+        return [];
+
+      const returnNodes = representationInstanceModel.ePackages[0].eClassifiers
+        .map((representationClassifier) => {
+          const metaInstance = metaInstanceModel.ePackages[0].eClassifiers.find(
+            (metaClassifier) =>
+              metaClassifier.id === representationClassifier.referenceMetaId
+          );
+
+          if (!metaInstance || !metaConfig || metaConfig.ePackages.length === 0)
+            return null;
+
+          const nodeData: CustomNodeData = {
+            metaNotations: metaConfig?.ePackages[0].eClassifiers.map(
+              (cls) => cls
+            ) as MetaNotation[],
+            instanceNotation: {
+              name: metaInstance.name,
+              eAttributes: metaInstance.eAttributes,
+              eOperations: metaInstance.eOperations,
+              eReferences: metaInstance.eReferences,
+              eSubpackages: metaInstanceModel.ePackages[0].eSubpackages,
+              graphicalRepresentation:
+                representationClassifier.graphicalRepresentation,
+            },
+            position: representationClassifier.position,
+          };
+
+          const returnNode: Node = {
+            id: representationClassifier.id,
+            type: "ClassNode", // as it is a classifer node
+            position: representationClassifier.position,
+            data: nodeData as any,
+          };
+
+          return returnNode;
+        })
+        .filter(Boolean); // Filter out null values
+
+      return returnNodes as Node[];
+    };
+
+    const initialNodes = initializeNodes();
+    setNodes(initialNodes);
+  }, [representationInstanceModel, metaInstanceModel, setNodes, metaConfig]);
+
+  useEffect(() => {
+    const initializeEdges = () => {
+      if (
+        !metaInstanceModel ||
+        !representationInstanceModel ||
+        metaInstanceModel.ePackages.length === 0
+      )
+        return [];
+
+      const returnEdges = metaInstanceModel.ePackages[0].eClassifiers.flatMap(
+        (metaClassifier) => {
+          return (metaClassifier.eReferences || [])
+            .map((reference) => {
+              const targetRepresentation =
+                representationInstanceModel.ePackages[0].eClassifiers.find(
+                  (repClassifier) =>
+                    repClassifier.referenceMetaId ===
+                    reference.eReferenceType?.id
+                );
+
+              const sourceRepresentation =
+                representationInstanceModel.ePackages[0].eClassifiers.find(
+                  (repClassifier) =>
+                    repClassifier.referenceMetaId === metaClassifier.id
+                );
+
+              if (!sourceRepresentation || !targetRepresentation) return null;
+
+              const returnEdge: Edge = {
+                id: `edge-${sourceRepresentation.id}-${targetRepresentation.id}`,
+                source: sourceRepresentation.id,
+                target: targetRepresentation.id,
+                type: "edge", // Assuming a default edge type
+                data: {
+                  onDoubleClick: onDoubleClickEdge,
+                  type: reference.name,
+                },
+              };
+
+              return returnEdge;
+            })
+            .filter(Boolean); // Filter out null values
+        }
+      );
+      return returnEdges as Edge[];
+    };
+
+    const initialEdges = initializeEdges();
+    setEdges(initialEdges);
+  }, [metaInstanceModel, representationInstanceModel, setEdges]);
+
   const onConnect = useCallback(
     (params: Edge | Connection) => {
-      let defaultEdge: Notation = metaConfig!.ePackages[0].eClassifiers
+      let defaultEdge: InstanceNotation = metaConfig!.ePackages[0].eClassifiers
         .map((cls) => cls as EClass)
-        .filter((cls) => cls.name === "Association")[0] as Notation;
+        .filter((cls) => cls.name === "Association")[0] as InstanceNotation;
       defaultEdge.graphicalRepresentation =
         representationConfig?.ePackages[0].eClassifiers
           .map((cls) => cls as EClassRepresentation)
@@ -154,8 +285,8 @@ const DiagramEditor = ({
       );
 
       const data: CustomNodeData = {
-        notations: allNotations,
-        nodeNotation: defaultEdge,
+        metaNotations: allNotations,
+        instanceNotation: defaultEdge,
       };
 
       const newEdge = {
@@ -171,8 +302,74 @@ const DiagramEditor = ({
   );
 
   const onNodesChange: OnNodesChange = useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-    []
+    (changes) => {
+      setNodes((nds) => applyNodeChanges(changes, nds));
+
+      changes.forEach((change) => {
+        if (change.type === "position" && "id" in change) {
+          const classifierInRepresentation =
+            representationInstanceModel.ePackages[0].eClassifiers.find(
+              (classifier) => classifier.id === change.id
+            );
+
+          if (classifierInRepresentation) {
+            // Ensure the new position is valid, fallback to the last known position if not
+            const newPosition: Position = {
+              x:
+                change.position &&
+                typeof change.position.x === "number" &&
+                !isNaN(change.position.x)
+                  ? change.position.x
+                  : classifierInRepresentation.position.x,
+              y:
+                change.position &&
+                typeof change.position.y === "number" &&
+                !isNaN(change.position.y)
+                  ? change.position.y
+                  : classifierInRepresentation.position.y,
+            };
+
+            console.log("New position: ", newPosition);
+
+            const updatedRepresentationInstanceModel = {
+              ...representationInstanceModel,
+              ePackages: representationInstanceModel.ePackages.map((pkg) => ({
+                ...pkg,
+                eClassifiers: pkg.eClassifiers.map((classifier) => {
+                  if (classifier.id === change.id) {
+                    return {
+                      ...classifier,
+                      position: newPosition, // Update position with valid or fallback position
+                    };
+                  }
+                  return classifier;
+                }),
+              })),
+            };
+
+            dispatch(
+              updateRepresentationInstanceModel(
+                updatedRepresentationInstanceModel
+              )
+            );
+
+            // Save the updated model to localStorage
+            localStorage.setItem(
+              "representationInstanceModel",
+              JSON.stringify(updatedRepresentationInstanceModel)
+            );
+
+            console.log("Position saved to localStorage.");
+          } else {
+            console.error(
+              "Classifier not found in representation model for ID: ",
+              change.id
+            );
+          }
+        }
+      });
+    },
+    [setNodes, representationInstanceModel, dispatch]
   );
 
   const onEdgesChange: OnEdgesChange = useCallback(
@@ -189,6 +386,91 @@ const DiagramEditor = ({
     event.dataTransfer.dropEffect = "move";
     console.log("onDragOver triggered"); // log drag over event
   }, []);
+
+  const updateMetaInstanceModelWithNewNode = (
+    newNode: Node,
+    notation: InstanceNotation
+  ) => {
+    let newMetaInstanceModel = { ...metaInstanceModel };
+
+    // Initialize root package if it doesn't exist
+    if (newMetaInstanceModel.ePackages.length === 0) {
+      newMetaInstanceModel.ePackages.push({
+        name: metaConfig?.ePackages[0].name!,
+        eClassifiers: [],
+        eSubpackages: [],
+        id: metaConfig?.ePackages[0].name!,
+      });
+    }
+
+    // Add the new node to the instance model together with its id
+    const uniqueId = newNode.id;
+    const { graphicalRepresentation, ...restOfNotation } = notation; // excludes graphical representation field from notation
+    const newEClassInstance: EClassInstance = {
+      ...(restOfNotation as EClassInstance),
+      id: uniqueId,
+    };
+
+    newMetaInstanceModel.ePackages[0].eClassifiers.push(newEClassInstance);
+
+    dispatch(updateMetaInstanceModel(newMetaInstanceModel));
+  };
+
+  const updateRepresentationInstanceModelWithNewNode = (
+    newNode: Node,
+    notation: InstanceNotation
+  ) => {
+    let newRepresentationInstanceModel = { ...representationInstanceModel };
+
+    // Initialize root package if it doesn't exist
+    if (
+      newRepresentationInstanceModel.ePackages.length === 0 &&
+      representationConfig &&
+      representationConfig.ePackages[0]
+    ) {
+      newRepresentationInstanceModel.ePackages.push({
+        name: representationConfig?.ePackages[0].name!,
+        eSubpackages: [],
+        eClassifiers: [],
+        id: representationConfig?.ePackages[0].name!,
+        position: { x: 0, y: 0 },
+        referenceMetaId: metaConfig?.ePackages[0].name!,
+      });
+    }
+
+    const uniqueRepresentationId = `${notation.name}${
+      elementCount[notation.name]
+    }-rpr`; // unique representation id
+    // Add the new node to the instance model together with its id
+    let newEClassRepresentationInstance: EClassRepresentationInstance = {
+      ...(notation as EClassRepresentationInstance),
+      id: uniqueRepresentationId,
+      referenceMetaId: newNode.id,
+      position: {
+        x: newNode.position.x,
+        y: newNode.position.y,
+      },
+    };
+
+    // Add graphical representation if it exists, and if the representation config exists
+    if (representationConfig && representationConfig.ePackages[0]) {
+      newEClassRepresentationInstance = {
+        ...newEClassRepresentationInstance,
+        graphicalRepresentation: [
+          ...(representationConfig?.ePackages[0].eClassifiers
+            .map((cls) => cls as EClassRepresentationInstance)
+            .find((cls) => cls.name === notation.name)
+            ?.graphicalRepresentation || []),
+        ],
+      };
+    }
+
+    newRepresentationInstanceModel.ePackages[0].eClassifiers.push(
+      newEClassRepresentationInstance
+    );
+
+    dispatch(updateRepresentationInstanceModel(newRepresentationInstanceModel));
+  };
 
   const elementCount: { [key: string]: number } = {}; // To track the count of each element type
 
@@ -216,7 +498,7 @@ const DiagramEditor = ({
 
       const uniqueId = `${name}${elementCount[name]}`; // unique node id
 
-      const nodeType = notation.name + "Node"; // objectNode, relationshipNode, roleNode
+      const nodeType = notation.name + "Node"; // ClassNode, ReferenceNode, etc.
 
       const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX,
@@ -229,8 +511,8 @@ const DiagramEditor = ({
       );
 
       const nodeData: CustomNodeData = {
-        notations: allNotations,
-        nodeNotation: notation,
+        metaNotations: allNotations,
+        instanceNotation: notation,
         position: position,
         isNotationSlider: false,
         isPalette: false,
@@ -246,33 +528,19 @@ const DiagramEditor = ({
       console.log("Node dropped:", newNode);
       setNodes((nds) => nds.concat(newNode));
 
-      // Update instance model with new node
-      let newInstanceModel = { ...instanceModel };
-      console.log("Instance model before update:", newInstanceModel);
+      // Update meta instance model with new node
+      updateMetaInstanceModelWithNewNode(newNode, notation);
 
-      // Initialize root package if it doesn't exist
-      if (newInstanceModel.ePackages.length === 0) {
-        newInstanceModel.ePackages.push({
-          name: metaConfig?.ePackages[0].name!,
-          eClassifiers: [],
-          eSubpackages: [],
-        });
-      }
-
-      // Add the new node to the instance model together with its id
-      const newEClassInstance: EClassInstance = {
-        ...(notation as unknown as EClassInstance),
-        id: uniqueId,
-      };
-
-      newInstanceModel.ePackages[0].eClassifiers.push(newEClassInstance);
-
-      dispatch({
-        type: "UPDATE_MODEL",
-        payload: newInstanceModel,
-      });
+      // Update representation instance model with new node
+      updateRepresentationInstanceModelWithNewNode(newNode, notation);
     },
-    [reactFlowInstance, metaConfig]
+    [
+      reactFlowInstance,
+      metaConfig,
+      representationConfig,
+      metaInstanceModel,
+      representationInstanceModel,
+    ]
   );
 
   const importFromXMI = async (xmiFile: File) => {

@@ -1,5 +1,11 @@
 import React from "react";
-import { DragData, EClass, EPackage, Notation } from "../../types/types";
+import {
+  DragData,
+  EClass,
+  EPackage,
+  InstanceNotation,
+  MetaNotation,
+} from "../../types/types";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
 import CombineRelationshipShapesNode from "../notation_representations/edges/CombineRelationshipShapesEdge";
 import CombineRoleShapesNode from "../notation_representations/nodes/CombineRoleShapesNode";
@@ -7,13 +13,14 @@ import { Position } from "@xyflow/react";
 
 interface PaletteEditorPanelProps {
   title: string | undefined;
-  notations: Notation[];
+  notations: MetaNotation[];
 }
 
 const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
-  const onDragStart = (event: React.DragEvent, notation: Notation) => {
+  const onDragStart = (event: React.DragEvent, notation: MetaNotation) => {
+    const notationInstance: InstanceNotation = notation as InstanceNotation;
     const dragData: DragData = {
-      notation: notation,
+      notation: notationInstance,
       notationType: notation.type!,
     };
 
@@ -22,7 +29,8 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
     console.log("onDragStart - element dragged:", dragData);
   };
 
-  const renderNodePreview = (notation: Notation) => {
+  const renderNodePreview = (notation: MetaNotation) => {
+    const notationInstance: InstanceNotation = notation as InstanceNotation;
     switch (notation.name) {
       case "Class":
         return (
@@ -30,8 +38,8 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
             key={notation.name}
             id={notation.name}
             data={{
-              nodeNotation: notation,
-              notations: notations,
+              instanceNotation: notationInstance,
+              metaNotations: notations,
               isPalette: true,
             }}
           />
@@ -45,7 +53,10 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
             id={notation.name}
             isPalette={true}
             isNotationSlider={true}
-            data={{ nodeNotation: notation, notations: notations }}
+            data={{
+              instanceNotation: notationInstance,
+              metaNotations: notations,
+            }}
             sourceX={x}
             sourceY={y}
             targetX={targetX!}
@@ -83,7 +94,7 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
               notation.name === "Enumeration" ||
               notation.name === "ETypeParameter"
           )
-          .map((notation: Notation) => (
+          .map((notation: MetaNotation) => (
             <div
               key={notation.name}
               onDragStart={(event) => onDragStart(event, notation)}
@@ -105,7 +116,7 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
       <div className="grid grid-cols-2">
         {notations
           .filter((notation) => notation.name === "Association")
-          .map((notation: Notation) => (
+          .map((notation: MetaNotation) => (
             <div
               key={notation.name}
               onDragStart={(event) => onDragStart(event, notation)}
@@ -125,7 +136,7 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
       <h2>Package</h2>
       <div className="grid grid-cols-2">
         {notations
-          .filter((notation: Notation) => notation.name === "Package")
+          .filter((notation: MetaNotation) => notation.name === "Package")
           .map((notation) => (
             <div
               key={notation.name}

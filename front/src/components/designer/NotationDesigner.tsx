@@ -8,11 +8,13 @@ import configService from "../../services/ConfigService";
 import {
   ConfigListItem,
   EAttribute,
+  EAttributeInstance,
   EClass,
   MetaModelFile,
-  Notation,
+  InstanceNotation,
   NotationType,
   RepresentationModelFile,
+  MetaNotation,
 } from "../../types/types";
 import typeHelper from "../helpers/TypeHelper";
 
@@ -31,10 +33,9 @@ const NotationDesigner = () => {
       type: "representation",
       ePackages: [],
     });
-  const [currentNotation, setCurrentNotation] = useState<Notation>({
+  const [currentNotation, setCurrentNotation] = useState<InstanceNotation>({
     name: "",
     type: undefined,
-    eClassifiers: [],
     eAttributes: [],
     eReferences: [],
     eOperations: [],
@@ -43,7 +44,8 @@ const NotationDesigner = () => {
   });
   const [selectedNotationType, setSelectedNotationType] =
     useState<NotationType>();
-  const [newAttribute, setNewAttribute] = useState<EAttribute>({
+  const [newAttribute, setNewAttribute] = useState<EAttributeInstance>({
+    id: "",
     name: "",
     defaultValue: "",
     eAttributeType: undefined,
@@ -54,7 +56,7 @@ const NotationDesigner = () => {
   const [isConfigurePanelOpen, setIsConfigurePanelOpen] =
     useState<boolean>(true);
   const [isConfigLoaded, setIsConfigLoaded] = useState<boolean>(false);
-  const [allNotations, setAllNotations] = useState<Notation[]>([]);
+  const [allNotations, setAllNotations] = useState<MetaNotation[]>([]);
 
   useEffect(() => {
     if (selectedMetaConfig && selectedRepresentationConfig) {
@@ -151,6 +153,7 @@ const NotationDesigner = () => {
       eAttributes: [...currentNotation.eAttributes!, newAttribute],
     });
     setNewAttribute({
+      id: "",
       name: "",
       defaultValue: "",
       eAttributeType: undefined,

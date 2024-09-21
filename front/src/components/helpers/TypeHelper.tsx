@@ -1,9 +1,11 @@
 import {
   DataType,
-  Notation,
+  InstanceNotation,
   EPackage,
   EClass,
   EPackageRepresentation,
+  EPackageInstance,
+  MetaNotation,
 } from "../../types/types";
 
 class TypeHelper {
@@ -40,14 +42,14 @@ class TypeHelper {
   mergeMetaAndRepresentation(
     metaPackages: EPackage[],
     representationPackages: EPackageRepresentation[]
-  ): Notation[] {
+  ): MetaNotation[] {
     return metaPackages.flatMap((metaPackage) => {
       // Find corresponding representation package for each meta package
       const representationPackage = representationPackages.find(
         (pkg) => pkg.name === metaPackage.name
       );
 
-      const mergedClassifiers: Notation[] = metaPackage.eClassifiers.map(
+      const mergedClassifiers: MetaNotation[] = metaPackage.eClassifiers.map(
         (metaClassifier) => {
           // Find the corresponding classifier's graphical representation
           const representationClassifier =
@@ -64,7 +66,7 @@ class TypeHelper {
         }
       );
 
-      const mergedSubPackages: Notation[] = metaPackage.eSubpackages.map(
+      const mergedSubPackages: MetaNotation[] = metaPackage.eSubpackages.map(
         (metaSubpackage) => {
           // Find corresponding subpackage representation
           const representationSubpackage =

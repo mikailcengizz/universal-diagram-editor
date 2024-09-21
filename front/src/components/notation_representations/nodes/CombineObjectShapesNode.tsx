@@ -6,7 +6,7 @@ import {
   EClass,
   EOperation,
   EParameter,
-  InstanceModelFile,
+  MetaInstanceModelFile,
   NotationRepresentationItem,
 } from "../../../types/types";
 import { NodeResizer } from "@xyflow/react";
@@ -18,10 +18,7 @@ import ModalAddOperation from "./components/modals/second_layer/ModalAddOperatio
 import RenderTexts from "./components/RenderTexts";
 import RenderCompartments from "./components/RenderCompartments";
 import RenderRectangles from "./components/RenderRectangles";
-import {
-  updateAttribute,
-  updateClass,
-} from "../../../redux/actions/instanceModelActions";
+import { updateMetaInstanceAttribute } from "../../../redux/actions/metaInstanceModelActions";
 import { useDispatch, useSelector } from "react-redux";
 
 interface CombineObjectShapesNodeProps {
@@ -36,8 +33,8 @@ const CombineObjectShapesNode = ({
   selected,
 }: CombineObjectShapesNodeProps) => {
   const dispatch = useDispatch();
-  const instanceModel: InstanceModelFile = useSelector(
-    (state: any) => state.instanceModelStore.model
+  const metaInstanceModel: MetaInstanceModelFile = useSelector(
+    (state: any) => state.metaInstanceModelStore.model
   );
   const [data, setData] = useState<CustomNodeData>({ ...initialData });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -45,13 +42,13 @@ const CombineObjectShapesNode = ({
   // Calculate the max width and max height when node is rendered on the canvas
   // to know our selection area when moving the node around
   const maxWidth = Math.max(
-    ...data.nodeNotation.graphicalRepresentation!.map(
+    ...data.instanceNotation.graphicalRepresentation!.map(
       (item) => item.position.extent?.width || 100
     )
   );
 
   const maxHeight = Math.max(
-    ...data.nodeNotation.graphicalRepresentation!.map(
+    ...data.instanceNotation.graphicalRepresentation!.map(
       (item) => item.position.extent?.height || 100
     )
   );
@@ -66,7 +63,7 @@ const CombineObjectShapesNode = ({
   const [isNodeOperationModalOpen, setIsNodeOperationModalOpen] =
     useState(false); // second layer modal for node operations
   const [isAddParameterModalOpen, setIsAddParameterModalOpen] = useState(false); // third layer modal for adding parameters to operations
-  const metaAttribute = data.notations.find(
+  const metaAttribute = data.metaNotations.find(
     (notation) => notation.name === "Attribute"
   )!;
   const [modifiyingAttribute, setModifyingAttribute] =
@@ -92,9 +89,9 @@ const CombineObjectShapesNode = ({
   });
 
   let adjustedRepresentation: NotationRepresentationItem[] = [];
-  if (initialData.nodeNotation.graphicalRepresentation!.length > 0) {
+  if (initialData.instanceNotation.graphicalRepresentation!.length > 0) {
     const validGraphicalItems =
-      initialData.nodeNotation.graphicalRepresentation!.filter(
+      initialData.instanceNotation.graphicalRepresentation!.filter(
         (item) =>
           (!data.isPalette || (data.isPalette && item.shape !== "connector")) &&
           item.position.x !== undefined &&
@@ -208,11 +205,11 @@ const CombineObjectShapesNode = ({
   // Handle text change
   const handleTextChange = (e: any, nameFromClassifier: string | undefined) => {
     const newDefaultValue = e.target.value;
-    let newInstanceModel = { ...instanceModel };
+    let newInstanceModel = { ...metaInstanceModel };
 
     // update the name of the class
     newInstanceModel.ePackages[0].eClassifiers.find(
-      (cls) => cls.name === data.nodeNotation.name
+      (cls) => cls.name === data.instanceNotation.name
     )!.name = newDefaultValue;
     dispatch({ type: "UPDATE_MODEL", payload: newInstanceModel });
   };
@@ -223,10 +220,9 @@ const CombineObjectShapesNode = ({
     if (!modifiyingAttribute.id) {
       newAttribute.id = `attribute-${Date.now()}`;
     }
-    console.log("submitting attribute", newAttribute);
     setModifyingAttribute(newAttribute);
 
-    dispatch(updateAttribute(nodeId, newAttribute));
+    dispatch(updateMetaInstanceAttribute(nodeId, newAttribute));
 
     // Reset and close the modal
     // re-initialize newAttribute with default values of the meta attribute
@@ -245,13 +241,13 @@ const CombineObjectShapesNode = ({
 
   const handleOperationSubmit = () => {
     // Find the "Operations" collection i.e if the classifier can have operations
-    const operationReference = data.nodeNotation.eReferences!.find(
+    const operationReference = data.instanceNotation.eReferences!.find(
       (prop) => prop.name === "operations"
     );
 
     if (operationReference) {
-      const operations = data.nodeNotation.eOperations
-        ? (data.nodeNotation.eOperations as Array<any>)
+      const operations = data.instanceNotation.eOperations
+        ? (data.instanceNotation.eOperations as Array<any>)
         : [];
       const newModifyingOperation = { ...modifyingOperation };
 
@@ -268,7 +264,7 @@ const CombineObjectShapesNode = ({
         operations.push(newModifyingOperation);
       }
 
-      data.nodeNotation.eOperations = operations;
+      data.instanceNotation.eOperations = operations;
 
       setData({ ...data });
     }
@@ -284,13 +280,13 @@ const CombineObjectShapesNode = ({
 
   const handleParameterSubmit = () => {
     // Find the "Operations" collection i.e if the classifier can have operations
-    const operationReference = data.nodeNotation.eOperations!.find(
+    const operationReference = data.instanceNotation.eOperations!.find(
       (prop) => prop.name === "operations"
     );
 
     if (operationReference) {
-      const operations = data.nodeNotation.eOperations
-        ? (data.nodeNotation.eOperations as Array<any>)
+      const operations = data.instanceNotation.eOperations
+        ? (data.instanceNotation.eOperations as Array<any>)
         : [];
       const newModifyingOperation = { ...modifyingOperation };
 
@@ -320,7 +316,7 @@ const CombineObjectShapesNode = ({
         operations.push(newModifyingOperation);
       }
 
-      data.nodeNotation.eOperations = operations;
+      data.instanceNotation.eOperations = operations;
 
       setModifyingOperation(newModifyingOperation);
       setData({ ...data });

@@ -1,12 +1,16 @@
 import React from "react";
 import CustomModal from "../../../../../ui_elements/Modal";
-import { EAttributeInstance, Notation } from "../../../../../../types/types";
+import {
+  EAttributeInstance,
+  InstanceNotation,
+  MetaNotation,
+} from "../../../../../../types/types";
 import { useSelector } from "react-redux";
 
 interface ModalAddAttributeProps {
   isNodeAttributeModalOpen: boolean;
   setIsNodeAttributeModalOpen: (isOpen: boolean) => void;
-  metaAttribute: Notation;
+  metaAttribute: MetaNotation;
   newAttribute: EAttributeInstance;
   setNewAttribute: (newAttribute: EAttributeInstance) => void;
   handleAttributeSubmit: () => void;
@@ -43,8 +47,6 @@ function ModalAddAttribute({
       {metaAttribute.eAttributes!.map((attribute) => {
         const foundAttributeValue =
           newAttribute[attribute.name as keyof EAttributeInstance];
-
-        console.log("newAttribute", newAttribute);
 
         return (
           <div key={attribute.name}>

@@ -4,7 +4,7 @@ import {
   CustomNodeData,
   EOperation,
   NotationRepresentationItem,
-  InstanceModelFile,
+  MetaInstanceModelFile,
   EClassInstance,
 } from "../../../../types/types";
 import typeHelper from "../../../helpers/TypeHelper";
@@ -22,8 +22,8 @@ function RenderCompartments({
   data,
 }: RenderCompartmentsProps) {
   const dispatch = useDispatch();
-  const instanceModel: InstanceModelFile = useSelector(
-    (state: any) => state.instanceModelStore.model
+  const metaInstanceModel: MetaInstanceModelFile = useSelector(
+    (state: any) => state.metaInstanceModelStore.model
   );
 
   return (
@@ -31,8 +31,8 @@ function RenderCompartments({
       {compartments.map((compartment, index) => {
         const generatorName = compartment.generator;
         let classifier = undefined;
-        if (instanceModel.ePackages.length > 0) {
-          classifier = instanceModel.ePackages![0].eClassifiers.find(
+        if (metaInstanceModel.ePackages.length > 0) {
+          classifier = metaInstanceModel.ePackages![0].eClassifiers.find(
             (cls) => cls.id === nodeId
           ) as EClassInstance;
         }
@@ -84,7 +84,7 @@ function RenderCompartments({
             </div>
           );
         } else if (generatorName === "operationsForNotation" && classifier) {
-          const operations = data.nodeNotation.eOperations!;
+          const operations = data.instanceNotation.eOperations!;
 
           const operationHeight = compartment.position.extent?.height || 10; // Default height for each operation
           const compartmentX = compartment.position.x;
