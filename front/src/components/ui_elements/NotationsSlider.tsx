@@ -50,9 +50,12 @@ function NotationsSlider({
           <CombineRelationshipShapesNode
             key={notation.name}
             id={notation.name}
-            isPalette={true}
-            isNotationSlider={true}
-            data={{ metaNotations: allNotations, instanceNotation: notation }}
+            data={{
+              metaNotations: allNotations,
+              instanceNotation: notation,
+              isPalette: true,
+              isNotationSlider: true,
+            }}
             sourceX={x}
             sourceY={y}
             targetX={targetX!}

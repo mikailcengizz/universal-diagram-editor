@@ -15,8 +15,6 @@ interface CombineRelationshipShapesEdgeProps {
   markerStart?: string;
   markerEnd?: string;
   data: CustomNodeData;
-  isPalette?: boolean;
-  isNotationSlider?: boolean;
 }
 
 function CombineRelationshipShapesEdge({
@@ -31,8 +29,6 @@ function CombineRelationshipShapesEdge({
   markerStart,
   markerEnd,
   data: initialData,
-  isPalette = false,
-  isNotationSlider = false,
 }: CombineRelationshipShapesEdgeProps) {
   const [data, setData] = useState<CustomNodeData>({ ...initialData });
 
@@ -71,24 +67,27 @@ function CombineRelationshipShapesEdge({
     });
   }, [data.nodeNotation.roles]); */
 
+  console.log("data", data);
+
   const edgeStyles = {
     strokeWidth:
-      data.instanceNotation.graphicalRepresentation![0].position.extent?.width,
-    stroke:
-      data.instanceNotation.graphicalRepresentation![0].style.backgroundColor,
+      data.instanceNotation.graphicalRepresentation![0].style.lineWidth,
+    stroke: data.instanceNotation.graphicalRepresentation![0].style.color,
     strokeDasharray:
-      data.instanceNotation.graphicalRepresentation![0].style.pattern ===
+      data.instanceNotation.graphicalRepresentation![0].style.lineStyle ===
       "dotted"
         ? "5,5"
-        : data.instanceNotation.graphicalRepresentation![0].style.pattern ===
+        : data.instanceNotation.graphicalRepresentation![0].style.lineStyle ===
           "dashed"
         ? "10,10"
         : "0",
     ...style,
   };
 
+  console.log("edgeStyles", edgeStyles);
+
   // Manually render the line for palette or notation slider context
-  if (isPalette || isNotationSlider) {
+  if (data.isPalette || data.isNotationSlider) {
     return (
       <svg width="100%" height="100%">
         <line
@@ -118,6 +117,8 @@ function CombineRelationshipShapesEdge({
       console.error("onDoubleClick function is not defined");
     }
   };
+
+  console.log("edgePath", sourceX, sourceY, targetX, targetY, edgePath);
 
   return (
     <svg width="100%" height="100%">

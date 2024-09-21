@@ -273,12 +273,6 @@ const CombineObjectShapesNode = ({
       dispatch(
         updateRepresentationInstanceModel(updatedRepresentationInstanceModel)
       );
-
-      // Also save the updated model to localStorage
-      localStorage.setItem(
-        "representationInstanceModel",
-        JSON.stringify(updatedRepresentationInstanceModel)
-      );
     }
   };
 

@@ -41,57 +41,58 @@ function RenderTexts({
           )?.name;
         }
 
-        // If the attribute is found, render the text field
-        if (nameFromClassifier !== undefined) {
-          // we dont want editable field in palette notations
-          if (data.isPalette) {
-            return (
-              <span
-                key={idx}
-                style={{
-                  position: "absolute",
-                  left: `${textItem.position.x}px`,
-                  top: `${textItem.position.y}px`,
-                  width: `${textItem.position.extent?.width || 100}px`,
-                  height: `${textItem.position.extent?.height || 20}px`,
-                  color: textItem.style.color,
-                  fontSize: `${textItem.style.fontSize}px`,
-                  textAlign: textItem.style.alignment as
-                    | "left"
-                    | "center"
-                    | "right",
-                }}
-              >
-                {nameFromClassifier}
-              </span>
-            );
-          } else {
-            return (
-              <input
-                key={idx}
-                type={"text"}
-                style={{
-                  position: "absolute",
-                  left: `${textItem.position.x}px`,
-                  top: `${textItem.position.y}px`,
-                  width: `${textItem.position.extent?.width || 100}px`,
-                  height: `${textItem.position.extent?.height || 20}px`,
-                  color: textItem.style.color,
-                  backgroundColor: "transparent",
-                  fontSize: `${textItem.style.fontSize}px`,
-                  textAlign: textItem.style.alignment as
-                    | "left"
-                    | "center"
-                    | "right",
-                  borderColor: textItem.style.borderColor,
-                  borderWidth: textItem.style.borderWidth,
-                  borderStyle: textItem.style.borderStyle,
-                }}
-                value={nameFromClassifier}
-                onChange={(e) => handleTextChange(e, nameFromClassifier)}
-              />
-            );
-          }
+        if (nameFromClassifier === undefined) {
+          nameFromClassifier = data.instanceNotation.name;
+        }
+
+        // we dont want editable field in palette notations
+        if (data.isPalette) {
+          return (
+            <span
+              key={idx}
+              style={{
+                position: "absolute",
+                left: `${textItem.position.x}px`,
+                top: `${textItem.position.y}px`,
+                width: `${textItem.position.extent?.width || 100}px`,
+                height: `${textItem.position.extent?.height || 20}px`,
+                color: textItem.style.color,
+                fontSize: `${textItem.style.fontSize}px`,
+                textAlign: textItem.style.alignment as
+                  | "left"
+                  | "center"
+                  | "right",
+              }}
+            >
+              {nameFromClassifier}
+            </span>
+          );
+        } else if (nameFromClassifier !== undefined) {
+          return (
+            <input
+              key={idx}
+              type={"text"}
+              style={{
+                position: "absolute",
+                left: `${textItem.position.x}px`,
+                top: `${textItem.position.y}px`,
+                width: `${textItem.position.extent?.width || 100}px`,
+                height: `${textItem.position.extent?.height || 20}px`,
+                color: textItem.style.color,
+                backgroundColor: "transparent",
+                fontSize: `${textItem.style.fontSize}px`,
+                textAlign: textItem.style.alignment as
+                  | "left"
+                  | "center"
+                  | "right",
+                borderColor: textItem.style.borderColor,
+                borderWidth: textItem.style.borderWidth,
+                borderStyle: textItem.style.borderStyle,
+              }}
+              value={nameFromClassifier}
+              onChange={(e) => handleTextChange(e, nameFromClassifier)}
+            />
+          );
         }
       })}
     </>

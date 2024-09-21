@@ -31,6 +31,7 @@ export interface EAttributeInstance {
 }
 
 export interface EReferenceInstance {
+  id: string;
   name: string;
   eReferenceType?: EClassInstance;
 }
@@ -131,6 +132,8 @@ export interface Position {
   };
 }
 
+export type lineStyle = "solid" | "dotted" | "dashed";
+
 export interface StyleProperties {
   color?: string;
   fontSize?: number;
@@ -140,6 +143,8 @@ export interface StyleProperties {
   borderStyle?: string;
   borderWidth?: number;
   borderRadius?: number;
+  lineWidth?: number;
+  lineStyle?: lineStyle;
   pattern?: Pattern;
   zIndex?: number;
 }
@@ -171,7 +176,10 @@ export type NotationType =
 export interface InstanceNotation {
   id: string;
   name: string;
+  interface?: boolean;
+  abstract?: boolean;
   type?: NotationType;
+  eSuperTypes?: EClassInstance[];
   eSubpackages?: EPackageInstance[];
   eClassifiers?: EClassInstance[];
   eAttributes?: EAttributeInstance[];

@@ -51,11 +51,11 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
           <CombineRelationshipShapesNode
             key={notation.name}
             id={notation.name}
-            isPalette={true}
-            isNotationSlider={true}
             data={{
               instanceNotation: notationInstance,
               metaNotations: notations,
+              isPalette: true,
+              isNotationSlider: false,
             }}
             sourceX={x}
             sourceY={y}

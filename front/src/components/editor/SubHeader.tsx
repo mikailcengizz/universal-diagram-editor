@@ -9,6 +9,7 @@ import { Edge, Node as ReactFlowNode } from "@xyflow/react";
 import { useDispatch } from "react-redux";
 import { updateMetaInstanceModel } from "../../redux/actions/metaInstanceModelActions";
 import { updateRepresentationInstanceModel } from "../../redux/actions/representationInstanceModelActions";
+import { updateSelectedConfig } from "../../redux/actions/selectedConfigActions";
 
 interface SubHeaderProps {
   onSelectConfig: (configName: string) => void;
@@ -84,7 +85,6 @@ function SubHeader({
   };
 
   const onCreateNewDiagramHandler = () => {
-    onSelectConfig("");
     setDropdownVisibleFile(false);
 
     // Clear the diagram
@@ -106,6 +106,9 @@ function SubHeader({
         ePackages: [],
       })
     );
+
+    dispatch(updateSelectedConfig(null));
+    onSelectConfig("");
   };
 
   const onSaveDiagramHandler = () => {
