@@ -6,6 +6,7 @@
       "name": "UMLPackageInstance",
       "eClassifiers": [
         {
+          "id": "1",
           "name": "Person",
           "abstract": false,
           "interface": false,
@@ -39,22 +40,10 @@
               "parameters": []
             }
           ],
-          "eReferences": [
-            {
-              "name": "attributes",
-              "eType": "Attribute",
-              "containment": true,
-              "upperBound": "*"
-            },
-            {
-              "name": "operations",
-              "eType": "Operation",
-              "containment": true,
-              "upperBound": "*"
-            }
-          ]
+          "eReferences": [{ "referenceId": "2" }]
         },
         {
+          "id": "2",
           "name": "Car",
           "eSuperTypes": [],
           "eAttributes": [
@@ -102,6 +91,7 @@
           ]
         },
         {
+          "id": "3",
           "name": "Owns",
           "eSuperTypes": [
             {
@@ -121,15 +111,11 @@
           "eReferences": [
             {
               "name": "source",
-              "eType": "Person",
-              "containment": false,
-              "upperBound": 1
+              "id": "1"
             },
             {
               "name": "target",
-              "eType": "Car",
-              "containment": false,
-              "upperBound": 1
+              "id": "2"
             }
           ]
         }

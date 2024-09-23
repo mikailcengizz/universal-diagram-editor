@@ -12,20 +12,7 @@
           "eSuperTypes": [],
           "eAttributes": [],
           "eOperations": [],
-          "eReferences": [
-            {
-              "name": "attributes",
-              "eType": "Attribute",
-              "containment": true,
-              "upperBound": "*"
-            },
-            {
-              "name": "operations",
-              "eType": "Operation",
-              "containment": true,
-              "upperBound": "*"
-            }
-          ]
+          "eReferences": []
         },
         {
           "name": "Attribute",

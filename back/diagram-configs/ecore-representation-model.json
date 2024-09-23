@@ -103,46 +103,52 @@
         },
         {
           "name": "Attribute",
-          "graphicalRepresentation": {
-            "shape": "text",
-            "style": {
-              "color": "#000000",
-              "fontSize": 12,
-              "alignment": "left"
+          "graphicalRepresentation": [
+            {
+              "shape": "text",
+              "style": {
+                "color": "#000000",
+                "fontSize": 12,
+                "alignment": "left"
+              }
             }
-          }
+          ]
         },
         {
           "name": "Operation",
-          "graphicalRepresentation": {
-            "shape": "text",
-            "style": {
-              "color": "#000000",
-              "fontSize": 12,
-              "alignment": "left"
+          "graphicalRepresentation": [
+            {
+              "shape": "text",
+              "style": {
+                "color": "#000000",
+                "fontSize": 12,
+                "alignment": "left"
+              }
             }
-          }
+          ]
         },
         {
           "name": "Association",
-          "graphicalRepresentation": {
-            "shape": "line",
-            "style": {
-              "color": "#000000",
-              "lineWidth": 1,
-              "lineStyle": "solid"
-            },
-            "markers": [
-              {
-                "type": "openArrow",
-                "svgDefinition": "<path d='M 0 0 L 10 5 L 0 10 Z' fill='black' />"
+          "graphicalRepresentation": [
+            {
+              "shape": "line",
+              "style": {
+                "color": "#000000",
+                "lineWidth": 1,
+                "lineStyle": "solid"
               },
-              {
-                "type": "closedArrow",
-                "svgDefinition": "<path d='M 0 0 L 10 5 L 0 10' fill='none' stroke='black' />"
-              }
-            ]
-          }
+              "markers": [
+                {
+                  "type": "openArrow",
+                  "svgDefinition": "<path d='M 0 0 L 10 5 L 0 10 Z' fill='black' />"
+                },
+                {
+                  "type": "closedArrow",
+                  "svgDefinition": "<path d='M 0 0 L 10 5 L 0 10' fill='none' stroke='black' />"
+                }
+              ]
+            }
+          ]
         }
       ]
     }
