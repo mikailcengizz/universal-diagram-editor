@@ -1,0 +1,137 @@
+{
+  "name": "PetriNet Ecore",
+  "type": "meta",
+  "ePackages": [
+    {
+      "name": "PetriNetPackage",
+      "eClassifiers": [
+        {
+          "name": "PetriNet",
+          "ePackage": "PetriNetPackage",
+          "eSuperTypes": [],
+          "eAttributes": [
+            {
+              "name": "name",
+              "eAttributeType": { "name": "String" },
+              "defaultValue": "",
+              "isUnique": true,
+              "lowerBound": 1,
+              "upperBound": 1
+            }
+          ],
+          "eReferences": [
+            {
+              "name": "places",
+              "eType": "Place",
+              "containment": true,
+              "upperBound": "*"
+            },
+            {
+              "name": "transitions",
+              "eType": "Transition",
+              "containment": true,
+              "upperBound": "*"
+            },
+            {
+              "name": "arcs",
+              "eType": "Arc",
+              "containment": true,
+              "upperBound": "*"
+            }
+          ]
+        },
+        {
+          "name": "Place",
+          "eAttributes": [
+            {
+              "name": "name",
+              "eAttributeType": { "name": "String" },
+              "defaultValue": "",
+              "isUnique": true,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "tokens",
+              "eAttributeType": { "name": "Integer" },
+              "defaultValue": 0,
+              "isUnique": false,
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
+          "eSuperTypes": []
+        },
+        {
+          "name": "Transition",
+          "eAttributes": [
+            {
+              "name": "name",
+              "eAttributeType": { "name": "String" },
+              "defaultValue": "",
+              "isUnique": true,
+              "lowerBound": 1,
+              "upperBound": 1
+            }
+          ],
+          "eSuperTypes": [],
+          "eReferences": [
+            {
+              "name": "inputArcs",
+              "eType": "Arc",
+              "containment": false,
+              "upperBound": "*",
+              "lowerBound": 0
+            },
+            {
+              "name": "outputArcs",
+              "eType": "Arc",
+              "containment": false,
+              "upperBound": "*",
+              "lowerBound": 0
+            }
+          ]
+        },
+        {
+          "name": "Arc",
+          "eAttributes": [
+            {
+              "name": "weight",
+              "eAttributeType": { "name": "Integer" },
+              "defaultValue": 1,
+              "isUnique": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            },
+            {
+              "name": "direction",
+              "eAttributeType": { "name": "String" },
+              "defaultValue": "PlaceToTransition",
+              "isUnique": false,
+              "lowerBound": 1,
+              "upperBound": 1
+            }
+          ],
+          "eReferences": [
+            {
+              "name": "sourcePlace",
+              "eType": "Place",
+              "containment": false,
+              "upperBound": 1,
+              "lowerBound": 1
+            },
+            {
+              "name": "targetTransition",
+              "eType": "Transition",
+              "containment": false,
+              "upperBound": 1,
+              "lowerBound": 1
+            }
+          ],
+          "eSuperTypes": []
+        }
+      ],
+      "eSubpackages": []
+    }
+  ]
+}

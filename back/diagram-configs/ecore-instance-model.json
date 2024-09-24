@@ -114,7 +114,7 @@
           "eSuperTypes": [],
           "eAttributes": [
             {
-              "name": "isComposition",
+              "name": "composition",
               "eAttributeType": { "name": "Boolean" },
               "defaultValue": false,
               "isUnique": false,
