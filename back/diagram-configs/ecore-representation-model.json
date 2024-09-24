@@ -48,7 +48,7 @@
               "generator": "attributesForNotation",
               "style": {
                 "color": "#000000",
-                "fontSize": 14,
+                "fontSize": 10,
                 "alignment": "left"
               },
               "position": {
@@ -65,7 +65,7 @@
               "generator": "operationsForNotation",
               "style": {
                 "color": "#000000",
-                "fontSize": 14,
+                "fontSize": 10,
                 "alignment": "left"
               },
               "position": {

@@ -7,24 +7,57 @@
       "eClassifiers": [
         {
           "name": "Class",
-          "abstract": false,
-          "interface": false,
+          "ePackage": "UMLPackage",
           "eSuperTypes": [],
-          "eAttributes": [],
+          "eAttributes": [
+            {
+              "name": "abstract",
+              "eAttributeType": { "name": "Boolean" },
+              "defaultValue": false,
+              "isUnique": false,
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "interface",
+              "eAttributeType": { "name": "Boolean" },
+              "defaultValue": false,
+              "isUnique": false,
+              "lowerBound": 0,
+              "upperBound": 1
+            }
+          ],
           "eOperations": [],
-          "eReferences": []
+          "eReferences": [
+            {
+              "name": "attributes",
+              "eType": "Attribute",
+              "containment": true,
+              "upperBound": "*"
+            },
+            {
+              "name": "operations",
+              "eType": "Operation",
+              "containment": true,
+              "upperBound": "*"
+            },
+            {
+              "name": "superTypes",
+              "eType": "Class",
+              "containment": false,
+              "upperBound": "*"
+            },
+            {
+              "name": "references",
+              "eType": "Reference",
+              "containment": true,
+              "upperBound": "*"
+            }
+          ]
         },
         {
           "name": "Attribute",
           "eAttributes": [
-            {
-              "name": "name",
-              "eAttributeType": { "name": "String" },
-              "defaultValue": "newAttribute",
-              "isUnique": true,
-              "lowerBound": 1,
-              "upperBound": 1
-            },
             {
               "name": "eAttributeType",
               "eAttributeType": { "name": "String" },
@@ -96,11 +129,7 @@
               "upperBound": "*"
             }
           ],
-          "eSuperTypes": [
-            {
-              "name": "NamedElement"
-            }
-          ]
+          "eSuperTypes": []
         },
         {
           "name": "Parameter",
@@ -122,23 +151,19 @@
               "upperBound": 1
             }
           ],
-          "eSuperTypes": [
+          "eSuperTypes": [],
+          "eReferences": [
             {
-              "name": "NamedElement"
+              "name": "operation",
+              "eType": "Operation",
+              "containment": false,
+              "upperBound": 1
             }
           ]
         },
         {
-          "name": "Association",
+          "name": "Reference",
           "eAttributes": [
-            {
-              "name": "name",
-              "eAttributeType": { "name": "String" },
-              "defaultValue": "",
-              "isUnique": false,
-              "lowerBound": 0,
-              "upperBound": 1
-            },
             {
               "name": "derived",
               "eAttributeType": { "name": "Boolean" },
@@ -146,39 +171,47 @@
               "isUnique": false,
               "lowerBound": 0,
               "upperBound": 1
+            },
+            {
+              "name": "composition",
+              "eAttributeType": { "name": "Boolean" },
+              "defaultValue": false,
+              "isUnique": false,
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            {
+              "name": "lowerBound",
+              "eAttributeType": { "name": "String" },
+              "defaultValue": 0,
+              "isUnique": false,
+              "lowerBound": "0",
+              "upperBound": "1"
+            },
+            {
+              "name": "upperBound",
+              "eAttributeType": { "name": "String" },
+              "defaultValue": 1,
+              "isUnique": false,
+              "lowerBound": "0",
+              "upperBound": "1"
             }
           ],
           "eReferences": [
             {
-              "name": "source",
-              "eType": "Class",
+              "name": "reference",
+              "eType": "Reference",
               "containment": false,
               "upperBound": 1
             },
             {
-              "name": "target",
+              "name": "class",
               "eType": "Class",
               "containment": false,
               "upperBound": 1
             }
           ],
-          "eSuperTypes": [
-            {
-              "name": "NamedElement"
-            }
-          ]
-        },
-        {
-          "name": "NamedElement",
-          "eAttributes": [
-            {
-              "name": "name",
-              "eAttributeType": { "name": "String" },
-              "isUnique": true,
-              "lowerBound": 1,
-              "upperBound": 1
-            }
-          ]
+          "eSuperTypes": []
         }
       ],
       "eSubpackages": []

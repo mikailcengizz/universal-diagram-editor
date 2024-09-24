@@ -3,31 +3,31 @@
   "type": "instance",
   "ePackages": [
     {
-      "name": "UMLPackageInstance",
+      "name": "UMLPackage",
       "eClassifiers": [
         {
           "id": "1",
           "name": "Person",
-          "abstract": false,
-          "interface": false,
           "eSuperTypes": [],
           "eAttributes": [
             {
-              "name": "name",
-              "eAttributeType": { "name": "String" },
-              "defaultValue": "John Doe",
-              "isUnique": true,
-              "lowerBound": 1,
-              "upperBound": 1
-            },
-            {
-              "name": "age",
-              "eAttributeType": { "name": "Integer" },
-              "defaultValue": 30,
+              "name": "abstract",
+              "eAttributeType": { "name": "Boolean" },
+              "defaultValue": false,
               "isUnique": false,
               "lowerBound": 0,
               "upperBound": 1
-            }
+            },
+            {
+              "name": "interface",
+              "eAttributeType": { "name": "Boolean" },
+              "defaultValue": false,
+              "isUnique": false,
+              "lowerBound": 0,
+              "upperBound": 1
+            },
+            { "attributeId": 5 },
+            { "attributeId": 6 }
           ],
           "eOperations": [
             {
@@ -43,7 +43,25 @@
           "eReferences": [{ "referenceId": "2" }]
         },
         {
-          "id": "2",
+          "id": 5,
+          "name": "name",
+          "eAttributeType": { "name": "String" },
+          "defaultValue": "John Doe",
+          "isUnique": true,
+          "lowerBound": 1,
+          "upperBound": 1
+        },
+        {
+          "id": 6,
+          "name": "age",
+          "eAttributeType": { "name": "Integer" },
+          "defaultValue": 30,
+          "isUnique": false,
+          "lowerBound": 0,
+          "upperBound": 1
+        },
+        {
+          "id": 2,
           "name": "Car",
           "eSuperTypes": [],
           "eAttributes": [
@@ -93,19 +111,15 @@
         {
           "id": "3",
           "name": "Owns",
-          "eSuperTypes": [
-            {
-              "name": "NamedElement"
-            }
-          ],
+          "eSuperTypes": [],
           "eAttributes": [
             {
-              "name": "name",
-              "eAttributeType": { "name": "String" },
-              "defaultValue": "Ownership",
+              "name": "isComposition",
+              "eAttributeType": { "name": "Boolean" },
+              "defaultValue": false,
               "isUnique": false,
               "lowerBound": 0,
-              "upperBound": 1
+              "upperBound": "infinite"
             }
           ],
           "eReferences": [

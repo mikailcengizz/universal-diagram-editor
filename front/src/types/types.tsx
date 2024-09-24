@@ -252,8 +252,6 @@ export interface EPackage extends ENamedElement {
 
 export abstract class EClassifier extends ENamedElement {
   ePackage?: EPackage;
-  abstract?: boolean;
-  interface?: boolean;
 }
 
 export interface EClass extends EClassifier {
@@ -264,37 +262,34 @@ export interface EClass extends EClassifier {
 }
 
 export interface EDataType extends EClassifier {
-  // represents data types like EString, EInt, etc.
+  // represents data types like EString, EInt, etc. and also Classifer types
 }
 
 export abstract class TypedElement extends ENamedElement {
-  eType?: EClassifier; // Name of the data type
-  lowerBound?: number;
-  upperBound?: number;
+  eType?: EClassifier;
+  lowerBound?: string; // string because it can be "infinite"
+  upperBound?: string;
   isUnique?: boolean;
 }
 
-export abstract class EStructuralFeature extends TypedElement {
+export interface EAttribute extends TypedElement {
   isDerived?: boolean;
   defaultValue?: any;
   defaultValueLiteral?: string;
-  eContainingClass?: EClass; // The class that has this feature
+  eAttributeType?: EDataType;
 }
 
-export interface EAttribute extends EStructuralFeature {
-  name: string;
-  eAttributeType?: EDataType; // Name of the data type
+export interface EReference extends TypedElement {
+  isDerived?: boolean;
   defaultValue?: any;
-}
-
-export interface EReference extends EStructuralFeature {
+  defaultValueLiteral?: string;
   containment?: boolean;
   eOpposite?: EReference;
-  eReferenceType?: EClass; // Name of the data type
+  eReferenceType?: EClass;
 }
 
 export interface ETypedElement extends ENamedElement {
-  eType?: EClassifier; // Name of the data type
+  eType?: EClassifier;
 }
 
 export interface EOperation extends ETypedElement {
