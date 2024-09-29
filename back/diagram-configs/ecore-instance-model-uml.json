@@ -1,140 +1,138 @@
 {
   "name": "My UML Class Diagram",
   "type": "instance",
-  "ePackages": [
+  "packages": [
     {
-      "name": "UMLPackage",
-      "eClassifiers": [
+      "id": "10",
+      "name": "UMLPackage"
+    }
+  ],
+  "classifiers": [
+    {
+      "id": "1",
+      "name": "Person",
+      "package": "10",
+      "attributes": [
         {
-          "id": "1",
-          "name": "Person",
-          "eSuperTypes": [],
-          "eAttributes": [
-            {
-              "name": "abstract",
-              "eAttributeType": { "name": "Boolean" },
-              "defaultValue": false,
-              "isUnique": false,
-              "lowerBound": 0,
-              "upperBound": 1
-            },
-            {
-              "name": "interface",
-              "eAttributeType": { "name": "Boolean" },
-              "defaultValue": false,
-              "isUnique": false,
-              "lowerBound": 0,
-              "upperBound": 1
-            },
-            { "attributeId": 5 },
-            { "attributeId": 6 }
-          ],
-          "eOperations": [
-            {
-              "name": "getFullName",
-              "eAttributeType": { "name": "String" },
-              "defaultValue": "getFullName()",
-              "isUnique": true,
-              "lowerBound": 1,
-              "upperBound": 1,
-              "parameters": []
-            }
-          ],
-          "eReferences": [{ "referenceId": "2" }]
-        },
-        {
-          "id": 5,
-          "name": "name",
-          "eAttributeType": { "name": "String" },
-          "defaultValue": "John Doe",
-          "isUnique": true,
-          "lowerBound": 1,
-          "upperBound": 1
-        },
-        {
-          "id": 6,
-          "name": "age",
-          "eAttributeType": { "name": "Integer" },
-          "defaultValue": 30,
+          "name": "abstract",
+          "attributeType": { "name": "Boolean" },
+          "defaultValue": false,
           "isUnique": false,
           "lowerBound": 0,
           "upperBound": 1
         },
         {
-          "id": 2,
-          "name": "Car",
-          "eSuperTypes": [],
-          "eAttributes": [
-            {
-              "name": "model",
-              "eAttributeType": { "name": "String" },
-              "defaultValue": "Sedan",
-              "isUnique": true,
-              "lowerBound": 1,
-              "upperBound": 1
-            },
-            {
-              "name": "year",
-              "eAttributeType": { "name": "Integer" },
-              "defaultValue": 2020,
-              "isUnique": false,
-              "lowerBound": 0,
-              "upperBound": 1
-            }
-          ],
-          "eOperations": [
-            {
-              "name": "drive",
-              "eAttributeType": { "name": "Void" },
-              "defaultValue": "drive()",
-              "isUnique": true,
-              "lowerBound": 1,
-              "upperBound": 1,
-              "parameters": []
-            }
-          ],
-          "eReferences": [
-            {
-              "name": "attributes",
-              "eType": "Attribute",
-              "containment": true,
-              "upperBound": "*"
-            },
-            {
-              "name": "operations",
-              "eType": "Operation",
-              "containment": true,
-              "upperBound": "*"
-            }
-          ]
+          "name": "interface",
+          "attributeType": { "name": "Boolean" },
+          "defaultValue": false,
+          "isUnique": false,
+          "lowerBound": 0,
+          "upperBound": 1
         },
+        { "attributeId": 5 },
+        { "attributeId": 6 }
+      ],
+      "operations": [
         {
-          "id": "3",
-          "name": "Owns",
-          "eSuperTypes": [],
-          "eAttributes": [
-            {
-              "name": "composition",
-              "eAttributeType": { "name": "Boolean" },
-              "defaultValue": false,
-              "isUnique": false,
-              "lowerBound": 0,
-              "upperBound": "infinite"
-            }
-          ],
-          "eReferences": [
-            {
-              "name": "source",
-              "id": "1"
-            },
-            {
-              "name": "target",
-              "id": "2"
-            }
-          ]
+          "operationId": 8
         }
       ],
-      "eSubpackages": []
+      "references": [{ "type": "Reference", "referenceId": "2" }]
+    },
+    {
+      "id": 2,
+      "name": "Car",
+      "attributes": [
+        {
+          "name": "model",
+          "attributeType": { "name": "String" },
+          "defaultValue": "Sedan",
+          "isUnique": true,
+          "lowerBound": 1,
+          "upperBound": 1
+        },
+        {
+          "name": "year",
+          "attributeType": { "name": "Integer" },
+          "defaultValue": 2020,
+          "isUnique": false,
+          "lowerBound": 0,
+          "upperBound": 1
+        }
+      ],
+      "operations": [],
+      "references": []
+    }
+  ],
+  "features": [
+    {
+      "id": 5,
+      "type": "Attribute",
+      "name": "name",
+      "attributeType": { "name": "String" },
+      "defaultValue": "John Doe",
+      "isUnique": true,
+      "lowerBound": 1,
+      "upperBound": 1
+    },
+    {
+      "id": 6,
+      "type": "Attribute",
+      "name": "age",
+      "attributeType": { "name": "Integer" },
+      "defaultValue": 30,
+      "isUnique": false,
+      "lowerBound": 0,
+      "upperBound": 1
+    },
+    {
+      "id": 7,
+      "type": "Operation",
+      "name": "getFullName",
+      "attributeType": { "name": "String" },
+      "defaultValue": "getFullName()",
+      "isUnique": true,
+      "lowerBound": 1,
+      "upperBound": 1,
+      "parameters": []
+    },
+    {
+      "id": 8,
+      "type": "Operation",
+      "name": "drive",
+      "attributeType": { "name": "Void" },
+      "defaultValue": "drive()",
+      "isUnique": true,
+      "lowerBound": 1,
+      "upperBound": 1,
+      "parameters": []
+    }
+  ],
+  "relations": [
+    {
+      "id": "3",
+      "type": "Reference",
+      "name": "Owns",
+      "attributes": [
+        {
+          "name": "composition",
+          "attributeType": { "name": "Boolean" },
+          "defaultValue": false,
+          "isUnique": false,
+          "lowerBound": 0,
+          "upperBound": "infinite"
+        }
+      ],
+      "references": [
+        {
+          "type": "Class",
+          "referenceId": "1"
+        },
+        {
+          "type": "Reference",
+          "referenceId": "2"
+        }
+      ]
     }
   ]
 }
