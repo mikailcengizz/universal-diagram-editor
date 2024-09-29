@@ -1,137 +1,131 @@
 {
-  "name": "PetriNet Ecore",
+  "name": "Petri Net",
   "type": "meta",
-  "ePackages": [
+  "packages": [
     {
       "name": "PetriNetPackage",
-      "eClassifiers": [
+      "references": [
         {
-          "name": "PetriNet",
-          "ePackage": "PetriNetPackage",
-          "eSuperTypes": [],
-          "eAttributes": [
-            {
-              "name": "name",
-              "eAttributeType": { "name": "String" },
-              "defaultValue": "",
-              "isUnique": true,
-              "lowerBound": 1,
-              "upperBound": 1
-            }
-          ],
-          "eReferences": [
-            {
-              "name": "places",
-              "eType": "Place",
-              "containment": true,
-              "upperBound": "*"
-            },
-            {
-              "name": "transitions",
-              "eType": "Transition",
-              "containment": true,
-              "upperBound": "*"
-            },
-            {
-              "name": "arcs",
-              "eType": "Arc",
-              "containment": true,
-              "upperBound": "*"
-            }
-          ]
+          "name": "Classifiers",
+          "type": "Classifier",
+          "containment": true,
+          "upperBound": "*"
         },
         {
-          "name": "Place",
-          "eAttributes": [
-            {
-              "name": "name",
-              "eAttributeType": { "name": "String" },
-              "defaultValue": "",
-              "isUnique": true,
-              "lowerBound": 1,
-              "upperBound": 1
-            },
-            {
-              "name": "tokens",
-              "eAttributeType": { "name": "Integer" },
-              "defaultValue": 0,
-              "isUnique": false,
-              "lowerBound": 0,
-              "upperBound": 1
-            }
-          ],
-          "eSuperTypes": []
+          "name": "subpackages",
+          "type": "Package",
+          "containment": true,
+          "upperBound": "*"
+        }
+      ]
+    }
+  ],
+  "classifiers": [
+    {
+      "name": "Place",
+      "package": "PetriNetPackage",
+      "attributes": [
+        {
+          "name": "name",
+          "attributeType": { "name": "String" },
+          "defaultValue": "",
+          "isUnique": true,
+          "lowerBound": 1,
+          "upperBound": 1
         },
         {
-          "name": "Transition",
-          "eAttributes": [
-            {
-              "name": "name",
-              "eAttributeType": { "name": "String" },
-              "defaultValue": "",
-              "isUnique": true,
-              "lowerBound": 1,
-              "upperBound": 1
-            }
-          ],
-          "eSuperTypes": [],
-          "eReferences": [
-            {
-              "name": "inputArcs",
-              "eType": "Arc",
-              "containment": false,
-              "upperBound": "*",
-              "lowerBound": 0
-            },
-            {
-              "name": "outputArcs",
-              "eType": "Arc",
-              "containment": false,
-              "upperBound": "*",
-              "lowerBound": 0
-            }
-          ]
-        },
-        {
-          "name": "Arc",
-          "eAttributes": [
-            {
-              "name": "weight",
-              "eAttributeType": { "name": "Integer" },
-              "defaultValue": 1,
-              "isUnique": false,
-              "lowerBound": 1,
-              "upperBound": 1
-            },
-            {
-              "name": "direction",
-              "eAttributeType": { "name": "String" },
-              "defaultValue": "PlaceToTransition",
-              "isUnique": false,
-              "lowerBound": 1,
-              "upperBound": 1
-            }
-          ],
-          "eReferences": [
-            {
-              "name": "sourcePlace",
-              "eType": "Place",
-              "containment": false,
-              "upperBound": 1,
-              "lowerBound": 1
-            },
-            {
-              "name": "targetTransition",
-              "eType": "Transition",
-              "containment": false,
-              "upperBound": 1,
-              "lowerBound": 1
-            }
-          ],
-          "eSuperTypes": []
+          "name": "tokens",
+          "attributeType": { "name": "Integer" },
+          "defaultValue": 0,
+          "isUnique": false,
+          "lowerBound": 0,
+          "upperBound": "infinite"
         }
       ],
-      "eSubpackages": []
+      "references": [
+        {
+          "name": "transitions",
+          "type": "Transition",
+          "containment": true,
+          "lowerBound": 0,
+          "upperBound": "infinite"
+        },
+        {
+          "name": "arcs",
+          "type": "Arc",
+          "containment": true,
+          "lowerBound": 0,
+          "upperBound": "infinite"
+        }
+      ]
+    },
+    {
+      "name": "Transition",
+      "package": "PetriNetPackage",
+      "attributes": [
+        {
+          "name": "name",
+          "attributeType": { "name": "String" },
+          "defaultValue": "",
+          "isUnique": true,
+          "lowerBound": 1,
+          "upperBound": 1
+        }
+      ],
+      "references": [
+        {
+          "name": "arcs",
+          "type": "Arc",
+          "containment": false,
+          "upperBound": "*",
+          "lowerBound": 0
+        },
+        {
+          "name": "places",
+          "type": "Place",
+          "containment": false,
+          "upperBound": "*",
+          "lowerBound": 0
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "name": "Arc",
+      "attributes": [
+        {
+          "name": "multiplicity",
+          "attributeType": { "name": "Integer" },
+          "defaultValue": 0,
+          "isUnique": false,
+          "lowerBound": 1,
+          "upperBound": 1
+        }
+      ],
+      "references": [
+        {
+          "name": "transition",
+          "type": "Transition",
+          "containment": false,
+          "upperBound": 1,
+          "lowerBound": 1
+        }
+      ]
+    }
+  ],
+  "features": [
+    {
+      "name": "Token",
+      "references": [
+        {
+          "name": "place",
+          "type": "Place",
+          "containment": false,
+          "upperBound": 1,
+          "lowerBound": 1
+        }
+      ]
     }
   ]
 }

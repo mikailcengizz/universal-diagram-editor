@@ -191,11 +191,11 @@ export interface InstanceNotation {
 export interface MetaNotation {
   name: string;
   type?: NotationType;
-  eSubpackages?: EPackage[];
-  eClassifiers?: EClass[];
-  eAttributes?: EAttribute[];
-  eReferences?: EReference[];
-  eOperations?: EOperation[];
+  subpackages?: Package[];
+  classifiers?: Classifier[];
+  attributes?: Attribute[];
+  references?: Reference[];
+  operations?: Operation[];
   graphicalRepresentation?: NotationRepresentationItem[];
 }
 
@@ -238,69 +238,66 @@ export type ModelFileType =
 export interface MetaModelFile {
   name: string;
   type: ModelFileType;
-  ePackages: EPackage[];
+  packages: Package[];
+  classifiers: Classifier[];
+  relations: Array<Reference>;
+  features: Array<Attribute | Operation>;
 }
 
-export abstract class ENamedElement {
+export abstract class NamedElement {
   name: string | undefined;
 }
 
-export interface EPackage extends ENamedElement {
-  eClassifiers: EClassifier[];
-  eSubpackages: EPackage[];
+export interface Package extends NamedElement {
+  references: Reference[];
+  //attributes?: Attribute[]; in reality they need attributes as we model it as a class diagram
+  //operations?: Operation[]; in reality they need operations as we model it as a class diagram
 }
 
-export abstract class EClassifier extends ENamedElement {
-  ePackage?: EPackage;
+export interface Classifier extends NamedElement {
+  package?: Package;
+  attributes?: Attribute[];
+  //operations?: Operation[]; in reality they need operations as we model it as a class diagram
+  references?: Reference[];
 }
 
-export interface EClass extends EClassifier {
-  eAttributes?: EAttribute[];
-  eReferences?: EReference[];
-  eOperations?: EOperation[];
-  eSuperTypes?: EClass[];
-}
-
-export interface EDataType extends EClassifier {
+export interface EDataType extends Classifier {
   // represents data types like EString, EInt, etc. and also Classifer types
 }
 
-export abstract class TypedElement extends ENamedElement {
-  eType?: EClassifier;
+export abstract class TypedElement extends NamedElement {
+  type?: Classifier;
+  references?: Reference[];
+  attributes?: Attribute[];
+  //operations?: Operation[]; in reality they need operations as we model it as a class diagram
   lowerBound?: string; // string because it can be "infinite"
   upperBound?: string;
   isUnique?: boolean;
-}
-
-export interface EAttribute extends TypedElement {
   isDerived?: boolean;
   defaultValue?: any;
   defaultValueLiteral?: string;
-  eAttributeType?: EDataType;
 }
 
-export interface EReference extends TypedElement {
-  isDerived?: boolean;
-  defaultValue?: any;
-  defaultValueLiteral?: string;
+export interface Attribute extends TypedElement {
+  attributeType?: DataType;
+}
+
+export interface Reference extends TypedElement {
   containment?: boolean;
-  eOpposite?: EReference;
-  eReferenceType?: EClass;
+  composite?: boolean;
+  opposite?: Reference;
+  referenceType?: Classifier;
 }
 
-export interface ETypedElement extends ENamedElement {
-  eType?: EClassifier;
+export interface TypedElement extends NamedElement {
+  type?: Classifier;
 }
 
-export interface EOperation extends ETypedElement {
-  eParameters?: EParameter[];
+export interface Operation extends TypedElement {
+  parameters?: Parameter[];
 }
 
-export interface EParameter extends ETypedElement {}
-
-export interface EAnnotation {
-  source: string;
-}
+export interface Parameter extends TypedElement {}
 
 // NEW EMF ECORE MODEL - END
 
@@ -308,41 +305,44 @@ export interface EAnnotation {
 export interface RepresentationModelFile {
   name: string;
   type: ModelFileType;
-  ePackages: EPackageRepresentation[];
+  packages: PackageRepresentation[];
+  classifiers: ClassRepresentation[];
+  relations: TypedElement[];
+  features: TypedElement[];
 }
 
-export interface EPackageRepresentation {
+export interface PackageRepresentation {
   name: string;
   graphicalRepresentation?: NotationRepresentationItem[];
-  eClassifiers: EClassRepresentation[];
-  eSubpackages: EPackageRepresentation[];
+  classifiers: ClassRepresentation[];
+  subpackages: PackageRepresentation[];
 }
 
-export interface EClassRepresentation {
+export interface ClassRepresentation {
   name: string;
   graphicalRepresentation?: NotationRepresentationItem[];
-  eAttributes: EAttributeRepresentation[];
-  eReferences: EReferenceRepresentation[];
-  eOperations?: EOperationRepresentation[];
+  attributes: AttributeRepresentation[];
+  references: ReferenceRepresentation[];
+  operations?: OperationRepresentation[];
 }
 
-export interface EAttributeRepresentation {
-  name: string;
-  graphicalRepresentation?: NotationRepresentationItem[];
-}
-
-export interface EReferenceRepresentation {
+export interface AttributeRepresentation {
   name: string;
   graphicalRepresentation?: NotationRepresentationItem[];
 }
 
-export interface EOperationRepresentation {
+export interface ReferenceRepresentation {
   name: string;
   graphicalRepresentation?: NotationRepresentationItem[];
-  eParameters?: EParameterRepresentation[];
 }
 
-export interface EParameterRepresentation {
+export interface OperationRepresentation {
+  name: string;
+  graphicalRepresentation?: NotationRepresentationItem[];
+  parameters?: ParameterRepresentation[];
+}
+
+export interface ParameterRepresentation {
   name: string;
   graphicalRepresentation?: NotationRepresentationItem[];
 }
