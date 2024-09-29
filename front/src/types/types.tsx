@@ -241,7 +241,7 @@ export interface MetaModelFile {
   packages: Package[];
   classifiers: Classifier[];
   relations: Array<Reference>;
-  features: Array<Attribute | Operation>;
+  features: Array<Attribute | Operation | Parameter>;
 }
 
 export abstract class NamedElement {
@@ -305,44 +305,13 @@ export interface Parameter extends TypedElement {}
 export interface RepresentationModelFile {
   name: string;
   type: ModelFileType;
-  packages: PackageRepresentation[];
-  classifiers: ClassRepresentation[];
-  relations: TypedElement[];
-  features: TypedElement[];
+  packages: Representation[];
+  classifiers: Representation[];
+  relations: Representation[];
+  features: Representation[];
 }
 
-export interface PackageRepresentation {
-  name: string;
-  graphicalRepresentation?: NotationRepresentationItem[];
-  classifiers: ClassRepresentation[];
-  subpackages: PackageRepresentation[];
-}
-
-export interface ClassRepresentation {
-  name: string;
-  graphicalRepresentation?: NotationRepresentationItem[];
-  attributes: AttributeRepresentation[];
-  references: ReferenceRepresentation[];
-  operations?: OperationRepresentation[];
-}
-
-export interface AttributeRepresentation {
-  name: string;
-  graphicalRepresentation?: NotationRepresentationItem[];
-}
-
-export interface ReferenceRepresentation {
-  name: string;
-  graphicalRepresentation?: NotationRepresentationItem[];
-}
-
-export interface OperationRepresentation {
-  name: string;
-  graphicalRepresentation?: NotationRepresentationItem[];
-  parameters?: ParameterRepresentation[];
-}
-
-export interface ParameterRepresentation {
+export interface Representation {
   name: string;
   graphicalRepresentation?: NotationRepresentationItem[];
 }
