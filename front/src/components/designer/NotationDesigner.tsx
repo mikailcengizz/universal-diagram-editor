@@ -7,9 +7,9 @@ import AutorenewIcon from "@mui/icons-material/Autorenew";
 import configService from "../../services/ConfigService";
 import {
   ConfigListItem,
-  EAttribute,
-  EAttributeInstance,
-  EClass,
+  Attribute,
+  AttributeInstance,
+  Classifier,
   MetaModelFile,
   InstanceNotation,
   NotationType,
@@ -25,27 +25,32 @@ const NotationDesigner = () => {
   const [selectedMetaConfig, setSelectedMetaConfig] = useState<MetaModelFile>({
     name: "",
     type: "meta",
-    ePackages: [],
+    packages: [],
+    classifiers: [],
+    relations: [],
+    features: [],
   });
   const [selectedRepresentationConfig, setSelectedRepresentationConfig] =
     useState<RepresentationModelFile>({
       name: "",
       type: "representation",
-      ePackages: [],
+      packages: [],
+      classifiers: [],
+      relations: [],
+      features: [],
     });
   const [currentNotation, setCurrentNotation] = useState<InstanceNotation>({
     id: "",
     name: "",
     type: undefined,
-    eAttributes: [],
-    eReferences: [],
-    eOperations: [],
-    eSubpackages: [],
+    attributes: [],
+    references: [],
+    operations: [],
     graphicalRepresentation: [],
   });
   const [selectedNotationType, setSelectedNotationType] =
     useState<NotationType>();
-  const [newAttribute, setNewAttribute] = useState<EAttributeInstance>({
+  const [newAttribute, setNewAttribute] = useState<AttributeInstance>({
     id: "",
     name: "",
     defaultValue: "",
@@ -61,8 +66,8 @@ const NotationDesigner = () => {
 
   useEffect(() => {
     if (selectedMetaConfig && selectedRepresentationConfig) {
-      const metaPackages = selectedMetaConfig.ePackages;
-      const representationPackages = selectedRepresentationConfig.ePackages;
+      const metaPackages = selectedMetaConfig.packages;
+      const representationPackages = selectedRepresentationConfig.packages;
 
       const mergedNotations = typeHelper.mergeMetaAndRepresentation(
         metaPackages,
@@ -151,7 +156,7 @@ const NotationDesigner = () => {
   const handleAddAttribute = () => {
     setCurrentNotation({
       ...currentNotation,
-      eAttributes: [...currentNotation.eAttributes!, newAttribute],
+      attributes: [...currentNotation.attributes!, newAttribute],
     });
     setNewAttribute({
       id: "",
@@ -166,11 +171,11 @@ const NotationDesigner = () => {
 
   const saveNotation = () => {
     // Save in the frontend
-    const updatedNotations = { ...selectedMetaConfig!.ePackages };
+    const updatedNotations = { ...selectedMetaConfig!.packages };
 
     setSelectedMetaConfig({
       ...selectedMetaConfig!,
-      ePackages: updatedNotations,
+      packages: updatedNotations,
     });
 
     // Save in the backend
@@ -226,7 +231,7 @@ const NotationDesigner = () => {
             setSelectedMetaConfig(config);
             setIsConfigLoaded(false); // Reset flag if a new config is selected
           }}
-          ePackages={selectedMetaConfig.ePackages}
+          ePackages={selectedMetaConfig.packages}
           allNotations={allNotations}
           saveNotation={saveNotation}
         />

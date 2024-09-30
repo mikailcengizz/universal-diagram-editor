@@ -61,57 +61,17 @@ export interface EDataTypeInstance {
 export interface RepresentationInstanceModelFile {
   name: string;
   type: ModelFileType;
-  packages: PackageRepresentationInstance[];
-  classifiers: ClassifierRepresentationInstance[];
-  relations: ReferenceRepresentationInstance[];
-  features: Array<
-    | AttributeRepresentationInstance
-    | OperationRepresentationInstance
-    | ParameterRepresentationInstance
-  >;
+  packages: RepresentationInstance[];
+  classifiers: RepresentationInstance[];
+  relations: RepresentationInstance[];
+  features: RepresentationInstance[];
 }
 
-export interface PackageRepresentationInstance {
+export interface RepresentationInstance {
   id: string;
   referenceMetaInstanceId: string;
   name: string;
-  position: Position;
-  graphicalRepresentation?: NotationRepresentationItem[];
-}
-
-export interface ClassifierRepresentationInstance {
-  id: string;
-  referenceMetaInstanceId: string;
-  name: string;
-  position: Position;
-  graphicalRepresentation?: NotationRepresentationItem[];
-}
-
-export interface AttributeRepresentationInstance {
-  id: string;
-  referenceMetaInstanceId: string;
-  name: string;
-  graphicalRepresentation?: NotationRepresentationItem[];
-}
-
-export interface ReferenceRepresentationInstance {
-  id: string;
-  referenceMetaInstanceId: string;
-  name: string;
-  graphicalRepresentation?: NotationRepresentationItem[];
-}
-
-export interface OperationRepresentationInstance {
-  id: string;
-  referenceMetaInstanceId: string;
-  name: string;
-  graphicalRepresentation?: NotationRepresentationItem[];
-}
-
-export interface ParameterRepresentationInstance {
-  id: string;
-  referenceMetaInstanceId: string;
-  name: string;
+  position?: Position; // only for classifiers and packages
   graphicalRepresentation?: NotationRepresentationItem[];
 }
 
@@ -190,19 +150,16 @@ export interface InstanceNotation {
   interface?: boolean;
   abstract?: boolean;
   type?: NotationType;
-  eSuperTypes?: ClassifierInstance[];
-  eSubpackages?: PackageInstance[];
-  eClassifiers?: ClassifierInstance[];
-  eAttributes?: AttributeInstance[];
-  eReferences?: ReferenceInstance[];
-  eOperations?: OperationInstance[];
+  classifiers?: ClassifierInstance[];
+  attributes?: Array<AttributeInstance | { attributeId: string }>;
+  references?: Array<{ type: string; referenceId: string }>;
+  operations?: Array<{ operationId: string }>;
   graphicalRepresentation?: NotationRepresentationItem[];
 }
 
 export interface MetaNotation {
   name: string;
   type?: NotationType;
-  subpackages?: Package[];
   classifiers?: Classifier[];
   attributes?: Attribute[];
   references?: Reference[];

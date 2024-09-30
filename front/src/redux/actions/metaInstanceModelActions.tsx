@@ -1,8 +1,8 @@
 import {
-  EAttributeInstance,
-  EClassInstance,
-  EOperation,
-  EReference,
+  AttributeInstance,
+  ClassifierInstance,
+  Operation,
+  Reference,
   MetaInstanceModelFile,
 } from "../../types/types";
 

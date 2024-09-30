@@ -15,12 +15,12 @@ import { parseStringPromise } from "xml2js";
 import {
   CustomNodeData,
   DragData,
-  EAttribute,
-  EClass,
-  EClassInstance,
-  EClassRepresentation,
-  EClassRepresentationInstance,
-  EReference,
+  Attribute,
+  Classifier,
+  ClassifierInstance,
+  Representation,
+  RepresentationInstance,
+  Reference,
   MetaInstanceModelFile,
   MetaModelFile,
   InstanceNotation,
@@ -28,7 +28,7 @@ import {
   RepresentationModelFile,
   MetaNotation,
   Position,
-  EReferenceInstance,
+  ReferenceInstance,
 } from "../../types/types";
 import PaletteEditorPanel from "./PaletteEditorPanel";
 import configService from "../../services/ConfigService";
@@ -80,13 +80,19 @@ const DiagramEditor = ({
   const [metaConfig, setConfig] = useState<MetaModelFile | null>({
     name: "",
     type: "meta",
-    ePackages: [],
+    packages: [],
+    classifiers: [],
+    relations: [],
+    features: [],
   });
   const [representationConfig, setRepresentationConfig] =
     useState<RepresentationModelFile | null>({
       name: "",
       type: "representation",
-      ePackages: [],
+      packages: [],
+      classifiers: [],
+      relations: [],
+      features: [],
     });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -170,33 +176,33 @@ const DiagramEditor = ({
       if (
         !representationInstanceModel ||
         !metaInstanceModel ||
-        representationInstanceModel.ePackages.length === 0
+        representationInstanceModel.packages.length === 0
       )
         return [];
 
-      const returnNodes = representationInstanceModel.ePackages[0].eClassifiers
+      const returnNodes = representationInstanceModel.classifiers
         .map((representationClassifier) => {
-          const metaInstance = metaInstanceModel.ePackages[0].eClassifiers.find(
+          const metaInstance = metaInstanceModel.classifiers.find(
             (metaClassifier) =>
-              metaClassifier.id === representationClassifier.referenceMetaId
+              metaClassifier.id ===
+              representationClassifier.referenceMetaInstanceId
           );
 
-          if (!metaInstance || !metaConfig || metaConfig.ePackages.length === 0)
+          if (!metaInstance || !metaConfig || metaConfig.packages.length === 0)
             return null;
 
           const position = representationClassifier.position || { x: 0, y: 0 };
 
           const nodeData: CustomNodeData = {
-            metaNotations: metaConfig?.ePackages[0].eClassifiers.map(
+            metaNotations: metaConfig?.classifiers.map(
               (cls) => cls
             ) as MetaNotation[],
             instanceNotation: {
               id: metaInstance.id,
               name: metaInstance.name,
-              eAttributes: metaInstance.eAttributes,
-              eOperations: metaInstance.eOperations,
-              eReferences: metaInstance.eReferences,
-              eSubpackages: metaInstanceModel.ePackages[0].eSubpackages,
+              attributes: metaInstance.attributes,
+              operations: metaInstance.operations,
+              references: metaInstance.references,
               graphicalRepresentation:
                 representationClassifier.graphicalRepresentation,
             },
@@ -210,7 +216,7 @@ const DiagramEditor = ({
             const returnNode: Node = {
               id: metaInstance.id,
               type: "ClassNode", // as it is a classifer node
-              position: representationClassifier.position,
+              position: representationClassifier.position!,
               data: nodeData as any,
             };
 
@@ -231,32 +237,32 @@ const DiagramEditor = ({
       if (
         !metaInstanceModel ||
         !representationInstanceModel ||
-        metaInstanceModel.ePackages.length === 0
+        metaInstanceModel.packages.length === 0
       )
         return [];
 
-      const returnEdges = metaInstanceModel.ePackages[0].eClassifiers
+      const returnEdges = metaInstanceModel.classifiers
         // temporary fix for edge nodes, this needs to be done by not having edges in the eClassifiers array
         // but instead in eFeatures array, and then just reference them by id in the eReferences array
         .filter((cls) => cls.id.startsWith("edge"))
         .flatMap((metaClassifier) => {
           const edgeRepresentation =
-            representationInstanceModel.ePackages[0].eClassifiers.find(
+            representationInstanceModel.classifiers.find(
               (repClassifier) =>
-                repClassifier.referenceMetaId === metaClassifier.id
+                repClassifier.referenceMetaInstanceId === metaClassifier.id
             );
 
-          const sourceId = metaClassifier.eReferences?.find(
-            (ref) => ref.name === "source"
+          const sourceId = metaClassifier.references?.find(
+            (ref) => ref.type === "source"
           )?.id;
-          const targetId = metaClassifier.eReferences?.find(
-            (ref) => ref.name === "target"
+          const targetId = metaClassifier.references?.find(
+            (ref) => ref.type === "target"
           )?.id;
 
           if (!edgeRepresentation) return null;
 
           const edgeInstanceNotation: InstanceNotation = {
-            ...(metaClassifier as EClassInstance),
+            ...(metaClassifier as ClassifierInstance),
             graphicalRepresentation: edgeRepresentation.graphicalRepresentation,
           };
 
@@ -267,8 +273,8 @@ const DiagramEditor = ({
             type: "edge", // Assuming a default edge type
             data: {
               metaNotations: typeHelper.mergeMetaAndRepresentation(
-                metaConfig!.ePackages,
-                representationConfig!.ePackages
+                metaConfig!.packages,
+                representationConfig!.packages
               ),
               instanceNotation: edgeInstanceNotation,
               onDoubleClick: onDoubleClickEdge,

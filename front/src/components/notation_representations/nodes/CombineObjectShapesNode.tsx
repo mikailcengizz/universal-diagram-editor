@@ -282,7 +282,7 @@ const CombineObjectShapesNode = ({
     let newInstanceModel = { ...metaInstanceModel };
 
     // update the name of the class
-    newInstanceModel.ePackages[0].eClassifiers.find(
+    newInstanceModel.packages[0].eClassifiers.find(
       (cls) => cls.name === data.instanceNotation.name
     )!.name = newDefaultValue;
     dispatch({ type: "UPDATE_MODEL", payload: newInstanceModel });
@@ -300,12 +300,12 @@ const CombineObjectShapesNode = ({
 
     // Reset and close the modal
     // re-initialize newAttribute with default values of the meta attribute
-    if (metaAttribute.eAttributes) {
-      metaAttribute.eAttributes.forEach((attribute) => {
+    if (metaAttribute.attributes) {
+      metaAttribute.attributes.forEach((attribute) => {
         if (!modifiyingAttribute[attribute.name as keyof EAttributeInstance]) {
           setModifyingAttribute({
             ...modifiyingAttribute,
-            [attribute.name]: attribute.defaultValue,
+            [attribute.name!]: attribute.defaultValue,
           });
         }
       });

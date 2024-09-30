@@ -16,9 +16,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import {
   ConfigListItem,
-  EAttribute,
-  EAttributeInstance,
-  EPackage,
+  Attribute,
+  AttributeInstance,
+  Package,
   MetaModelFile,
   InstanceNotation,
   MetaNotation,
@@ -43,13 +43,13 @@ interface NotationDesignerConfigurePanelProps {
   handleNotationTypeChange: (e: SelectChangeEvent<string>) => void;
   currentNotation: InstanceNotation;
   setCurrentNotation: (value: any) => void;
-  newAttribute: EAttributeInstance;
+  newAttribute: AttributeInstance;
   setNewAttribute: (value: any) => void;
   handleAddProperty: () => void;
   availableConfigs: ConfigListItem[];
   selectedMetaConfig: MetaModelFile;
   setSelectedMetaConfig: (value: MetaModelFile) => void;
-  ePackages: EPackage[];
+  ePackages: Package[];
   allNotations: MetaNotation[];
   saveNotation: () => void;
 }
@@ -86,7 +86,10 @@ function NotationDesignerConfigurePanel({
             setSelectedMetaConfig({
               name: newInputValue,
               type: "meta",
-              ePackages: [],
+              packages: [],
+              classifiers: [],
+              relations: [],
+              features: [],
             });
           }}
           renderInput={(params) => (
@@ -144,31 +147,34 @@ function NotationDesignerConfigurePanel({
 
         {/* Properties Section */}
         <h3 className="text-xl font-bold">Properties</h3>
-        {currentNotation.eAttributes!.length > 0 && (
+        {currentNotation.attributes!.length > 0 && (
           <List>
-            {currentNotation.eAttributes!.map((prop, index) => (
-              <ListItem key={index}>
-                <ListItemText
-                  primary={`${prop.name} (${prop.eAttributeType})`}
-                  secondary={prop.defaultValue?.toString() || ""}
-                />
-                <ListItemSecondaryAction>
-                  <IconButton
-                    edge="end"
-                    onClick={() =>
-                      setCurrentNotation({
-                        ...currentNotation,
-                        properties: currentNotation.eAttributes!.filter(
-                          (_, i) => i !== index
-                        ),
-                      })
-                    }
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
+            {currentNotation.attributes!.map((prop, index) => {
+              const attribute = prop as AttributeInstance;
+              return (
+                <ListItem key={index}>
+                  <ListItemText
+                    primary={`${attribute.name} (${attribute.attributeType})`}
+                    secondary={attribute.defaultValue?.toString() || ""}
+                  />
+                  <ListItemSecondaryAction>
+                    <IconButton
+                      edge="end"
+                      onClick={() =>
+                        setCurrentNotation({
+                          ...currentNotation,
+                          properties: currentNotation.attributes!.filter(
+                            (_, i) => i !== index
+                          ),
+                        })
+                      }
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+              );
+            })}
           </List>
         )}
         <div className="flex items-center gap-x-2">

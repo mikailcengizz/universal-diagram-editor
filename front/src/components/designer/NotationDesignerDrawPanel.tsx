@@ -16,7 +16,6 @@ function NotationDesignerDrawPanel({
   setCurrentNotation,
   saveNotation,
 }: NotationDesignerDrawPanelProps) {
-  console.log("currentNotation", currentNotation);
 
   return (
     <div className="flex flex-col">
