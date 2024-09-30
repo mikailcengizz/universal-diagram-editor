@@ -4,47 +4,53 @@ import { EdgeProps } from "@xyflow/react";
 export interface MetaInstanceModelFile {
   name: string;
   type: ModelFileType;
-  ePackages: EPackageInstance[];
+  packages: PackageInstance[];
+  classifiers: ClassifierInstance[];
+  relations: ReferenceInstance[];
+  features: Array<AttributeInstance | OperationInstance | ParameterInstance>;
 }
 
-export interface EPackageInstance {
+export interface PackageInstance {
   id: string;
   name: string;
-  eClassifiers: EClassInstance[];
-  eSubpackages: EPackageInstance[];
 }
 
-export interface EClassInstance {
+export interface ClassifierInstance {
   id: string;
   name: string;
-  abstract?: boolean;
-  interface?: boolean;
-  eSuperTypes?: EClassInstance[];
-  eAttributes?: EAttributeInstance[];
-  eReferences?: EReferenceInstance[];
-  eOperations?: EOperationInstance[];
+  package?: { packageId: string };
+  attributes?: Array<AttributeInstance | { attributeId: string }>;
+  references?: Array<{ type: string; referenceId: string }>;
+  operations?: Array<{ operationId: string }>;
 }
 
-export interface EAttributeInstance {
-  id: string;
+export interface AttributeInstance {
+  id?: string; // optional for local attributes
+  type?: string; // optional for local attributes
+  name: string;
   [key: string]: any;
 }
 
-export interface EReferenceInstance {
+export interface ReferenceInstance {
   id: string;
+  type: string;
   name: string;
-  eReferenceType?: EClassInstance;
+  attributes?: Array<AttributeInstance>;
+  references?: Array<{ type: string; referenceId: string }>;
 }
 
-export interface EOperationInstance {
+export interface OperationInstance {
+  id: string;
+  type: string;
   name: string;
-  eParameters?: EParameterInstance[];
-  eType?: EClassInstance;
+  parameters?: Array<{ parameterId: string }>;
+  cType: ClassifierInstance;
+  [key: string]: any;
 }
 
-export interface EParameterInstance {
+export interface ParameterInstance {
   name: string;
-  eType?: EClassInstance;
+  cType?: ClassifierInstance;
 }
 
 export interface EDataTypeInstance {
@@ -55,53 +61,58 @@ export interface EDataTypeInstance {
 export interface RepresentationInstanceModelFile {
   name: string;
   type: ModelFileType;
-  ePackages: EPackageRepresentationInstance[];
+  packages: PackageRepresentationInstance[];
+  classifiers: ClassifierRepresentationInstance[];
+  relations: ReferenceRepresentationInstance[];
+  features: Array<
+    | AttributeRepresentationInstance
+    | OperationRepresentationInstance
+    | ParameterRepresentationInstance
+  >;
 }
 
-export interface EPackageRepresentationInstance {
+export interface PackageRepresentationInstance {
   id: string;
-  referenceMetaId: string;
+  referenceMetaInstanceId: string;
   name: string;
   position: Position;
   graphicalRepresentation?: NotationRepresentationItem[];
-  eClassifiers: EClassRepresentationInstance[];
-  eSubpackages: EPackageRepresentationInstance[];
 }
 
-export interface EClassRepresentationInstance {
+export interface ClassifierRepresentationInstance {
   id: string;
-  referenceMetaId: string;
+  referenceMetaInstanceId: string;
   name: string;
   position: Position;
   graphicalRepresentation?: NotationRepresentationItem[];
-  eAttributes: EAttributeRepresentationInstance[];
-  eReferences: EReferenceRepresentationInstance[];
-  eOperations?: EOperationRepresentationInstance[];
 }
 
-export interface EAttributeRepresentationInstance {
+export interface AttributeRepresentationInstance {
   id: string;
-  referenceMetaId: string;
+  referenceMetaInstanceId: string;
   name: string;
+  graphicalRepresentation?: NotationRepresentationItem[];
 }
 
-export interface EReferenceRepresentationInstance {
+export interface ReferenceRepresentationInstance {
   id: string;
-  referenceMetaId: string;
+  referenceMetaInstanceId: string;
   name: string;
+  graphicalRepresentation?: NotationRepresentationItem[];
 }
 
-export interface EOperationRepresentationInstance {
+export interface OperationRepresentationInstance {
   id: string;
-  referenceMetaId: string;
+  referenceMetaInstanceId: string;
   name: string;
-  eParameters?: EParameterRepresentationInstance[];
+  graphicalRepresentation?: NotationRepresentationItem[];
 }
 
-export interface EParameterRepresentationInstance {
+export interface ParameterRepresentationInstance {
   id: string;
-  referenceMetaId: string;
+  referenceMetaInstanceId: string;
   name: string;
+  graphicalRepresentation?: NotationRepresentationItem[];
 }
 
 // NOTATION DESIGNER
@@ -179,12 +190,12 @@ export interface InstanceNotation {
   interface?: boolean;
   abstract?: boolean;
   type?: NotationType;
-  eSuperTypes?: EClassInstance[];
-  eSubpackages?: EPackageInstance[];
-  eClassifiers?: EClassInstance[];
-  eAttributes?: EAttributeInstance[];
-  eReferences?: EReferenceInstance[];
-  eOperations?: EOperationInstance[];
+  eSuperTypes?: ClassifierInstance[];
+  eSubpackages?: PackageInstance[];
+  eClassifiers?: ClassifierInstance[];
+  eAttributes?: AttributeInstance[];
+  eReferences?: ReferenceInstance[];
+  eOperations?: OperationInstance[];
   graphicalRepresentation?: NotationRepresentationItem[];
 }
 

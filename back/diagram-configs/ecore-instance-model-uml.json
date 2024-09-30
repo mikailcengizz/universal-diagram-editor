@@ -11,7 +11,7 @@
     {
       "id": "1",
       "name": "Person",
-      "package": "10",
+      "package": { "packageId": "10" },
       "attributes": [
         {
           "name": "abstract",
