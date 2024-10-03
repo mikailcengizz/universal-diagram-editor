@@ -40,7 +40,7 @@ import typeHelper from "../helpers/TypeHelper";
 import { all } from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { updateRepresentationInstanceModel } from "../../redux/actions/representationInstanceModelActions";
-import { updateMetaInstanceModel } from "../../redux/actions/metaInstanceModelActions";
+import { updateMetaInstanceModel } from "../../redux/actions/objectInstanceModelActions";
 import { updateSelectedConfig } from "../../redux/actions/selectedConfigActions";
 import { v4 as uuidv4 } from "uuid"; // Import UUID generator
 

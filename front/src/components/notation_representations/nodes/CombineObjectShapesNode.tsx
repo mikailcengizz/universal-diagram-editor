@@ -19,7 +19,7 @@ import ModalAddOperation from "./components/modals/second_layer/ModalAddOperatio
 import RenderTexts from "./components/RenderTexts";
 import RenderCompartments from "./components/RenderCompartments";
 import RenderRectangles from "./components/RenderRectangles";
-import { updateMetaInstanceAttribute } from "../../../redux/actions/metaInstanceModelActions";
+import { updateMetaInstanceAttribute } from "../../../redux/actions/objectInstanceModelActions";
 import { useDispatch, useSelector } from "react-redux";
 import { updateRepresentationInstanceModel } from "../../../redux/actions/representationInstanceModelActions";
 

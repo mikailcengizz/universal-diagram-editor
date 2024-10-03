@@ -1,0 +1,320 @@
+{
+  "package": {
+    "uri": "http://www.compute.dtu.dk/sse/models/petri-net",
+    "elements": [
+      {
+        "name": "PetriNet",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [],
+        "references": [
+          {
+            "name": "reference",
+            "$ref": "#/classes/1"
+          }
+        ]
+      },
+      {
+        "name": "Reference",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [
+          {
+            "name": "name",
+            "attributeType": { "name": "String" },
+            "defaultValue": "objects"
+          },
+          {
+            "name": "isComposition",
+            "attributeType": { "name": "Boolean" },
+            "defaultValue": true
+          },
+          {
+            "name": "lowerBound",
+            "attributeType": { "name": "Integer" },
+            "defaultValue": "0"
+          },
+          {
+            "name": "upperBound",
+            "attributeType": { "name": "Integer" },
+            "defaultValue": "infinite"
+          }
+        ],
+        "references": [
+          {
+            "name": "type",
+            "$ref": "#/classes/2"
+          },
+          {
+            "name": "opposite",
+            "$ref": "#/classes/3"
+          }
+        ]
+      },
+      {
+        "name": "Object",
+        "isAbstract": true,
+        "isInterface": false,
+        "attributes": [],
+        "references": [
+          {
+            "name": "reference",
+            "$ref": "#/classes/3"
+          }
+        ]
+      },
+      {
+        "name": "Reference",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [
+          {
+            "name": "name",
+            "attributeType": { "name": "String" },
+            "defaultValue": "petriNet"
+          },
+          {
+            "name": "isComposition",
+            "attributeType": { "name": "Boolean" },
+            "defaultValue": false
+          },
+          {
+            "name": "lowerBound",
+            "attributeType": { "name": "Integer" },
+            "defaultValue": "0"
+          },
+          {
+            "name": "upperBound",
+            "attributeType": { "name": "Integer" },
+            "defaultValue": "1"
+          }
+        ],
+        "references": [
+          {
+            "name": "type",
+            "$ref": "#/classes/0"
+          },
+          {
+            "name": "opposite",
+            "$ref": "#/classes/1"
+          }
+        ]
+      },
+      {
+        "name": "Node",
+        "isAbstract": true,
+        "isInterface": false,
+        "attributes": [],
+        "references": [
+          {
+            "name": "superType",
+            "$ref": "#/classes/2"
+          }
+        ]
+      },
+      {
+        "name": "Arc",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [],
+        "references": [
+          {
+            "name": "superType",
+            "$ref": "#/classes/2"
+          },
+          {
+            "name": "reference",
+            "$ref": "#/classes/6"
+          },
+          {
+            "name": "reference",
+            "$ref": "#/classes/7"
+          }
+        ]
+      },
+      {
+        "name": "Reference",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [
+          {
+            "name": "name",
+            "attributeType": { "name": "String" },
+            "defaultValue": "source"
+          },
+          {
+            "name": "isComposition",
+            "attributeType": { "name": "Boolean" },
+            "defaultValue": false
+          },
+          {
+            "name": "lowerBound",
+            "attributeType": { "name": "Integer" },
+            "defaultValue": "1"
+          },
+          {
+            "name": "upperBound",
+            "attributeType": { "name": "Integer" },
+            "defaultValue": "1"
+          }
+        ],
+        "references": [
+          {
+            "name": "type",
+            "$ref": "#/classes/4"
+          }
+        ]
+      },
+      {
+        "name": "Reference",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [
+          {
+            "name": "name",
+            "attributeType": { "name": "String" },
+            "defaultValue": "target"
+          },
+          {
+            "name": "isComposition",
+            "attributeType": { "name": "Boolean" },
+            "defaultValue": false
+          },
+          {
+            "name": "lowerBound",
+            "attributeType": { "name": "Integer" },
+            "defaultValue": "1"
+          },
+          {
+            "name": "upperBound",
+            "attributeType": { "name": "Integer" },
+            "defaultValue": "1"
+          }
+        ],
+        "references": [
+          {
+            "name": "type",
+            "$ref": "#/classes/4"
+          }
+        ]
+      },
+      {
+        "name": "Transition",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [],
+        "references": [
+          {
+            "name": "superType",
+            "$ref": "#/classes/4"
+          }
+        ]
+      },
+      {
+        "name": "Place",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [],
+        "references": [
+          {
+            "name": "superType",
+            "$ref": "#/classes/4"
+          },
+          {
+            "name": "reference",
+            "$ref": "#/classes/10"
+          }
+        ]
+      },
+      {
+        "name": "Reference",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [
+          {
+            "name": "name",
+            "attributeType": { "name": "String" },
+            "defaultValue": "tokens"
+          },
+          {
+            "name": "isComposition",
+            "attributeType": { "name": "Boolean" },
+            "defaultValue": true
+          },
+          {
+            "name": "lowerBound",
+            "attributeType": { "name": "Integer" },
+            "defaultValue": "0"
+          },
+          {
+            "name": "upperBound",
+            "attributeType": { "name": "Integer" },
+            "defaultValue": "infinite"
+          }
+        ],
+        "references": [
+          {
+            "name": "type",
+            "$ref": "#/classes/11"
+          },
+          {
+            "name": "opposite",
+            "$ref": "#/classes/12"
+          }
+        ]
+      },
+      {
+        "name": "Token",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [],
+        "references": [
+          {
+            "name": "place",
+            "type": "Place",
+            "isComposition": false,
+            "lowerBound": "1",
+            "upperBound": "1"
+          }
+        ]
+      },
+      {
+        "name": "Reference",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [
+          {
+            "name": "name",
+            "attributeType": { "name": "String" },
+            "defaultValue": "place"
+          },
+          {
+            "name": "isComposition",
+            "attributeType": { "name": "Boolean" },
+            "defaultValue": false
+          },
+          {
+            "name": "lowerBound",
+            "attributeType": { "name": "Integer" },
+            "defaultValue": "1"
+          },
+          {
+            "name": "upperBound",
+            "attributeType": { "name": "Integer" },
+            "defaultValue": "1"
+          }
+        ],
+        "references": [
+          {
+            "name": "type",
+            "$ref": "#/classes/9"
+          },
+          {
+            "name": "opposite",
+            "$ref": "#/classes/10"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -4,7 +4,7 @@ import {
   UPDATE_META_INSTANCE_ATTRIBUTE,
   UPDATE_META_INSTANCE_OPERATION,
   UPDATE_META_INSTANCE_REFERENCE,
-} from "../actions/metaInstanceModelActions";
+} from "../actions/objectInstanceModelActions";
 
 // Load the model from localStorage if available
 const storedMetaInstanceModel = JSON.parse(

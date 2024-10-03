@@ -7,7 +7,7 @@ import * as htmlToImage from "html-to-image";
 import { saveAs } from "file-saver";
 import { Edge, Node as ReactFlowNode } from "@xyflow/react";
 import { useDispatch } from "react-redux";
-import { updateMetaInstanceModel } from "../../redux/actions/metaInstanceModelActions";
+import { updateMetaInstanceModel } from "../../redux/actions/objectInstanceModelActions";
 import { updateRepresentationInstanceModel } from "../../redux/actions/representationInstanceModelActions";
 import { updateSelectedConfig } from "../../redux/actions/selectedConfigActions";
 

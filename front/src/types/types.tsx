@@ -57,33 +57,17 @@ export type Shape =
   | "line"
   | "doubleLine";
 
-export type NotationType =
-  | "Package"
-  | "Class"
-  | "Attribute"
-  | "Reference"
-  | "Operation"
-  | "Parameter";
-
 // DIAGRAM EDITOR
-export interface DiagramObject {
-  // Old name: InstanceNotation
-  id: string;
-  name: string;
-  type?: string;
-  attributes?: Array<{ type: any; value: any }>;
-  links?: Array<{ type: any; id: string }>;
-  graphicalRepresentation?: NotationRepresentationItem[];
-}
-
 export interface Notation {
   metaModel?: MetaModel;
-  graphicalRepresentation?: NotationRepresentationItem[];
+  graphicalRepresentationModel?: NotationRepresentationItem[];
 }
 
-export interface CustomNodeData {
+export interface DiagramElement {
+  id: string;
   notation: Notation;
-  diagramObject: DiagramObject; // Old name: InstanceNotation
+  objectInstance: InstanceObject; // Old name: InstanceNotation
+  graphicalRepresentationInstance?: NotationRepresentationItem[];
   position?: Position;
   isPalette?: boolean;
   isNotationSlider?: boolean; // only used for slider item width
@@ -106,13 +90,12 @@ export interface ConfigListItem {
 
 // PALETTE
 export interface DragData {
-  notation: InstanceNotation;
-  notationType: NotationType;
+  notation: InstanceObject;
 }
 
-// ECORE META MODEL
+// ECORE MODEL
 export interface MetaModel {
-  packages: Package[];
+  package: Package;
 }
 
 export interface Package extends NamedElement {
@@ -129,6 +112,7 @@ export abstract class TypedElement extends NamedElement {
   lowerBound?: number | "infinite";
   upperBound?: number | "infinite";
   isUnique?: boolean;
+  isOrdered?: boolean;
   isDerived?: boolean;
   defaultValue?: any;
 }
@@ -140,6 +124,7 @@ export interface Class extends Classifier {
   isInterface: boolean;
   attributes: Attribute[];
   references: Reference[];
+  representation?: Representation;
 }
 
 export interface DataType extends Classifier {
@@ -151,13 +136,17 @@ export interface Attribute extends NamedElement {
 }
 
 export interface Reference extends NamedElement {
-  referenceType: Class;
+  type: Class;
   isComposition?: boolean;
   opposite?: Reference;
 }
 
 // INSTANCE MODEL
 export interface InstanceModel {
+  package: InstancePackage;
+}
+
+export interface InstancePackage {
   uri: string;
   objects: InstanceObject[];
 }
@@ -181,25 +170,30 @@ export interface ReferenceValue {
 
 // REPRESENTATION META MODEL
 export interface RepresentationMetaModel {
+  package: RepresentationPackage;
+}
+
+export interface RepresentationPackage {
   uri: string;
-  representations: Representation[];
+  elements: Representation[];
 }
 
 export interface Representation {
-  name: string;
   graphicalRepresentation?: NotationRepresentationItem[];
 }
 
 // REPRESENTATION INSTANCE
-export interface RepresentationInstance {
+export interface RepresentationInstanceModel {
+  package: RepresentationInstancePackage;
+}
+
+export interface RepresentationInstancePackage {
   uri: string;
   objects: RepresentationInstanceObject[];
 }
 
 export interface RepresentationInstanceObject {
-  id: string;
-  referenceMetaInstanceId: string;
-  name: string;
+  name: InstanceObject; // name of the representation (from the meta model)
   position?: Position; // only for classifiers and packages
   graphicalRepresentation?: NotationRepresentationItem[];
 }

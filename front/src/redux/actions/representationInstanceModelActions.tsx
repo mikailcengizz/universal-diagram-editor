@@ -1,10 +1,4 @@
-import {
-  EAttributeRepresentationInstance,
-  EClassRepresentationInstance,
-  EOperationRepresentationInstance,
-  EReferenceRepresentationInstance,
-  RepresentationInstanceModelFile,
-} from "../../types/types";
+import {} from "../../types/types";
 
 export const UPDATE_REPRESENTATION_INSTANCE_MODEL =
   "UPDATE_REPRESENTATION_INSTANCE_MODEL";

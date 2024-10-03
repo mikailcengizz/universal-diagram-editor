@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import CustomModal from "../../../../ui_elements/Modal";
 import {
-  InstanceNotation,
+  DiagramNode,
   NotationRepresentationItem,
 } from "../../../../../types/types";
 
 interface ModalDoubleClickCompartmentProps {
   isCompartmentModalOpen: boolean;
   setIsCompartmentModalOpen: (isOpen: boolean) => void;
-  currentNotation: InstanceNotation;
-  setCurrentNotation: (value: InstanceNotation) => void;
+  currentNotation: DiagramNode;
+  setCurrentNode: (value: DiagramNode) => void;
   selectedElementIndex: number | null;
 }
 
@@ -17,7 +17,7 @@ function ModalDoubleClickCompartment({
   isCompartmentModalOpen,
   setIsCompartmentModalOpen,
   currentNotation,
-  setCurrentNotation,
+  setCurrentNode,
   selectedElementIndex,
 }: ModalDoubleClickCompartmentProps) {
   const [compartment, setCompartment] = useState<NotationRepresentationItem>();

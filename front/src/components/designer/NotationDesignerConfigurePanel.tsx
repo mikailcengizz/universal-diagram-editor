@@ -22,6 +22,9 @@ import {
   MetaModelFile,
   InstanceNotation,
   MetaNotation,
+  DiagramNode,
+  DiagramElement,
+  MetaModel,
 } from "../../types/types";
 import NotationsSlider from "../ui_elements/NotationsSlider";
 
@@ -41,14 +44,14 @@ const propertyTextfieldStyle = "w-1/6 2xl:w-[250px]";
 interface NotationDesignerConfigurePanelProps {
   selectedNotationType: string;
   handleNotationTypeChange: (e: SelectChangeEvent<string>) => void;
-  currentNotation: InstanceNotation;
-  setCurrentNotation: (value: any) => void;
+  currentDiagramElement: DiagramElement;
+  setCurrentDiagramElement: (value: any) => void;
   newAttribute: AttributeInstance;
   setNewAttribute: (value: any) => void;
   handleAddProperty: () => void;
   availableConfigs: ConfigListItem[];
-  selectedMetaConfig: MetaModelFile;
-  setSelectedMetaConfig: (value: MetaModelFile) => void;
+  selectedMetaModel: MetaModel;
+  setSelectedMetaModel: (value: MetaModel) => void;
   ePackages: Package[];
   allNotations: MetaNotation[];
   saveNotation: () => void;
@@ -57,14 +60,14 @@ interface NotationDesignerConfigurePanelProps {
 function NotationDesignerConfigurePanel({
   selectedNotationType,
   handleNotationTypeChange,
-  currentNotation,
-  setCurrentNotation,
+  currentDiagramElement,
+  setCurrentDiagramElement,
   newAttribute,
   setNewAttribute,
   handleAddProperty,
   availableConfigs,
-  selectedMetaConfig,
-  setSelectedMetaConfig,
+  selectedMetaModel,
+  setSelectedMetaModel,
   ePackages,
   allNotations,
   saveNotation,
