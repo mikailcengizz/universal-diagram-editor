@@ -1,5 +1,4 @@
 import {
-  DataType,
   InstanceNotation,
   EPackage,
   EClass,

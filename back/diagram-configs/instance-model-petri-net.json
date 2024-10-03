@@ -1,0 +1,73 @@
+{
+  "uri": "dtu.compute.ecore.instance-model.petri-net",
+  "objects": [
+    {
+      "id": "1",
+      "name": "pn1",
+      "type": "PN",
+      "attributes": [],
+      "references": [
+        {
+          "name": "object",
+          "id": "2"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "name": "a1",
+      "type": "Arc",
+      "attributes": [],
+      "references": [
+        {
+          "name": "target",
+          "id": "3"
+        },
+        {
+          "name": "source",
+          "id": "4"
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "name": "pl1",
+      "type": "Place",
+      "attributes": [],
+      "references": [
+        {
+          "name": "petriNet",
+          "id": "1"
+        },
+        {
+          "name": "token",
+          "id": "5"
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "name": "tr1",
+      "type": "Transition",
+      "attributes": [],
+      "references": [
+        {
+          "name": "petriNet",
+          "id": "1"
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "name": "t1",
+      "type": "Token",
+      "attributes": [],
+      "references": [
+        {
+          "name": "place",
+          "id": "3"
+        }
+      ]
+    }
+  ]
+}

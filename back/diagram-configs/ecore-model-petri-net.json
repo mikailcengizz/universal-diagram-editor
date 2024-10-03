@@ -1,0 +1,138 @@
+{
+  "uri": "dtu.compute.ecore.petri-net",
+  "classes": [
+    {
+      "name": "PetriNet",
+      "isAbstract": false,
+      "isInterface": false,
+      "attributes": [],
+      "operations": [],
+      "references": [
+        {
+          "name": "objects",
+          "type": "Object",
+          "isComposition": true,
+          "lowerBound": "0",
+          "upperBound": "infinite"
+        }
+      ]
+    },
+    {
+      "name": "Object",
+      "isAbstract": true,
+      "isInterface": false,
+      "attributes": [],
+      "operations": [],
+      "references": [
+        {
+          "name": "petriNet",
+          "type": "PetriNet",
+          "isComposition": false,
+          "lowerBound": "1",
+          "upperBound": "1"
+        }
+      ]
+    },
+    {
+      "name": "Node",
+      "isAbstract": true,
+      "isInterface": false,
+      "attributes": [],
+      "operations": [],
+      "references": [
+        {
+          "name": "superType",
+          "type": "Object",
+          "isComposition": false,
+          "lowerBound": "0",
+          "upperBound": "1"
+        }
+      ]
+    },
+    {
+      "name": "Arc",
+      "isAbstract": false,
+      "isInterface": false,
+      "attributes": [],
+      "operations": [],
+      "references": [
+        {
+          "name": "superType",
+          "type": "Object",
+          "isComposition": false,
+          "lowerBound": "0",
+          "upperBound": "1"
+        },
+        {
+          "name": "source",
+          "type": "Node",
+          "isComposition": false,
+          "lowerBound": "1",
+          "upperBound": "1"
+        },
+        {
+          "name": "target",
+          "type": "Node",
+          "isComposition": false,
+          "lowerBound": "1",
+          "upperBound": "1"
+        }
+      ]
+    },
+    {
+      "name": "Transition",
+      "isAbstract": false,
+      "isInterface": false,
+      "attributes": [],
+      "operations": [],
+      "references": [
+        {
+          "name": "superType",
+          "type": "Node",
+          "isComposition": false,
+          "lowerBound": "0",
+          "upperBound": "1"
+        }
+      ]
+    },
+    {
+      "name": "Place",
+      "isAbstract": false,
+      "isInterface": false,
+      "attributes": [],
+      "operations": [],
+      "references": [
+        {
+          "name": "superType",
+          "type": "Node",
+          "isComposition": false,
+          "lowerBound": "0",
+          "upperBound": "1"
+        },
+        {
+          "name": "tokens",
+          "type": "Token",
+          "isComposition": true,
+          "lowerBound": "0",
+          "upperBound": "infinite"
+        }
+      ]
+    },
+    {
+      "name": "Token",
+      "isAbstract": false,
+      "isInterface": false,
+      "attributes": [],
+      "operations": [],
+      "references": [
+        {
+          "name": "place",
+          "type": "Place",
+          "isComposition": false,
+          "lowerBound": "1",
+          "upperBound": "1"
+        }
+      ]
+    }
+  ]
+}
