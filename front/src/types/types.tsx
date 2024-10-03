@@ -1,33 +1,5 @@
 import { EdgeProps } from "@xyflow/react";
 
-// ECORE INSTANCE MODEL
-export interface Instance {
-  uri: string;
-  objects: InstanceObject[];
-}
-
-export interface InstanceObject {
-  id: string;
-  name: string;
-  type: string;
-  attributes: { [key: string]: string }[];
-  references: { name: string; id: string }[];
-}
-
-// REPRESENTATION INSTANCE MODEL
-export interface RepresentationInstance {
-  uri: string;
-  objects: RepresentationInstanceObject[];
-}
-
-export interface RepresentationInstanceObject {
-  id: string;
-  referenceMetaInstanceId: string;
-  name: string;
-  position?: Position; // only for classifiers and packages
-  graphicalRepresentation?: NotationRepresentationItem[];
-}
-
 // NOTATION DESIGNER
 export interface Marker {
   id: string;
@@ -94,32 +66,24 @@ export type NotationType =
   | "Parameter";
 
 // DIAGRAM EDITOR
-export interface InstanceNotation {
+export interface DiagramObject {
+  // Old name: InstanceNotation
   id: string;
   name: string;
-  interface?: boolean;
-  abstract?: boolean;
-  type?: NotationType;
-  classifiers?: ClassifierInstance[];
-  attributes?: Array<AttributeInstance | { attributeId: string }>;
-  references?: Array<{ type: string; referenceId: string }>;
-  operations?: Array<{ operationId: string }>;
+  type?: string;
+  attributes?: Array<{ type: any; value: any }>;
+  links?: Array<{ type: any; id: string }>;
   graphicalRepresentation?: NotationRepresentationItem[];
 }
 
-export interface MetaNotation {
-  name: string;
-  type?: NotationType;
-  classifiers?: Classifier[];
-  attributes?: Attribute[];
-  references?: Reference[];
-  operations?: Operation[];
+export interface Notation {
+  metaModel?: MetaModel;
   graphicalRepresentation?: NotationRepresentationItem[];
 }
 
 export interface CustomNodeData {
-  metaNotations: MetaNotation[];
-  instanceNotation: InstanceNotation;
+  notation: Notation;
+  diagramObject: DiagramObject; // Old name: InstanceNotation
   position?: Position;
   isPalette?: boolean;
   isNotationSlider?: boolean; // only used for slider item width
@@ -146,10 +110,14 @@ export interface DragData {
   notationType: NotationType;
 }
 
-// ECORE MODEL
+// ECORE META MODEL
 export interface MetaModel {
+  packages: Package[];
+}
+
+export interface Package extends NamedElement {
   uri: string;
-  classes: Class[];
+  elements: Classifier[];
 }
 
 export abstract class NamedElement {
@@ -158,8 +126,8 @@ export abstract class NamedElement {
 
 export abstract class TypedElement extends NamedElement {
   type?: Classifier;
-  lowerBound?: string;
-  upperBound?: string;
+  lowerBound?: number | "infinite";
+  upperBound?: number | "infinite";
   isUnique?: boolean;
   isDerived?: boolean;
   defaultValue?: any;
@@ -167,42 +135,51 @@ export abstract class TypedElement extends NamedElement {
 
 export abstract class Classifier extends NamedElement {}
 
-export interface Package extends NamedElement {}
-
 export interface Class extends Classifier {
   isAbstract: boolean;
   isInterface: boolean;
   attributes: Attribute[];
-  operations: Operation[];
   references: Reference[];
 }
 
 export interface DataType extends Classifier {
-  // represents data types like String, int, etc. and also Classifer types
+  // represents data types like String, int, etc.
 }
 
-export interface Attribute extends TypedElement {
-  attributeType?: DataType;
+export interface Attribute extends NamedElement {
+  attributeType: DataType;
 }
 
-export interface Reference extends TypedElement {
+export interface Reference extends NamedElement {
+  referenceType: Class;
   isComposition?: boolean;
   opposite?: Reference;
 }
 
-export interface TypedElement extends NamedElement {
-  type?: Classifier;
+// INSTANCE MODEL
+export interface InstanceModel {
+  uri: string;
+  objects: InstanceObject[];
 }
 
-export interface Operation extends TypedElement {
-  parameters?: Parameter[];
+export interface InstanceObject {
+  name: string;
+  type: Class; // type (class) of this object, referencing the meta model definition
+  attributes: AttributeValue[];
+  links: ReferenceValue[];
 }
 
-export interface Parameter extends TypedElement {
-  operation?: Operation;
+export interface AttributeValue {
+  name: string; // name of the attribute (from the meta model)
+  value: any; // value assigned to the attribute
 }
 
-// NEW REPRESENTATION MODEL - START
+export interface ReferenceValue {
+  name: string; // reference name (as defined in the meta model)
+  target: InstanceObject; // object being referenced
+}
+
+// REPRESENTATION META MODEL
 export interface RepresentationMetaModel {
   uri: string;
   representations: Representation[];
@@ -213,4 +190,16 @@ export interface Representation {
   graphicalRepresentation?: NotationRepresentationItem[];
 }
 
-// NEW REPRESENTATION MODEL - END
+// REPRESENTATION INSTANCE
+export interface RepresentationInstance {
+  uri: string;
+  objects: RepresentationInstanceObject[];
+}
+
+export interface RepresentationInstanceObject {
+  id: string;
+  referenceMetaInstanceId: string;
+  name: string;
+  position?: Position; // only for classifiers and packages
+  graphicalRepresentation?: NotationRepresentationItem[];
+}

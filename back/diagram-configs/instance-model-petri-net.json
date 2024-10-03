@@ -1,71 +1,82 @@
 {
-  "uri": "dtu.compute.ecore.instance-model.petri-net",
+  "uri": "http://www.compute.dtu.dk/sse/models/petri-net",
   "objects": [
     {
-      "id": "1",
       "name": "pn1",
-      "type": "PN",
+      "type": {
+        "$ref": "http://www.compute.dtu.dk/sse/models/petri-net#/classes/0"
+      },
       "attributes": [],
-      "references": [
+      "links": [
         {
           "name": "object",
-          "id": "2"
+          "target": {
+            "$ref": "#/objects/1"
+          }
         }
       ]
     },
     {
-      "id": "2",
       "name": "a1",
       "type": "Arc",
       "attributes": [],
-      "references": [
+      "links": [
         {
           "name": "target",
-          "id": "3"
+          "target": {
+            "$ref": "#/objects/2"
+          }
         },
         {
           "name": "source",
-          "id": "4"
+          "target": {
+            "$ref": "#/objects/3"
+          }
         }
       ]
     },
     {
-      "id": "3",
       "name": "pl1",
       "type": "Place",
       "attributes": [],
-      "references": [
+      "links": [
         {
           "name": "petriNet",
-          "id": "1"
+          "target": {
+            "$ref": "#/objects/0"
+          }
         },
         {
           "name": "token",
-          "id": "5"
+          "target": {
+            "$ref": "#/objects/4"
+          }
         }
       ]
     },
     {
-      "id": "4",
       "name": "tr1",
       "type": "Transition",
       "attributes": [],
-      "references": [
+      "links": [
         {
           "name": "petriNet",
-          "id": "1"
+          "target": {
+            "$ref": "#/objects/0"
+          }
         }
       ]
     },
     {
-      "id": "5",
       "name": "t1",
       "type": "Token",
       "attributes": [],
-      "references": [
+      "links": [
         {
           "name": "place",
-          "id": "3"
+          "target": {
+            "$ref": "#/objects/2"
+          }
         }
       ]
     }
