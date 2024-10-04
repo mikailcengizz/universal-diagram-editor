@@ -1,23 +1,20 @@
 import React, { useEffect, useState } from "react";
 import CustomModal from "../../../../ui_elements/Modal";
-import {
-  DiagramNode,
-  NotationRepresentationItem,
-} from "../../../../../types/types";
+import { Class, NotationRepresentationItem } from "../../../../../types/types";
 
 interface ModalDoubleClickCompartmentProps {
   isCompartmentModalOpen: boolean;
   setIsCompartmentModalOpen: (isOpen: boolean) => void;
-  currentNotation: DiagramNode;
-  setCurrentNode: (value: DiagramNode) => void;
+  currentNotationElement: Class;
+  setCurrentNotationElement: (value: Class) => void;
   selectedElementIndex: number | null;
 }
 
 function ModalDoubleClickCompartment({
   isCompartmentModalOpen,
   setIsCompartmentModalOpen,
-  currentNotation,
-  setCurrentNode,
+  currentNotationElement,
+  setCurrentNotationElement,
   selectedElementIndex,
 }: ModalDoubleClickCompartmentProps) {
   const [compartment, setCompartment] = useState<NotationRepresentationItem>();
@@ -26,12 +23,14 @@ function ModalDoubleClickCompartment({
   useEffect(() => {
     if (selectedElementIndex !== null && selectedElementIndex >= 0) {
       const selectedElement =
-        currentNotation.graphicalRepresentation![selectedElementIndex];
+        currentNotationElement.representation?.graphicalRepresentation![
+          selectedElementIndex
+        ];
       if (selectedElement) {
         setCompartment(selectedElement);
       }
     }
-  }, [selectedElementIndex, currentNotation]);
+  }, [selectedElementIndex, currentNotationElement]);
 
   const handleGeneratorChange = (e: any) => {
     setCompartment({
@@ -77,7 +76,9 @@ function ModalDoubleClickCompartment({
     console.log("selectedElementIndex", selectedElementIndex);
     if (selectedElementIndex === null || !compartment) return;
 
-    const updatedRepresentation = [...currentNotation.graphicalRepresentation!];
+    const updatedRepresentation = [
+      ...currentNotationElement.representation?.graphicalRepresentation!,
+    ];
 
     // Update the entire style and position objects in one go
     updatedRepresentation[selectedElementIndex] = {
@@ -87,9 +88,12 @@ function ModalDoubleClickCompartment({
       position: { ...compartment.position }, // Copy the entire position object
     };
 
-    setCurrentNotation({
-      ...currentNotation,
-      graphicalRepresentation: updatedRepresentation,
+    setCurrentNotationElement({
+      ...currentNotationElement,
+      representation: {
+        ...currentNotationElement.representation!,
+        graphicalRepresentation: updatedRepresentation,
+      },
     });
 
     setIsCompartmentModalOpen(false); // Close modal after saving

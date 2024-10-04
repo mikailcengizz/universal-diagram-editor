@@ -10,7 +10,7 @@
         "references": [
           {
             "name": "reference",
-            "$ref": "#/classes/1"
+            "$ref": "#/elements/1"
           }
         ]
       },
@@ -43,11 +43,11 @@
         "references": [
           {
             "name": "type",
-            "$ref": "#/classes/2"
+            "$ref": "#/elements/2"
           },
           {
             "name": "opposite",
-            "$ref": "#/classes/3"
+            "$ref": "#/elements/3"
           }
         ]
       },
@@ -59,7 +59,7 @@
         "references": [
           {
             "name": "reference",
-            "$ref": "#/classes/3"
+            "$ref": "#/elements/3"
           }
         ]
       },
@@ -92,11 +92,11 @@
         "references": [
           {
             "name": "type",
-            "$ref": "#/classes/0"
+            "$ref": "#/elements/0"
           },
           {
             "name": "opposite",
-            "$ref": "#/classes/1"
+            "$ref": "#/elements/1"
           }
         ]
       },
@@ -108,7 +108,7 @@
         "references": [
           {
             "name": "superType",
-            "$ref": "#/classes/2"
+            "$ref": "#/elements/2"
           }
         ]
       },
@@ -120,15 +120,15 @@
         "references": [
           {
             "name": "superType",
-            "$ref": "#/classes/2"
+            "$ref": "#/elements/2"
           },
           {
             "name": "reference",
-            "$ref": "#/classes/6"
+            "$ref": "#/elements/6"
           },
           {
             "name": "reference",
-            "$ref": "#/classes/7"
+            "$ref": "#/elements/7"
           }
         ]
       },
@@ -161,7 +161,7 @@
         "references": [
           {
             "name": "type",
-            "$ref": "#/classes/4"
+            "$ref": "#/elements/4"
           }
         ]
       },
@@ -194,7 +194,7 @@
         "references": [
           {
             "name": "type",
-            "$ref": "#/classes/4"
+            "$ref": "#/elements/4"
           }
         ]
       },
@@ -206,7 +206,7 @@
         "references": [
           {
             "name": "superType",
-            "$ref": "#/classes/4"
+            "$ref": "#/elements/4"
           }
         ]
       },
@@ -218,11 +218,11 @@
         "references": [
           {
             "name": "superType",
-            "$ref": "#/classes/4"
+            "$ref": "#/elements/4"
           },
           {
             "name": "reference",
-            "$ref": "#/classes/10"
+            "$ref": "#/elements/10"
           }
         ]
       },
@@ -255,11 +255,11 @@
         "references": [
           {
             "name": "type",
-            "$ref": "#/classes/11"
+            "$ref": "#/elements/11"
           },
           {
             "name": "opposite",
-            "$ref": "#/classes/12"
+            "$ref": "#/elements/12"
           }
         ]
       },
@@ -307,11 +307,11 @@
         "references": [
           {
             "name": "type",
-            "$ref": "#/classes/9"
+            "$ref": "#/elements/9"
           },
           {
             "name": "opposite",
-            "$ref": "#/classes/10"
+            "$ref": "#/elements/10"
           }
         ]
       }

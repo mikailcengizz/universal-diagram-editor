@@ -1,29 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { InstanceNotation, NotationRepresentationItem } from "../../types/types";
+import { Class, NotationRepresentationItem } from "../../types/types";
 import PaletteDrawPanel from "./PaletteDrawPanel";
 import NotationDesignerDrawPanelGrid from "./NotationDesignerDrawPanelGrid";
 
 interface NotationDesignerDrawPanelProps {
-  currentNotation: InstanceNotation;
-  setCurrentNotation: (value: any) => void;
+  currentNotationElement: Class;
+  setCurrentNotationElement: (value: any) => void;
   saveNotation: () => void;
 }
 
 const gridSize = 10; // Size of the grid squares
 
 function NotationDesignerDrawPanel({
-  currentNotation,
-  setCurrentNotation,
+  currentNotationElement,
+  setCurrentNotationElement,
   saveNotation,
 }: NotationDesignerDrawPanelProps) {
-
   return (
     <div className="flex flex-col">
       <PaletteDrawPanel saveNotation={saveNotation} />
       <div className="flex flex-col overflow-y-auto">
         <NotationDesignerDrawPanelGrid
-          currentNotation={currentNotation}
-          setCurrentNotation={setCurrentNotation}
+          currentNotationElement={currentNotationElement}
+          setCurrentNotationElement={setCurrentNotationElement}
           gridSize={gridSize}
         />
       </div>

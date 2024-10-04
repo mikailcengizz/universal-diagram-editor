@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from "react";
 import CustomModal from "../../../../ui_elements/Modal";
 import {
-  InstanceNotation,
+  Class,
+  DiagramNodeData,
   NotationRepresentationItem,
 } from "../../../../../types/types";
 
 interface ModalDoubleClickSquareProps {
   isSquareModalOpen: boolean;
   setIsSquareModalOpen: (isOpen: boolean) => void;
-  currentNotation: InstanceNotation;
-  setCurrentNotation: (value: InstanceNotation) => void;
+  currentNotationElement: Class;
+  setCurrentNotationElement: (value: Class) => void;
   selectedElementIndex: number | null;
 }
 
 function ModalDoubleClickSquare({
   isSquareModalOpen,
   setIsSquareModalOpen,
-  currentNotation,
-  setCurrentNotation,
+  currentNotationElement,
+  setCurrentNotationElement,
   selectedElementIndex,
 }: ModalDoubleClickSquareProps) {
   const [square, setSquare] = useState<NotationRepresentationItem>();
@@ -26,12 +27,14 @@ function ModalDoubleClickSquare({
   useEffect(() => {
     if (selectedElementIndex !== null && selectedElementIndex >= 0) {
       const selectedElement =
-        currentNotation.graphicalRepresentation![selectedElementIndex];
+        currentNotationElement.representation?.graphicalRepresentation![
+          selectedElementIndex
+        ];
       if (selectedElement) {
         setSquare(selectedElement);
       }
     }
-  }, [selectedElementIndex, currentNotation]);
+  }, [selectedElementIndex, currentNotationElement]);
 
   const handleStyleChange = (e: any) => {
     setSquare({
@@ -60,7 +63,9 @@ function ModalDoubleClickSquare({
     console.log("selectedElementIndex", selectedElementIndex);
     if (selectedElementIndex === null || !square) return;
 
-    const updatedRepresentation = [...currentNotation.graphicalRepresentation!];
+    const updatedRepresentation = [
+      ...currentNotationElement.representation?.graphicalRepresentation!,
+    ];
 
     // Update the entire style and position objects in one go
     updatedRepresentation[selectedElementIndex] = {
@@ -69,9 +74,12 @@ function ModalDoubleClickSquare({
       position: { ...square.position }, // Copy the entire position object
     };
 
-    setCurrentNotation({
-      ...currentNotation,
-      graphicalRepresentation: updatedRepresentation,
+    setCurrentNotationElement({
+      ...currentNotationElement,
+      representation: {
+        ...currentNotationElement.representation!,
+        graphicalRepresentation: updatedRepresentation,
+      },
     });
 
     setIsSquareModalOpen(false); // Close modal after saving

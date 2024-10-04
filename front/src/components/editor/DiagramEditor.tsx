@@ -13,22 +13,17 @@ import {
 import "@xyflow/react/dist/style.css";
 import { parseStringPromise } from "xml2js";
 import {
-  CustomNodeData,
+  DiagramNodeData,
   DragData,
   Attribute,
   Classifier,
-  ClassifierInstance,
   Representation,
-  RepresentationInstance,
   Reference,
-  MetaInstanceModelFile,
-  MetaModelFile,
-  InstanceNotation,
-  RepresentationInstanceModelFile,
-  RepresentationModelFile,
-  MetaNotation,
   Position,
-  ReferenceInstance,
+  InstanceModel,
+  RepresentationInstanceModel,
+  MetaModel,
+  Notation,
 } from "../../types/types";
 import PaletteEditorPanel from "./PaletteEditorPanel";
 import configService from "../../services/ConfigService";
@@ -40,7 +35,7 @@ import typeHelper from "../helpers/TypeHelper";
 import { all } from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { updateRepresentationInstanceModel } from "../../redux/actions/representationInstanceModelActions";
-import { updateMetaInstanceModel } from "../../redux/actions/objectInstanceModelActions";
+import { updateInstanceModel } from "../../redux/actions/objectInstanceModelActions";
 import { updateSelectedConfig } from "../../redux/actions/selectedConfigActions";
 import { v4 as uuidv4 } from "uuid"; // Import UUID generator
 
@@ -70,43 +65,45 @@ const DiagramEditor = ({
   setEdges,
 }: DiagramEditorProps) => {
   const dispatch = useDispatch();
-  const metaInstanceModel: MetaInstanceModelFile = useSelector(
+  const instanceModel: InstanceModel = useSelector(
     (state: any) => state.metaInstanceModelStore.model
   );
-  const representationInstanceModel: RepresentationInstanceModelFile =
-    useSelector((state: any) => state.representationInstanceModelStore.model);
+  const representationInstanceModel: RepresentationInstanceModel = useSelector(
+    (state: any) => state.representationInstanceModelStore.model
+  );
 
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
-  const [metaConfig, setConfig] = useState<MetaModelFile | null>({
-    name: "",
-    type: "meta",
-    packages: [],
-    classifiers: [],
-    relations: [],
-    features: [],
+  const [notation, setNotation] = useState<Notation>({
+    metaModel: {
+      package: {
+        name: "",
+        uri: "",
+        elements: [],
+      },
+    },
+    representationMetaModel: {
+      package: {
+        uri: "",
+        elements: [],
+      },
+    },
   });
-  const [representationConfig, setRepresentationConfig] =
-    useState<RepresentationModelFile | null>({
-      name: "",
-      type: "representation",
-      packages: [],
-      classifiers: [],
-      relations: [],
-      features: [],
-    });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalData, setModalData] = useState<CustomNodeData | null>(null);
+  const [modalData, setModalData] = useState<DiagramNodeData | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null); // Store the selected edge ID
 
   useEffect(() => {
     if (selectedConfigName) {
       const fetchMetaConfig = async () => {
         try {
-          const response = await configService.getMetaConfigByName(
+          const response = await configService.getMetaConfigByUri(
             selectedConfigName
           );
-          setConfig(response.data);
+          setNotation({
+            ...notation,
+            metaModel: response.data,
+          });
           // clear canvas when new config is selected
           setNodes([]);
           setEdges([]);

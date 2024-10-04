@@ -1,14 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  CustomNodeData,
-  EAttribute,
-  EAttributeInstance,
-  EClass,
-  EOperation,
-  EParameter,
-  MetaInstanceModelFile,
+  Attribute,
+  Class,
+  DiagramNodeData,
+  InstanceModel,
   NotationRepresentationItem,
-  RepresentationInstanceModelFile,
+  RepresentationInstanceModel,
 } from "../../../types/types";
 import { NodeResizer } from "@xyflow/react";
 import RenderConnectors from "./components/RenderConnectors";
@@ -19,13 +16,12 @@ import ModalAddOperation from "./components/modals/second_layer/ModalAddOperatio
 import RenderTexts from "./components/RenderTexts";
 import RenderCompartments from "./components/RenderCompartments";
 import RenderRectangles from "./components/RenderRectangles";
-import { updateMetaInstanceAttribute } from "../../../redux/actions/objectInstanceModelActions";
 import { useDispatch, useSelector } from "react-redux";
 import { updateRepresentationInstanceModel } from "../../../redux/actions/representationInstanceModelActions";
 
 interface CombineObjectShapesNodeProps {
   id: string;
-  data: CustomNodeData;
+  data: DiagramNodeData;
   selected?: boolean;
 }
 
@@ -35,25 +31,26 @@ const CombineObjectShapesNode = ({
   selected,
 }: CombineObjectShapesNodeProps) => {
   const dispatch = useDispatch();
-  const metaInstanceModel: MetaInstanceModelFile = useSelector(
+  const metaInstanceModel: InstanceModel = useSelector(
     (state: any) => state.metaInstanceModelStore.model
   );
-  const representationInstanceModel: RepresentationInstanceModelFile =
-    useSelector((state: any) => state.representationInstanceModelStore.model);
+  const representationInstanceModel: RepresentationInstanceModel = useSelector(
+    (state: any) => state.representationInstanceModelStore.model
+  );
 
-  const [data, setData] = useState<CustomNodeData>({ ...initialData });
+  const [data, setData] = useState<DiagramNodeData>({ ...initialData });
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1); // used for palette scaling
   // Calculate the max width and max height when node is rendered on the canvas
   // to know our selection area when moving the node around
   const maxWidth = Math.max(
-    ...data.instanceNotation.graphicalRepresentation!.map(
-      (item) => item.position.extent?.width || 100
+    ...data.instance!.representationInstanceObject!.graphicalRepresentation!.map(
+      (item) => item.position!.extent?.width! || 100
     )
   );
 
   const maxHeight = Math.max(
-    ...data.instanceNotation.graphicalRepresentation!.map(
+    ...data.instance!.representationInstanceObject!.graphicalRepresentation!.map(
       (item) => item.position.extent?.height || 100
     )
   );
@@ -68,35 +65,28 @@ const CombineObjectShapesNode = ({
   const [isNodeOperationModalOpen, setIsNodeOperationModalOpen] =
     useState(false); // second layer modal for node operations
   const [isAddParameterModalOpen, setIsAddParameterModalOpen] = useState(false); // third layer modal for adding parameters to operations
-  const metaAttribute = data.metaNotations.find(
-    (notation) => notation.name === "Attribute"
+  const metaAttribute: Class = data.notation?.metaModel!.package.elements.find(
+    (element) => element.name === "Attribute"
   )!;
-  const [modifiyingAttribute, setModifyingAttribute] =
-    useState<EAttributeInstance>({
-      id: "",
-      ...metaAttribute.eAttributes?.reduce(
-        (acc, attribute) => ({
-          ...acc,
-          [attribute.name]: attribute.defaultValue,
-        }),
-        {}
-      ),
-    });
+  const [modifiyingAttribute, setModifyingAttribute] = useState<Attribute>();
 
-  const [modifyingOperation, setModifyingOperation] = useState<EOperation>({
+  /* const [modifyingOperation, setModifyingOperation] = useState<EOperation>({
     name: "",
     eParameters: [],
     eType: undefined,
-  });
-  const [modifyingParameter, setModifyingParameter] = useState<EParameter>({
+  }); */
+  /* const [modifyingParameter, setModifyingParameter] = useState<EParameter>({
     name: "",
     eType: undefined,
-  });
+  }); */
 
   let adjustedRepresentation: NotationRepresentationItem[] = [];
-  if (initialData.instanceNotation.graphicalRepresentation!.length > 0) {
+  if (
+    initialData.instance!.representationInstanceObject!.graphicalRepresentation!
+      .length > 0
+  ) {
     const validGraphicalItems =
-      initialData.instanceNotation.graphicalRepresentation!.filter(
+      initialData.instance!.representationInstanceObject!.graphicalRepresentation!.filter(
         (item) =>
           (!data.isPalette || (data.isPalette && item.shape !== "connector")) &&
           item.position.x !== undefined &&
@@ -171,7 +161,7 @@ const CombineObjectShapesNode = ({
     }
 
     // initialize newAttribute with default values of the meta attribute
-    if (metaAttribute.eAttributes) {
+    /* if (metaAttribute.eAttributes) {
       metaAttribute.eAttributes.forEach((attribute) => {
         if (!modifiyingAttribute[attribute.name as keyof EAttributeInstance]) {
           setModifyingAttribute({
@@ -180,7 +170,7 @@ const CombineObjectShapesNode = ({
           });
         }
       });
-    }
+    } */
   }, []);
 
   const handleResize = (
@@ -207,10 +197,11 @@ const CombineObjectShapesNode = ({
       containerRef.current.style.transform = `scale(${scaleX})`;
     }
 
-    // Find the classifier in the representation model by referenceMetaId
+    // Find the class representation in local storage
     const classifierInRepresentation =
-      representationInstanceModel.ePackages[0].eClassifiers.find(
-        (classifier) => classifier.referenceMetaId === nodeId
+      representationInstanceModel.package.objects.find(
+        (obj) =>
+          obj.instanceObject.name === initialData.instance!.instanceObject?.name
       );
 
     if (classifierInRepresentation) {
@@ -253,20 +244,20 @@ const CombineObjectShapesNode = ({
         });
 
       // Update the classifier with the new graphicalRepresentation in the representation model
-      const updatedRepresentationInstanceModel = {
+      const updatedRepresentationInstanceModel: RepresentationInstanceModel = {
         ...representationInstanceModel,
-        ePackages: representationInstanceModel.ePackages.map((pkg) => ({
-          ...pkg,
-          eClassifiers: pkg.eClassifiers.map((classifier) => {
-            if (classifier.referenceMetaId === nodeId) {
+        package: {
+          ...representationInstanceModel.package,
+          objects: representationInstanceModel.package.objects.map((obj) => {
+            if (obj.instanceObject === data.instance!.instanceObject) {
               return {
-                ...classifier,
+                ...obj,
                 graphicalRepresentation: updatedGraphicalRepresentation,
               };
             }
-            return classifier;
+            return obj;
           }),
-        })),
+        },
       };
 
       // Dispatch the updated representation instance model to Redux
@@ -282,15 +273,15 @@ const CombineObjectShapesNode = ({
     let newInstanceModel = { ...metaInstanceModel };
 
     // update the name of the class
-    newInstanceModel.packages[0].eClassifiers.find(
-      (cls) => cls.name === data.instanceNotation.name
+    newInstanceModel.package.objects.find(
+      (cls) => cls.name === data.instance?.instanceObject!.name
     )!.name = newDefaultValue;
     dispatch({ type: "UPDATE_MODEL", payload: newInstanceModel });
   };
 
   const handleAttributeSubmit = () => {
     // give the attribute a unique id if it is a new attribute
-    let newAttribute = { ...modifiyingAttribute };
+    /* let newAttribute = { ...modifiyingAttribute };
     if (!modifiyingAttribute.id) {
       newAttribute.id = `attribute-${Date.now()}`;
     }
@@ -310,12 +301,12 @@ const CombineObjectShapesNode = ({
         }
       });
     }
-    setIsNodeAttributeModalOpen(false);
+    setIsNodeAttributeModalOpen(false); */
   };
 
   const handleOperationSubmit = () => {
     // Find the "Operations" collection i.e if the classifier can have operations
-    const operationReference = data.instanceNotation.eReferences!.find(
+    /* const operationReference = data.instanceNotation.eReferences!.find(
       (prop) => prop.name === "operations"
     );
 
@@ -349,12 +340,12 @@ const CombineObjectShapesNode = ({
       eParameters: [],
       eType: undefined,
     });
-    setIsNodeOperationModalOpen(false);
+    setIsNodeOperationModalOpen(false); */
   };
 
   const handleParameterSubmit = () => {
     // Find the "Operations" collection i.e if the classifier can have operations
-    const operationReference = data.instanceNotation.eOperations!.find(
+    /* const operationReference = data.instanceNotation.eOperations!.find(
       (prop) => prop.name === "operations"
     );
 
@@ -394,7 +385,7 @@ const CombineObjectShapesNode = ({
 
       setModifyingOperation(newModifyingOperation);
       setData({ ...data });
-    }
+    } */
   };
 
   // Filter and sort the shapes according to the specified rendering order

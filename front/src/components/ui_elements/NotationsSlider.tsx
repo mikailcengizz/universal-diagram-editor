@@ -2,7 +2,7 @@ import React from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { EPackage, InstanceNotation, MetaNotation } from "../../types/types";
+import { Class, MetaModel, Notation } from "../../types/types";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
 import CombineRelationshipShapesNode from "../notation_representations/edges/CombineRelationshipShapesEdge";
 import CombineRoleShapesNode from "../notation_representations/nodes/CombineRoleShapesNode";
@@ -10,51 +10,36 @@ import { Position } from "@xyflow/react";
 
 interface NotationsSliderProps {
   settings: {};
-  ePackages: EPackage[];
-  allNotations: MetaNotation[];
-  setCurrentNotation: (value: InstanceNotation) => void;
+  selectedNotation: Notation;
+  setCurrentNotationElement: (value: Class) => void;
 }
 
 function NotationsSlider({
   settings,
-  ePackages,
-  allNotations,
-  setCurrentNotation,
+  selectedNotation,
+  setCurrentNotationElement,
 }: NotationsSliderProps) {
   const updatedSettings = {
     ...settings,
-    infinite: allNotations.length > 5, // Disable infinite scroll when there's only 5 slides
+    infinite: selectedNotation.metaModel!.package.elements.length > 5, // Disable infinite scroll when there's only 5 slides
   };
+  const allNotationElements = selectedNotation.metaModel?.package.elements;
 
-  const renderNodePreview = (notation: InstanceNotation) => {
-    const notationType = notation.type;
+  const renderNodePreview = (element: Class) => {
+    const elementType = element.name;
 
-    switch (notationType) {
-      case "EClass":
-        return (
-          <CombineObjectShapesNode
-            key={notation.name}
-            id={notation.name}
-            data={{
-              metaNotations: allNotations,
-              instanceNotation: notation,
-              isPalette: true,
-              isNotationSlider: true,
-            }}
-          />
-        );
-      case "EReference":
+    switch (elementType) {
+      case "Reference":
         const { x, y, targetX, targetY } =
-          notation.graphicalRepresentation![0].position;
+          element.representation?.graphicalRepresentation![0].position!;
         return (
           <CombineRelationshipShapesNode
-            key={notation.name}
-            id={notation.name}
+            key={element.name}
+            id={element.name!}
             data={{
-              metaNotations: allNotations,
-              instanceNotation: notation,
-              isPalette: true,
-              isNotationSlider: true,
+              notation: selectedNotation,
+              instance: undefined, // not necessary for nodes inside the slider
+              position: undefined, // not necessary for nodes inside the slider
             }}
             sourceX={x}
             sourceY={y}
@@ -64,6 +49,18 @@ function NotationsSlider({
             targetPosition={Position.Left}
           />
         );
+      default:
+        return (
+          <CombineObjectShapesNode
+            key={element.name}
+            id={element.name!}
+            data={{
+              notation: selectedNotation,
+              instance: undefined, // not necessary for nodes inside the slider
+              position: undefined, // not necessary for nodes inside the slider
+            }}
+          />
+        );
       /* case "role":
         return <CombineRoleShapesNode />; */
     }
@@ -71,18 +68,19 @@ function NotationsSlider({
 
   return (
     <Slider {...updatedSettings} className="mt-2">
-      {allNotations && allNotations.length > 0 ? (
-        allNotations.map((notation, index) => (
+      {allNotationElements && allNotationElements.length > 0 ? (
+        (allNotationElements as Class[]).map((notationElement, index) => (
           <div
             key={index}
             className="border-[1px] border-black text-center h-28 p-2 cursor-pointer content-center"
-            onClick={() => setCurrentNotation(notation as InstanceNotation)}
+            onClick={() => setCurrentNotationElement(notationElement)}
           >
-            {notation.graphicalRepresentation &&
-            notation.graphicalRepresentation!.length > 0 ? (
-              renderNodePreview(notation as InstanceNotation)
+            {notationElement.representation &&
+            notationElement.representation!.graphicalRepresentation!.length >
+              0 ? (
+              renderNodePreview(notationElement)
             ) : (
-              <span>{notation.name}</span>
+              <span>{notationElement.name}</span>
             )}
           </div>
         ))

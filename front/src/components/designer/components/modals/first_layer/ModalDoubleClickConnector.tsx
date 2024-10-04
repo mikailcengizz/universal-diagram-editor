@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from "react";
 import CustomModal from "../../../../ui_elements/Modal";
 import {
-  InstanceNotation,
+  Class,
+  DiagramNodeData,
   NotationRepresentationItem,
 } from "../../../../../types/types";
 
 interface ModalDoubleClickConnectorProps {
   isConnectorModalOpen: boolean;
   setIsConnectorModalOpen: (isOpen: boolean) => void;
-  currentNotation: InstanceNotation;
-  setCurrentNotation: (value: InstanceNotation) => void;
+  currentNotationElement: Class;
+  setCurrentNotationElement: (value: Class) => void;
   selectedElementIndex: number | null;
 }
 
 function ModalDoubleClickConnector({
   isConnectorModalOpen,
   setIsConnectorModalOpen,
-  currentNotation,
-  setCurrentNotation,
+  currentNotationElement,
+  setCurrentNotationElement,
   selectedElementIndex,
 }: ModalDoubleClickConnectorProps) {
   const [connector, setConnector] = useState<NotationRepresentationItem>();
@@ -26,12 +27,14 @@ function ModalDoubleClickConnector({
   useEffect(() => {
     if (selectedElementIndex !== null && selectedElementIndex >= 0) {
       const selectedElement =
-        currentNotation.graphicalRepresentation![selectedElementIndex];
+        currentNotationElement.representation?.graphicalRepresentation![
+          selectedElementIndex
+        ];
       if (selectedElement) {
         setConnector(selectedElement);
       }
     }
-  }, [selectedElementIndex, currentNotation]);
+  }, [selectedElementIndex, currentNotationElement]);
 
   const handleStyleChange = (e: any) => {
     setConnector({
@@ -47,7 +50,9 @@ function ModalDoubleClickConnector({
     console.log("selectedElementIndex", selectedElementIndex);
     if (selectedElementIndex === null || !connector) return;
 
-    const updatedRepresentation = [...currentNotation.graphicalRepresentation!];
+    const updatedRepresentation = [
+      ...currentNotationElement.representation?.graphicalRepresentation!,
+    ];
 
     // Update the entire style and position objects in one go
     updatedRepresentation[selectedElementIndex] = {
@@ -57,9 +62,12 @@ function ModalDoubleClickConnector({
       position: { ...connector.position }, // Copy the entire position object
     };
 
-    setCurrentNotation({
-      ...currentNotation,
-      graphicalRepresentation: updatedRepresentation,
+    setCurrentNotationElement({
+      ...currentNotationElement,
+      representation: {
+        ...currentNotationElement.representation!,
+        graphicalRepresentation: updatedRepresentation,
+      },
     });
 
     setIsConnectorModalOpen(false); // Close modal after saving

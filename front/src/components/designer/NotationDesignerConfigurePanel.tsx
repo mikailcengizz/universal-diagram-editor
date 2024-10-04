@@ -17,14 +17,10 @@ import AddIcon from "@mui/icons-material/Add";
 import {
   ConfigListItem,
   Attribute,
-  AttributeInstance,
   Package,
-  MetaModelFile,
-  InstanceNotation,
-  MetaNotation,
-  DiagramNode,
-  DiagramElement,
   MetaModel,
+  Class,
+  Notation,
 } from "../../types/types";
 import NotationsSlider from "../ui_elements/NotationsSlider";
 
@@ -44,32 +40,28 @@ const propertyTextfieldStyle = "w-1/6 2xl:w-[250px]";
 interface NotationDesignerConfigurePanelProps {
   selectedNotationType: string;
   handleNotationTypeChange: (e: SelectChangeEvent<string>) => void;
-  currentDiagramElement: DiagramElement;
-  setCurrentDiagramElement: (value: any) => void;
-  newAttribute: AttributeInstance;
+  currentNotationElement: Class;
+  setCurrentNotationElement: (value: Class) => void;
+  newAttribute: Attribute;
   setNewAttribute: (value: any) => void;
   handleAddProperty: () => void;
   availableConfigs: ConfigListItem[];
-  selectedMetaModel: MetaModel;
-  setSelectedMetaModel: (value: MetaModel) => void;
-  ePackages: Package[];
-  allNotations: MetaNotation[];
+  selectedNotation: Notation;
+  setSelectedNotation: (value: Notation) => void;
   saveNotation: () => void;
 }
 
 function NotationDesignerConfigurePanel({
   selectedNotationType,
   handleNotationTypeChange,
-  currentDiagramElement,
-  setCurrentDiagramElement,
+  currentNotationElement,
+  setCurrentNotationElement,
   newAttribute,
   setNewAttribute,
   handleAddProperty,
   availableConfigs,
-  selectedMetaModel,
-  setSelectedMetaModel,
-  ePackages,
-  allNotations,
+  selectedNotation,
+  setSelectedNotation,
   saveNotation,
 }: NotationDesignerConfigurePanelProps) {
   return (
@@ -84,15 +76,17 @@ function NotationDesignerConfigurePanel({
           options={availableConfigs.map(
             (availableConfig) => availableConfig?.name
           )} // List of existing configuration names
-          value={selectedMetaConfig.name}
+          value={selectedNotation.metaModel!.package.uri}
           onInputChange={(event, newInputValue) => {
-            setSelectedMetaConfig({
-              name: newInputValue,
-              type: "meta",
-              packages: [],
-              classifiers: [],
-              relations: [],
-              features: [],
+            setSelectedNotation({
+              ...selectedNotation,
+              metaModel: {
+                package: {
+                  name: newInputValue,
+                  uri: newInputValue,
+                  elements: [],
+                },
+              },
             });
           }}
           renderInput={(params) => (
@@ -105,9 +99,9 @@ function NotationDesignerConfigurePanel({
         />
 
         {/* Notation type selection */}
-        <FormControl className={configureTextfieldStyle}>
+        {/* <FormControl className={configureTextfieldStyle}>
           <Select
-            value={currentNotation.type || ""}
+            value={currentDiagramNode.type || ""}
             onChange={handleNotationTypeChange}
             displayEmpty
           >
@@ -118,23 +112,28 @@ function NotationDesignerConfigurePanel({
             <MenuItem value="relationship">Relationship</MenuItem>
             <MenuItem value="role">Role</MenuItem>
           </Select>
-        </FormControl>
+        </FormControl> */}
 
         {/* Notation Name */}
         <Autocomplete
           className={configureTextfieldStyle}
           freeSolo
-          options={allNotations.map((notation) => notation.name) || []} // List of existing notation names
-          value={currentNotation.name}
+          options={
+            selectedNotation.metaModel!.package.elements.map(
+              (notation) => notation.name
+            ) || []
+          } // List of existing notation names
+          value={currentNotationElement?.name}
           onInputChange={(event, newInputValue) => {
-            const newNotation = allNotations.find(
-              (n) => n.name === newInputValue
-            );
+            const newNotation =
+              selectedNotation.metaModel!.package.elements.find(
+                (n) => n.name === newInputValue
+              );
             if (newNotation) {
-              setCurrentNotation(newNotation);
+              setCurrentNotationElement(newNotation);
             } else {
-              setCurrentNotation({
-                ...currentNotation,
+              setCurrentNotationElement({
+                ...currentNotationElement,
                 name: newInputValue,
               });
             }
@@ -150,10 +149,13 @@ function NotationDesignerConfigurePanel({
 
         {/* Properties Section */}
         <h3 className="text-xl font-bold">Properties</h3>
-        {currentNotation.attributes!.length > 0 && (
+        {(selectedNotation.metaModel!.package.elements[0] as Class).attributes!
+          .length > 0 && (
           <List>
-            {currentNotation.attributes!.map((prop, index) => {
-              const attribute = prop as AttributeInstance;
+            {(
+              selectedNotation.metaModel!.package.elements[0] as Class
+            ).attributes!.map((prop, index) => {
+              const attribute = prop as Attribute;
               return (
                 <ListItem key={index}>
                   <ListItemText
@@ -164,11 +166,11 @@ function NotationDesignerConfigurePanel({
                     <IconButton
                       edge="end"
                       onClick={() =>
-                        setCurrentNotation({
-                          ...currentNotation,
-                          properties: currentNotation.attributes!.filter(
-                            (_, i) => i !== index
-                          ),
+                        setCurrentNotationElement({
+                          ...currentNotationElement,
+                          /* properties: (
+                              selectedMetaModel.package.elements[0] as Class
+                            ).attributes!.filter((_, i) => i !== index), */
                         })
                       }
                     >
@@ -192,7 +194,7 @@ function NotationDesignerConfigurePanel({
           <TextField
             className={propertyTextfieldStyle}
             placeholder="Data Type"
-            value={newAttribute.eAttributeType}
+            value={newAttribute.attributeType}
             onChange={(e) =>
               setNewAttribute({ ...newAttribute, dataType: e.target.value })
             }
@@ -504,9 +506,8 @@ function NotationDesignerConfigurePanel({
           />
           <NotationsSlider
             settings={notationsSliderSettings}
-            ePackages={ePackages}
-            allNotations={allNotations}
-            setCurrentNotation={setCurrentNotation}
+            selectedNotation={selectedNotation}
+            setCurrentNotationElement={setCurrentNotationElement}
           />
         </div>
       </div>

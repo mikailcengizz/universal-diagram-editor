@@ -1,6 +1,6 @@
 import { getBezierPath, useReactFlow, Position } from "@xyflow/react";
 import React, { useEffect, useState } from "react";
-import { CustomNodeData } from "../../../types/types";
+import { DiagramNodeData } from "../../../types/types";
 import RenderLine from "./components/RenderLine";
 
 interface CombineRelationshipShapesEdgeProps {
@@ -14,7 +14,7 @@ interface CombineRelationshipShapesEdgeProps {
   style?: React.CSSProperties;
   markerStart?: string;
   markerEnd?: string;
-  data: CustomNodeData;
+  data: DiagramNodeData;
 }
 
 function CombineRelationshipShapesEdge({
@@ -30,7 +30,7 @@ function CombineRelationshipShapesEdge({
   markerEnd,
   data: initialData,
 }: CombineRelationshipShapesEdgeProps) {
-  const [data, setData] = useState<CustomNodeData>({ ...initialData });
+  const [data, setData] = useState<DiagramNodeData>({ ...initialData });
 
   const [markers, setMarkers] = useState<{
     source: string | undefined;
@@ -71,14 +71,17 @@ function CombineRelationshipShapesEdge({
 
   const edgeStyles = {
     strokeWidth:
-      data.instanceNotation.graphicalRepresentation![0].style.lineWidth,
-    stroke: data.instanceNotation.graphicalRepresentation![0].style.color,
+      data.instance?.representationInstanceObject!.graphicalRepresentation![0]
+        .style.lineWidth,
+    stroke:
+      data.instance?.representationInstanceObject!.graphicalRepresentation![0]
+        .style.color,
     strokeDasharray:
-      data.instanceNotation.graphicalRepresentation![0].style.lineStyle ===
-      "dotted"
+      data.instance?.representationInstanceObject!.graphicalRepresentation![0]
+        .style.lineStyle === "dotted"
         ? "5,5"
-        : data.instanceNotation.graphicalRepresentation![0].style.lineStyle ===
-          "dashed"
+        : data.instance?.representationInstanceObject!
+            .graphicalRepresentation![0].style.lineStyle === "dashed"
         ? "10,10"
         : "0",
     ...style,

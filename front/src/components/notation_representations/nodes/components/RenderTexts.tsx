@@ -1,17 +1,15 @@
 import React from "react";
 import {
-  CustomNodeData,
-  EAttribute,
-  MetaInstanceModelFile,
+  DiagramNodeData,
+  InstanceModel,
   NotationRepresentationItem,
-  RepresentationInstanceModelFile,
 } from "../../../../types/types";
 import dataTypeHelper from "../../../helpers/TypeHelper";
 import { useDispatch, useSelector } from "react-redux";
 
 interface RenderTextsProps {
   nodeId: string;
-  data: CustomNodeData;
+  data: DiagramNodeData;
   texts: NotationRepresentationItem[];
   handleTextChange: (e: any, nameFromClassifier: string | undefined) => void;
 }
@@ -23,7 +21,7 @@ function RenderTexts({
   handleTextChange,
 }: RenderTextsProps) {
   const dispatch = useDispatch();
-  const metaInstanceModel: MetaInstanceModelFile = useSelector(
+  const instanceModel: InstanceModel = useSelector(
     (state: any) => state.metaInstanceModelStore.model
   );
 
@@ -34,15 +32,15 @@ function RenderTexts({
         let nameFromClassifier: string | undefined;
         if (
           textItem.text === "name" &&
-          metaInstanceModel.ePackages?.length > 0
+          instanceModel.package?.objects.length > 0
         ) {
-          nameFromClassifier = metaInstanceModel.ePackages[0].eClassifiers.find(
-            (cls) => cls.id === nodeId
+          nameFromClassifier = instanceModel.package.objects.find(
+            (obj) => obj.name === data.instance?.instanceObject?.name
           )?.name;
         }
 
         if (nameFromClassifier === undefined) {
-          nameFromClassifier = data.instanceNotation.name;
+          nameFromClassifier = data.instance?.instanceObject!.name;
         }
 
         // we dont want editable field in palette notations

@@ -1,11 +1,10 @@
 import React from "react";
 import {
-  EAttribute,
-  CustomNodeData,
-  EOperation,
+  Class,
+  DiagramNodeData,
+  InstanceModel,
+  InstanceObject,
   NotationRepresentationItem,
-  MetaInstanceModelFile,
-  EClassInstance,
 } from "../../../../types/types";
 import typeHelper from "../../../helpers/TypeHelper";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,7 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 interface RenderCompartmentsProps {
   nodeId: string;
   compartments: NotationRepresentationItem[];
-  data: CustomNodeData;
+  data: DiagramNodeData;
 }
 
 function RenderCompartments({
@@ -22,7 +21,7 @@ function RenderCompartments({
   data,
 }: RenderCompartmentsProps) {
   const dispatch = useDispatch();
-  const metaInstanceModel: MetaInstanceModelFile = useSelector(
+  const metaInstanceModel: InstanceModel = useSelector(
     (state: any) => state.metaInstanceModelStore.model
   );
 
@@ -31,14 +30,14 @@ function RenderCompartments({
       {compartments.map((compartment, index) => {
         const generatorName = compartment.generator;
         let classifier = undefined;
-        if (metaInstanceModel.ePackages.length > 0) {
-          classifier = metaInstanceModel.ePackages![0].eClassifiers.find(
-            (cls) => cls.id === nodeId
-          ) as EClassInstance;
+        if (metaInstanceModel.package) {
+          classifier = metaInstanceModel.package!.objects.find(
+            (cls) => cls.name === data.instance?.instanceObject?.type?.name
+          ) as InstanceObject;
         }
 
         if (generatorName === "attributesForNotation" && classifier) {
-          const attributes = classifier.eAttributes!.filter(
+          const attributes = classifier.attributes!.filter(
             (attribute) =>
               attribute.name !== "name" &&
               attribute.name !== "abstract" &&
@@ -75,16 +74,14 @@ function RenderCompartments({
                   >
                     <div key={idx}>
                       {/* {typeHelper.determineVisibilityIcon(attribute.visibility)}{" "} */}
-                      {attribute.name}{" "}
-                      {attribute.eAttributeType &&
-                        " : " + attribute.eAttributeType.name}
+                      {attribute.name} {attribute.value}
                     </div>
                   </div>
                 ))}
             </div>
           );
-        } else if (generatorName === "operationsForNotation" && classifier) {
-          const operations = data.instanceNotation.eOperations!;
+        } /* else if (generatorName === "operationsForNotation" && classifier) {
+          const operations = data.instance.eOperations!;
 
           const operationHeight = compartment.position.extent?.height || 10; // Default height for each operation
           const compartmentX = compartment.position.x;
@@ -115,13 +112,13 @@ function RenderCompartments({
                     }}
                   >
                     <div key={idx}>
-                      {/* {typeHelper.determineVisibilityIcon(operation.visibility)}{" "} */}
+                      {/* {typeHelper.determineVisibilityIcon(operation.visibility)}{" "} }
                       {operation.name}
                       {operation.eParameters!.map((parameter, index) => (
                         <span key={index}>
                           {parameter.name}: {parameter.eType?.name}{" "}
                           {/* {parameter.defaultValue &&
-                            `= ${parameter.defaultValue}`} */}
+                            `= ${parameter.defaultValue}`} }
                         </span>
                       ))}
                       {operation.eType && `: ${operation.eType}`}
@@ -130,7 +127,7 @@ function RenderCompartments({
                 ))}
             </div>
           );
-        }
+        } */
 
         /* Default case for rendering direct text and not generator elements */
         /* return (

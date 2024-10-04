@@ -1,58 +1,25 @@
-import {} from "../../types/types";
+import {
+  RepresentationInstanceModel,
+  RepresentationInstanceObject,
+} from "../../types/types";
 
 export const UPDATE_REPRESENTATION_INSTANCE_MODEL =
   "UPDATE_REPRESENTATION_INSTANCE_MODEL";
-export const UPDATE_REPRESENTATION_INSTANCE_CLASS =
-  "UPDATE_REPRESENTATION_INSTANCE_CLASS";
-export const UPDATE_REPRESENTATION_INSTANCE_ATTRIBUTE =
-  "UPDATE_REPRESENTATION_INSTANCE_ATTRIBUTE";
-export const UPDATE_REPRESENTATION_INSTANCE_OPERATION =
-  "UPDATE_REPRESENTATION_INSTANCE_OPERATION";
-export const UPDATE_REPRESENTATION_INSTANCE_REFERENCE =
-  "UPDATE_REPRESENTATION_INSTANCE_REFERENCE";
+export const UPDATE_REPRESENTATION_INSTANCE_OBJECT =
+  "UPDATE_REPRESENTATION_INSTANCE_OBJECT";
 
 // Action to update the whole model
 export const updateRepresentationInstanceModel = (
-  model: RepresentationInstanceModelFile
+  model: RepresentationInstanceModel
 ) => ({
   type: UPDATE_REPRESENTATION_INSTANCE_MODEL,
   payload: model,
 });
 
-// Action to update a class
-export const updateRepresentationInstanceClass = (
-  classData: EClassRepresentationInstance
+// Action to update a object
+export const updateRepresentationInstanceObject = (
+  classData: RepresentationInstanceObject
 ) => ({
-  type: UPDATE_REPRESENTATION_INSTANCE_CLASS,
+  type: UPDATE_REPRESENTATION_INSTANCE_OBJECT,
   payload: classData,
-});
-
-// Action to update attributes
-export const updateRepresentationInstanceAttribute = (
-  nodeId: string,
-  attribute: EAttributeRepresentationInstance
-) => ({
-  type: UPDATE_REPRESENTATION_INSTANCE_ATTRIBUTE,
-  payload: {
-    nodeId,
-    attribute,
-  },
-});
-
-// Action to update an operation
-export const updateRepresentationInstanceOperation = (
-  classifierName: string,
-  operation: EOperationRepresentationInstance
-) => ({
-  type: UPDATE_REPRESENTATION_INSTANCE_OPERATION,
-  payload: { classifierName, operation },
-});
-
-// Action to update a reference
-export const updateRepresentationInstanceReference = (
-  classifierName: string,
-  reference: EReferenceRepresentationInstance
-) => ({
-  type: UPDATE_REPRESENTATION_INSTANCE_REFERENCE,
-  payload: { classifierName, reference },
 });

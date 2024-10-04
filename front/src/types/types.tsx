@@ -17,12 +17,12 @@ export interface NotationRepresentationItem {
 }
 
 export interface Position {
-  x: number;
-  y: number;
+  x: number; // left top position in draw panel
+  y: number; // left top position in draw panel
   targetX?: number; // optional for edges
   targetY?: number; // optional for edges
   extent?: {
-    width: number;
+    width?: number; // optional for edges
     height?: number; // optional for edges
   };
 }
@@ -60,17 +60,18 @@ export type Shape =
 // DIAGRAM EDITOR
 export interface Notation {
   metaModel?: MetaModel;
-  graphicalRepresentationModel?: NotationRepresentationItem[];
+  representationMetaModel?: RepresentationMetaModel;
 }
 
-export interface DiagramElement {
-  id: string;
-  notation: Notation;
-  objectInstance: InstanceObject; // Old name: InstanceNotation
-  graphicalRepresentationInstance?: NotationRepresentationItem[];
+export interface Instance {
+  instanceObject?: InstanceObject;
+  representationInstanceObject?: RepresentationInstanceObject;
+}
+
+export interface DiagramNodeData {
+  notation?: Notation; // notation (meta models)
+  instance?: Instance; // instance for the node
   position?: Position;
-  isPalette?: boolean;
-  isNotationSlider?: boolean; // only used for slider item width
   onDoubleClick?: (id: any, data: any) => void;
 }
 
@@ -120,10 +121,10 @@ export abstract class TypedElement extends NamedElement {
 export abstract class Classifier extends NamedElement {}
 
 export interface Class extends Classifier {
-  isAbstract: boolean;
-  isInterface: boolean;
-  attributes: Attribute[];
-  references: Reference[];
+  isAbstract?: boolean;
+  isInterface?: boolean;
+  attributes?: Attribute[];
+  references?: Reference[];
   representation?: Representation;
 }
 
@@ -133,6 +134,8 @@ export interface DataType extends Classifier {
 
 export interface Attribute extends NamedElement {
   attributeType: DataType;
+  defaultValue?: any;
+  isUnique?: boolean;
 }
 
 export interface Reference extends NamedElement {
@@ -193,7 +196,7 @@ export interface RepresentationInstancePackage {
 }
 
 export interface RepresentationInstanceObject {
-  name: InstanceObject; // name of the representation (from the meta model)
-  position?: Position; // only for classifiers and packages
+  instanceObject: InstanceObject; // ref to instance object
+  position?: Position;
   graphicalRepresentation?: NotationRepresentationItem[];
 }

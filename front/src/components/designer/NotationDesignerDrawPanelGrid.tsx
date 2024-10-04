@@ -1,22 +1,19 @@
 import React, { useState, useEffect } from "react";
-import {
-  NotationRepresentationItem,
-  InstanceNotation,
-} from "../../types/types";
+import { NotationRepresentationItem, Class } from "../../types/types";
 import ModalDoubleClickSquare from "./components/modals/first_layer/ModalDoubleClickSquare";
 import ModalDoubleClickText from "./components/modals/first_layer/ModalDoubleClickText";
 import ModalDoubleClickCompartment from "./components/modals/first_layer/ModalDoubleClickCompartment";
 import ModalDoubleClickConnector from "./components/modals/first_layer/ModalDoubleClickConnector";
 
 interface NotationDesignerDrawPanelGridProps {
-  currentNotation: InstanceNotation;
-  setCurrentNotation: (value: InstanceNotation) => void;
+  currentNotationElement: Class;
+  setCurrentNotationElement: (value: Class) => void;
   gridSize: number;
 }
 
 const NotationDesignerDrawPanelGrid = ({
-  currentNotation,
-  setCurrentNotation,
+  currentNotationElement,
+  setCurrentNotationElement,
   gridSize,
 }: NotationDesignerDrawPanelGridProps) => {
   const [selectedElementIndex, setSelectedElementIndex] = useState<
@@ -54,7 +51,7 @@ const NotationDesignerDrawPanelGrid = ({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (selectedElementIndex !== null) {
         const updatedRepresentation = [
-          ...currentNotation.graphicalRepresentation!,
+          ...currentNotationElement.representation!.graphicalRepresentation!,
         ];
         const element = updatedRepresentation[selectedElementIndex];
         const currentPosition = element.position;
@@ -81,9 +78,11 @@ const NotationDesignerDrawPanelGrid = ({
         }
 
         // Update currentNotation's graphicalRepresentation directly
-        setCurrentNotation({
-          ...currentNotation,
-          graphicalRepresentation: updatedRepresentation,
+        setCurrentNotationElement({
+          ...currentNotationElement,
+          representation: {
+            graphicalRepresentation: updatedRepresentation,
+          },
         });
       }
     };
@@ -93,7 +92,12 @@ const NotationDesignerDrawPanelGrid = ({
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [selectedElementIndex, currentNotation, setCurrentNotation, gridSize]);
+  }, [
+    selectedElementIndex,
+    currentNotationElement,
+    setCurrentNotationElement,
+    gridSize,
+  ]);
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -107,7 +111,9 @@ const NotationDesignerDrawPanelGrid = ({
     const x = Math.round((event.clientX - grid.left) / gridSize) * gridSize;
     const y = Math.round((event.clientY - grid.top) / gridSize) * gridSize;
 
-    const updatedRepresentation = [...currentNotation.graphicalRepresentation!];
+    const updatedRepresentation = [
+      ...currentNotationElement.representation!.graphicalRepresentation!,
+    ];
     console.log("updatedRepresentation", updatedRepresentation);
 
     // If shapeData exists, this means we are adding a new element from the palette
@@ -116,16 +122,18 @@ const NotationDesignerDrawPanelGrid = ({
       const extent = newElement.position?.extent || { width: 100, height: 100 };
 
       newElement.position = {
-        x: x - extent.width / 2,
+        x: x - (extent.width ?? 0) / 2,
         y: y - (extent.height ?? 0) / 2,
         extent,
       };
       console.log("newElement", newElement);
 
       // Add new element to the graphicalRepresentation
-      setCurrentNotation({
-        ...currentNotation,
-        graphicalRepresentation: [...updatedRepresentation, newElement],
+      setCurrentNotationElement({
+        ...currentNotationElement,
+        representation: {
+          graphicalRepresentation: [...updatedRepresentation, newElement],
+        },
       });
 
       // If elementIndex exists and is valid, this means we are moving an existing element
@@ -142,16 +150,18 @@ const NotationDesignerDrawPanelGrid = ({
         updatedRepresentation[index] = {
           ...updatedRepresentation[index],
           position: {
-            x: x - extent.width / 2,
+            x: x - (extent.width ?? 0) / 2,
             y: y - (extent.height ?? 0) / 2,
             extent,
           },
         };
 
         // Update currentNotation's graphicalRepresentation directly
-        setCurrentNotation({
-          ...currentNotation,
-          graphicalRepresentation: updatedRepresentation,
+        setCurrentNotationElement({
+          ...currentNotationElement,
+          representation: {
+            graphicalRepresentation: updatedRepresentation,
+          },
         });
       } else {
         console.error("Invalid index:", index);
@@ -222,7 +232,9 @@ const NotationDesignerDrawPanelGrid = ({
     event.stopPropagation();
     event.preventDefault();
 
-    const updatedRepresentation = [...currentNotation.graphicalRepresentation!];
+    const updatedRepresentation = [
+      ...currentNotationElement.representation!.graphicalRepresentation!,
+    ];
     const element = updatedRepresentation[index];
 
     const startX = event.clientX;
@@ -289,9 +301,11 @@ const NotationDesignerDrawPanelGrid = ({
           extent: { width: newWidth, height: newHeight },
         };
 
-        setCurrentNotation({
-          ...currentNotation,
-          graphicalRepresentation: updatedRepresentation,
+        setCurrentNotationElement({
+          ...currentNotationElement,
+          representation: {
+            graphicalRepresentation: updatedRepresentation,
+          },
         });
       }
     };
@@ -319,145 +333,147 @@ const NotationDesignerDrawPanelGrid = ({
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
       >
-        {currentNotation.graphicalRepresentation &&
-          currentNotation.graphicalRepresentation.map((element, index) => (
-            <div
-              key={index}
-              id={`element-${index}`}
-              draggable
-              onDragStart={(e) => handleDragStart(e, index)}
-              onClick={() => handleElementClick(index)}
-              onDoubleClick={() => handleElementDoubleClick(element, index)}
-              style={{
-                position: "absolute",
-                left: `${element.position.x}px`,
-                top: `${element.position.y}px`,
-                width: `${element.position.extent?.width || 100}px`,
-                height: `${element.position.extent?.height || 100}px`,
-                backgroundColor:
-                  element.style?.backgroundColor || "transparent",
-                borderWidth: `${element.style?.borderWidth || 0}px`,
-                borderStyle: element.style?.borderStyle || "solid",
-                borderColor: element.style?.borderColor || "black",
-                borderRadius: `${element.style?.borderRadius || 0}px`,
-                color: element.style?.color || "black",
-                fontSize: `${element.style?.fontSize || 14}px`,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                textAlign: element.style?.alignment || "center",
-                cursor: "move",
-                zIndex: element.style?.zIndex || 1,
-              }}
-            >
-              {element.shape === "text" && element.text}
+        {currentNotationElement.representation!.graphicalRepresentation &&
+          currentNotationElement.representation!.graphicalRepresentation.map(
+            (element, index) => (
+              <div
+                key={index}
+                id={`element-${index}`}
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onClick={() => handleElementClick(index)}
+                onDoubleClick={() => handleElementDoubleClick(element, index)}
+                style={{
+                  position: "absolute",
+                  left: `${element.position.x}px`,
+                  top: `${element.position.y}px`,
+                  width: `${element.position.extent?.width || 100}px`,
+                  height: `${element.position.extent?.height || 100}px`,
+                  backgroundColor:
+                    element.style?.backgroundColor || "transparent",
+                  borderWidth: `${element.style?.borderWidth || 0}px`,
+                  borderStyle: element.style?.borderStyle || "solid",
+                  borderColor: element.style?.borderColor || "black",
+                  borderRadius: `${element.style?.borderRadius || 0}px`,
+                  color: element.style?.color || "black",
+                  fontSize: `${element.style?.fontSize || 14}px`,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  textAlign: element.style?.alignment || "center",
+                  cursor: "move",
+                  zIndex: element.style?.zIndex || 1,
+                }}
+              >
+                {element.shape === "text" && element.text}
 
-              {index === selectedElementIndex && (
-                <>
-                  {/* Resize handles */}
-                  {/* Corners */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      width: "4px",
-                      height: "4px",
-                      backgroundColor: "#ff0071",
-                      top: "-5px",
-                      left: "-5px",
-                      cursor: "nwse-resize",
-                    }}
-                    onMouseDown={(e) => handleResize(index, "topLeft", e)}
-                  />
-                  <div
-                    style={{
-                      position: "absolute",
-                      width: "4px",
-                      height: "4px",
-                      backgroundColor: "#ff0071",
-                      top: "-5px",
-                      right: "-5px",
-                      cursor: "nesw-resize",
-                    }}
-                    onMouseDown={(e) => handleResize(index, "topRight", e)}
-                  />
-                  <div
-                    style={{
-                      position: "absolute",
-                      width: "4px",
-                      height: "4px",
-                      backgroundColor: "#ff0071",
-                      bottom: "-5px",
-                      left: "-5px",
-                      cursor: "nesw-resize",
-                    }}
-                    onMouseDown={(e) => handleResize(index, "bottomLeft", e)}
-                  />
-                  <div
-                    style={{
-                      position: "absolute",
-                      width: "4px",
-                      height: "4px",
-                      backgroundColor: "#ff0071",
-                      bottom: "-5px",
-                      right: "-5px",
-                      cursor: "nwse-resize",
-                    }}
-                    onMouseDown={(e) => handleResize(index, "bottomRight", e)}
-                  />
+                {index === selectedElementIndex && (
+                  <>
+                    {/* Resize handles */}
+                    {/* Corners */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        width: "4px",
+                        height: "4px",
+                        backgroundColor: "#ff0071",
+                        top: "-5px",
+                        left: "-5px",
+                        cursor: "nwse-resize",
+                      }}
+                      onMouseDown={(e) => handleResize(index, "topLeft", e)}
+                    />
+                    <div
+                      style={{
+                        position: "absolute",
+                        width: "4px",
+                        height: "4px",
+                        backgroundColor: "#ff0071",
+                        top: "-5px",
+                        right: "-5px",
+                        cursor: "nesw-resize",
+                      }}
+                      onMouseDown={(e) => handleResize(index, "topRight", e)}
+                    />
+                    <div
+                      style={{
+                        position: "absolute",
+                        width: "4px",
+                        height: "4px",
+                        backgroundColor: "#ff0071",
+                        bottom: "-5px",
+                        left: "-5px",
+                        cursor: "nesw-resize",
+                      }}
+                      onMouseDown={(e) => handleResize(index, "bottomLeft", e)}
+                    />
+                    <div
+                      style={{
+                        position: "absolute",
+                        width: "4px",
+                        height: "4px",
+                        backgroundColor: "#ff0071",
+                        bottom: "-5px",
+                        right: "-5px",
+                        cursor: "nwse-resize",
+                      }}
+                      onMouseDown={(e) => handleResize(index, "bottomRight", e)}
+                    />
 
-                  {/* Edges (outer line) */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      width: "100%",
-                      height: "2px",
-                      top: "-3px",
-                      left: "0",
-                      cursor: "ns-resize",
-                      backgroundColor: "#ff0071",
-                    }}
-                    onMouseDown={(e) => handleResize(index, "top", e)}
-                  />
-                  <div
-                    style={{
-                      position: "absolute",
-                      width: "100%",
-                      height: "2px",
-                      bottom: "-3px",
-                      left: "0",
-                      cursor: "ns-resize",
-                      backgroundColor: "#ff0071",
-                    }}
-                    onMouseDown={(e) => handleResize(index, "bottom", e)}
-                  />
-                  <div
-                    style={{
-                      position: "absolute",
-                      width: "2px",
-                      height: "100%",
-                      top: "0",
-                      left: "-3px",
-                      cursor: "ew-resize",
-                      backgroundColor: "#ff0071",
-                    }}
-                    onMouseDown={(e) => handleResize(index, "left", e)}
-                  />
-                  <div
-                    style={{
-                      position: "absolute",
-                      width: "2px",
-                      height: "100%",
-                      top: "0",
-                      right: "-3px",
-                      cursor: "ew-resize",
-                      backgroundColor: "#ff0071",
-                    }}
-                    onMouseDown={(e) => handleResize(index, "right", e)}
-                  />
-                </>
-              )}
-            </div>
-          ))}
+                    {/* Edges (outer line) */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        width: "100%",
+                        height: "2px",
+                        top: "-3px",
+                        left: "0",
+                        cursor: "ns-resize",
+                        backgroundColor: "#ff0071",
+                      }}
+                      onMouseDown={(e) => handleResize(index, "top", e)}
+                    />
+                    <div
+                      style={{
+                        position: "absolute",
+                        width: "100%",
+                        height: "2px",
+                        bottom: "-3px",
+                        left: "0",
+                        cursor: "ns-resize",
+                        backgroundColor: "#ff0071",
+                      }}
+                      onMouseDown={(e) => handleResize(index, "bottom", e)}
+                    />
+                    <div
+                      style={{
+                        position: "absolute",
+                        width: "2px",
+                        height: "100%",
+                        top: "0",
+                        left: "-3px",
+                        cursor: "ew-resize",
+                        backgroundColor: "#ff0071",
+                      }}
+                      onMouseDown={(e) => handleResize(index, "left", e)}
+                    />
+                    <div
+                      style={{
+                        position: "absolute",
+                        width: "2px",
+                        height: "100%",
+                        top: "0",
+                        right: "-3px",
+                        cursor: "ew-resize",
+                        backgroundColor: "#ff0071",
+                      }}
+                      onMouseDown={(e) => handleResize(index, "right", e)}
+                    />
+                  </>
+                )}
+              </div>
+            )
+          )}
       </div>
 
       <ModalDoubleClickSquare
@@ -466,8 +482,8 @@ const NotationDesignerDrawPanelGrid = ({
           setIsSquareModalOpen(isOpen);
           if (!isOpen) handleCloseModal();
         }}
-        currentNotation={currentNotation}
-        setCurrentNotation={setCurrentNotation}
+        currentNotationElement={currentNotationElement}
+        setCurrentNotationElement={setCurrentNotationElement}
         selectedElementIndex={selectedElementIndex}
       />
 
@@ -477,8 +493,8 @@ const NotationDesignerDrawPanelGrid = ({
           setIsTextModalOpen(isOpen);
           if (!isOpen) handleCloseModal();
         }}
-        currentNotation={currentNotation}
-        setCurrentNotation={setCurrentNotation}
+        currentNotationElement={currentNotationElement}
+        setCurrentNotationElement={setCurrentNotationElement}
         selectedElementIndex={selectedElementIndex}
       />
 
@@ -488,8 +504,8 @@ const NotationDesignerDrawPanelGrid = ({
           setIsCompartmentModalOpen(isOpen);
           if (!isOpen) handleCloseModal();
         }}
-        currentNotation={currentNotation}
-        setCurrentNotation={setCurrentNotation}
+        currentNotationElement={currentNotationElement}
+        setCurrentNotationElement={setCurrentNotationElement}
         selectedElementIndex={selectedElementIndex}
       />
 
@@ -499,8 +515,8 @@ const NotationDesignerDrawPanelGrid = ({
           setIsConnectorModalOpen(isOpen);
           if (!isOpen) handleCloseModal();
         }}
-        currentNotation={currentNotation}
-        setCurrentNotation={setCurrentNotation}
+        currentNotationElement={currentNotationElement}
+        setCurrentNotationElement={setCurrentNotationElement}
         selectedElementIndex={selectedElementIndex}
       />
     </>
