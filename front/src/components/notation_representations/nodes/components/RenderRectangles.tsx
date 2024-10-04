@@ -1,14 +1,21 @@
 import {
-  CustomNodeData,
+  DiagramNodeData,
   NotationRepresentationItem,
 } from "../../../../types/types";
 
 interface RenderRectanglesProps {
+  isPalette?: boolean;
+  isNotationSlider?: boolean;
   rectangles: NotationRepresentationItem[];
-  data: CustomNodeData;
+  data: DiagramNodeData;
 }
 
-function RenderRectangles({ rectangles, data }: RenderRectanglesProps) {
+function RenderRectangles({
+  isPalette = false,
+  isNotationSlider = false,
+  rectangles,
+  data,
+}: RenderRectanglesProps) {
   return (
     <>
       {rectangles.map((rect, index) => {
@@ -20,12 +27,10 @@ function RenderRectangles({ rectangles, data }: RenderRectanglesProps) {
               left: `${rect.position.x}px`,
               top: `${rect.position.y}px`,
               width: `${
-                data.isPalette
-                  ? (rect.position.extent?.width || 100) + "px"
-                  : "100%"
+                isPalette ? (rect.position.extent?.width || 100) + "px" : "100%"
               }`,
               height: `${
-                data.isPalette
+                isPalette
                   ? (rect.position.extent?.height || 100) + "px"
                   : "100%"
               }`,

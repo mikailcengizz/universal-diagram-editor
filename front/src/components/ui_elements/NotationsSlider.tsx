@@ -2,44 +2,52 @@ import React from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { Class, MetaModel, Notation } from "../../types/types";
+import { Class, MetaModel, RepresentationMetaModel } from "../../types/types";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
-import CombineRelationshipShapesNode from "../notation_representations/edges/CombineRelationshipShapesEdge";
+import CombineRelationshipShapesNode from "../notation_representations/edges/CombineLinkShapesNode";
 import CombineRoleShapesNode from "../notation_representations/nodes/CombineRoleShapesNode";
 import { Position } from "@xyflow/react";
+import ModelHelperFunctions from "../helpers/ModelHelperFunctions";
 
 interface NotationsSliderProps {
   settings: {};
-  selectedNotation: Notation;
+  selectedMetaModel: MetaModel;
+  selectedRepresentationMetaModel: RepresentationMetaModel;
   setCurrentNotationElement: (value: Class) => void;
 }
 
 function NotationsSlider({
   settings,
-  selectedNotation,
+  selectedMetaModel,
+  selectedRepresentationMetaModel,
   setCurrentNotationElement,
 }: NotationsSliderProps) {
   const updatedSettings = {
     ...settings,
-    infinite: selectedNotation.metaModel!.package.elements.length > 5, // Disable infinite scroll when there's only 5 slides
+    infinite: selectedMetaModel.package.elements.length > 5, // Disable infinite scroll when there's only 5 slides
   };
-  const allNotationElements = selectedNotation.metaModel?.package.elements;
+  const allNotationElements = selectedMetaModel.package.elements;
 
-  const renderNodePreview = (element: Class) => {
-    const elementType = element.name;
+  const renderNodePreview = (notationElement: Class) => {
+    const notationElementRepresentation =
+      ModelHelperFunctions.findRepresentationFromClassInRepresentationMetaModel(
+        notationElement,
+        selectedRepresentationMetaModel
+      )!;
 
-    switch (elementType) {
-      case "Reference":
+    switch (notationElementRepresentation.type) {
+      case "ClassEdge":
         const { x, y, targetX, targetY } =
-          element.representation?.graphicalRepresentation![0].position!;
+          notationElementRepresentation.graphicalRepresentation![0].position!;
         return (
           <CombineRelationshipShapesNode
-            key={element.name}
-            id={element.name!}
+            key={notationElementRepresentation.name}
+            id={notationElementRepresentation.name}
             data={{
-              notation: selectedNotation,
-              instance: undefined, // not necessary for nodes inside the slider
+              notation: selectedMetaModel,
+              instanceObject: undefined, // not necessary for nodes inside the slider
               position: undefined, // not necessary for nodes inside the slider
+              isNotationSlider: true,
             }}
             sourceX={x}
             sourceY={y}
@@ -52,12 +60,13 @@ function NotationsSlider({
       default:
         return (
           <CombineObjectShapesNode
-            key={element.name}
-            id={element.name!}
+            key={notationElementRepresentation.name}
+            id={notationElementRepresentation.name}
             data={{
-              notation: selectedNotation,
-              instance: undefined, // not necessary for nodes inside the slider
+              notation: selectedMetaModel,
+              instanceObject: undefined, // not necessary for nodes inside the slider
               position: undefined, // not necessary for nodes inside the slider
+              isNotationSlider: true,
             }}
           />
         );
@@ -69,21 +78,28 @@ function NotationsSlider({
   return (
     <Slider {...updatedSettings} className="mt-2">
       {allNotationElements && allNotationElements.length > 0 ? (
-        (allNotationElements as Class[]).map((notationElement, index) => (
-          <div
-            key={index}
-            className="border-[1px] border-black text-center h-28 p-2 cursor-pointer content-center"
-            onClick={() => setCurrentNotationElement(notationElement)}
-          >
-            {notationElement.representation &&
-            notationElement.representation!.graphicalRepresentation!.length >
-              0 ? (
-              renderNodePreview(notationElement)
-            ) : (
-              <span>{notationElement.name}</span>
-            )}
-          </div>
-        ))
+        (allNotationElements as Class[]).map((notationElement, index) => {
+          const representation =
+            ModelHelperFunctions.findRepresentationFromClassInRepresentationMetaModel(
+              notationElement,
+              selectedRepresentationMetaModel
+            );
+
+          return (
+            <div
+              key={index}
+              className="border-[1px] border-black text-center h-28 p-2 cursor-pointer content-center"
+              onClick={() => setCurrentNotationElement(notationElement)}
+            >
+              {representation &&
+              representation.graphicalRepresentation!.length > 0 ? (
+                renderNodePreview(notationElement)
+              ) : (
+                <span>{notationElement.name}</span>
+              )}
+            </div>
+          );
+        })
       ) : (
         <div>No Notations Available</div>
       )}

@@ -4,11 +4,14 @@ import {
   Class,
   DiagramNodeData,
   NotationRepresentationItem,
+  Representation,
 } from "../../../../../types/types";
 
 interface ModalDoubleClickSquareProps {
   isSquareModalOpen: boolean;
   setIsSquareModalOpen: (isOpen: boolean) => void;
+  currentNotationElementRepresentation: Representation;
+  setCurrentNotationElementRepresentation: (value: Representation) => void;
   currentNotationElement: Class;
   setCurrentNotationElement: (value: Class) => void;
   selectedElementIndex: number | null;
@@ -17,6 +20,8 @@ interface ModalDoubleClickSquareProps {
 function ModalDoubleClickSquare({
   isSquareModalOpen,
   setIsSquareModalOpen,
+  currentNotationElementRepresentation,
+  setCurrentNotationElementRepresentation,
   currentNotationElement,
   setCurrentNotationElement,
   selectedElementIndex,
@@ -27,7 +32,7 @@ function ModalDoubleClickSquare({
   useEffect(() => {
     if (selectedElementIndex !== null && selectedElementIndex >= 0) {
       const selectedElement =
-        currentNotationElement.representation?.graphicalRepresentation![
+        currentNotationElementRepresentation?.graphicalRepresentation![
           selectedElementIndex
         ];
       if (selectedElement) {
@@ -64,7 +69,7 @@ function ModalDoubleClickSquare({
     if (selectedElementIndex === null || !square) return;
 
     const updatedRepresentation = [
-      ...currentNotationElement.representation?.graphicalRepresentation!,
+      ...currentNotationElementRepresentation?.graphicalRepresentation!,
     ];
 
     // Update the entire style and position objects in one go
@@ -74,12 +79,9 @@ function ModalDoubleClickSquare({
       position: { ...square.position }, // Copy the entire position object
     };
 
-    setCurrentNotationElement({
-      ...currentNotationElement,
-      representation: {
-        ...currentNotationElement.representation!,
-        graphicalRepresentation: updatedRepresentation,
-      },
+    setCurrentNotationElementRepresentation({
+      ...currentNotationElementRepresentation,
+      graphicalRepresentation: updatedRepresentation,
     });
 
     setIsSquareModalOpen(false); // Close modal after saving

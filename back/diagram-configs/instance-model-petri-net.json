@@ -1,5 +1,6 @@
 {
   "package": {
+    "name": "PetriNet",
     "uri": "http://www.compute.dtu.dk/sse/models/petri-net",
     "objects": [
       {
@@ -15,7 +16,10 @@
               "$ref": "#/objects/1"
             }
           }
-        ]
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/petri-net-representation#/objects/0"
+        }
       },
       {
         "name": "a1",
@@ -34,7 +38,10 @@
               "$ref": "#/objects/3"
             }
           }
-        ]
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/petri-net-representation#/objects/1"
+        }
       },
       {
         "name": "pl1",

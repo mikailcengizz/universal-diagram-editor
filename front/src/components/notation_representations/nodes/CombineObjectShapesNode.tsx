@@ -5,7 +5,9 @@ import {
   DiagramNodeData,
   InstanceModel,
   NotationRepresentationItem,
+  Representation,
   RepresentationInstanceModel,
+  RepresentationInstanceObject,
 } from "../../../types/types";
 import { NodeResizer } from "@xyflow/react";
 import RenderConnectors from "./components/RenderConnectors";
@@ -18,6 +20,8 @@ import RenderCompartments from "./components/RenderCompartments";
 import RenderRectangles from "./components/RenderRectangles";
 import { useDispatch, useSelector } from "react-redux";
 import { updateRepresentationInstanceModel } from "../../../redux/actions/representationInstanceModelActions";
+import ReferenceHelper from "../../helpers/ReferenceHelper";
+import ModelHelperFunctions from "../../helpers/ModelHelperFunctions";
 
 interface CombineObjectShapesNodeProps {
   id: string;
@@ -39,21 +43,51 @@ const CombineObjectShapesNode = ({
   );
 
   const [data, setData] = useState<DiagramNodeData>({ ...initialData });
+  const isNotationSlider = data.isNotationSlider || false;
+  const isPalette = data.instanceObject === undefined && !isNotationSlider;
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1); // used for palette scaling
+
   // Calculate the max width and max height when node is rendered on the canvas
   // to know our selection area when moving the node around
-  const maxWidth = Math.max(
-    ...data.instance!.representationInstanceObject!.graphicalRepresentation!.map(
-      (item) => item.position!.extent?.width! || 100
-    )
-  );
+  const representationInstanceRef = data.instanceObject?.representation!.$ref!;
+  const [representationUri, jsonPointer] = representationInstanceRef.split("#");
+  const representationInstanceObject: RepresentationInstanceObject =
+    ReferenceHelper.resolveRef(
+      representationInstanceModel.package,
+      jsonPointer
+    )!;
 
-  const maxHeight = Math.max(
-    ...data.instance!.representationInstanceObject!.graphicalRepresentation!.map(
-      (item) => item.position.extent?.height || 100
-    )
-  );
+  const metaRef = data.instanceObject?.type?.$ref!;
+  const [metaUri, metaJsonPointer] = metaRef.split("#");
+  const metaClass: Class = ReferenceHelper.resolveRef(
+    metaInstanceModel.package,
+    metaJsonPointer
+  )!;
+
+  const representationMetaRef = metaClass.representation!.$ref!;
+  const [representationMetaUri, representationMetaJsonPointer] =
+    representationMetaRef.split("#");
+  const representationMeta: Representation = ReferenceHelper.resolveRef(
+    representationInstanceModel.package,
+    representationMetaJsonPointer
+  )!;
+
+  const maxWidth = isPalette
+    ? 50
+    : Math.max(
+        ...representationInstanceObject.graphicalRepresentation!.map(
+          (item) => item.position!.extent?.width! || 100
+        )
+      );
+
+  const maxHeight = isPalette
+    ? 50
+    : Math.max(
+        ...representationInstanceObject.graphicalRepresentation!.map(
+          (item) => item.position.extent?.height || 100
+        )
+      );
 
   const [containerSize, setContainerSize] = useState({
     width: maxWidth,
@@ -65,7 +99,7 @@ const CombineObjectShapesNode = ({
   const [isNodeOperationModalOpen, setIsNodeOperationModalOpen] =
     useState(false); // second layer modal for node operations
   const [isAddParameterModalOpen, setIsAddParameterModalOpen] = useState(false); // third layer modal for adding parameters to operations
-  const metaAttribute: Class = data.notation?.metaModel!.package.elements.find(
+  const metaAttribute: Class = data.notation?.package.elements.find(
     (element) => element.name === "Attribute"
   )!;
   const [modifiyingAttribute, setModifyingAttribute] = useState<Attribute>();
@@ -81,14 +115,13 @@ const CombineObjectShapesNode = ({
   }); */
 
   let adjustedRepresentation: NotationRepresentationItem[] = [];
-  if (
-    initialData.instance!.representationInstanceObject!.graphicalRepresentation!
-      .length > 0
-  ) {
+  if (representationInstanceObject.graphicalRepresentation!.length > 0) {
     const validGraphicalItems =
-      initialData.instance!.representationInstanceObject!.graphicalRepresentation!.filter(
+      representationInstanceObject.graphicalRepresentation!.filter(
         (item) =>
-          (!data.isPalette || (data.isPalette && item.shape !== "connector")) &&
+          (data.instanceObject !== undefined ||
+            (data.instanceObject !== undefined &&
+              item.shape !== "connector")) &&
           item.position.x !== undefined &&
           item.position.y !== undefined
       ); // Only filter out connectors if isPalette is true
@@ -138,11 +171,11 @@ const CombineObjectShapesNode = ({
   );
 
   // Set the size constraints for the grid columns
-  const maxGridCellSize = data.isNotationSlider ? 97 : 54;
+  const maxGridCellSize = isNotationSlider ? 97 : 54;
 
   // Calculate the scaling factor to fit the graphical representation into the grid column
   useEffect(() => {
-    if (containerRef.current && data.isPalette) {
+    if (containerRef.current && isPalette) {
       const scaleX = maxGridCellSize / maxX;
       const scaleY = maxGridCellSize / maxY;
 
@@ -152,7 +185,7 @@ const CombineObjectShapesNode = ({
       // Set the scale, ensuring it does not exceed the grid cell size
       setScale(newScale);
     }
-  }, [maxX, maxY, data.isPalette]);
+  }, [maxX, maxY, isPalette]);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -198,21 +231,21 @@ const CombineObjectShapesNode = ({
     }
 
     // Find the class representation in local storage
-    const classifierInRepresentation =
-      representationInstanceModel.package.objects.find(
-        (obj) =>
-          obj.instanceObject.name === initialData.instance!.instanceObject?.name
+    const notationElementRepresentationInstance =
+      ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
+        data.instanceObject!,
+        representationInstanceModel
       );
 
-    if (classifierInRepresentation) {
+    if (notationElementRepresentationInstance) {
       // Calculate max dimensions of the original graphicalRepresentation items
       const originalMaxWidth = Math.max(
-        ...classifierInRepresentation.graphicalRepresentation!.map(
+        ...notationElementRepresentationInstance.graphicalRepresentation!.map(
           (item) => item.position.extent?.width || 100
         )
       );
       const originalMaxHeight = Math.max(
-        ...classifierInRepresentation.graphicalRepresentation!.map(
+        ...notationElementRepresentationInstance.graphicalRepresentation!.map(
           (item) => item.position.extent?.height || 100
         )
       );
@@ -226,37 +259,43 @@ const CombineObjectShapesNode = ({
 
       // Update the extent (width and height) **and** position (x and y) for **all** items
       const updatedGraphicalRepresentation =
-        classifierInRepresentation.graphicalRepresentation!.map((item) => {
-          return {
-            ...item,
-            position: {
-              ...item.position,
-              x: item.position.x * uniformScaleFactor, // Scale position x
-              y: item.position.y * uniformScaleFactor, // Scale position y
-              extent: {
-                width:
-                  (item.position.extent?.width || 100) * uniformScaleFactor, // Scale width
-                height:
-                  (item.position.extent?.height || 100) * uniformScaleFactor, // Scale height
+        notationElementRepresentationInstance.graphicalRepresentation!.map(
+          (item) => {
+            return {
+              ...item,
+              position: {
+                ...item.position,
+                x: item.position.x * uniformScaleFactor, // Scale position x
+                y: item.position.y * uniformScaleFactor, // Scale position y
+                extent: {
+                  width:
+                    (item.position.extent?.width || 100) * uniformScaleFactor, // Scale width
+                  height:
+                    (item.position.extent?.height || 100) * uniformScaleFactor, // Scale height
+                },
               },
-            },
-          };
-        });
+            };
+          }
+        );
 
-      // Update the classifier with the new graphicalRepresentation in the representation model
+      const instanceObjectIndex = metaInstanceModel.package.objects.findIndex(
+        (obj) => obj.name === data.instanceObject!.name
+      );
+      // Update the representation instance model with the updated graphical representation corresponding to the instance object
       const updatedRepresentationInstanceModel: RepresentationInstanceModel = {
-        ...representationInstanceModel,
         package: {
           ...representationInstanceModel.package,
-          objects: representationInstanceModel.package.objects.map((obj) => {
-            if (obj.instanceObject === data.instance!.instanceObject) {
-              return {
-                ...obj,
-                graphicalRepresentation: updatedGraphicalRepresentation,
-              };
+          objects: representationInstanceModel.package.objects.map(
+            (obj, index) => {
+              if (index === instanceObjectIndex) {
+                return {
+                  ...obj,
+                  graphicalRepresentation: updatedGraphicalRepresentation,
+                };
+              }
+              return obj;
             }
-            return obj;
-          }),
+          ),
         },
       };
 
@@ -274,7 +313,7 @@ const CombineObjectShapesNode = ({
 
     // update the name of the class
     newInstanceModel.package.objects.find(
-      (cls) => cls.name === data.instance?.instanceObject!.name
+      (cls) => cls.name === data.instanceObject!.name
     )!.name = newDefaultValue;
     dispatch({ type: "UPDATE_MODEL", payload: newInstanceModel });
   };
@@ -409,8 +448,8 @@ const CombineObjectShapesNode = ({
       onDoubleClick={() => setIsNodeModalOpen(true)}
       style={{
         position: "relative",
-        width: data.isPalette ? "100%" : `${containerSize.width}px`,
-        height: data.isPalette ? "100%" : `${containerSize.height}px`,
+        width: isPalette ? "100%" : `${containerSize.width}px`,
+        height: isPalette ? "100%" : `${containerSize.height}px`,
         transform: `scale(${scale})`,
         transformOrigin: "top left",
         display: "flex",
@@ -426,6 +465,8 @@ const CombineObjectShapesNode = ({
         nodeId={nodeId}
         compartments={compartments}
         data={data}
+        isNotationSlider={isNotationSlider}
+        isPalette={isPalette}
       />
 
       {/* Render texts in the front */}
@@ -434,13 +475,21 @@ const CombineObjectShapesNode = ({
         data={data}
         handleTextChange={handleTextChange}
         texts={texts}
+        isNotationSlider={isNotationSlider}
+        isPalette={isPalette}
       />
 
       {/* Render connectors in the front */}
-      <RenderConnectors connectors={connectors} id={nodeId} key={nodeId} />
+      <RenderConnectors
+        connectors={connectors}
+        id={nodeId}
+        key={nodeId}
+        isNotationSlider={isNotationSlider}
+        isPalette={isPalette}
+      />
 
       {/* Node resizer */}
-      {!data.isPalette && selected && (
+      {!isPalette && selected && (
         <NodeResizer
           color="#ff0071"
           onResize={handleResize}

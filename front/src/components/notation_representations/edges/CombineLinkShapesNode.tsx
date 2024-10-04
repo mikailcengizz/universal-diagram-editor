@@ -2,6 +2,7 @@ import { getBezierPath, useReactFlow, Position } from "@xyflow/react";
 import React, { useEffect, useState } from "react";
 import { DiagramNodeData } from "../../../types/types";
 import RenderLine from "./components/RenderLine";
+import ModelHelperFunctions from "../../helpers/ModelHelperFunctions";
 
 interface CombineRelationshipShapesEdgeProps {
   id: string;
@@ -17,7 +18,7 @@ interface CombineRelationshipShapesEdgeProps {
   data: DiagramNodeData;
 }
 
-function CombineRelationshipShapesEdge({
+function CombineLinkShapesNode({
   id,
   sourceX,
   sourceY,
@@ -31,6 +32,8 @@ function CombineRelationshipShapesEdge({
   data: initialData,
 }: CombineRelationshipShapesEdgeProps) {
   const [data, setData] = useState<DiagramNodeData>({ ...initialData });
+  const isNotationSlider = data.isNotationSlider || false;
+  const isPalette = data.instanceObject === undefined && !isNotationSlider;
 
   const [markers, setMarkers] = useState<{
     source: string | undefined;
@@ -69,19 +72,22 @@ function CombineRelationshipShapesEdge({
 
   console.log("data", data);
 
+  const representationInstanceObject =
+    ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInLocalStorage(
+      data.instanceObject!
+    );
+
   const edgeStyles = {
     strokeWidth:
-      data.instance?.representationInstanceObject!.graphicalRepresentation![0]
-        .style.lineWidth,
+      representationInstanceObject!.graphicalRepresentation![0].style.lineWidth,
     stroke:
-      data.instance?.representationInstanceObject!.graphicalRepresentation![0]
-        .style.color,
+      representationInstanceObject!.graphicalRepresentation![0].style.color,
     strokeDasharray:
-      data.instance?.representationInstanceObject!.graphicalRepresentation![0]
-        .style.lineStyle === "dotted"
+      representationInstanceObject!.graphicalRepresentation![0].style
+        .lineStyle === "dotted"
         ? "5,5"
-        : data.instance?.representationInstanceObject!
-            .graphicalRepresentation![0].style.lineStyle === "dashed"
+        : representationInstanceObject!.graphicalRepresentation![0].style
+            .lineStyle === "dashed"
         ? "10,10"
         : "0",
     ...style,
@@ -90,7 +96,7 @@ function CombineRelationshipShapesEdge({
   console.log("edgeStyles", edgeStyles);
 
   // Manually render the line for palette or notation slider context
-  if (data.isPalette || data.isNotationSlider) {
+  if (isPalette || isNotationSlider) {
     return (
       <svg width="100%" height="100%">
         <line
@@ -179,4 +185,4 @@ function CombineRelationshipShapesEdge({
   );
 }
 
-export default CombineRelationshipShapesEdge;
+export default CombineLinkShapesNode;

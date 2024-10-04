@@ -12,7 +12,10 @@
             "name": "reference",
             "$ref": "#/elements/1"
           }
-        ]
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/petri-net-representation#/elements/0"
+        }
       },
       {
         "name": "Reference",
@@ -130,7 +133,10 @@
             "name": "reference",
             "$ref": "#/elements/7"
           }
-        ]
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/petri-net-representation#/elements/0"
+        }
       },
       {
         "name": "Reference",

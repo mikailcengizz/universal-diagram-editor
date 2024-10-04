@@ -1,16 +1,20 @@
+import { InstanceModel } from "../../types/types";
 import {
   UPDATE_INSTANCE_MODEL,
   UPDATE_INSTANCE_OBJECT,
 } from "../actions/objectInstanceModelActions";
 
 // Load the model from localStorage if available
-const storedMetaInstanceModel = JSON.parse(
-  localStorage.getItem("metaInstanceModel")!
-) || {
-  name: "",
-  type: "meta-instance",
-  ePackages: [],
+const fallbackMetaInstanceModel: InstanceModel = {
+  package: {
+    uri: "",
+    objects: [],
+  },
 };
+
+const storedMetaInstanceModel: InstanceModel =
+  JSON.parse(localStorage.getItem("metaInstanceModel")!) ||
+  fallbackMetaInstanceModel;
 
 const initialState = {
   model: storedMetaInstanceModel,
@@ -25,20 +29,18 @@ const metaInstanceModelReducer = (state = initialState, action: any) => {
       return { ...state, model: updatedModel };
 
     case UPDATE_INSTANCE_OBJECT:
-      const updatedClasses = state.model.ePackages[0].eClassifiers.map(
-        (cls: any) => (cls.name === action.payload.name ? action.payload : cls)
+      const updatedObjects = state.model.package.objects.map((cls: any) =>
+        cls.name === action.payload.name ? action.payload : cls
       );
-      const updatedModelWithClass = {
+      const updatedModelWithObject: InstanceModel = {
         ...state.model,
-        ePackages: [
-          { ...state.model.ePackages[0], eClassifiers: updatedClasses },
-        ],
+        package: { ...state.model.package, objects: updatedObjects },
       };
       localStorage.setItem(
         "metaInstanceModel",
-        JSON.stringify(updatedModelWithClass)
+        JSON.stringify(updatedModelWithObject)
       );
-      return { ...state, model: updatedModelWithClass };
+      return { ...state, model: updatedModelWithObject };
 
     default:
       return state;

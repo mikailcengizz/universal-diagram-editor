@@ -58,20 +58,11 @@ export type Shape =
   | "doubleLine";
 
 // DIAGRAM EDITOR
-export interface Notation {
-  metaModel?: MetaModel;
-  representationMetaModel?: RepresentationMetaModel;
-}
-
-export interface Instance {
-  instanceObject?: InstanceObject;
-  representationInstanceObject?: RepresentationInstanceObject;
-}
-
 export interface DiagramNodeData {
-  notation?: Notation; // notation (meta models)
-  instance?: Instance; // instance for the node
+  notation?: MetaModel; // notation (meta model)
+  instanceObject?: InstanceObject; // instance object for this node
   position?: Position;
+  isNotationSlider?: boolean;
   onDoubleClick?: (id: any, data: any) => void;
 }
 
@@ -91,7 +82,7 @@ export interface ConfigListItem {
 
 // PALETTE
 export interface DragData {
-  notation: InstanceObject;
+  notationElement: Class;
 }
 
 // ECORE MODEL
@@ -125,7 +116,11 @@ export interface Class extends Classifier {
   isInterface?: boolean;
   attributes?: Attribute[];
   references?: Reference[];
-  representation?: Representation;
+  representation?: RepresentationReference;
+}
+
+export interface RepresentationReference {
+  $ref: string; // URI reference to the representation
 }
 
 export interface DataType extends Classifier {
@@ -156,10 +151,18 @@ export interface InstancePackage {
 
 export interface InstanceObject {
   name: string;
-  type: Class; // type (class) of this object, referencing the meta model definition
+  type: ClassReference; // type (class) of this object, $ref to the meta model definition
   attributes: AttributeValue[];
   links: ReferenceValue[];
   representation?: RepresentationInstanceObjectReference; // $ref
+}
+
+export interface ClassReference {
+  $ref: string; // URI reference to the class
+}
+
+export interface RepresentationInstanceObjectReference {
+  $ref: string; // URI reference to the representation instance object
 }
 
 export interface AttributeValue {
@@ -189,7 +192,8 @@ export interface RepresentationPackage {
 export type RepresentationType = "ClassNode" | "ClassEdge";
 
 export interface Representation {
-  type?: RepresentationType; // we map classes to representation types
+  name: string;
+  type: RepresentationType; // we map classes to representation types
   graphicalRepresentation?: NotationRepresentationItem[];
 }
 
@@ -204,11 +208,8 @@ export interface RepresentationInstancePackage {
 }
 
 export interface RepresentationInstanceObject {
-  type?: RepresentationType;
+  name: string;
+  type: RepresentationType;
   position?: Position;
   graphicalRepresentation?: NotationRepresentationItem[];
-}
-
-export interface RepresentationInstanceObjectReference {
-  $ref: string; // URI reference to the representation instance object
 }

@@ -20,7 +20,8 @@ import {
   Package,
   MetaModel,
   Class,
-  Notation,
+  Representation,
+  RepresentationMetaModel,
 } from "../../types/types";
 import NotationsSlider from "../ui_elements/NotationsSlider";
 
@@ -40,28 +41,34 @@ const propertyTextfieldStyle = "w-1/6 2xl:w-[250px]";
 interface NotationDesignerConfigurePanelProps {
   selectedNotationType: string;
   handleNotationTypeChange: (e: SelectChangeEvent<string>) => void;
+  currentNotationElementRepresentation: Representation; // updates automatically
   currentNotationElement: Class;
   setCurrentNotationElement: (value: Class) => void;
   newAttribute: Attribute;
   setNewAttribute: (value: any) => void;
   handleAddProperty: () => void;
   availableConfigs: ConfigListItem[];
-  selectedNotation: Notation;
-  setSelectedNotation: (value: Notation) => void;
+  selectedMetaModel: MetaModel;
+  setSelectedMetaModel: (value: MetaModel) => void;
+  selectedRepresentationMetaModel: RepresentationMetaModel;
+  setSelectedRepresentationMetaModel: (value: RepresentationMetaModel) => void;
   saveNotation: () => void;
 }
 
 function NotationDesignerConfigurePanel({
   selectedNotationType,
   handleNotationTypeChange,
+  currentNotationElementRepresentation,
   currentNotationElement,
   setCurrentNotationElement,
   newAttribute,
   setNewAttribute,
   handleAddProperty,
   availableConfigs,
-  selectedNotation,
-  setSelectedNotation,
+  selectedMetaModel,
+  setSelectedMetaModel,
+  selectedRepresentationMetaModel,
+  setSelectedRepresentationMetaModel,
   saveNotation,
 }: NotationDesignerConfigurePanelProps) {
   return (
@@ -76,16 +83,14 @@ function NotationDesignerConfigurePanel({
           options={availableConfigs.map(
             (availableConfig) => availableConfig?.name
           )} // List of existing configuration names
-          value={selectedNotation.metaModel!.package.uri}
+          value={selectedMetaModel.package.uri}
           onInputChange={(event, newInputValue) => {
-            setSelectedNotation({
-              ...selectedNotation,
-              metaModel: {
-                package: {
-                  name: newInputValue,
-                  uri: newInputValue,
-                  elements: [],
-                },
+            setSelectedMetaModel({
+              package: {
+                ...selectedMetaModel.package,
+                name: newInputValue,
+                uri: newInputValue,
+                elements: [],
               },
             });
           }}
@@ -119,16 +124,15 @@ function NotationDesignerConfigurePanel({
           className={configureTextfieldStyle}
           freeSolo
           options={
-            selectedNotation.metaModel!.package.elements.map(
+            selectedMetaModel.package.elements.map(
               (notation) => notation.name
             ) || []
           } // List of existing notation names
           value={currentNotationElement?.name}
           onInputChange={(event, newInputValue) => {
-            const newNotation =
-              selectedNotation.metaModel!.package.elements.find(
-                (n) => n.name === newInputValue
-              );
+            const newNotation = selectedMetaModel.package.elements.find(
+              (n) => n.name === newInputValue
+            );
             if (newNotation) {
               setCurrentNotationElement(newNotation);
             } else {
@@ -149,37 +153,37 @@ function NotationDesignerConfigurePanel({
 
         {/* Properties Section */}
         <h3 className="text-xl font-bold">Properties</h3>
-        {(selectedNotation.metaModel!.package.elements[0] as Class).attributes!
-          .length > 0 && (
+        {(selectedMetaModel.package.elements[0] as Class).attributes!.length >
+          0 && (
           <List>
-            {(
-              selectedNotation.metaModel!.package.elements[0] as Class
-            ).attributes!.map((prop, index) => {
-              const attribute = prop as Attribute;
-              return (
-                <ListItem key={index}>
-                  <ListItemText
-                    primary={`${attribute.name} (${attribute.attributeType})`}
-                    secondary={attribute.defaultValue?.toString() || ""}
-                  />
-                  <ListItemSecondaryAction>
-                    <IconButton
-                      edge="end"
-                      onClick={() =>
-                        setCurrentNotationElement({
-                          ...currentNotationElement,
-                          /* properties: (
+            {(selectedMetaModel.package.elements[0] as Class).attributes!.map(
+              (prop, index) => {
+                const attribute = prop as Attribute;
+                return (
+                  <ListItem key={index}>
+                    <ListItemText
+                      primary={`${attribute.name} (${attribute.attributeType})`}
+                      secondary={attribute.defaultValue?.toString() || ""}
+                    />
+                    <ListItemSecondaryAction>
+                      <IconButton
+                        edge="end"
+                        onClick={() =>
+                          setCurrentNotationElement({
+                            ...currentNotationElement,
+                            /* properties: (
                               selectedMetaModel.package.elements[0] as Class
                             ).attributes!.filter((_, i) => i !== index), */
-                        })
-                      }
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              );
-            })}
+                          })
+                        }
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </ListItemSecondaryAction>
+                  </ListItem>
+                );
+              }
+            )}
           </List>
         )}
         <div className="flex items-center gap-x-2">
@@ -506,7 +510,8 @@ function NotationDesignerConfigurePanel({
           />
           <NotationsSlider
             settings={notationsSliderSettings}
-            selectedNotation={selectedNotation}
+            selectedMetaModel={selectedMetaModel}
+            selectedRepresentationMetaModel={selectedRepresentationMetaModel}
             setCurrentNotationElement={setCurrentNotationElement}
           />
         </div>

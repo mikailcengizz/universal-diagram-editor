@@ -1,9 +1,11 @@
-import { Class } from "../../../../../types/types";
+import { Class, Representation } from "../../../../../types/types";
 import CustomModal from "../../../../ui_elements/Modal";
 
 interface ModalDoubleClickTextProps {
   isTextModalOpen: boolean;
   setIsTextModalOpen: (isOpen: boolean) => void;
+  currentNotationElementRepresentation: Representation;
+  setCurrentNotationElementRepresentation: (value: Representation) => void;
   currentNotationElement: Class;
   setCurrentNotationElement: (value: Class) => void;
   selectedElementIndex: number | null;
@@ -12,6 +14,8 @@ interface ModalDoubleClickTextProps {
 function ModalDoubleClickText({
   isTextModalOpen,
   setIsTextModalOpen,
+  currentNotationElementRepresentation,
+  setCurrentNotationElementRepresentation,
   currentNotationElement,
   setCurrentNotationElement,
   selectedElementIndex,
@@ -20,16 +24,13 @@ function ModalDoubleClickText({
     if (selectedElementIndex === null) return;
 
     const updatedRepresentation = [
-      ...currentNotationElement.representation?.graphicalRepresentation!,
+      ...currentNotationElementRepresentation?.graphicalRepresentation!,
     ];
     updatedRepresentation[selectedElementIndex].text = e.target.value;
 
-    setCurrentNotationElement({
-      ...currentNotationElement,
-      representation: {
-        ...currentNotationElement.representation!,
-        graphicalRepresentation: updatedRepresentation,
-      },
+    setCurrentNotationElementRepresentation({
+      ...currentNotationElementRepresentation,
+      graphicalRepresentation: updatedRepresentation,
     });
   };
 
@@ -37,18 +38,15 @@ function ModalDoubleClickText({
     if (selectedElementIndex === null) return;
 
     const updatedRepresentation = [
-      ...currentNotationElement.representation?.graphicalRepresentation!,
+      ...currentNotationElementRepresentation?.graphicalRepresentation!,
     ];
     updatedRepresentation[selectedElementIndex].style.fontSize = parseInt(
       e.target.value
     );
 
-    setCurrentNotationElement({
-      ...currentNotationElement,
-      representation: {
-        ...currentNotationElement.representation!,
-        graphicalRepresentation: updatedRepresentation,
-      },
+    setCurrentNotationElementRepresentation({
+      ...currentNotationElementRepresentation,
+      graphicalRepresentation: updatedRepresentation,
     });
   };
 

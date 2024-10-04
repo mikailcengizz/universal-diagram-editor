@@ -1,27 +1,34 @@
 import React from "react";
 import {
+  Class,
   DragData,
-  EClass,
-  EPackage,
-  InstanceNotation,
-  MetaNotation,
+  MetaModel,
+  Representation,
+  RepresentationMetaModel,
 } from "../../types/types";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
-import CombineRelationshipShapesNode from "../notation_representations/edges/CombineRelationshipShapesEdge";
+import CombineLinkShapesNode from "../notation_representations/edges/CombineLinkShapesNode";
 import CombineRoleShapesNode from "../notation_representations/nodes/CombineRoleShapesNode";
 import { Position } from "@xyflow/react";
+import ReferenceHelper from "../helpers/ReferenceHelper";
+import ModelHelperFunctions from "../helpers/ModelHelperFunctions";
 
 interface PaletteEditorPanelProps {
+  selectedMetaModel: MetaModel;
+  selectedRepresentationMetaModel: RepresentationMetaModel;
   title: string | undefined;
-  notations: MetaNotation[];
+  notationElements: Class[];
 }
 
-const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
-  const onDragStart = (event: React.DragEvent, notation: MetaNotation) => {
-    const notationInstance: InstanceNotation = notation as InstanceNotation;
+const PaletteEditorPanel = ({
+  selectedMetaModel,
+  selectedRepresentationMetaModel,
+  title,
+  notationElements,
+}: PaletteEditorPanelProps) => {
+  const onDragStart = (event: React.DragEvent, notationElement: Class) => {
     const dragData: DragData = {
-      notation: notationInstance,
-      notationType: notation.type!,
+      notationElement: notationElement,
     };
 
     event.dataTransfer.setData("palette-item", JSON.stringify(dragData));
@@ -29,33 +36,37 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
     console.log("onDragStart - element dragged:", dragData);
   };
 
-  const renderNodePreview = (notation: MetaNotation) => {
-    const notationInstance: InstanceNotation = notation as InstanceNotation;
-    switch (notation.name) {
-      case "Class":
+  const renderNodePreview = (notationElement: Class) => {
+    const notationElementRepresentation =
+      ModelHelperFunctions.findRepresentationFromClassInRepresentationMetaModel(
+        notationElement,
+        selectedRepresentationMetaModel
+      )!;
+
+    switch (notationElementRepresentation.type) {
+      case "ClassNode":
         return (
           <CombineObjectShapesNode
-            key={notation.name}
-            id={notation.name}
+            key={notationElementRepresentation.name}
+            id={notationElementRepresentation.name}
             data={{
-              instanceNotation: notationInstance,
-              metaNotations: notations,
-              isPalette: true,
+              notation: selectedMetaModel,
+              instanceObject: undefined,
+              position: undefined,
             }}
           />
         );
-      case "EReference":
+      case "ClassEdge":
         const { x, y, targetX, targetY } =
-          notation.graphicalRepresentation![0].position;
+          notationElementRepresentation.graphicalRepresentation![0].position;
         return (
-          <CombineRelationshipShapesNode
-            key={notation.name}
-            id={notation.name}
+          <CombineLinkShapesNode
+            key={notationElementRepresentation.name}
+            id={notationElementRepresentation.name}
             data={{
-              instanceNotation: notationInstance,
-              metaNotations: notations,
-              isPalette: true,
-              isNotationSlider: false,
+              notation: selectedMetaModel,
+              instanceObject: undefined,
+              position: undefined,
             }}
             sourceX={x}
             sourceY={y}
@@ -86,18 +97,18 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
       {/* Classifiers: Class, DataType, Enumeration, ETypeParameter */}
       <h2>Classifier</h2>
       <div className="grid grid-cols-2">
-        {notations
+        {notationElements
           .filter(
-            (notation) =>
-              notation.name === "Class" ||
-              notation.name === "DataType" ||
-              notation.name === "Enumeration" ||
-              notation.name === "ETypeParameter"
+            (notationElement) =>
+              notationElement.name === "Class" ||
+              notationElement.name === "DataType" ||
+              notationElement.name === "Enumeration" ||
+              notationElement.name === "ETypeParameter"
           )
-          .map((notation: MetaNotation) => (
+          .map((notationElement: Class) => (
             <div
-              key={notation.name}
-              onDragStart={(event) => onDragStart(event, notation)}
+              key={notationElement.name}
+              onDragStart={(event) => onDragStart(event, notationElement)}
               draggable
               style={{
                 margin: "10px",
@@ -107,19 +118,19 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
                 backgroundColor: "#fff",
               }}
             >
-              {renderNodePreview(notation)}
+              {renderNodePreview(notationElement)}
             </div>
           ))}
       </div>
 
       <h2>Relation</h2>
       <div className="grid grid-cols-2">
-        {notations
-          .filter((notation) => notation.name === "Association")
-          .map((notation: MetaNotation) => (
+        {notationElements
+          .filter((notationElement) => notationElement.name === "Association")
+          .map((notationElement: Class) => (
             <div
-              key={notation.name}
-              onDragStart={(event) => onDragStart(event, notation)}
+              key={notationElement.name}
+              onDragStart={(event) => onDragStart(event, notationElement)}
               draggable
               style={{
                 margin: "10px",
@@ -129,17 +140,19 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
                 backgroundColor: "#fff",
               }}
             >
-              {renderNodePreview(notation)}
+              {renderNodePreview(notationElement)}
             </div>
           ))}
       </div>
       <h2>Package</h2>
       <div className="grid grid-cols-2">
-        {notations
-          .filter((notation: MetaNotation) => notation.name === "Package")
-          .map((notation) => (
+        {notationElements
+          .filter(
+            (notationElement: Class) => notationElement.name === "Package"
+          )
+          .map((notationElement) => (
             <div
-              key={notation.name}
+              key={notationElement.name}
               style={{
                 padding: "10px",
                 border: "1px solid #ccc",
@@ -149,11 +162,11 @@ const PaletteEditorPanel = ({ title, notations }: PaletteEditorPanelProps) => {
               }}
             >
               <div
-                onDragStart={(event) => onDragStart(event, notation)}
+                onDragStart={(event) => onDragStart(event, notationElement)}
                 draggable
                 className="h-full w-full cursor-grab"
               >
-                {renderNodePreview(notation)}
+                {renderNodePreview(notationElement)}
               </div>
             </div>
           ))}

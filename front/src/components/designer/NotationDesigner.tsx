@@ -11,28 +11,28 @@ import {
   MetaModel,
   RepresentationMetaModel,
   Class,
-  Notation,
+  Representation,
 } from "../../types/types";
+import ModelHelperFunctions from "../helpers/ModelHelperFunctions";
 
 const NotationDesigner = () => {
   const [availableConfigs, setAvailableConfigs] = useState<ConfigListItem[]>(
     []
   );
-  const [selectedNotation, setSelectedNotation] = useState<Notation>({
-    metaModel: {
-      package: {
-        name: "",
-        uri: "",
-        elements: [],
-      },
-    },
-    representationMetaModel: {
-      package: {
-        uri: "",
-        elements: [],
-      },
+  const [selectedMetaModel, setSelectedMetaModel] = useState<MetaModel>({
+    package: {
+      name: "",
+      uri: "",
+      elements: [],
     },
   });
+  const [selectedRepresentationMetaModel, setSelectedRepresentationMetaModel] =
+    useState<RepresentationMetaModel>({
+      package: {
+        uri: "",
+        elements: [],
+      },
+    });
 
   const [currentNotationElement, setCurrentNotationElement] = useState<Class>({
     name: "",
@@ -40,6 +40,15 @@ const NotationDesigner = () => {
     references: [],
     representation: undefined,
   });
+  const [
+    currentNotationElementRepresentation,
+    setCurrentNotationElementRepresentation,
+  ] = useState<Representation>({
+    name: "",
+    type: "ClassNode",
+    graphicalRepresentation: [],
+  });
+
   const [selectedNotationType, setSelectedNotationType] = useState<string>();
   const [newAttribute, setNewAttribute] = useState<Attribute>({
     name: "",
@@ -71,11 +80,11 @@ const NotationDesigner = () => {
 
   useEffect(() => {
     // Only load config if it's not loaded yet or when a new config name is selected
-    if (selectedNotation.metaModel!.package && !isConfigLoaded) {
+    if (selectedMetaModel.package && !isConfigLoaded) {
       const loadMetaConfig = async () => {
         try {
           const response = await configService.getMetaConfigByUri(
-            selectedNotation.metaModel!.package.uri
+            selectedMetaModel.package.uri
           );
           if (
             !response.data ||
@@ -85,10 +94,7 @@ const NotationDesigner = () => {
             return;
           }
           const config = response.data as MetaModel;
-          setSelectedNotation({
-            ...selectedNotation,
-            metaModel: config,
-          });
+          setSelectedMetaModel(config);
           setIsConfigLoaded(true); // Mark config as loaded
         } catch (error) {
           console.error("Error loading configuration:", error);
@@ -99,7 +105,7 @@ const NotationDesigner = () => {
       const loadRepresentationConfig = async () => {
         try {
           const response = await configService.getRepresentationConfigByUri(
-            selectedNotation.representationMetaModel!.package.uri
+            selectedMetaModel.package.uri + "-representation"
           );
           if (
             !response.data ||
@@ -109,17 +115,14 @@ const NotationDesigner = () => {
             return;
           }
           const config = response.data as RepresentationMetaModel;
-          setSelectedNotation({
-            ...selectedNotation,
-            representationMetaModel: config,
-          });
+          setSelectedRepresentationMetaModel(config);
         } catch (error) {
           console.error("Error loading configuration:", error);
         }
       };
       loadRepresentationConfig();
     }
-  }, [selectedNotation, isConfigLoaded]);
+  }, [selectedMetaModel.package, isConfigLoaded]);
 
   const handleNotationTypeChange = (e: SelectChangeEvent<string>) => {
     /* setSelectedNotationType(value);
@@ -147,16 +150,12 @@ const NotationDesigner = () => {
 
   const saveNotation = () => {
     // Save in the frontend
-    const updatedElements = { ...selectedNotation.metaModel!.package.elements };
+    const updatedElements = { ...selectedMetaModel.package.elements };
 
-    setSelectedNotation({
-      ...selectedNotation,
-      metaModel: {
-        ...selectedNotation.metaModel!,
-        package: {
-          ...selectedNotation.metaModel!.package,
-          elements: updatedElements,
-        },
+    setSelectedMetaModel({
+      package: {
+        ...selectedMetaModel.package,
+        elements: updatedElements,
       },
     });
 
@@ -166,7 +165,7 @@ const NotationDesigner = () => {
         await axios.post(
           "/config/save",
           {
-            uri: selectedNotation?.metaModel!.package.uri,
+            uri: selectedMetaModel?.package.uri,
             elements: updatedElements,
           },
           {
@@ -201,23 +200,40 @@ const NotationDesigner = () => {
         <NotationDesignerConfigurePanel
           selectedNotationType={selectedNotationType!}
           handleNotationTypeChange={handleNotationTypeChange}
+          currentNotationElementRepresentation={
+            currentNotationElementRepresentation
+          }
           currentNotationElement={currentNotationElement}
           setCurrentNotationElement={setCurrentNotationElement}
           newAttribute={newAttribute}
           setNewAttribute={setNewAttribute}
           handleAddProperty={handleAddAttribute}
           availableConfigs={availableConfigs}
-          selectedNotation={selectedNotation}
-          setSelectedNotation={(config) => {
-            setSelectedNotation(config);
+          selectedMetaModel={selectedMetaModel}
+          setSelectedMetaModel={(config) => {
+            setSelectedMetaModel(config);
             setIsConfigLoaded(false); // Reset flag if a new config is selected
           }}
+          selectedRepresentationMetaModel={selectedRepresentationMetaModel}
+          setSelectedRepresentationMetaModel={
+            setSelectedRepresentationMetaModel
+          }
           saveNotation={saveNotation}
         />
       ) : (
         <NotationDesignerDrawPanel
+          currentNotationElementRepresentation={
+            currentNotationElementRepresentation
+          }
+          setCurrentNotationElementRepresentation={
+            setCurrentNotationElementRepresentation
+          }
           currentNotationElement={currentNotationElement}
           setCurrentNotationElement={setCurrentNotationElement}
+          selectedRepresentationMetaModel={selectedRepresentationMetaModel}
+          setSelectedRepresentationMetaModel={
+            setSelectedRepresentationMetaModel
+          }
           saveNotation={saveNotation}
         />
       )}

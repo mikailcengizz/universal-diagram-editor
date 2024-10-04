@@ -1,16 +1,20 @@
+import { RepresentationInstanceModel } from "../../types/types";
 import {
   UPDATE_REPRESENTATION_INSTANCE_MODEL,
   UPDATE_REPRESENTATION_INSTANCE_OBJECT,
 } from "../actions/representationInstanceModelActions";
 
-// Load the model from localStorage if available
-const storedRepresentationInstanceModel = JSON.parse(
-  localStorage.getItem("representationInstanceModel")!
-) || {
-  name: "",
-  type: "representation-instance",
-  ePackages: [],
+const fallbackRepresentationInstanceModel: RepresentationInstanceModel = {
+  package: {
+    uri: "",
+    objects: [],
+  },
 };
+
+// Load the model from localStorage if available
+const storedRepresentationInstanceModel: RepresentationInstanceModel =
+  JSON.parse(localStorage.getItem("representationInstanceModel")!) ||
+  fallbackRepresentationInstanceModel;
 
 const initialState = {
   model: storedRepresentationInstanceModel,
@@ -31,20 +35,18 @@ const representationInstanceModelReducer = (
       return { ...state, model: updatedModel };
 
     case UPDATE_REPRESENTATION_INSTANCE_OBJECT:
-      const updatedClasses = state.model.ePackages[0].eClassifiers.map(
-        (cls: any) => (cls.name === action.payload.name ? action.payload : cls)
+      const updatedObjects = state.model.package.objects.map((obj: any) =>
+        obj.name === action.payload.name ? action.payload : obj
       );
-      const updatedModelWithClass = {
+      const updatedModelWithObject: RepresentationInstanceModel = {
         ...state.model,
-        ePackages: [
-          { ...state.model.ePackages[0], eClassifiers: updatedClasses },
-        ],
+        package: { ...state.model.package, objects: updatedObjects },
       };
       localStorage.setItem(
         "representationInstanceModel",
-        JSON.stringify(updatedModelWithClass)
+        JSON.stringify(updatedModelWithObject)
       );
-      return { ...state, model: updatedModelWithClass };
+      return { ...state, model: updatedModelWithObject };
 
     default:
       return state;

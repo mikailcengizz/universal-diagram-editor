@@ -1,6 +1,6 @@
-export const UPDATE_SELECTED_CONFIG = "UPDATE_SELECTED_CONFIG";
+export const UPDATE_SELECTED_META_MODEL = "UPDATE_SELECTED_META_MODEL";
 
-export const updateSelectedConfig = (config: string | null) => ({
-  type: UPDATE_SELECTED_CONFIG,
+export const updateSelectedMetaModel = (config: string | null) => ({
+  type: UPDATE_SELECTED_META_MODEL,
   payload: config,
 });

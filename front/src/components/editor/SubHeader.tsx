@@ -7,9 +7,9 @@ import * as htmlToImage from "html-to-image";
 import { saveAs } from "file-saver";
 import { Edge, Node as ReactFlowNode } from "@xyflow/react";
 import { useDispatch } from "react-redux";
-import { updateMetaInstanceModel } from "../../redux/actions/objectInstanceModelActions";
+import { updateInstanceModel } from "../../redux/actions/objectInstanceModelActions";
 import { updateRepresentationInstanceModel } from "../../redux/actions/representationInstanceModelActions";
-import { updateSelectedConfig } from "../../redux/actions/selectedConfigActions";
+import { updateSelectedMetaModel } from "../../redux/actions/selectedConfigActions";
 
 interface SubHeaderProps {
   onSelectConfig: (configName: string) => void;
@@ -93,21 +93,23 @@ function SubHeader({
 
     // Clear the diagram instance
     dispatch(
-      updateMetaInstanceModel({
-        name: "",
-        type: "meta-instance",
-        ePackages: [],
+      updateInstanceModel({
+        package: {
+          uri: "",
+          objects: [],
+        },
       })
     );
     dispatch(
       updateRepresentationInstanceModel({
-        name: "",
-        type: "representation-instance",
-        ePackages: [],
+        package: {
+          uri: "",
+          objects: [],
+        },
       })
     );
 
-    dispatch(updateSelectedConfig(null));
+    dispatch(updateSelectedMetaModel(null));
     onSelectConfig("");
   };
 

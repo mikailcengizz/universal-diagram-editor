@@ -23,23 +23,27 @@ import {
   InstanceModel,
   RepresentationInstanceModel,
   MetaModel,
-  Notation,
   InstanceObject,
+  Class,
+  ReferenceValue,
+  RepresentationMetaModel,
+  RepresentationInstanceObject,
 } from "../../types/types";
 import PaletteEditorPanel from "./PaletteEditorPanel";
 import configService from "../../services/ConfigService";
 import ReactFlowWithInstance from "../ReactFlowWithInstance";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
-import CombineRelationshipShapesEdge from "../notation_representations/edges/CombineRelationshipShapesEdge";
+import CombineRelationshipShapesEdge from "../notation_representations/edges/CombineLinkShapesNode";
 import ModalDoubleClickNotation from "../notation_representations/nodes/components/modals/first_layer/ModalDoubleClickNotation";
 import typeHelper from "../helpers/TypeHelper";
 import { all } from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { updateRepresentationInstanceModel } from "../../redux/actions/representationInstanceModelActions";
 import { updateInstanceModel } from "../../redux/actions/objectInstanceModelActions";
-import { updateSelectedConfig } from "../../redux/actions/selectedConfigActions";
+import { updateSelectedMetaModel } from "../../redux/actions/selectedConfigActions";
 import { v4 as uuidv4 } from "uuid"; // Import UUID generator
 import ReferenceHelper from "../helpers/ReferenceHelper";
+import ModelHelperFunctions from "../helpers/ModelHelperFunctions";
 
 const nodeTypes = {
   ClassNode: CombineObjectShapesNode,
@@ -50,7 +54,7 @@ const edgeTypes = {
 };
 
 interface DiagramEditorProps {
-  selectedConfigName: string | null;
+  selectedMetaModelURI: string;
   diagramAreaRef: React.RefObject<HTMLDivElement>;
   nodes: Node[];
   setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
@@ -59,7 +63,7 @@ interface DiagramEditorProps {
 }
 
 const DiagramEditor = ({
-  selectedConfigName,
+  selectedMetaModelURI,
   diagramAreaRef,
   nodes,
   setNodes,
@@ -75,37 +79,33 @@ const DiagramEditor = ({
   );
 
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
-  const [selectedNotation, setSelectedNotation] = useState<Notation>({
-    metaModel: {
-      package: {
-        name: "",
-        uri: "",
-        elements: [],
-      },
-    },
-    representationMetaModel: {
-      package: {
-        uri: "",
-        elements: [],
-      },
+  const [selectedMetaModel, setSelectedMetaModel] = useState<MetaModel>({
+    package: {
+      name: "",
+      uri: "",
+      elements: [],
     },
   });
+  const [selectedRepresentationMetaModel, setSelectedRepresentationMetaModel] =
+    useState<RepresentationMetaModel>({
+      package: {
+        uri: "",
+        elements: [],
+      },
+    });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState<DiagramNodeData | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null); // Store the selected edge ID
 
   useEffect(() => {
-    if (selectedConfigName) {
+    if (selectedMetaModelURI) {
       const fetchMetaConfig = async () => {
         try {
           const response = await configService.getMetaConfigByUri(
-            selectedConfigName
+            selectedMetaModelURI
           );
-          setSelectedNotation({
-            ...selectedNotation,
-            metaModel: response.data,
-          });
+          setSelectedMetaModel(response.data);
           // clear canvas when new config is selected
           setNodes([]);
           setEdges([]);
@@ -118,21 +118,18 @@ const DiagramEditor = ({
       const fetchRepresentationConfig = async () => {
         try {
           const response = await configService.getRepresentationConfigByUri(
-            selectedConfigName
+            selectedMetaModelURI + "-representation"
           );
-          setSelectedNotation({
-            ...selectedNotation,
-            representationMetaModel: response.data,
-          });
+          setSelectedRepresentationMetaModel(response.data);
         } catch (error) {
           console.error("Error fetching representation configuration: ", error);
         }
       };
       fetchRepresentationConfig();
 
-      dispatch(updateSelectedConfig(selectedConfigName));
+      dispatch(updateSelectedMetaModel(selectedMetaModelURI));
     }
-  }, [selectedConfigName]);
+  }, [selectedMetaModelURI]);
 
   const onDoubleClickEdge = (edgeId: string, data: DiagramNodeData) => {
     setModalData(data); // Set the data to be displayed in the modal
@@ -158,7 +155,7 @@ const DiagramEditor = ({
       setNodes(initialNodes);
       console.log("Initial nodes set:", initialNodes);
     } */
-  }, [selectedNotation.metaModel]);
+  }, [selectedMetaModel]);
 
   // Load the instance models from local storage
   useEffect(() => {
@@ -191,8 +188,8 @@ const DiagramEditor = ({
 
           if (
             !instanceObj ||
-            !selectedNotation.metaModel ||
-            selectedNotation.metaModel.package.elements.length === 0 ||
+            !selectedMetaModel ||
+            selectedMetaModel.package.elements.length === 0 ||
             !representationInstanceObj
           )
             return null;
@@ -203,11 +200,8 @@ const DiagramEditor = ({
           };
 
           const nodeData: DiagramNodeData = {
-            notation: selectedNotation,
-            instance: {
-              instanceObject: instanceObj,
-              representationInstanceObject: representationInstanceObj,
-            },
+            notation: selectedMetaModel,
+            instanceObject: instanceObj,
             position: position,
           };
 
@@ -232,7 +226,7 @@ const DiagramEditor = ({
 
     const initialNodes = initializeNodes();
     setNodes(initialNodes);
-  }, [representationInstanceModel, instanceModel, setNodes, selectedNotation]);
+  }, [representationInstanceModel, instanceModel, setNodes, selectedMetaModel]);
 
   useEffect(() => {
     const initializeEdges = () => {
@@ -284,13 +278,13 @@ const DiagramEditor = ({
 
           const sourceNode = nodes.find(
             (node) =>
-              (node.data as DiagramNodeData).instance!.instanceObject!.name ===
+              (node.data as DiagramNodeData).instanceObject!.name ===
               sourceObject?.name
           );
 
           const targetNode = nodes.find(
             (node) =>
-              (node.data as DiagramNodeData).instance!.instanceObject!.name ===
+              (node.data as DiagramNodeData).instanceObject!.name ===
               targetObject?.name
           );
 
@@ -300,7 +294,7 @@ const DiagramEditor = ({
             target: targetNode!.id,
             type: "ClassEdge", // Assuming a default edge type
             data: {
-              notation: selectedNotation,
+              notation: selectedMetaModel,
               instanceNotation: instanceObj,
               onDoubleClick: onDoubleClickEdge,
             },
@@ -320,7 +314,7 @@ const DiagramEditor = ({
     instanceModel,
     representationInstanceModel,
     setEdges,
-    selectedNotation,
+    selectedMetaModel,
     nodes,
   ]);
 
@@ -335,94 +329,105 @@ const DiagramEditor = ({
       // Access the source and target node IDs
       const { source, target } = params;
 
+      const sourceNode = nodes.find((node) => node.id === source);
+      const targetNode = nodes.find((node) => node.id === target);
+
       // Find source and target notations in metaInstanceModel
-      const sourceInstanceNotation =
-        metaInstanceModel.ePackages[0].eClassifiers.find(
-          (cls) => cls.id === source
-        ) as EClassInstance;
-      const targetInstanceNotation =
-        metaInstanceModel.ePackages[0].eClassifiers.find(
-          (cls) => cls.id === target
-        ) as EClassInstance;
+      const sourceInstanceObject = instanceModel.package.objects.find(
+        (obj) =>
+          obj.name ===
+          (sourceNode!.data as DiagramNodeData).instanceObject?.name
+      );
+      const targetInstanceObject = instanceModel.package.objects.find(
+        (obj) =>
+          obj.name ===
+          (targetNode!.data as DiagramNodeData).instanceObject?.name
+      );
 
       // Check if the source and target were found
-      if (!sourceInstanceNotation || !targetInstanceNotation) {
+      if (!sourceInstanceObject || !targetInstanceObject) {
         console.error("Source or Target notation not found:", {
-          sourceInstanceNotation,
-          targetInstanceNotation,
+          sourceInstanceObject,
+          targetInstanceObject,
         });
         return; // Exit early if either instance is not found
       }
 
-      // Find association in meta and representation
-      let associationMeta: MetaNotation = metaConfig!.ePackages[0].eClassifiers
-        .map((cls) => cls as EClass)
-        .find((cls) => cls.name === "Association") as MetaNotation;
-      let associationRepresentation: MetaNotation =
-        representationConfig!.ePackages[0].eClassifiers
-          .map((cls) => cls as EClassRepresentation)
-          .find((cls) => cls.name === "Association") as MetaNotation;
+      // Find the first Edge type of the notation which we can use as the default edge type
+      let edgeNotationElement: Class | null =
+        (selectedMetaModel.package.elements as Class[]).find(
+          (element) =>
+            ReferenceHelper.dereferenceRepresentation(
+              element.representation?.$ref!
+            )?.type === "ClassEdge"
+        ) || null;
 
-      // Ensure associationMeta and associationRepresentation are found
-      if (!associationMeta || !associationRepresentation) {
-        console.error("Association meta or representation not found:", {
-          associationMeta,
-          associationRepresentation,
-        });
+      // No edge types found in the language
+      if (!edgeNotationElement) {
+        console.error("No edge types found in the language.");
         return;
       }
 
-      const uniqueId = `${associationMeta.name}-${uuidv4()}`;
+      const uniqueId = `${edgeNotationElement.name}-${uuidv4()}`;
 
-      console.log("associationRepresentation", associationRepresentation);
+      console.log("associationRepresentation", edgeNotationElement);
 
-      // Create a new edge instance notation for the association
-      const associationClassInstanceNotation: InstanceNotation = {
-        id: uniqueId,
-        name: targetInstanceNotation!.name,
-        abstract: false,
-        interface: false,
-        eReferences: [
+      // Make sure we reference the new edge to the new representation instance that we create after adding the edge to the instance model
+      const metaRepresentationRef = edgeNotationElement.representation?.$ref!;
+      const [modelUri, jsonPointer] = metaRepresentationRef.split("#"); // use base URI to construct new URI
+      const representationUri =
+        modelUri + "#/objects/" + instanceModel.package.objects.length;
+      // Create a new edge instance object
+      const edgeInstanceObject: InstanceObject = {
+        name: targetInstanceObject!.name,
+        type: {
+          $ref:
+            selectedMetaModel.package.uri +
+            "#/classes/" +
+            (selectedMetaModel.package.elements as Class[]).findIndex(
+              (element) => element.name === edgeNotationElement.name
+            ),
+        },
+        attributes: [],
+        links: [
           {
             name: "source",
-            id: sourceInstanceNotation.id,
-          } as EReferenceInstance,
+            target: {
+              $ref:
+                "#/objects/" +
+                instanceModel.package.objects.indexOf(sourceInstanceObject),
+            },
+          },
           {
             name: "target",
-            id: targetInstanceNotation.id,
-          } as EReferenceInstance,
+            target: {
+              $ref:
+                "#/objects/" +
+                instanceModel.package.objects.indexOf(targetInstanceObject),
+            },
+          },
         ],
-        eAttributes: [],
-        eOperations: [],
-        eSubpackages: [],
-        eSuperTypes: [],
-        graphicalRepresentation:
-          associationRepresentation.graphicalRepresentation,
+        representation: {
+          $ref: representationUri,
+        },
       };
 
       // Ensure graphicalRepresentation exists
-      if (!associationClassInstanceNotation.graphicalRepresentation) {
-        console.error("Graphical representation is missing for association");
+      if (!edgeInstanceObject.representation) {
+        console.error("Graphical representation is missing for edge");
         return;
       }
 
-      const allMetaNotations = typeHelper.mergeMetaAndRepresentation(
-        metaConfig!.ePackages,
-        representationConfig!.ePackages
-      );
-
-      const data: CustomNodeData = {
-        metaNotations: allMetaNotations,
-        instanceNotation: associationClassInstanceNotation,
+      const data: DiagramNodeData = {
+        notation: selectedMetaModel,
+        instanceObject: edgeInstanceObject,
         position: {
           x: 0,
           y: 0,
         }, // edges don't have positions
-        isPalette: false,
-        isNotationSlider: false,
       };
 
-      console.log("Association created:", associationClassInstanceNotation);
+      console.log("Edge created:", edgeInstanceObject);
 
       const newEdge: Edge = {
         ...params,
@@ -435,20 +440,18 @@ const DiagramEditor = ({
       setEdges((eds) => addEdge(newEdge, eds));
 
       // Update meta instance model with new edge
-      updateMetaInstanceModelWithNewNode(
-        newEdge,
-        false,
-        associationClassInstanceNotation
-      );
+      updateInstanceModelWithNewNode(newEdge, false, edgeInstanceObject);
 
       // Update representation instance model with new edge
       updateRepresentationInstanceModelWithNewNode(
         newEdge,
         false,
-        associationClassInstanceNotation
+        ReferenceHelper.dereferenceRepresentation(
+          edgeInstanceObject.representation!.$ref!
+        )!
       );
     },
-    [setEdges, metaConfig, representationConfig]
+    [setEdges, selectedMetaModel, selectedRepresentationMetaModel]
   );
 
   console.log("nodes:", nodes);
@@ -460,12 +463,17 @@ const DiagramEditor = ({
 
       changes.forEach((change) => {
         if (change.type === "position" && "id" in change) {
-          const classifierInRepresentation =
-            representationInstanceModel.ePackages[0].eClassifiers.find(
-              (classifier) => classifier.referenceMetaId === change.id
-            );
+          const changedNode = nodes.find((node) => node.id === change.id);
 
-          if (classifierInRepresentation) {
+          const instanceObjectChanged = instanceModel.package.objects.find(
+            (obj) =>
+              obj.name ===
+              (changedNode?.data as DiagramNodeData).instanceObject?.name
+          );
+          const indexInstanceObjectChanged =
+            instanceModel.package.objects.indexOf(instanceObjectChanged!);
+
+          if (instanceObjectChanged) {
             // Ensure the new position is valid, fallback to the last known position if not
             const newPosition: Position = {
               x:
@@ -473,31 +481,43 @@ const DiagramEditor = ({
                 typeof change.position.x === "number" &&
                 !isNaN(change.position.x)
                   ? change.position.x
-                  : classifierInRepresentation.position.x,
+                  : ReferenceHelper.dereferenceRepresentation(
+                      instanceObjectChanged.representation!.$ref!
+                    )!.position!.x,
               y:
                 change.position &&
                 typeof change.position.y === "number" &&
                 !isNaN(change.position.y)
                   ? change.position.y
-                  : classifierInRepresentation.position.y,
+                  : ReferenceHelper.dereferenceRepresentation(
+                      instanceObjectChanged.representation!.$ref!
+                    )!.position!.y,
             };
 
             console.log("New position: ", newPosition);
 
+            let newRepresentationInstanceObject =
+              ReferenceHelper.dereferenceRepresentation(
+                instanceObjectChanged.representation!.$ref!
+              )!;
             const updatedRepresentationInstanceModel = {
               ...representationInstanceModel,
-              ePackages: representationInstanceModel.ePackages.map((pkg) => ({
-                ...pkg,
-                eClassifiers: pkg.eClassifiers.map((classifier) => {
-                  if (classifier.referenceMetaId === change.id) {
-                    return {
-                      ...classifier,
-                      position: newPosition, // Update position with valid or fallback position
-                    };
+              package: {
+                ...representationInstanceModel.package,
+                objects: representationInstanceModel.package.objects.map(
+                  (obj, index) => {
+                    // find the representation object that is mapped to the instance object
+                    // they have the same index as their relation is always 1:1
+                    if (index === indexInstanceObjectChanged) {
+                      return {
+                        ...obj,
+                        position: newPosition, // Update position with valid or fallback position
+                      };
+                    }
+                    return obj;
                   }
-                  return classifier;
-                }),
-              })),
+                ),
+              },
             };
 
             dispatch(
@@ -534,89 +554,72 @@ const DiagramEditor = ({
     console.log("onDragOver triggered"); // log drag over event
   }, []);
 
-  const updateMetaInstanceModelWithNewNode = (
+  const updateInstanceModelWithNewNode = (
     newNode: Node | Edge,
     isNode: boolean, // boolean to tell if the new node is a node or an edge
-    notation: InstanceNotation
+    notation: InstanceObject
   ) => {
-    let newMetaInstanceModel = { ...metaInstanceModel };
-
-    // Initialize root package if it doesn't exist
-    if (newMetaInstanceModel.ePackages.length === 0) {
-      newMetaInstanceModel.ePackages.push({
-        name: metaConfig?.ePackages[0].name!,
-        eClassifiers: [],
-        eSubpackages: [],
-        id: metaConfig?.ePackages[0].name!,
-      });
-    }
+    let newInstanceModel = { ...instanceModel };
 
     // Add the new node to the instance model together with its id
     const uniqueId = newNode.id;
-    const { graphicalRepresentation, ...restOfNotation } = notation; // excludes graphical representation field from notation
-    let newEClassInstance: EClassInstance = {
-      ...(restOfNotation as EClassInstance),
-      id: uniqueId,
-    };
+    let newInstanceObject = { ...notation };
 
     if (!isNode) {
       const newEdge = newNode as Edge;
+      const sourceNode = nodes.find((node) => node.id === newEdge.source);
+      const targetNode = nodes.find((node) => node.id === newEdge.target);
       // Add source and target references to the edge
-      newEClassInstance = {
-        ...newEClassInstance,
-        eReferences: [
+      newInstanceObject = {
+        ...newInstanceObject,
+        links: [
           {
             name: "source",
-            id: newEdge.source,
+            target: {
+              $ref:
+                "#/objects/" +
+                instanceModel.package.objects.findIndex(
+                  (obj) =>
+                    obj.name ===
+                    (sourceNode!.data as DiagramNodeData).instanceObject?.name
+                ),
+            },
           },
           {
             name: "target",
-            id: newEdge.target,
+            target: {
+              $ref:
+                "#/objects/" +
+                instanceModel.package.objects.findIndex(
+                  (obj) =>
+                    obj.name ===
+                    (targetNode!.data as DiagramNodeData).instanceObject?.name
+                ),
+            },
           },
         ],
       };
     }
 
-    newMetaInstanceModel.ePackages[0].eClassifiers.push(newEClassInstance);
+    newInstanceModel.package.objects.push(newInstanceObject);
 
-    dispatch(updateMetaInstanceModel(newMetaInstanceModel));
+    dispatch(updateInstanceModel(newInstanceModel));
   };
 
   const updateRepresentationInstanceModelWithNewNode = (
     newNode: Node | Edge,
     isNode: boolean, // boolean to tell if the new node is a node or an edge
-    notation: InstanceNotation
+    notation: RepresentationInstanceObject
   ) => {
     let newRepresentationInstanceModel = { ...representationInstanceModel };
 
-    // Initialize root package if it doesn't exist
-    if (
-      newRepresentationInstanceModel.ePackages.length === 0 &&
-      representationConfig &&
-      representationConfig.ePackages[0]
-    ) {
-      newRepresentationInstanceModel.ePackages.push({
-        name: representationConfig?.ePackages[0].name!,
-        eSubpackages: [],
-        eClassifiers: [],
-        id: representationConfig?.ePackages[0].name!,
-        position: { x: 0, y: 0 },
-        referenceMetaId: metaConfig?.ePackages[0].name!,
-      });
-    }
-
-    const uniqueRepresentationId = uuidv4(); // unique representation id
     // Add the new node to the instance model together with its id
-    let newEClassRepresentationInstance: EClassRepresentationInstance = {
-      ...(notation as EClassRepresentationInstance),
-      id: uniqueRepresentationId,
-      referenceMetaId: newNode.id,
-    };
+    let newRepresentationInstanceObject = { ...notation };
 
     if (isNode) {
       newNode = newNode as Node;
-      newEClassRepresentationInstance = {
-        ...newEClassRepresentationInstance,
+      newRepresentationInstanceObject = {
+        ...newRepresentationInstanceObject,
         position: {
           x: newNode.position.x,
           y: newNode.position.y,
@@ -624,21 +627,48 @@ const DiagramEditor = ({
       };
     }
 
+    const nodeData = newNode.data as DiagramNodeData;
+
     // Add graphical representation if it exists, and if the representation config exists
-    if (representationConfig && representationConfig.ePackages[0] && isNode) {
-      newEClassRepresentationInstance = {
-        ...newEClassRepresentationInstance,
+    if (
+      selectedRepresentationMetaModel &&
+      selectedRepresentationMetaModel.package &&
+      isNode
+    ) {
+      const metaRef = nodeData.instanceObject?.type.$ref!;
+      const [modelUri, jsonPointer] = metaRef.split("#"); // jsonPointer is the part after the #
+
+      // ensure we have the correct model URI
+      if (modelUri !== selectedMetaModel.package.uri) {
+        console.error("Model URI does not match the selected meta model");
+        return null;
+      }
+
+      // from DiagramNode --> MetaElement --> RepresentationElement
+      const metaElement: Class = ReferenceHelper.resolveRef(
+        selectedMetaModel.package,
+        jsonPointer
+      )!;
+
+      const representationRef = metaElement.representation?.$ref!;
+      const [representationUri, representationJsonPointer] =
+        representationRef.split("#");
+
+      const representationElement: Representation = ReferenceHelper.resolveRef(
+        selectedRepresentationMetaModel.package,
+        representationJsonPointer
+      )!;
+
+      newRepresentationInstanceObject = {
+        ...newRepresentationInstanceObject,
         graphicalRepresentation: [
-          ...(representationConfig?.ePackages[0].eClassifiers
-            .map((cls) => cls as EClassRepresentationInstance)
-            .find((cls) => cls.name === notation.name)
-            ?.graphicalRepresentation || []),
+          ...representationElement.graphicalRepresentation!,
         ],
       };
     }
 
-    newRepresentationInstanceModel.ePackages[0].eClassifiers.push(
-      newEClassRepresentationInstance
+    newRepresentationInstanceModel.package.objects.push(
+      newRepresentationInstanceObject
     );
 
     dispatch(updateRepresentationInstanceModel(newRepresentationInstanceModel));
@@ -656,28 +686,52 @@ const DiagramEditor = ({
       const dragData: DragData = JSON.parse(
         event.dataTransfer.getData("palette-item")
       );
-      const { notation } = dragData;
+      const { notationElement } = dragData;
 
-      const uniqueId = `${notation.name}-${uuidv4()}`;
-
-      const nodeType = notation.name + "Node"; // ClassNode, ReferenceNode, etc.
-
+      const uniqueId = `${notationElement.name}-${uuidv4()}`;
+      const nodeType = notationElement.name; // ClassNode, EdgeNode
       const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
 
-      const allNotations = typeHelper.mergeMetaAndRepresentation(
-        metaConfig!.ePackages,
-        representationConfig!.ePackages
-      );
+      const instanceObject: InstanceObject = {
+        name: uniqueId,
+        type: {
+          $ref:
+            selectedMetaModel.package.uri +
+            "#/classes/" +
+            (selectedMetaModel.package.elements as Class[]).findIndex(
+              (element) => element.name === notationElement.name
+            ),
+        },
+        attributes: [],
+        links: [],
+        representation: {
+          $ref:
+            selectedRepresentationMetaModel.package.uri +
+            "#/objects/" +
+            representationInstanceModel.package.objects.length,
+        },
+      };
 
-      const nodeData: CustomNodeData = {
-        metaNotations: allNotations,
-        instanceNotation: notation,
+      const notationElementRepresentation =
+        ModelHelperFunctions.findRepresentationFromClassInRepresentationMetaModel(
+          notationElement,
+          selectedRepresentationMetaModel
+        )!;
+      const representationInstanceObject: RepresentationInstanceObject = {
+        name: uniqueId,
+        type: notationElementRepresentation.type,
+        position: position,
+        graphicalRepresentation: [],
+      };
+
+      const nodeData: DiagramNodeData = {
+        notation: selectedMetaModel,
+        instanceObject: instanceObject,
         position: position,
         isNotationSlider: false,
-        isPalette: false,
       };
 
       const newNode: Node = {
@@ -691,16 +745,20 @@ const DiagramEditor = ({
       setNodes((nds) => nds.concat(newNode));
 
       // Update meta instance model with new node
-      updateMetaInstanceModelWithNewNode(newNode, true, notation);
+      updateInstanceModelWithNewNode(newNode, true, instanceObject);
 
       // Update representation instance model with new node
-      updateRepresentationInstanceModelWithNewNode(newNode, true, notation);
+      updateRepresentationInstanceModelWithNewNode(
+        newNode,
+        true,
+        representationInstanceObject
+      );
     },
     [
+      selectedMetaModel,
+      selectedRepresentationMetaModel,
       reactFlowInstance,
-      metaConfig,
-      representationConfig,
-      metaInstanceModel,
+      instanceModel,
       representationInstanceModel,
       setNodes,
     ]
@@ -744,11 +802,10 @@ const DiagramEditor = ({
     <div className="flex h-full bg-white">
       <ReactFlowProvider>
         <PaletteEditorPanel
-          title={metaConfig?.name}
-          notations={typeHelper.mergeMetaAndRepresentation(
-            metaConfig!.ePackages,
-            representationConfig!.ePackages
-          )}
+          title={selectedMetaModel?.package?.name}
+          notationElements={selectedMetaModel?.package?.elements as Class[]}
+          selectedMetaModel={selectedMetaModel}
+          selectedRepresentationMetaModel={selectedRepresentationMetaModel}
         />
         <div
           style={{ minHeight: "100%", maxHeight: "100%", width: "100%" }}

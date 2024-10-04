@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from "react";
 import CustomModal from "../../../../ui_elements/Modal";
-import { Class, NotationRepresentationItem } from "../../../../../types/types";
+import {
+  Class,
+  NotationRepresentationItem,
+  Representation,
+} from "../../../../../types/types";
 
 interface ModalDoubleClickCompartmentProps {
   isCompartmentModalOpen: boolean;
   setIsCompartmentModalOpen: (isOpen: boolean) => void;
+  currentNotationElementRepresentation: Representation;
+  setCurrentNotationElementRepresentation: (value: Representation) => void;
   currentNotationElement: Class;
   setCurrentNotationElement: (value: Class) => void;
   selectedElementIndex: number | null;
@@ -13,6 +19,8 @@ interface ModalDoubleClickCompartmentProps {
 function ModalDoubleClickCompartment({
   isCompartmentModalOpen,
   setIsCompartmentModalOpen,
+  currentNotationElementRepresentation,
+  setCurrentNotationElementRepresentation,
   currentNotationElement,
   setCurrentNotationElement,
   selectedElementIndex,
@@ -23,7 +31,7 @@ function ModalDoubleClickCompartment({
   useEffect(() => {
     if (selectedElementIndex !== null && selectedElementIndex >= 0) {
       const selectedElement =
-        currentNotationElement.representation?.graphicalRepresentation![
+        currentNotationElementRepresentation.graphicalRepresentation![
           selectedElementIndex
         ];
       if (selectedElement) {
@@ -77,7 +85,7 @@ function ModalDoubleClickCompartment({
     if (selectedElementIndex === null || !compartment) return;
 
     const updatedRepresentation = [
-      ...currentNotationElement.representation?.graphicalRepresentation!,
+      ...currentNotationElementRepresentation?.graphicalRepresentation!,
     ];
 
     // Update the entire style and position objects in one go
@@ -88,12 +96,9 @@ function ModalDoubleClickCompartment({
       position: { ...compartment.position }, // Copy the entire position object
     };
 
-    setCurrentNotationElement({
-      ...currentNotationElement,
-      representation: {
-        ...currentNotationElement.representation!,
-        graphicalRepresentation: updatedRepresentation,
-      },
+    setCurrentNotationElementRepresentation({
+      ...currentNotationElementRepresentation,
+      graphicalRepresentation: updatedRepresentation,
     });
 
     setIsCompartmentModalOpen(false); // Close modal after saving

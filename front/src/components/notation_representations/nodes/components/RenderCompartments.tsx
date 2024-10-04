@@ -13,15 +13,19 @@ interface RenderCompartmentsProps {
   nodeId: string;
   compartments: NotationRepresentationItem[];
   data: DiagramNodeData;
+  isPalette?: boolean;
+  isNotationSlider?: boolean;
 }
 
 function RenderCompartments({
   nodeId,
   compartments,
   data,
+  isPalette = false,
+  isNotationSlider = false,
 }: RenderCompartmentsProps) {
   const dispatch = useDispatch();
-  const metaInstanceModel: InstanceModel = useSelector(
+  const instanceModel: InstanceModel = useSelector(
     (state: any) => state.metaInstanceModelStore.model
   );
 
@@ -29,15 +33,15 @@ function RenderCompartments({
     <>
       {compartments.map((compartment, index) => {
         const generatorName = compartment.generator;
-        let classifier = undefined;
-        if (metaInstanceModel.package) {
-          classifier = metaInstanceModel.package!.objects.find(
-            (cls) => cls.name === data.instance?.instanceObject?.type?.name
-          ) as InstanceObject;
+        let instanceObject: InstanceObject | undefined = undefined;
+        if (instanceModel.package) {
+          instanceObject = instanceModel.package!.objects.find(
+            (obj) => obj.name === data.instanceObject?.name
+          );
         }
 
-        if (generatorName === "attributesForNotation" && classifier) {
-          const attributes = classifier.attributes!.filter(
+        if (generatorName === "attributesForNotation" && instanceObject) {
+          const attributes = instanceObject.attributes!.filter(
             (attribute) =>
               attribute.name !== "name" &&
               attribute.name !== "abstract" &&
@@ -60,7 +64,7 @@ function RenderCompartments({
                       top: `${compartmentY + idx * attributeHeight}px`, // Adjust top position based on index
                       height: `${attributeHeight}px`,
                       width: `${
-                        data.isPalette
+                        isPalette
                           ? (compartment.position.extent?.width || 100) + "px"
                           : "100%"
                       }`,

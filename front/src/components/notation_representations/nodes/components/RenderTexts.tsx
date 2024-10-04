@@ -12,6 +12,8 @@ interface RenderTextsProps {
   data: DiagramNodeData;
   texts: NotationRepresentationItem[];
   handleTextChange: (e: any, nameFromClassifier: string | undefined) => void;
+  isPalette?: boolean;
+  isNotationSlider?: boolean;
 }
 
 function RenderTexts({
@@ -19,6 +21,8 @@ function RenderTexts({
   data,
   texts,
   handleTextChange,
+  isPalette = false,
+  isNotationSlider = false,
 }: RenderTextsProps) {
   const dispatch = useDispatch();
   const instanceModel: InstanceModel = useSelector(
@@ -35,16 +39,16 @@ function RenderTexts({
           instanceModel.package?.objects.length > 0
         ) {
           nameFromClassifier = instanceModel.package.objects.find(
-            (obj) => obj.name === data.instance?.instanceObject?.name
+            (obj) => obj.name === data.instanceObject?.name
           )?.name;
         }
 
         if (nameFromClassifier === undefined) {
-          nameFromClassifier = data.instance?.instanceObject!.name;
+          nameFromClassifier = data.instanceObject!.name;
         }
 
         // we dont want editable field in palette notations
-        if (data.isPalette) {
+        if (isPalette) {
           return (
             <span
               key={idx}

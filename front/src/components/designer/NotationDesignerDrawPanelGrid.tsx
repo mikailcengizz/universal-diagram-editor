@@ -1,19 +1,32 @@
 import React, { useState, useEffect } from "react";
-import { NotationRepresentationItem, Class } from "../../types/types";
+import {
+  NotationRepresentationItem,
+  Class,
+  Representation,
+  RepresentationMetaModel,
+} from "../../types/types";
 import ModalDoubleClickSquare from "./components/modals/first_layer/ModalDoubleClickSquare";
 import ModalDoubleClickText from "./components/modals/first_layer/ModalDoubleClickText";
 import ModalDoubleClickCompartment from "./components/modals/first_layer/ModalDoubleClickCompartment";
 import ModalDoubleClickConnector from "./components/modals/first_layer/ModalDoubleClickConnector";
 
 interface NotationDesignerDrawPanelGridProps {
+  currentNotationElementRepresentation: Representation;
+  setCurrentNotationElementRepresentation: (value: Representation) => void;
   currentNotationElement: Class;
   setCurrentNotationElement: (value: Class) => void;
+  selectedRepresentationMetaModel: RepresentationMetaModel;
+  setSelectedRepresentationMetaModel: (value: RepresentationMetaModel) => void;
   gridSize: number;
 }
 
 const NotationDesignerDrawPanelGrid = ({
+  currentNotationElementRepresentation,
+  setCurrentNotationElementRepresentation,
   currentNotationElement,
   setCurrentNotationElement,
+  selectedRepresentationMetaModel,
+  setSelectedRepresentationMetaModel,
   gridSize,
 }: NotationDesignerDrawPanelGridProps) => {
   const [selectedElementIndex, setSelectedElementIndex] = useState<
@@ -51,7 +64,7 @@ const NotationDesignerDrawPanelGrid = ({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (selectedElementIndex !== null) {
         const updatedRepresentation = [
-          ...currentNotationElement.representation!.graphicalRepresentation!,
+          ...currentNotationElementRepresentation.graphicalRepresentation!,
         ];
         const element = updatedRepresentation[selectedElementIndex];
         const currentPosition = element.position;
@@ -78,11 +91,9 @@ const NotationDesignerDrawPanelGrid = ({
         }
 
         // Update currentNotation's graphicalRepresentation directly
-        setCurrentNotationElement({
-          ...currentNotationElement,
-          representation: {
-            graphicalRepresentation: updatedRepresentation,
-          },
+        setCurrentNotationElementRepresentation({
+          ...currentNotationElementRepresentation,
+          graphicalRepresentation: updatedRepresentation,
         });
       }
     };
@@ -112,7 +123,7 @@ const NotationDesignerDrawPanelGrid = ({
     const y = Math.round((event.clientY - grid.top) / gridSize) * gridSize;
 
     const updatedRepresentation = [
-      ...currentNotationElement.representation!.graphicalRepresentation!,
+      ...currentNotationElementRepresentation.graphicalRepresentation!,
     ];
     console.log("updatedRepresentation", updatedRepresentation);
 
@@ -129,11 +140,9 @@ const NotationDesignerDrawPanelGrid = ({
       console.log("newElement", newElement);
 
       // Add new element to the graphicalRepresentation
-      setCurrentNotationElement({
-        ...currentNotationElement,
-        representation: {
-          graphicalRepresentation: [...updatedRepresentation, newElement],
-        },
+      setCurrentNotationElementRepresentation({
+        ...currentNotationElementRepresentation,
+        graphicalRepresentation: [...updatedRepresentation, newElement],
       });
 
       // If elementIndex exists and is valid, this means we are moving an existing element
@@ -157,11 +166,9 @@ const NotationDesignerDrawPanelGrid = ({
         };
 
         // Update currentNotation's graphicalRepresentation directly
-        setCurrentNotationElement({
-          ...currentNotationElement,
-          representation: {
-            graphicalRepresentation: updatedRepresentation,
-          },
+        setCurrentNotationElementRepresentation({
+          ...currentNotationElementRepresentation,
+          graphicalRepresentation: updatedRepresentation,
         });
       } else {
         console.error("Invalid index:", index);
@@ -233,7 +240,7 @@ const NotationDesignerDrawPanelGrid = ({
     event.preventDefault();
 
     const updatedRepresentation = [
-      ...currentNotationElement.representation!.graphicalRepresentation!,
+      ...currentNotationElementRepresentation.graphicalRepresentation!,
     ];
     const element = updatedRepresentation[index];
 
@@ -301,11 +308,9 @@ const NotationDesignerDrawPanelGrid = ({
           extent: { width: newWidth, height: newHeight },
         };
 
-        setCurrentNotationElement({
-          ...currentNotationElement,
-          representation: {
-            graphicalRepresentation: updatedRepresentation,
-          },
+        setCurrentNotationElementRepresentation({
+          ...currentNotationElementRepresentation,
+          graphicalRepresentation: updatedRepresentation,
         });
       }
     };
@@ -333,8 +338,8 @@ const NotationDesignerDrawPanelGrid = ({
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
       >
-        {currentNotationElement.representation!.graphicalRepresentation &&
-          currentNotationElement.representation!.graphicalRepresentation.map(
+        {currentNotationElementRepresentation!.graphicalRepresentation &&
+          currentNotationElementRepresentation!.graphicalRepresentation.map(
             (element, index) => (
               <div
                 key={index}
@@ -482,6 +487,12 @@ const NotationDesignerDrawPanelGrid = ({
           setIsSquareModalOpen(isOpen);
           if (!isOpen) handleCloseModal();
         }}
+        currentNotationElementRepresentation={
+          currentNotationElementRepresentation
+        }
+        setCurrentNotationElementRepresentation={
+          setCurrentNotationElementRepresentation
+        }
         currentNotationElement={currentNotationElement}
         setCurrentNotationElement={setCurrentNotationElement}
         selectedElementIndex={selectedElementIndex}
@@ -493,6 +504,12 @@ const NotationDesignerDrawPanelGrid = ({
           setIsTextModalOpen(isOpen);
           if (!isOpen) handleCloseModal();
         }}
+        currentNotationElementRepresentation={
+          currentNotationElementRepresentation
+        }
+        setCurrentNotationElementRepresentation={
+          setCurrentNotationElementRepresentation
+        }
         currentNotationElement={currentNotationElement}
         setCurrentNotationElement={setCurrentNotationElement}
         selectedElementIndex={selectedElementIndex}
@@ -504,6 +521,12 @@ const NotationDesignerDrawPanelGrid = ({
           setIsCompartmentModalOpen(isOpen);
           if (!isOpen) handleCloseModal();
         }}
+        currentNotationElementRepresentation={
+          currentNotationElementRepresentation
+        }
+        setCurrentNotationElementRepresentation={
+          setCurrentNotationElementRepresentation
+        }
         currentNotationElement={currentNotationElement}
         setCurrentNotationElement={setCurrentNotationElement}
         selectedElementIndex={selectedElementIndex}
@@ -515,6 +538,12 @@ const NotationDesignerDrawPanelGrid = ({
           setIsConnectorModalOpen(isOpen);
           if (!isOpen) handleCloseModal();
         }}
+        currentNotationElementRepresentation={
+          currentNotationElementRepresentation
+        }
+        setCurrentNotationElementRepresentation={
+          setCurrentNotationElementRepresentation
+        }
         currentNotationElement={currentNotationElement}
         setCurrentNotationElement={setCurrentNotationElement}
         selectedElementIndex={selectedElementIndex}

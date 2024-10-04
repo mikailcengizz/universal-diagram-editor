@@ -3,9 +3,13 @@
     "uri": "http://www.compute.dtu.dk/sse/models/petri-net-representation",
     "elements": [
       {
-        "name": {
-          "$ref": "http://www.compute.dtu.dk/sse/models/petri-net#/classes/8"
-        },
+        "name": "PetriNet",
+        "type": "ClassNode",
+        "graphicalRepresentation": []
+      },
+      {
+        "name": "Transition",
+        "type": "ClassNode",
         "graphicalRepresentation": [
           {
             "shape": "square",

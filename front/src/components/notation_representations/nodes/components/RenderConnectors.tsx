@@ -4,12 +4,14 @@ import { Handle, Position } from "@xyflow/react";
 
 interface RenderConnectorsProps {
   isPalette?: boolean;
+  isNotationSlider?: boolean;
   id: string;
   connectors: NotationRepresentationItem[];
 }
 
 function RenderConnectors({
   isPalette = false,
+  isNotationSlider = false,
   id,
   connectors,
 }: RenderConnectorsProps) {

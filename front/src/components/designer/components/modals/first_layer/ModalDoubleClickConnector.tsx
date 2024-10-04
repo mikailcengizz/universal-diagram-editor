@@ -4,11 +4,14 @@ import {
   Class,
   DiagramNodeData,
   NotationRepresentationItem,
+  Representation,
 } from "../../../../../types/types";
 
 interface ModalDoubleClickConnectorProps {
   isConnectorModalOpen: boolean;
   setIsConnectorModalOpen: (isOpen: boolean) => void;
+  currentNotationElementRepresentation: Representation;
+  setCurrentNotationElementRepresentation: (value: Representation) => void;
   currentNotationElement: Class;
   setCurrentNotationElement: (value: Class) => void;
   selectedElementIndex: number | null;
@@ -17,6 +20,8 @@ interface ModalDoubleClickConnectorProps {
 function ModalDoubleClickConnector({
   isConnectorModalOpen,
   setIsConnectorModalOpen,
+  currentNotationElementRepresentation,
+  setCurrentNotationElementRepresentation,
   currentNotationElement,
   setCurrentNotationElement,
   selectedElementIndex,
@@ -27,7 +32,7 @@ function ModalDoubleClickConnector({
   useEffect(() => {
     if (selectedElementIndex !== null && selectedElementIndex >= 0) {
       const selectedElement =
-        currentNotationElement.representation?.graphicalRepresentation![
+        currentNotationElementRepresentation.graphicalRepresentation![
           selectedElementIndex
         ];
       if (selectedElement) {
@@ -51,7 +56,7 @@ function ModalDoubleClickConnector({
     if (selectedElementIndex === null || !connector) return;
 
     const updatedRepresentation = [
-      ...currentNotationElement.representation?.graphicalRepresentation!,
+      ...currentNotationElementRepresentation?.graphicalRepresentation!,
     ];
 
     // Update the entire style and position objects in one go
@@ -62,12 +67,9 @@ function ModalDoubleClickConnector({
       position: { ...connector.position }, // Copy the entire position object
     };
 
-    setCurrentNotationElement({
-      ...currentNotationElement,
-      representation: {
-        ...currentNotationElement.representation!,
-        graphicalRepresentation: updatedRepresentation,
-      },
+    setCurrentNotationElementRepresentation({
+      ...currentNotationElementRepresentation,
+      graphicalRepresentation: updatedRepresentation,
     });
 
     setIsConnectorModalOpen(false); // Close modal after saving
