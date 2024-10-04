@@ -24,6 +24,7 @@ import {
   RepresentationInstanceModel,
   MetaModel,
   Notation,
+  InstanceObject,
 } from "../../types/types";
 import PaletteEditorPanel from "./PaletteEditorPanel";
 import configService from "../../services/ConfigService";
@@ -38,13 +39,14 @@ import { updateRepresentationInstanceModel } from "../../redux/actions/represent
 import { updateInstanceModel } from "../../redux/actions/objectInstanceModelActions";
 import { updateSelectedConfig } from "../../redux/actions/selectedConfigActions";
 import { v4 as uuidv4 } from "uuid"; // Import UUID generator
+import ReferenceHelper from "../helpers/ReferenceHelper";
 
 const nodeTypes = {
   ClassNode: CombineObjectShapesNode,
 };
 
 const edgeTypes = {
-  edge: CombineRelationshipShapesEdge,
+  ClassEdge: CombineRelationshipShapesEdge,
 };
 
 interface DiagramEditorProps {
@@ -73,7 +75,7 @@ const DiagramEditor = ({
   );
 
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
-  const [notation, setNotation] = useState<Notation>({
+  const [selectedNotation, setSelectedNotation] = useState<Notation>({
     metaModel: {
       package: {
         name: "",
@@ -100,8 +102,8 @@ const DiagramEditor = ({
           const response = await configService.getMetaConfigByUri(
             selectedConfigName
           );
-          setNotation({
-            ...notation,
+          setSelectedNotation({
+            ...selectedNotation,
             metaModel: response.data,
           });
           // clear canvas when new config is selected
@@ -115,10 +117,13 @@ const DiagramEditor = ({
 
       const fetchRepresentationConfig = async () => {
         try {
-          const response = await configService.getRepresentationConfigByName(
+          const response = await configService.getRepresentationConfigByUri(
             selectedConfigName
           );
-          setRepresentationConfig(response.data);
+          setSelectedNotation({
+            ...selectedNotation,
+            representationMetaModel: response.data,
+          });
         } catch (error) {
           console.error("Error fetching representation configuration: ", error);
         }
@@ -129,7 +134,7 @@ const DiagramEditor = ({
     }
   }, [selectedConfigName]);
 
-  const onDoubleClickEdge = (edgeId: string, data: CustomNodeData) => {
+  const onDoubleClickEdge = (edgeId: string, data: DiagramNodeData) => {
     setModalData(data); // Set the data to be displayed in the modal
     setSelectedEdgeId(edgeId); // Store the selected edge ID
     setIsModalOpen(true); // Open the modal
@@ -153,7 +158,7 @@ const DiagramEditor = ({
       setNodes(initialNodes);
       console.log("Initial nodes set:", initialNodes);
     } */
-  }, [metaConfig]);
+  }, [selectedNotation.metaModel]);
 
   // Load the instance models from local storage
   useEffect(() => {
@@ -163,7 +168,7 @@ const DiagramEditor = ({
     );
 
     if (metaInstance && representationInstance) {
-      dispatch(updateMetaInstanceModel(metaInstance));
+      dispatch(updateInstanceModel(metaInstance));
       dispatch(updateRepresentationInstanceModel(representationInstance));
     }
   }, [dispatch]);
@@ -172,48 +177,48 @@ const DiagramEditor = ({
     const initializeNodes = (): Node[] => {
       if (
         !representationInstanceModel ||
-        !metaInstanceModel ||
-        representationInstanceModel.packages.length === 0
+        !instanceModel ||
+        representationInstanceModel.package.objects.length === 0
       )
         return [];
 
-      const returnNodes = representationInstanceModel.classifiers
-        .map((representationClassifier) => {
-          const metaInstance = metaInstanceModel.classifiers.find(
-            (metaClassifier) =>
-              metaClassifier.id ===
-              representationClassifier.referenceMetaInstanceId
-          );
+      const returnNodes = instanceModel.package.objects
+        .map((instanceObj) => {
+          const representationInstanceObj =
+            ReferenceHelper.dereferenceRepresentation(
+              instanceObj.representation?.$ref!
+            );
 
-          if (!metaInstance || !metaConfig || metaConfig.packages.length === 0)
+          if (
+            !instanceObj ||
+            !selectedNotation.metaModel ||
+            selectedNotation.metaModel.package.elements.length === 0 ||
+            !representationInstanceObj
+          )
             return null;
 
-          const position = representationClassifier.position || { x: 0, y: 0 };
+          const position = representationInstanceObj.position || {
+            x: 0,
+            y: 0,
+          };
 
-          const nodeData: CustomNodeData = {
-            metaNotations: metaConfig?.classifiers.map(
-              (cls) => cls
-            ) as MetaNotation[],
-            instanceNotation: {
-              id: metaInstance.id,
-              name: metaInstance.name,
-              attributes: metaInstance.attributes,
-              operations: metaInstance.operations,
-              references: metaInstance.references,
-              graphicalRepresentation:
-                representationClassifier.graphicalRepresentation,
+          const nodeData: DiagramNodeData = {
+            notation: selectedNotation,
+            instance: {
+              instanceObject: instanceObj,
+              representationInstanceObject: representationInstanceObj,
             },
             position: position,
           };
 
-          if (metaInstance.id.startsWith("edge")) {
+          if (representationInstanceObj.type === "ClassEdge") {
             // temporary fix for edge nodes, this needs to be done by not having edges in the eClassifiers array
             // but instead in eFeatures array
           } else {
             const returnNode: Node = {
-              id: metaInstance.id,
+              id: uuidv4(),
               type: "ClassNode", // as it is a classifer node
-              position: representationClassifier.position!,
+              position: representationInstanceObj.position!,
               data: nodeData as any,
             };
 
@@ -227,57 +232,77 @@ const DiagramEditor = ({
 
     const initialNodes = initializeNodes();
     setNodes(initialNodes);
-  }, [representationInstanceModel, metaInstanceModel, setNodes, metaConfig]);
+  }, [representationInstanceModel, instanceModel, setNodes, selectedNotation]);
 
   useEffect(() => {
     const initializeEdges = () => {
       if (
-        !metaInstanceModel ||
+        !instanceModel ||
         !representationInstanceModel ||
-        metaInstanceModel.packages.length === 0
+        instanceModel.package.objects.length === 0
       )
         return [];
 
-      const returnEdges = metaInstanceModel.classifiers
+      const returnEdges = instanceModel.package.objects
         // temporary fix for edge nodes, this needs to be done by not having edges in the eClassifiers array
         // but instead in eFeatures array, and then just reference them by id in the eReferences array
-        .filter((cls) => cls.id.startsWith("edge"))
-        .flatMap((metaClassifier) => {
-          const edgeRepresentation =
-            representationInstanceModel.classifiers.find(
-              (repClassifier) =>
-                repClassifier.referenceMetaInstanceId === metaClassifier.id
-            );
+        .filter(
+          (instanceObj) =>
+            ReferenceHelper.dereferenceRepresentation(
+              instanceObj.representation?.$ref!
+            )!.type === "ClassEdge"
+        )
+        .map((instanceObj) => {
+          const edgeRepresentation = ReferenceHelper.dereferenceRepresentation(
+            instanceObj.representation?.$ref!
+          );
 
-          const sourceId = metaClassifier.references?.find(
-            (ref) => ref.type === "source"
-          )?.id;
-          const targetId = metaClassifier.references?.find(
-            (ref) => ref.type === "target"
-          )?.id;
+          const targetLink = instanceObj.links.find(
+            (link) => link.name === "target"
+          );
+          const sourceLink = instanceObj.links.find(
+            (link) => link.name === "source"
+          );
+
+          const targetObject: InstanceObject | null =
+            targetLink && targetLink.target.$ref
+              ? ReferenceHelper.resolveRef(
+                  instanceModel.package.objects,
+                  targetLink.target.$ref
+                )
+              : null;
+
+          const sourceObject: InstanceObject | null =
+            sourceLink && sourceLink.target.$ref
+              ? ReferenceHelper.resolveRef(
+                  instanceModel.package.objects,
+                  sourceLink.target.$ref
+                )
+              : null;
 
           if (!edgeRepresentation) return null;
 
-          const edgeInstanceNotation: InstanceNotation = {
-            ...(metaClassifier as ClassifierInstance),
-            graphicalRepresentation: edgeRepresentation.graphicalRepresentation,
-          };
+          const sourceNode = nodes.find(
+            (node) =>
+              (node.data as DiagramNodeData).instance!.instanceObject!.name ===
+              sourceObject?.name
+          );
+
+          const targetNode = nodes.find(
+            (node) =>
+              (node.data as DiagramNodeData).instance!.instanceObject!.name ===
+              targetObject?.name
+          );
 
           const returnEdge: Edge = {
-            id: `edge-${sourceId}-${targetId}`,
-            source: sourceId!,
-            target: targetId!,
-            type: "edge", // Assuming a default edge type
+            id: `edge-${sourceObject?.name}-${targetObject?.name}`,
+            source: sourceNode!.id,
+            target: targetNode!.id,
+            type: "ClassEdge", // Assuming a default edge type
             data: {
-              metaNotations: typeHelper.mergeMetaAndRepresentation(
-                metaConfig!.packages,
-                representationConfig!.packages
-              ),
-              instanceNotation: edgeInstanceNotation,
+              notation: selectedNotation,
+              instanceNotation: instanceObj,
               onDoubleClick: onDoubleClickEdge,
-              type: metaClassifier.name,
-              isNotationSlider: false,
-              isPalette: false,
             },
           };
 
@@ -292,11 +317,11 @@ const DiagramEditor = ({
 
     setEdges(initialEdges);
   }, [
-    metaInstanceModel,
+    instanceModel,
     representationInstanceModel,
     setEdges,
-    metaConfig,
-    representationConfig,
+    selectedNotation,
+    nodes,
   ]);
 
   const onConnect = useCallback(

@@ -159,6 +159,7 @@ export interface InstanceObject {
   type: Class; // type (class) of this object, referencing the meta model definition
   attributes: AttributeValue[];
   links: ReferenceValue[];
+  representation?: RepresentationInstanceObjectReference; // $ref
 }
 
 export interface AttributeValue {
@@ -168,7 +169,11 @@ export interface AttributeValue {
 
 export interface ReferenceValue {
   name: string; // reference name (as defined in the meta model)
-  target: InstanceObject; // object being referenced
+  target: InstanceObjectReference; // object being referenced
+}
+
+export interface InstanceObjectReference {
+  $ref: string; // URI reference to the instance object
 }
 
 // REPRESENTATION META MODEL
@@ -181,7 +186,10 @@ export interface RepresentationPackage {
   elements: Representation[];
 }
 
+export type RepresentationType = "ClassNode" | "ClassEdge";
+
 export interface Representation {
+  type?: RepresentationType; // we map classes to representation types
   graphicalRepresentation?: NotationRepresentationItem[];
 }
 
@@ -196,7 +204,11 @@ export interface RepresentationInstancePackage {
 }
 
 export interface RepresentationInstanceObject {
-  instanceObject: InstanceObject; // ref to instance object
+  type?: RepresentationType;
   position?: Position;
   graphicalRepresentation?: NotationRepresentationItem[];
+}
+
+export interface RepresentationInstanceObjectReference {
+  $ref: string; // URI reference to the representation instance object
 }
