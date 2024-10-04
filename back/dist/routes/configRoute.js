@@ -23,8 +23,8 @@ router.post("/upload", upload.single("file"), (req, res) => {
     res.status(200).send("Configuration uploaded successfully.");
 });
 // Endpoint to get config by 'name' field inside the configuration file
-router.get("/get-meta-config-by-name/:name", (req, res) => {
-    const requestedName = req.params.name;
+router.get("/get-meta-config-by-uri/:uri", (req, res) => {
+    const requestedUri = req.params.uri;
     // Read all config files in the directory
     fs.readdir(configDir, (err, files) => {
         if (err) {
@@ -35,7 +35,7 @@ router.get("/get-meta-config-by-name/:name", (req, res) => {
             const content = fs.readFileSync(filePath, "utf-8");
             const config = JSON.parse(content);
             // Check if the 'name' field in the config matches the requested name
-            if (config.name === requestedName && config.type === "meta") {
+            if (config.package.uri === requestedUri) {
                 return res.json(config); // Return the config if name matches
             }
         }
@@ -43,8 +43,8 @@ router.get("/get-meta-config-by-name/:name", (req, res) => {
         res.status(404).send(null);
     });
 });
-router.get("/get-representation-config-by-name/:name", (req, res) => {
-    const requestedName = req.params.name;
+router.get("/get-representation-config-by-uri/:uri", (req, res) => {
+    const requestedUri = req.params.uri;
     // Read all config files in the directory
     fs.readdir(configDir, (err, files) => {
         if (err) {
@@ -55,7 +55,7 @@ router.get("/get-representation-config-by-name/:name", (req, res) => {
             const content = fs.readFileSync(filePath, "utf-8");
             const config = JSON.parse(content);
             // Check if the 'name' field in the config matches the requested name
-            if (config.name === requestedName && config.type === "representation") {
+            if (config.package.uri === requestedUri) {
                 return res.json(config); // Return the config if name matches
             }
         }
@@ -65,9 +65,9 @@ router.get("/get-representation-config-by-name/:name", (req, res) => {
 });
 // Save configuration by type or update an existing one by type
 router.post("/save", (req, res) => {
-    const { name, type, ePackages } = req.body;
-    if (!name || !ePackages) {
-        return res.status(400).send("Configuration name or ePackages are missing.");
+    const { name, uri, elements } = req.body;
+    if (!uri || !elements) {
+        return res.status(400).send("Configuration uri or elements are missing.");
     }
     // Check if a file with the same "name" exists inside the configuration file
     let configFileFound = false;
@@ -80,7 +80,7 @@ router.post("/save", (req, res) => {
             const filePath = path.join(configDir, file);
             const content = fs.readFileSync(filePath, "utf-8");
             const config = JSON.parse(content);
-            if (config.name === name && config.type === type) {
+            if (config.package.uri === uri) {
                 // Match found, update this file
                 configFileFound = true;
                 configFilename = file;
@@ -88,9 +88,11 @@ router.post("/save", (req, res) => {
             }
         }
         const newConfig = {
-            name,
-            type,
-            ePackages: ePackages,
+            package: {
+                name: name,
+                uri: uri,
+                elements: elements,
+            },
         };
         if (configFileFound) {
             // Update the existing file
@@ -115,10 +117,13 @@ router.get("/list", (req, res) => {
             return res.status(500).send("Unable to list configurations.");
         }
         let configs = files.map((file) => {
-            const content = fs.readFileSync(`${configDir}/${file}`, "utf-8");
-            const config = JSON.parse(content);
-            if (config.type === "meta") {
-                return { filename: file, name: config.name };
+            if (file.startsWith("meta")) {
+                const content = fs.readFileSync(`${configDir}/${file}`, "utf-8");
+                const config = JSON.parse(content);
+                console.log("Config", config);
+                if (config.package && config.package.name) {
+                    return { filename: file, name: config.package.name };
+                }
             }
         });
         configs = configs.filter((config) => config !== undefined);

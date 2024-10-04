@@ -2,111 +2,6 @@ export type Callback = (error: Error | null, success?: any) => void;
 
 export type ModelFileType = "representation" | "meta";
 
-// NEW EMF ECORE MODEL - START
-export interface MetaModelFile {
-  name: string;
-  type: ModelFileType;
-  ePackages: EPackage[];
-}
-
-export interface ENamedElement {
-  name: string;
-}
-
-export interface EPackage extends ENamedElement {
-  eClassifiers: EClassifier[];
-  eSubpackages: EPackage[];
-}
-
-export interface EClassifier extends ENamedElement {}
-
-export interface EClass extends EClassifier {
-  eAttributes: EAttribute[];
-  eReferences: EReference[];
-  eOperations?: EOperation[];
-  eSuperTypes?: EClass[];
-}
-
-export interface EDataType extends EClassifier {
-  // represents data types like EString, EInt, etc.
-}
-
-export interface EAttribute {
-  name: string;
-  eAttributeType: EDataType; // Name of the data type
-  defaultValue?: any;
-  isUnique?: boolean;
-  lowerBound?: number;
-  upperBound?: number;
-}
-
-export interface EReference {
-  name: string;
-  eType: string;
-  containment?: boolean;
-  upperBound?: string;
-}
-
-export interface ETypedElement extends ENamedElement {
-  eType: EClassifier; // Name of the data type
-}
-
-export interface EOperation extends ETypedElement {
-  eParameters?: EParameter[];
-}
-
-export interface EParameter extends ETypedElement {}
-
-export interface EAnnotation {
-  source: string;
-}
-
-// NEW EMF ECORE MODEL - END
-
-// NEW REPRESENTATION MODEL - START
-export interface RepresentationModelFile {
-  name: string;
-  type: ModelFileType;
-  ePackages: EPackageRepresentation[];
-}
-
-export interface EPackageRepresentation {
-  name: string;
-  graphicalRepresentation?: NotationRepresentationItem[];
-  eClassifiers: EClassRepresentation[];
-  eSubpackages: EPackageRepresentation[];
-}
-
-export interface EClassRepresentation {
-  name: string;
-  graphicalRepresentation?: NotationRepresentationItem[];
-  eAttributes: EAttributeRepresentation[];
-  eReferences: EReferenceRepresentation[];
-  eOperations?: EOperationRepresentation[];
-}
-
-export interface EAttributeRepresentation {
-  name: string;
-  graphicalRepresentation?: NotationRepresentationItem[];
-}
-
-export interface EReferenceRepresentation {
-  name: string;
-  graphicalRepresentation?: NotationRepresentationItem[];
-}
-
-export interface EOperationRepresentation {
-  name: string;
-  graphicalRepresentation?: NotationRepresentationItem[];
-  eParameters?: EParameterRepresentation[];
-}
-
-export interface EParameterRepresentation {
-  name: string;
-  graphicalRepresentation?: NotationRepresentationItem[];
-}
-
-// NEW REPRESENTATION MODEL - END
 export interface NotationRepresentationItem {
   shape: Shape;
   text?: string;
@@ -140,5 +35,131 @@ export type Alignment = "left" | "center" | "right";
 
 export type Shape = "square" | "line" | "compartment" | "text" | "connector";
 
-export type DataType = "String" | "Collection" | "Package" | "Boolean" | "Text";
+// ECORE MODEL
+export interface MetaModel {
+  package: Package;
+}
 
+export interface Package extends NamedElement {
+  uri: string;
+  elements: Classifier[];
+}
+
+export abstract class NamedElement {
+  name: string | undefined;
+}
+
+export abstract class TypedElement extends NamedElement {
+  type?: Classifier;
+  lowerBound?: number | "infinite";
+  upperBound?: number | "infinite";
+  isUnique?: boolean;
+  isOrdered?: boolean;
+  isDerived?: boolean;
+  defaultValue?: any;
+}
+
+export abstract class Classifier extends NamedElement {}
+
+export interface Class extends Classifier {
+  isAbstract?: boolean;
+  isInterface?: boolean;
+  attributes?: Attribute[];
+  references?: Reference[];
+  representation?: RepresentationReference;
+}
+
+export interface RepresentationReference {
+  $ref: string; // URI reference to the representation
+}
+
+export interface DataType extends Classifier {
+  // represents data types like String, int, etc.
+}
+
+export interface Attribute extends NamedElement {
+  attributeType: DataType;
+  defaultValue?: any;
+  isUnique?: boolean;
+}
+
+export interface Reference extends NamedElement {
+  type: Class;
+  isComposition?: boolean;
+  opposite?: Reference;
+}
+
+// INSTANCE MODEL
+export interface InstanceModel {
+  package: InstancePackage;
+}
+
+export interface InstancePackage {
+  uri: string;
+  objects: InstanceObject[];
+}
+
+export interface InstanceObject {
+  name: string;
+  type: ClassReference; // type (class) of this object, $ref to the meta model definition
+  attributes: AttributeValue[];
+  links: ReferenceValue[];
+  representation?: RepresentationInstanceObjectReference; // $ref
+}
+
+export interface ClassReference {
+  $ref: string; // URI reference to the class
+}
+
+export interface RepresentationInstanceObjectReference {
+  $ref: string; // URI reference to the representation instance object
+}
+
+export interface AttributeValue {
+  name: string; // name of the attribute (from the meta model)
+  value: any; // value assigned to the attribute
+}
+
+export interface ReferenceValue {
+  name: string; // reference name (as defined in the meta model)
+  target: InstanceObjectReference; // object being referenced
+}
+
+export interface InstanceObjectReference {
+  $ref: string; // URI reference to the instance object
+}
+
+// REPRESENTATION META MODEL
+export interface RepresentationMetaModel {
+  package: RepresentationPackage;
+}
+
+export interface RepresentationPackage {
+  uri: string;
+  elements: Representation[];
+}
+
+export type RepresentationType = "ClassNode" | "ClassEdge";
+
+export interface Representation {
+  name: string;
+  type: RepresentationType; // we map classes to representation types
+  graphicalRepresentation?: NotationRepresentationItem[];
+}
+
+// REPRESENTATION INSTANCE
+export interface RepresentationInstanceModel {
+  package: RepresentationInstancePackage;
+}
+
+export interface RepresentationInstancePackage {
+  uri: string;
+  objects: RepresentationInstanceObject[];
+}
+
+export interface RepresentationInstanceObject {
+  name: string;
+  type: RepresentationType;
+  position?: Position;
+  graphicalRepresentation?: NotationRepresentationItem[];
+}
