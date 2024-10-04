@@ -1,14 +1,14 @@
 import React from "react";
 import CustomModal from "../../../../../ui_elements/Modal";
-import { CustomNodeData, EOperation } from "../../../../../../types/types";
 import typeHelper from "../../../../../helpers/TypeHelper";
+import { DiagramNodeData } from "../../../../../../types/types";
 
 interface ModalAddOperationProps {
-  data: CustomNodeData;
+  data: DiagramNodeData;
   isNodeOperationModalOpen: boolean;
   setIsNodeOperationModalOpen: (isOpen: boolean) => void;
-  modifyingOperation: EOperation;
-  setModifyingOperation: (modifyingOperation: EOperation) => void;
+  /* modifyingOperation: EOperation;
+  setModifyingOperation: (modifyingOperation: EOperation) => void; */
   setIsAddParameterModalOpen: (value: boolean) => void;
   handleOperationSubmit: () => void;
 }
@@ -17,12 +17,12 @@ function ModalAddOperation({
   data,
   isNodeOperationModalOpen,
   setIsNodeOperationModalOpen,
-  modifyingOperation,
-  setModifyingOperation,
+  /* modifyingOperation,
+  setModifyingOperation, */
   setIsAddParameterModalOpen,
   handleOperationSubmit,
 }: ModalAddOperationProps) {
-  const operations = data.instanceNotation.eOperations!;
+  //const operations = data.instanceNotation.eOperations!;
 
   return (
     <CustomModal
@@ -34,7 +34,7 @@ function ModalAddOperation({
 
       <label>Name</label>
       <br />
-      <input
+      {/* <input
         type="text"
         value={modifyingOperation.name}
         onChange={(e) =>
@@ -43,13 +43,13 @@ function ModalAddOperation({
             name: e.target.value,
           })
         }
-      />
+      /> */}
       <br />
       <label>Parameters</label>
 
       <br />
       {/* Show all parameters of the operation we are adding or modifying */}
-      <div className="bg-white h-10 overflow-y-scroll">
+      {/* <div className="bg-white h-10 overflow-y-scroll">
         {operations &&
           operations.map((operation, index) => {
             return (
@@ -57,13 +57,13 @@ function ModalAddOperation({
                 {operation.eParameters!.map((parameter, index) => (
                   <span key={index}>
                     {parameter.name}: {parameter.eType?.name}{" "}
-                    {/* {parameter.defaultValue && `= ${parameter.defaultValue}`} */}
+                    { {parameter.defaultValue && `= ${parameter.defaultValue}`} }
                   </span>
                 ))}
               </div>
             );
           })}
-      </div>
+      </div> */}
       <br />
       {/* Add and remove buttons for parameters */}
       <div className="flex flex-row w-full">
@@ -81,7 +81,7 @@ function ModalAddOperation({
       <br />
       <label>Return Type</label>
       <br />
-      <input
+      {/* <input
         type="text"
         value={modifyingOperation.eType?.name}
         onChange={(e) =>
@@ -93,7 +93,7 @@ function ModalAddOperation({
             },
           })
         }
-      />
+      /> */}
 
       {/* <label>Visibility</label>
       <br />

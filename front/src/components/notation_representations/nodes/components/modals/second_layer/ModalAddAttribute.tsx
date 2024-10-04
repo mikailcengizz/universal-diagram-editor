@@ -1,18 +1,19 @@
 import React from "react";
 import CustomModal from "../../../../../ui_elements/Modal";
 import {
-  EAttributeInstance,
-  InstanceNotation,
-  MetaNotation,
+  Attribute,
+  Class,
+  InstanceObject,
+  MetaModel,
 } from "../../../../../../types/types";
 import { useSelector } from "react-redux";
 
 interface ModalAddAttributeProps {
   isNodeAttributeModalOpen: boolean;
   setIsNodeAttributeModalOpen: (isOpen: boolean) => void;
-  metaAttribute: MetaNotation;
-  newAttribute: EAttributeInstance;
-  setNewAttribute: (newAttribute: EAttributeInstance) => void;
+  metaAttribute: Class;
+  newAttribute: Attribute;
+  setNewAttribute: (newAttribute: Attribute) => void;
   handleAttributeSubmit: () => void;
 }
 
@@ -44,57 +45,45 @@ function ModalAddAttribute({
     >
       <h2>Attribute</h2>
       {/* Iterate over metaAttribute.eAttributes and render form fields */}
-      {metaAttribute.eAttributes!.map((attribute) => {
-        const foundAttributeValue =
-          newAttribute[attribute.name as keyof EAttributeInstance];
+      {metaAttribute.attributes!.map((attribute) => {
+        /* const foundAttributeValue =
+          newAttribute[attribute.name as keyof EAttributeInstance]; */
 
         return (
           <div key={attribute.name}>
             <label>{attribute.name}</label>
             <br />
-            {attribute.eAttributeType?.name === "String" ? (
+            {attribute.attributeType?.name === "String" ? (
               <input
                 name={attribute.name}
                 className={inputStyle}
                 type="text"
-                value={
-                  foundAttributeValue
-                    ? foundAttributeValue
-                    : attribute.defaultValue
-                }
+                value={attribute.defaultValue}
                 onChange={(e) =>
-                  handleAttributeChange(attribute.name, e.target.value)
+                  handleAttributeChange(attribute.name!, e.target.value)
                 }
               />
-            ) : attribute.eAttributeType?.name === "Integer" ? (
+            ) : attribute.attributeType?.name === "Integer" ? (
               <input
                 name={attribute.name}
                 className={inputStyle}
                 type="number"
-                value={
-                  foundAttributeValue
-                    ? foundAttributeValue
-                    : attribute.defaultValue
-                }
+                value={attribute.defaultValue}
                 onChange={(e) =>
                   handleAttributeChange(
-                    attribute.name,
+                    attribute.name!,
                     parseInt(e.target.value, 10)
                   )
                 }
               />
-            ) : attribute.eAttributeType?.name === "Boolean" ? (
+            ) : attribute.attributeType?.name === "Boolean" ? (
               <input
                 name={attribute.name}
                 className={inputStyle}
                 type="checkbox"
-                checked={
-                  foundAttributeValue
-                    ? foundAttributeValue
-                    : attribute.defaultValue
-                }
+                checked={attribute.defaultValue}
                 onChange={(e) =>
-                  handleAttributeChange(attribute.name, e.target.checked)
+                  handleAttributeChange(attribute.name!, e.target.checked)
                 }
               />
             ) : (
@@ -102,13 +91,9 @@ function ModalAddAttribute({
                 name={attribute.name}
                 className={inputStyle}
                 type="text"
-                value={
-                  foundAttributeValue
-                    ? foundAttributeValue
-                    : attribute.defaultValue
-                }
+                value={attribute.defaultValue}
                 onChange={(e) =>
-                  handleAttributeChange(attribute.name, e.target.value)
+                  handleAttributeChange(attribute.name!, e.target.value)
                 }
               />
             )}

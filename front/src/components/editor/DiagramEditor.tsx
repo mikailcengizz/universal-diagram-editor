@@ -385,7 +385,7 @@ const DiagramEditor = ({
             selectedMetaModel.package.uri +
             "#/classes/" +
             (selectedMetaModel.package.elements as Class[]).findIndex(
-              (element) => element.name === edgeNotationElement.name
+              (element) => element.name === edgeNotationElement!.name
             ),
         },
         attributes: [],
@@ -840,7 +840,6 @@ const DiagramEditor = ({
       {/* Modal */}
       {isModalOpen && modalData && (
         <ModalDoubleClickNotation
-          nodeId=""
           data={modalData}
           isNodeAttributeModalOpen={false}
           isNodeModalOpen={isModalOpen}

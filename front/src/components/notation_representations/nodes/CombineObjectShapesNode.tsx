@@ -501,7 +501,6 @@ const CombineObjectShapesNode = ({
 
       {/* Modal for double click */}
       <ModalDoubleClickNotation
-        nodeId={nodeId}
         data={data}
         isNodeAttributeModalOpen={isNodeAttributeModalOpen}
         isNodeModalOpen={isNodeModalOpen}
@@ -521,7 +520,7 @@ const CombineObjectShapesNode = ({
         handleAttributeSubmit={handleAttributeSubmit}
         isNodeAttributeModalOpen={isNodeAttributeModalOpen}
         metaAttribute={metaAttribute}
-        newAttribute={modifiyingAttribute}
+        newAttribute={modifiyingAttribute!}
         setNewAttribute={setModifyingAttribute}
         setIsNodeAttributeModalOpen={setIsNodeAttributeModalOpen}
       />

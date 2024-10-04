@@ -1,20 +1,20 @@
 import React from "react";
 import CustomModal from "../../../../../ui_elements/Modal";
-import { EParameter } from "../../../../../../types/types";
+//import { Parameter } from "../../../../../../types/types";
 
 interface ModalAddParameterProps {
   isAddParameterModalOpen: boolean;
   setIsAddParameterModalOpen: (value: boolean) => void;
-  modifyingParameter: EParameter;
-  setModifyingParameter: (eParameter: EParameter) => void;
+  //modifyingParameter: EParameter;
+  //setModifyingParameter: (eParameter: EParameter) => void;
   handleParameterSubmit: () => void;
 }
 
 function ModalAddParameter({
   isAddParameterModalOpen,
   setIsAddParameterModalOpen,
-  modifyingParameter,
-  setModifyingParameter,
+  //modifyingParameter,
+  //setModifyingParameter,
   handleParameterSubmit,
 }: ModalAddParameterProps) {
   return (
@@ -26,7 +26,7 @@ function ModalAddParameter({
       <h2>Add Parameter</h2>
       <label>Name</label>
       <br />
-      <input
+      {/* <input
         type="text"
         value={modifyingParameter.name}
         onChange={(e) =>
@@ -35,7 +35,7 @@ function ModalAddParameter({
             name: e.target.value,
           })
         }
-      />
+      /> */}
       <br />
       {/* <label>Data Type</label>
       <br />

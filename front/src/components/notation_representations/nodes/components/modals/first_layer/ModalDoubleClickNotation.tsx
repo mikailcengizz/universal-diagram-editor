@@ -1,33 +1,33 @@
 import React, { useEffect, useState } from "react";
 import CustomModal from "../../../../../ui_elements/Modal";
 import {
-  CustomNodeData,
-  EAttribute,
-  EAttributeInstance,
-  EOperation,
-  MetaInstanceModelFile,
+  Attribute,
+  AttributeValue,
+  Class,
+  DiagramNodeData,
+  InstanceModel,
   Pattern,
+  RepresentationInstanceModel,
 } from "../../../../../../types/types";
 import typeHelper from "../../../../../helpers/TypeHelper";
 import { useDispatch, useSelector } from "react-redux";
+import ModelHelperFunctions from "../../../../../helpers/ModelHelperFunctions";
 
 interface ModalDoubleClickNotationProps {
   isNodeModalOpen: boolean;
   setIsNodeModalOpen: (isOpen: boolean) => void;
-  nodeId: string;
-  data: CustomNodeData;
-  setData: (data: CustomNodeData) => void;
+  data: DiagramNodeData;
+  setData: (data: DiagramNodeData) => void;
   isNodeAttributeModalOpen: boolean;
   setIsNodeAttributeModalOpen: (isOpen: boolean) => void;
   isNodeOperationModalOpen: boolean;
   setIsNodeOperationModalOpen: (isOpen: boolean) => void;
-  onDataUpdate: (data: CustomNodeData) => void;
+  onDataUpdate: (data: DiagramNodeData) => void;
 }
 
 function ModalDoubleClickNotation({
   isNodeModalOpen,
   setIsNodeModalOpen,
-  nodeId,
   data,
   setData,
   isNodeAttributeModalOpen,
@@ -37,18 +37,26 @@ function ModalDoubleClickNotation({
   onDataUpdate,
 }: ModalDoubleClickNotationProps) {
   const dispatch = useDispatch();
-  const metaInstanceModel: MetaInstanceModelFile = useSelector(
+  const instanceModel: InstanceModel = useSelector(
     (state: any) => state.metaInstanceModelStore.model
   );
+  const representationInstanceModel: RepresentationInstanceModel = useSelector(
+    (state: any) => state.metaRepresentationInstanceModelStore.model
+  );
+  const representationInstanceObject =
+    ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
+      data.instanceObject!,
+      representationInstanceModel
+    );
   const [relationshipTab, setRelationshipTab] = useState<number>(1);
 
   const handleNodeNotationAttributeChange = (
-    attribute: EAttributeInstance,
+    attribute: AttributeValue,
     value: any
   ) => {
     const newData = { ...data }; // Create a shallow copy of the data object
-    newData.instanceNotation.eAttributes =
-      newData.instanceNotation.eAttributes!.map((prop) => {
+    newData.instanceObject!.attributes =
+      newData.instanceObject!.attributes!.map((prop) => {
         if (prop.name === attribute.name) {
           return { ...prop, defaultValue: value }; // Ensure each property is also copied
         }
@@ -57,7 +65,7 @@ function ModalDoubleClickNotation({
     setData(newData); // Set the new data to trigger re-rendering
   };
 
-  const handleNodeNotationOperationChange = (
+  /* const handleNodeNotationOperationChange = (
     operation: EOperation,
     value: any
   ) => {
@@ -70,7 +78,7 @@ function ModalDoubleClickNotation({
         return prop;
       });
     setData(newData); // Set the new data to trigger re-rendering
-  };
+  }; */
 
   const handleRoleMarkerSourceChange = (newMarker: any) => {
     console.log("New source marker selected:", newMarker); // Add this for debugging
@@ -133,17 +141,19 @@ function ModalDoubleClickNotation({
   };
 
   // This should not be used to update data, but only to display the attributes of the class
-  const [classifierAttributes, setClassifierAttributes] = useState<
-    EAttributeInstance[] | undefined
+  const [classAttributes, setClassAttributes] = useState<
+    Attribute[] | undefined
   >([]);
   useEffect(() => {
-    if (metaInstanceModel && metaInstanceModel.ePackages.length > 0) {
-      const attributes = metaInstanceModel.ePackages[0].eClassifiers.find(
-        (cls) => cls.id === nodeId
-      )?.eAttributes;
-      setClassifierAttributes(attributes);
+    if (data.notation && data.notation.package) {
+      const classifier: Class | undefined = data.notation.package.elements.find(
+        (element) => {
+          return element.name === data.instanceObject!.name;
+        }
+      );
+      setClassAttributes(classifier?.attributes!);
     }
-  }, [metaInstanceModel]);
+  }, [instanceModel]);
 
   return (
     <CustomModal
@@ -151,15 +161,15 @@ function ModalDoubleClickNotation({
       onClose={() => setIsNodeModalOpen(false)}
       zIndex={5}
     >
-      <h2 className="font-semibold">{data.instanceNotation.name!} Details</h2>
+      <h2 className="font-semibold">{data.instanceObject!.name!} Details</h2>
 
       {/* Normal attributes - these are class specific, under eAttributes */}
 
       {/* Attributes with name = "Attribute" - these are fields, but under Classifier, and we add these to eAttributes of the class */}
 
       <div className="w-full">
-        {data.instanceNotation.eAttributes &&
-          data.instanceNotation.eAttributes.map((attribute, index) => {
+        {data.instanceObject!.attributes &&
+          data.instanceObject!.attributes.map((attribute, index) => {
             {
               /* Class-Specific Attributes (e.g., isAbstract, visibility) */
             }
@@ -172,10 +182,8 @@ function ModalDoubleClickNotation({
                 <div key={index}>
                   <label>{attribute.name}</label>
                   <input
-                    type={typeHelper.determineInputFieldType(
-                      attribute.eAttributeType!.name!
-                    )}
-                    value={attribute.defaultValue}
+                    type={typeHelper.determineInputFieldType(attribute.name!)}
+                    value={attribute.value}
                     onChange={(e) =>
                       handleNodeNotationAttributeChange(
                         attribute,
@@ -190,8 +198,8 @@ function ModalDoubleClickNotation({
 
         {/* Field Attributes (e.g., class members inside compartments) should just be listed */}
         <h3>Class Attributes</h3>
-        {classifierAttributes &&
-          classifierAttributes.map((attribute, index) => {
+        {classAttributes &&
+          classAttributes.map((attribute, index) => {
             if (
               attribute.name !== "name" &&
               attribute.name !== "abstract" &&
@@ -223,7 +231,7 @@ function ModalDoubleClickNotation({
         <br />
 
         {/* Field Operations (e.g., class members inside compartments) */}
-        <h3>Class Operations</h3>
+        {/* <h3>Class Operations</h3>
         {data.instanceNotation.eOperations &&
           data.instanceNotation.eOperations.map((operation, index) => {
             if (
@@ -248,10 +256,10 @@ function ModalDoubleClickNotation({
                 </div>
               );
             }
-          })}
+          })} */}
 
         {/* Add operation field button */}
-        <div className="flex flex-row w-full">
+        {/* <div className="flex flex-row w-full">
           <div
             className="w-1/2 bg-black text-white text-center cursor-pointer"
             onClick={() => {
@@ -263,12 +271,12 @@ function ModalDoubleClickNotation({
           <div className="w-1/2 text-center border-[1px] border-solid border-black cursor-pointer">
             Remove
           </div>
-        </div>
+        </div> */}
 
         <br />
 
-        {data.instanceNotation.type === "EReference" && (
-          <>
+        {representationInstanceObject!.type === "ClassEdge" && (
+          <div>
             <div className="flex flex-row w-full">
               <div className="w-1/3">
                 <button
@@ -296,10 +304,10 @@ function ModalDoubleClickNotation({
                 </button>
               </div>
             </div>
-            {/* Edge tab */}
-            {relationshipTab === 1
-              ? {
-                  /* <div className="flex flex-col w-full">
+
+            {relationshipTab === 1 ? (
+              <></>
+            ) : /* <div className="flex flex-col w-full">
                 {data.nodeNotation.properties!.map((property, index) => (
                   <div key={index}>
                     <label>{property.name}</label>
@@ -345,11 +353,10 @@ function ModalDoubleClickNotation({
                   <option value="dashed">Dashed</option>
                 </select>
               </div> */
-                }
-              : // Source tab
-              relationshipTab === 2
-              ? {
-                  /* <div className="flex flex-col w-full">
+            relationshipTab === 2 ? (
+              <></>
+            ) : (
+              /* <div className="flex flex-col w-full">
                 <h3 className="font-bold">Role</h3>
                 {data.notations.relationships.map((relationship, index) => (
                   <>
@@ -412,11 +419,10 @@ function ModalDoubleClickNotation({
                   <option value="closedArrow">Closed arrow</option>
                 </select>
               </div> */
-                }
-              : // Target tab
-                relationshipTab === 3 &&
-                {
-                  /* <div className="flex flex-col w-full">
+              // Target tab
+              relationshipTab === 3 && (
+                <></>
+                /* <div className="flex flex-col w-full">
                     <h3 className="font-bold">Role</h3>
                     {data.notations.relationships.map((relationship, index) => (
                       <>
@@ -489,8 +495,9 @@ function ModalDoubleClickNotation({
                       <option value="closedArrow">Closed arrow</option>
                     </select>
                   </div> */
-                }}
-          </>
+              )
+            )}
+          </div>
         )}
       </div>
     </CustomModal>
