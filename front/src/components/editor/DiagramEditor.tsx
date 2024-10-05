@@ -77,6 +77,8 @@ const DiagramEditor = ({
   const representationInstanceModel: RepresentationInstanceModel = useSelector(
     (state: any) => state.representationInstanceModelStore.model
   );
+  selectedMetaModelURI =
+    localStorage.getItem("selectedMetaModel") || selectedMetaModelURI;
 
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedMetaModel, setSelectedMetaModel] = useState<MetaModel>({
@@ -214,9 +216,10 @@ const DiagramEditor = ({
           if (representationInstanceObj.type === "ClassEdge") {
             // temporary fix for edge nodes, this needs to be done by not having edges in the eClassifiers array
             // but instead in eFeatures array
+            return null;
           } else {
             const returnNode: Node = {
-              id: uuidv4(),
+              id: instanceObj.name,
               type: "ClassNode", // as it is a classifer node
               position: representationInstanceObj.position!,
               data: nodeData as any,
@@ -230,9 +233,18 @@ const DiagramEditor = ({
       return returnNodes as Node[];
     };
 
-    const initialNodes = initializeNodes();
-    setNodes(initialNodes);
-  }, [representationInstanceModel, instanceModel, setNodes, selectedMetaModel]);
+    if (nodes.length === 0) {
+      const initialNodes = initializeNodes();
+      setNodes(initialNodes);
+    }
+  }, [
+    representationInstanceModel,
+    instanceModel,
+    nodes,
+    setNodes,
+    selectedMetaModel,
+    selectedRepresentationMetaModel,
+  ]);
 
   useEffect(() => {
     const initializeEdges = () => {
@@ -298,7 +310,7 @@ const DiagramEditor = ({
           );
 
           const returnEdge: Edge = {
-            id: `edge-${sourceObject?.name}-${targetObject?.name}`,
+            id: instanceObj.name,
             source: sourceNode!.id,
             target: targetNode!.id,
             type: "ClassEdge", // Assuming a default edge type
@@ -316,12 +328,14 @@ const DiagramEditor = ({
       return returnEdges as Edge[];
     };
 
-    const initialEdges = initializeEdges();
-
-    setEdges(initialEdges);
+    if (edges.length === 0) {
+      const initialEdges = initializeEdges();
+      setEdges(initialEdges);
+    }
   }, [
     instanceModel,
     representationInstanceModel,
+    edges,
     setEdges,
     selectedMetaModel,
     nodes,
@@ -451,7 +465,7 @@ const DiagramEditor = ({
       const newEdge: Edge = {
         ...params,
         id: `edge-${source}-${target}-${uniqueId}`,
-        type: "edge",
+        type: "ClassEdge",
         // passing data to the combined edge component
         data: data as any,
       };
@@ -480,24 +494,41 @@ const DiagramEditor = ({
         representationInstanceObject
       );
     },
-    [setEdges, selectedMetaModel, selectedRepresentationMetaModel]
+    [
+      setEdges,
+      selectedMetaModel,
+      selectedRepresentationMetaModel,
+      nodes,
+      instanceModel,
+    ]
   );
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => {
+      // first apply the changes to the nodes
       setNodes((nds) => {
+        console.log("Nodes changed:", changes);
         const updatedNodes = applyNodeChanges(changes, nds);
+        console.log("Updated nodes:", updatedNodes);
 
+        // then apply the changes to the representation instance model
         changes.forEach((change) => {
           if (change.type === "position" && "id" in change) {
             const changedNode = updatedNodes.find(
               (node) => node.id === change.id
             );
+
+            if (!changedNode) {
+              console.error("Node not found in updated nodes:", change.id);
+              return;
+            }
+
+            const changedNodeData = changedNode?.data as DiagramNodeData;
+
             console.log("Node changed:", changedNode);
             console.log("Change:", change);
             console.log("changed node data:", changedNode?.data);
-            const nodeName = (changedNode?.data as DiagramNodeData)
-              .instanceObject?.name;
+            const nodeName = changedNodeData.instanceObject!.name;
 
             const instanceObjectChanged = instanceModel.package.objects.find(
               (obj) => obj.name === nodeName
@@ -569,6 +600,7 @@ const DiagramEditor = ({
         return updatedNodes;
       });
     },
+
     [setNodes, representationInstanceModel, dispatch, instanceModel]
   );
 
