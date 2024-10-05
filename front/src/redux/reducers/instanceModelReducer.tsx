@@ -12,17 +12,14 @@ const fallbackMetaInstanceModel: InstanceModel = {
   },
 };
 
-const storedMetaInstanceModel: InstanceModel =
-  JSON.parse(localStorage.getItem("metaInstanceModel")!) ||
+const storedInstanceModel: InstanceModel =
+  JSON.parse(localStorage.getItem("instanceModel")!) ||
   fallbackMetaInstanceModel;
 
-localStorage.setItem(
-  "metaInstanceModel",
-  JSON.stringify(storedMetaInstanceModel)
-);
+localStorage.setItem("instanceModel", JSON.stringify(storedInstanceModel));
 
 const initialState = {
-  model: storedMetaInstanceModel,
+  model: storedInstanceModel,
 };
 
 const metaInstanceModelReducer = (state = initialState, action: any) => {
@@ -30,7 +27,7 @@ const metaInstanceModelReducer = (state = initialState, action: any) => {
     case UPDATE_INSTANCE_MODEL:
       const updatedModel = action.payload;
       // Save the entire model to localStorage
-      localStorage.setItem("metaInstanceModel", JSON.stringify(updatedModel));
+      localStorage.setItem("instanceModel", JSON.stringify(updatedModel));
       return { ...state, model: updatedModel };
 
     case UPDATE_INSTANCE_OBJECT:
@@ -42,7 +39,7 @@ const metaInstanceModelReducer = (state = initialState, action: any) => {
         package: { ...state.model.package, objects: updatedObjects },
       };
       localStorage.setItem(
-        "metaInstanceModel",
+        "instanceModel",
         JSON.stringify(updatedModelWithObject)
       );
       return { ...state, model: updatedModelWithObject };

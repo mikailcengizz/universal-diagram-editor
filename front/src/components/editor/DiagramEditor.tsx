@@ -72,10 +72,10 @@ const DiagramEditor = ({
 }: DiagramEditorProps) => {
   const dispatch = useDispatch();
   const instanceModel: InstanceModel = useSelector(
-    (state: any) => state.metaInstanceModelStore.model
+    (state: any) => state.instanceModelStore.model
   );
   const representationInstanceModel: RepresentationInstanceModel = useSelector(
-    (state: any) => state.metaRepresentationInstanceModelStore.model
+    (state: any) => state.representationInstanceModelStore.model
   );
 
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
@@ -184,8 +184,9 @@ const DiagramEditor = ({
       const returnNodes = instanceModel.package.objects
         .map((instanceObj) => {
           const representationInstanceObj =
-            ReferenceHelper.dereferenceRepresentation(
-              instanceObj.representation?.$ref!
+            ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
+              instanceObj,
+              representationInstanceModel
             );
 
           if (
@@ -247,14 +248,17 @@ const DiagramEditor = ({
         // but instead in eFeatures array, and then just reference them by id in the eReferences array
         .filter(
           (instanceObj) =>
-            ReferenceHelper.dereferenceRepresentation(
-              instanceObj.representation?.$ref!
+            ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
+              instanceObj,
+              representationInstanceModel
             )!.type === "ClassEdge"
         )
         .map((instanceObj) => {
-          const edgeRepresentation = ReferenceHelper.dereferenceRepresentation(
-            instanceObj.representation?.$ref!
-          );
+          const edgeRepresentation =
+            ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
+              instanceObj,
+              representationInstanceModel
+            );
 
           const targetLink = instanceObj.links.find(
             (link) => link.name === "target"
@@ -362,10 +366,16 @@ const DiagramEditor = ({
       let edgeNotationElement: Class | null =
         (selectedMetaModel.package.elements as Class[]).find(
           (element) =>
-            ReferenceHelper.dereferenceRepresentation(
-              element.representation?.$ref!
+            ModelHelperFunctions.findRepresentationFromClassInRepresentationMetaModel(
+              element,
+              selectedRepresentationMetaModel
             )?.type === "ClassEdge"
         ) || null;
+      const edgeNotationElementRepresentation =
+        ModelHelperFunctions.findRepresentationFromClassInRepresentationMetaModel(
+          edgeNotationElement!,
+          selectedRepresentationMetaModel
+        );
 
       // No edge types found in the language
       if (!edgeNotationElement) {
@@ -428,6 +438,7 @@ const DiagramEditor = ({
           representationMetaModel: selectedRepresentationMetaModel,
           metaModel: selectedMetaModel,
         },
+        notationElement: edgeNotationElement,
         instanceObject: edgeInstanceObject,
         position: {
           x: 0,
@@ -450,13 +461,23 @@ const DiagramEditor = ({
       // Update meta instance model with new edge
       updateInstanceModelWithNewNode(newEdge, false, edgeInstanceObject);
 
+      const representationInstanceObject: RepresentationInstanceObject = {
+        name: uniqueId,
+        type: edgeNotationElementRepresentation!.type,
+        position: {
+          x: 0,
+          y: 0,
+        },
+        graphicalRepresentation: [
+          ...edgeNotationElementRepresentation!.graphicalRepresentation!,
+        ],
+      };
+
       // Update representation instance model with new edge
       updateRepresentationInstanceModelWithNewNode(
         newEdge,
         false,
-        ReferenceHelper.dereferenceRepresentation(
-          edgeInstanceObject.representation!.$ref!
-        )!
+        representationInstanceObject
       );
     },
     [setEdges, selectedMetaModel, selectedRepresentationMetaModel]
@@ -464,89 +485,96 @@ const DiagramEditor = ({
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => {
-      setNodes((nds) => applyNodeChanges(changes, nds));
+      setNodes((nds) => {
+        const updatedNodes = applyNodeChanges(changes, nds);
 
-      changes.forEach((change) => {
-        if (change.type === "position" && "id" in change) {
-          const changedNode = nodes.find((node) => node.id === change.id);
+        changes.forEach((change) => {
+          if (change.type === "position" && "id" in change) {
+            const changedNode = updatedNodes.find(
+              (node) => node.id === change.id
+            );
+            console.log("Node changed:", changedNode);
+            console.log("Change:", change);
+            console.log("changed node data:", changedNode?.data);
+            const nodeName = (changedNode?.data as DiagramNodeData)
+              .instanceObject?.name;
 
-          const instanceObjectChanged = instanceModel.package.objects.find(
-            (obj) =>
-              obj.name ===
-              (changedNode?.data as DiagramNodeData).instanceObject?.name
-          );
-          const indexInstanceObjectChanged =
-            instanceModel.package.objects.indexOf(instanceObjectChanged!);
+            const instanceObjectChanged = instanceModel.package.objects.find(
+              (obj) => obj.name === nodeName
+            );
+            const indexInstanceObjectChanged =
+              instanceModel.package.objects.indexOf(instanceObjectChanged!);
 
-          if (instanceObjectChanged) {
-            // Ensure the new position is valid, fallback to the last known position if not
-            const newPosition: Position = {
-              x:
-                change.position &&
-                typeof change.position.x === "number" &&
-                !isNaN(change.position.x)
-                  ? change.position.x
-                  : ReferenceHelper.dereferenceRepresentation(
-                      instanceObjectChanged.representation!.$ref!
-                    )!.position!.x,
-              y:
-                change.position &&
-                typeof change.position.y === "number" &&
-                !isNaN(change.position.y)
-                  ? change.position.y
-                  : ReferenceHelper.dereferenceRepresentation(
-                      instanceObjectChanged.representation!.$ref!
-                    )!.position!.y,
-            };
+            if (instanceObjectChanged) {
+              // Ensure the new position is valid, fallback to the last known position if not
+              const newPosition: Position = {
+                x:
+                  change.position &&
+                  typeof change.position.x === "number" &&
+                  !isNaN(change.position.x)
+                    ? change.position.x
+                    : ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
+                        instanceObjectChanged,
+                        representationInstanceModel
+                      )!.position!.x,
+                y:
+                  change.position &&
+                  typeof change.position.y === "number" &&
+                  !isNaN(change.position.y)
+                    ? change.position.y
+                    : ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
+                        instanceObjectChanged,
+                        representationInstanceModel
+                      )!.position!.y,
+              };
 
-            console.log("New position: ", newPosition);
+              console.log("New position: ", newPosition);
 
-            let newRepresentationInstanceObject =
-              ReferenceHelper.dereferenceRepresentation(
-                instanceObjectChanged.representation!.$ref!
-              )!;
-            const updatedRepresentationInstanceModel = {
-              ...representationInstanceModel,
-              package: {
-                ...representationInstanceModel.package,
-                objects: representationInstanceModel.package.objects.map(
-                  (obj, index) => {
-                    // find the representation object that is mapped to the instance object
-                    // they have the same index as their relation is always 1:1
-                    if (index === indexInstanceObjectChanged) {
-                      return {
-                        ...obj,
-                        position: newPosition, // Update position with valid or fallback position
-                      };
+              const updatedRepresentationInstanceModel = {
+                ...representationInstanceModel,
+                package: {
+                  ...representationInstanceModel.package,
+                  objects: representationInstanceModel.package.objects.map(
+                    (obj, index) => {
+                      // find the representation object that is mapped to the instance object
+                      // they have the same index as their relation is always 1:1
+                      if (index === indexInstanceObjectChanged) {
+                        return {
+                          ...obj,
+                          position: newPosition, // Update position with valid or fallback position
+                        };
+                      }
+                      return obj;
                     }
-                    return obj;
-                  }
-                ),
-              },
-            };
+                  ),
+                },
+              };
 
-            dispatch(
-              updateRepresentationInstanceModel(
-                updatedRepresentationInstanceModel
-              )
-            );
+              dispatch(
+                updateRepresentationInstanceModel(
+                  updatedRepresentationInstanceModel
+                )
+              );
 
-            console.log("Position saved to localStorage.");
-          } else {
-            console.error(
-              "Classifier not found in representation model for ID: ",
-              change.id
-            );
+              console.log("Position saved to localStorage.");
+            } else {
+              console.error(
+                "Classifier not found in representation model for ID: ",
+                change.id
+              );
+            }
           }
-        }
+        });
+
+        return updatedNodes;
       });
     },
-    [setNodes, representationInstanceModel, dispatch]
+    [setNodes, representationInstanceModel, dispatch, instanceModel]
   );
 
   const onEdgesChange: OnEdgesChange = useCallback(
     (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-    []
+    [setEdges]
   );
 
   const onLoad = useCallback((instance: any) => {
@@ -565,6 +593,11 @@ const DiagramEditor = ({
     notation: InstanceObject
   ) => {
     let newInstanceModel = { ...instanceModel };
+
+    // if it is the first node we drop, we set the uri
+    if (newInstanceModel.package.uri === "") {
+      newInstanceModel.package.uri = selectedMetaModel.package.uri;
+    }
 
     // Add the new node to the instance model together with its id
     const uniqueId = newNode.id;
@@ -618,6 +651,12 @@ const DiagramEditor = ({
   ) => {
     let newRepresentationInstanceModel = { ...representationInstanceModel };
 
+    // if it is the first node we drop, we set the uri
+    if (newRepresentationInstanceModel.package.uri === "") {
+      newRepresentationInstanceModel.package.uri =
+        selectedRepresentationMetaModel.package.uri;
+    }
+
     // Add the new node to the instance model together with its id
     let newRepresentationInstanceObject = { ...notation };
 
@@ -629,46 +668,6 @@ const DiagramEditor = ({
           x: newNode.position.x,
           y: newNode.position.y,
         },
-      };
-    }
-
-    const nodeData = newNode.data as DiagramNodeData;
-
-    // Add graphical representation if it exists, and if the representation config exists
-    if (
-      selectedRepresentationMetaModel &&
-      selectedRepresentationMetaModel.package &&
-      isNode
-    ) {
-      const metaRef = nodeData.instanceObject?.type.$ref!;
-      const [modelUri, jsonPointer] = metaRef.split("#"); // jsonPointer is the part after the #
-
-      // ensure we have the correct model URI
-      if (modelUri !== selectedMetaModel.package.uri) {
-        console.error("Model URI does not match the selected meta model");
-        return null;
-      }
-
-      // from DiagramNode --> MetaElement --> RepresentationElement
-      const metaElement: Class = ReferenceHelper.resolveRef(
-        selectedMetaModel.package,
-        jsonPointer
-      )!;
-
-      const representationRef = metaElement.representation?.$ref!;
-      const [representationUri, representationJsonPointer] =
-        representationRef.split("#");
-
-      const representationElement: Representation = ReferenceHelper.resolveRef(
-        selectedRepresentationMetaModel.package,
-        representationJsonPointer
-      )!;
-
-      newRepresentationInstanceObject = {
-        ...newRepresentationInstanceObject,
-        graphicalRepresentation: [
-          ...representationElement.graphicalRepresentation!,
-        ],
       };
     }
 
@@ -729,7 +728,9 @@ const DiagramEditor = ({
         name: uniqueId,
         type: notationElementRepresentation.type,
         position: position,
-        graphicalRepresentation: [],
+        graphicalRepresentation: [
+          ...notationElementRepresentation.graphicalRepresentation!,
+        ],
       };
 
       const nodeData: DiagramNodeData = {
@@ -737,6 +738,7 @@ const DiagramEditor = ({
           representationMetaModel: selectedRepresentationMetaModel,
           metaModel: selectedMetaModel,
         },
+        notationElement: notationElement,
         instanceObject: instanceObject,
         position: position,
         isNotationSlider: false,

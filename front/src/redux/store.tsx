@@ -1,12 +1,12 @@
 // redux/store.js
 import { createStore, combineReducers } from "redux";
-import metaInstanceModelReducer from "./reducers/metaInstanceModelReducer";
-import metaRepresentationInstanceModelStore from "./reducers/metaRepresentationInstanceModelReducer";
+import instanceModelReducer from "./reducers/instanceModelReducer";
+import representationInstanceModelStore from "./reducers/representationInstanceModelReducer";
 import selectedConfigReducer from "./reducers/selectedConfigReducer";
 
 const rootReducer = combineReducers({
-  metaInstanceModelStore: metaInstanceModelReducer,
-  metaRepresentationInstanceModelStore: metaRepresentationInstanceModelStore,
+  instanceModelStore: instanceModelReducer,
+  representationInstanceModelStore: representationInstanceModelStore,
   selectedConfigStore: selectedConfigReducer,
 });
 

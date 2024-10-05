@@ -227,7 +227,13 @@
         "name": "Transition",
         "isAbstract": false,
         "isInterface": false,
-        "attributes": [],
+        "attributes": [
+          {
+            "name": "name",
+            "attributeType": { "name": "String" },
+            "defaultValue": "transition"
+          }
+        ],
         "references": [
           {
             "name": "superType",

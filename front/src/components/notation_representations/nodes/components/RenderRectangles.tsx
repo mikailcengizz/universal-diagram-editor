@@ -16,7 +16,6 @@ function RenderRectangles({
   rectangles,
   data,
 }: RenderRectanglesProps) {
-  console.log("RenderRectangles", rectangles);
   return (
     <>
       {rectangles.map((rect, index) => {

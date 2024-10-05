@@ -63,10 +63,6 @@ const PaletteEditorPanel = ({
     const notationElementRepresentation =
       notationElementsRepresentation![notationElementIndex]!;
 
-    if (notationElementRepresentation.name === "Transition") {
-      console.log("transitionRepresentation", notationElementRepresentation);
-      console.log("transitionMeta", notationElement);
-    }
     switch (notationElementRepresentation.type) {
       case "ClassNode":
         return (

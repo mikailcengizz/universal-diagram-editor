@@ -36,10 +36,10 @@ const CombineObjectShapesNode = ({
 }: CombineObjectShapesNodeProps) => {
   const dispatch = useDispatch();
   const metaInstanceModel: InstanceModel = useSelector(
-    (state: any) => state.metaInstanceModelStore.model
+    (state: any) => state.instanceModelStore.model
   );
   const representationInstanceModel: RepresentationInstanceModel = useSelector(
-    (state: any) => state.metaRepresentationInstanceModelStore.model
+    (state: any) => state.representationInstanceModelStore.model
   );
 
   const [data, setData] = useState<DiagramNodeData>({ ...initialData });
@@ -90,9 +90,6 @@ const CombineObjectShapesNode = ({
   const [isNodeOperationModalOpen, setIsNodeOperationModalOpen] =
     useState(false); // second layer modal for node operations
   const [isAddParameterModalOpen, setIsAddParameterModalOpen] = useState(false); // third layer modal for adding parameters to operations
-  const metaAttribute: Class = data.notation?.metaModel.package.elements.find(
-    (element) => element.name === "Attribute"
-  )!;
   const [modifiyingAttribute, setModifyingAttribute] = useState<Attribute>();
 
   /* const [modifyingOperation, setModifyingOperation] = useState<EOperation>({
@@ -513,7 +510,7 @@ const CombineObjectShapesNode = ({
           <ModalAddAttribute
             handleAttributeSubmit={handleAttributeSubmit}
             isNodeAttributeModalOpen={isNodeAttributeModalOpen}
-            metaAttribute={metaAttribute}
+            notationElement={data.notationElement!}
             newAttribute={modifiyingAttribute!}
             setNewAttribute={setModifyingAttribute}
             setIsNodeAttributeModalOpen={setIsNodeAttributeModalOpen}

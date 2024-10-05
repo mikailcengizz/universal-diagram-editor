@@ -11,7 +11,7 @@ import { useSelector } from "react-redux";
 interface ModalAddAttributeProps {
   isNodeAttributeModalOpen: boolean;
   setIsNodeAttributeModalOpen: (isOpen: boolean) => void;
-  metaAttribute: Class;
+  notationElement: Class;
   newAttribute: Attribute;
   setNewAttribute: (newAttribute: Attribute) => void;
   handleAttributeSubmit: () => void;
@@ -22,7 +22,7 @@ const inputStyle = "border border-gray-300 rounded-md p-1";
 function ModalAddAttribute({
   isNodeAttributeModalOpen,
   setIsNodeAttributeModalOpen,
-  metaAttribute,
+  notationElement,
   newAttribute,
   setNewAttribute,
   handleAttributeSubmit,
@@ -45,62 +45,63 @@ function ModalAddAttribute({
     >
       <h2>Attribute</h2>
       {/* Iterate over metaAttribute.eAttributes and render form fields */}
-      {metaAttribute.attributes!.map((attribute) => {
-        /* const foundAttributeValue =
+      {notationElement &&
+        notationElement.attributes!.map((attribute) => {
+          /* const foundAttributeValue =
           newAttribute[attribute.name as keyof EAttributeInstance]; */
 
-        return (
-          <div key={attribute.name}>
-            <label>{attribute.name}</label>
-            <br />
-            {attribute.attributeType?.name === "String" ? (
-              <input
-                name={attribute.name}
-                className={inputStyle}
-                type="text"
-                value={attribute.defaultValue}
-                onChange={(e) =>
-                  handleAttributeChange(attribute.name!, e.target.value)
-                }
-              />
-            ) : attribute.attributeType?.name === "Integer" ? (
-              <input
-                name={attribute.name}
-                className={inputStyle}
-                type="number"
-                value={attribute.defaultValue}
-                onChange={(e) =>
-                  handleAttributeChange(
-                    attribute.name!,
-                    parseInt(e.target.value, 10)
-                  )
-                }
-              />
-            ) : attribute.attributeType?.name === "Boolean" ? (
-              <input
-                name={attribute.name}
-                className={inputStyle}
-                type="checkbox"
-                checked={attribute.defaultValue}
-                onChange={(e) =>
-                  handleAttributeChange(attribute.name!, e.target.checked)
-                }
-              />
-            ) : (
-              <input
-                name={attribute.name}
-                className={inputStyle}
-                type="text"
-                value={attribute.defaultValue}
-                onChange={(e) =>
-                  handleAttributeChange(attribute.name!, e.target.value)
-                }
-              />
-            )}
-            <br />
-          </div>
-        );
-      })}
+          return (
+            <div key={attribute.name}>
+              <label>{attribute.name}</label>
+              <br />
+              {attribute.attributeType?.name === "String" ? (
+                <input
+                  name={attribute.name}
+                  className={inputStyle}
+                  type="text"
+                  value={attribute.defaultValue}
+                  onChange={(e) =>
+                    handleAttributeChange(attribute.name!, e.target.value)
+                  }
+                />
+              ) : attribute.attributeType?.name === "Integer" ? (
+                <input
+                  name={attribute.name}
+                  className={inputStyle}
+                  type="number"
+                  value={attribute.defaultValue}
+                  onChange={(e) =>
+                    handleAttributeChange(
+                      attribute.name!,
+                      parseInt(e.target.value, 10)
+                    )
+                  }
+                />
+              ) : attribute.attributeType?.name === "Boolean" ? (
+                <input
+                  name={attribute.name}
+                  className={inputStyle}
+                  type="checkbox"
+                  checked={attribute.defaultValue}
+                  onChange={(e) =>
+                    handleAttributeChange(attribute.name!, e.target.checked)
+                  }
+                />
+              ) : (
+                <input
+                  name={attribute.name}
+                  className={inputStyle}
+                  type="text"
+                  value={attribute.defaultValue}
+                  onChange={(e) =>
+                    handleAttributeChange(attribute.name!, e.target.value)
+                  }
+                />
+              )}
+              <br />
+            </div>
+          );
+        })}
 
       <label>Constraints</label>
       <br />

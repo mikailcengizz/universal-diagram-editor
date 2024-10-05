@@ -26,7 +26,7 @@ function RenderTexts({
 }: RenderTextsProps) {
   const dispatch = useDispatch();
   const instanceModel: InstanceModel = useSelector(
-    (state: any) => state.metaInstanceModelStore.model
+    (state: any) => state.instanceModelStore.model
   );
 
   return (

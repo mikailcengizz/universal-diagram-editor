@@ -38,10 +38,10 @@ function ModalDoubleClickNotation({
 }: ModalDoubleClickNotationProps) {
   const dispatch = useDispatch();
   const instanceModel: InstanceModel = useSelector(
-    (state: any) => state.metaInstanceModelStore.model
+    (state: any) => state.instanceModelStore.model
   );
   const representationInstanceModel: RepresentationInstanceModel = useSelector(
-    (state: any) => state.metaRepresentationInstanceModelStore.model
+    (state: any) => state.representationInstanceModelStore.model
   );
   const representationInstanceObject =
     ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
