@@ -12,7 +12,7 @@ import { updateRepresentationInstanceModel } from "../../redux/actions/represent
 import { updateSelectedMetaModel } from "../../redux/actions/selectedConfigActions";
 
 interface SubHeaderProps {
-  onSelectConfig: (configName: string) => void;
+  onSelectConfig: (configURI: string) => void;
   diagramAreaRef: React.RefObject<HTMLDivElement>;
   nodes: ReactFlowNode[];
   edges: Edge[];
@@ -286,12 +286,12 @@ function SubHeader({
         {dropdownVisibleDiagramType && (
           <div className="absolute top-0 left-[7rem] w-48 bg-white border border-gray-200 rounded shadow-lg">
             <div className="py-2">
-              {configs.map((config: any, index: any) => (
+              {configs.map((config: ConfigListItem, index: any) => (
                 <div
                   key={index}
                   className={dropdownItemCSS}
                   onClick={() => {
-                    onSelectConfig(config.name);
+                    onSelectConfig(config.uri);
                     setDropdownVisibleDiagramType(false);
                   }}
                 >

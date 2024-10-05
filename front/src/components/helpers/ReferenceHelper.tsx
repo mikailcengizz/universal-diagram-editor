@@ -38,15 +38,12 @@ class ReferenceHelper {
   }
 
   static resolveRef<T>(root: any, ref: string): T | null {
-    if (!ref.startsWith("#")) {
-      throw new Error("Only local references are supported");
+    if (ref.startsWith("#")) {
+      ref = ref.slice(1);
     }
 
     // Remove the starting # and split the path
-    const pathSegments = ref
-      .slice(1)
-      .split("/")
-      .filter((segment) => segment);
+    const pathSegments = ref.split("/").filter((segment) => segment);
 
     // Start from the root object and traverse the path
     let current: any = root;

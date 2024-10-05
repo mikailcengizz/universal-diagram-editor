@@ -5,11 +5,11 @@ import type {
   RepresentationMetaModel,
 } from "../types/types";
 
-const fs = require("fs");
-const express = require("express");
-const path = require("path");
+import fs from "fs";
+import express from "express";
+import path from "path";
 const router = express.Router();
-const multer = require("multer");
+import multer from "multer";
 
 const configDir = "./diagram-configs";
 
@@ -34,7 +34,9 @@ router.post("/upload", upload.single("file"), (req: Request, res: Response) => {
 
 // Endpoint to get config by 'name' field inside the configuration file
 router.get("/get-meta-config-by-uri/:uri", (req: Request, res: Response) => {
-  const requestedUri = req.params.uri;
+  const requestedUri = decodeURIComponent(req.params.uri);
+
+  console.log("Requested URI", requestedUri);
 
   // Read all config files in the directory
   fs.readdir(configDir, (err: any, files: string[]) => {
@@ -42,13 +44,15 @@ router.get("/get-meta-config-by-uri/:uri", (req: Request, res: Response) => {
       return res.status(500).send("Unable to read configurations.");
     }
 
+    files = files.filter((file: any) => file.startsWith("meta"));
+
     for (const file of files) {
       const filePath = path.join(configDir, file);
       const content = fs.readFileSync(filePath, "utf-8");
       const config: MetaModel = JSON.parse(content);
 
       // Check if the 'name' field in the config matches the requested name
-      if (config.package.uri === requestedUri) {
+      if (config.package && config.package.uri === requestedUri) {
         return res.json(config); // Return the config if name matches
       }
     }
@@ -61,7 +65,9 @@ router.get("/get-meta-config-by-uri/:uri", (req: Request, res: Response) => {
 router.get(
   "/get-representation-config-by-uri/:uri",
   (req: Request, res: Response) => {
-    const requestedUri = req.params.uri;
+    const requestedUri = decodeURIComponent(req.params.uri);
+
+    console.log("Requested URI", requestedUri);
 
     // Read all config files in the directory
     fs.readdir(configDir, (err: any, files: string[]) => {
@@ -69,13 +75,15 @@ router.get(
         return res.status(500).send("Unable to read configurations.");
       }
 
+      files = files.filter((file: any) => file.startsWith("representation-meta"));
+
       for (const file of files) {
         const filePath = path.join(configDir, file);
         const content = fs.readFileSync(filePath, "utf-8");
         const config: RepresentationMetaModel = JSON.parse(content);
 
         // Check if the 'name' field in the config matches the requested name
-        if (config.package.uri === requestedUri) {
+        if (config.package && config.package.uri === requestedUri) {
           return res.json(config); // Return the config if name matches
         }
       }
@@ -103,12 +111,14 @@ router.post("/save", (req: Request, res: Response) => {
       return res.status(500).send("Unable to save configuration.");
     }
 
+    files = files.filter((file: any) => file.startsWith("meta"));
+
     for (const file of files) {
       const filePath = path.join(configDir, file);
       const content = fs.readFileSync(filePath, "utf-8");
       const config: MetaModel = JSON.parse(content);
 
-      if (config.package.uri === uri) {
+      if (config.package && config.package.uri === uri) {
         // Match found, update this file
         configFileFound = true;
         configFilename = file;
@@ -148,16 +158,19 @@ router.post("/save", (req: Request, res: Response) => {
 });
 
 router.get("/list", (req: Request, res: Response) => {
-  fs.readdir(configDir, (err: any, files: Express.Multer.File[]) => {
+  fs.readdir(configDir, (err: any, files: any) => {
     if (err) {
       return res.status(500).send("Unable to list configurations.");
     }
+
+    files = files.filter((file: any) => file.startsWith("meta"));
+    
     let configs = files.map((file: Express.Multer.File) => {
       if ((file as any).startsWith("meta")) {
         const content = fs.readFileSync(`${configDir}/${file}`, "utf-8");
         const config: MetaModel = JSON.parse(content);
         if (config.package && config.package.name) {
-          return { filename: file, name: config.package.name };
+          return { filename: file, name: config.package.name, uri: config.package.uri };
         }
       }
     });

@@ -53,7 +53,10 @@
             "name": "opposite",
             "$ref": "#/elements/3"
           }
-        ]
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/petri-net-representation#/elements/1"
+        }
       },
       {
         "name": "Object",
@@ -65,7 +68,10 @@
             "name": "reference",
             "$ref": "#/elements/3"
           }
-        ]
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/petri-net-representation#/elements/2"
+        }
       },
       {
         "name": "Reference",
@@ -102,7 +108,10 @@
             "name": "opposite",
             "$ref": "#/elements/1"
           }
-        ]
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/petri-net-representation#/elements/3"
+        }
       },
       {
         "name": "Node",
@@ -114,7 +123,10 @@
             "name": "superType",
             "$ref": "#/elements/2"
           }
-        ]
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/petri-net-representation#/elements/4"
+        }
       },
       {
         "name": "Arc",
@@ -136,7 +148,7 @@
           }
         ],
         "representation": {
-          "$ref": "http://www.compute.dtu.dk/sse/models/petri-net-representation#/elements/0"
+          "$ref": "http://www.compute.dtu.dk/sse/models/petri-net-representation#/elements/5"
         }
       },
       {
@@ -170,7 +182,10 @@
             "name": "type",
             "$ref": "#/elements/4"
           }
-        ]
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/petri-net-representation#/elements/6"
+        }
       },
       {
         "name": "Reference",
@@ -203,7 +218,10 @@
             "name": "type",
             "$ref": "#/elements/4"
           }
-        ]
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/petri-net-representation#/elements/7"
+        }
       },
       {
         "name": "Transition",
@@ -215,7 +233,10 @@
             "name": "superType",
             "$ref": "#/elements/4"
           }
-        ]
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/petri-net-representation#/elements/8"
+        }
       },
       {
         "name": "Place",
@@ -231,7 +252,10 @@
             "name": "reference",
             "$ref": "#/elements/10"
           }
-        ]
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/petri-net-representation#/elements/9"
+        }
       },
       {
         "name": "Reference",
@@ -268,7 +292,10 @@
             "name": "opposite",
             "$ref": "#/elements/12"
           }
-        ]
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/petri-net-representation#/elements/10"
+        }
       },
       {
         "name": "Token",
@@ -283,7 +310,10 @@
             "lowerBound": "1",
             "upperBound": "1"
           }
-        ]
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/petri-net-representation#/elements/11"
+        }
       },
       {
         "name": "Reference",
@@ -320,7 +350,10 @@
             "name": "opposite",
             "$ref": "#/elements/10"
           }
-        ]
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/petri-net-representation#/elements/12"
+        }
       }
     ]
   }

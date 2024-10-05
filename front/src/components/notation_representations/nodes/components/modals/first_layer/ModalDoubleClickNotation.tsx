@@ -145,12 +145,11 @@ function ModalDoubleClickNotation({
     Attribute[] | undefined
   >([]);
   useEffect(() => {
-    if (data.notation && data.notation.package) {
-      const classifier: Class | undefined = data.notation.package.elements.find(
-        (element) => {
+    if (data.notation && data.notation.metaModel.package) {
+      const classifier: Class | undefined =
+        data.notation.metaModel.package.elements.find((element) => {
           return element.name === data.instanceObject!.name;
-        }
-      );
+        });
       setClassAttributes(classifier?.attributes!);
     }
   }, [instanceModel]);

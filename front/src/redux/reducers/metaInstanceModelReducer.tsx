@@ -16,6 +16,11 @@ const storedMetaInstanceModel: InstanceModel =
   JSON.parse(localStorage.getItem("metaInstanceModel")!) ||
   fallbackMetaInstanceModel;
 
+localStorage.setItem(
+  "metaInstanceModel",
+  JSON.stringify(storedMetaInstanceModel)
+);
+
 const initialState = {
   model: storedMetaInstanceModel,
 };

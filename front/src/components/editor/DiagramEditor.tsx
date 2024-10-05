@@ -75,7 +75,7 @@ const DiagramEditor = ({
     (state: any) => state.metaInstanceModelStore.model
   );
   const representationInstanceModel: RepresentationInstanceModel = useSelector(
-    (state: any) => state.representationInstanceModelStore.model
+    (state: any) => state.metaRepresentationInstanceModelStore.model
   );
 
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
@@ -103,8 +103,9 @@ const DiagramEditor = ({
       const fetchMetaConfig = async () => {
         try {
           const response = await configService.getMetaConfigByUri(
-            selectedMetaModelURI
+            encodeURIComponent(selectedMetaModelURI)
           );
+          console.log("Selected meta model:", response.data);
           setSelectedMetaModel(response.data);
           // clear canvas when new config is selected
           setNodes([]);
@@ -118,8 +119,9 @@ const DiagramEditor = ({
       const fetchRepresentationConfig = async () => {
         try {
           const response = await configService.getRepresentationConfigByUri(
-            selectedMetaModelURI + "-representation"
+            encodeURIComponent(selectedMetaModelURI + "-representation")
           );
+          console.log("Selected representation meta model:", response.data);
           setSelectedRepresentationMetaModel(response.data);
         } catch (error) {
           console.error("Error fetching representation configuration: ", error);
@@ -200,7 +202,10 @@ const DiagramEditor = ({
           };
 
           const nodeData: DiagramNodeData = {
-            notation: selectedMetaModel,
+            notation: {
+              representationMetaModel: selectedRepresentationMetaModel,
+              metaModel: selectedMetaModel,
+            },
             instanceObject: instanceObj,
             position: position,
           };
@@ -419,7 +424,10 @@ const DiagramEditor = ({
       }
 
       const data: DiagramNodeData = {
-        notation: selectedMetaModel,
+        notation: {
+          representationMetaModel: selectedRepresentationMetaModel,
+          metaModel: selectedMetaModel,
+        },
         instanceObject: edgeInstanceObject,
         position: {
           x: 0,
@@ -453,9 +461,6 @@ const DiagramEditor = ({
     },
     [setEdges, selectedMetaModel, selectedRepresentationMetaModel]
   );
-
-  console.log("nodes:", nodes);
-  console.log("edges:", edges);
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => {
@@ -728,7 +733,10 @@ const DiagramEditor = ({
       };
 
       const nodeData: DiagramNodeData = {
-        notation: selectedMetaModel,
+        notation: {
+          representationMetaModel: selectedRepresentationMetaModel,
+          metaModel: selectedMetaModel,
+        },
         instanceObject: instanceObject,
         position: position,
         isNotationSlider: false,

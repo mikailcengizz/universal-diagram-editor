@@ -44,7 +44,10 @@ function NotationsSlider({
             key={notationElementRepresentation.name}
             id={notationElementRepresentation.name}
             data={{
-              notation: selectedMetaModel,
+              notation: {
+                metaModel: selectedMetaModel,
+                representationMetaModel: selectedRepresentationMetaModel,
+              },
               instanceObject: undefined, // not necessary for nodes inside the slider
               position: undefined, // not necessary for nodes inside the slider
               isNotationSlider: true,
@@ -63,7 +66,10 @@ function NotationsSlider({
             key={notationElementRepresentation.name}
             id={notationElementRepresentation.name}
             data={{
-              notation: selectedMetaModel,
+              notation: {
+                metaModel: selectedMetaModel,
+                representationMetaModel: selectedRepresentationMetaModel,
+              },
               instanceObject: undefined, // not necessary for nodes inside the slider
               position: undefined, // not necessary for nodes inside the slider
               isNotationSlider: true,

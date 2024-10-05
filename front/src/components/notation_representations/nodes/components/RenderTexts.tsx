@@ -32,19 +32,9 @@ function RenderTexts({
   return (
     <>
       {texts.map((textItem, idx) => {
-        // If the text is "name", we need to render the name of the node
-        let nameFromClassifier: string | undefined;
-        if (
-          textItem.text === "name" &&
-          instanceModel.package?.objects.length > 0
-        ) {
-          nameFromClassifier = instanceModel.package.objects.find(
-            (obj) => obj.name === data.instanceObject?.name
-          )?.name;
-        }
-
-        if (nameFromClassifier === undefined) {
-          nameFromClassifier = data.instanceObject!.name;
+        let text = "Class";
+        if (!isPalette && textItem.text === "name") {
+          text = data.instanceObject!.name;
         }
 
         // we dont want editable field in palette notations
@@ -66,10 +56,10 @@ function RenderTexts({
                   | "right",
               }}
             >
-              {nameFromClassifier}
+              {text}
             </span>
           );
-        } else if (nameFromClassifier !== undefined) {
+        } else {
           return (
             <input
               key={idx}
@@ -91,8 +81,8 @@ function RenderTexts({
                 borderWidth: textItem.style.borderWidth,
                 borderStyle: textItem.style.borderStyle,
               }}
-              value={nameFromClassifier}
-              onChange={(e) => handleTextChange(e, nameFromClassifier)}
+              value={text}
+              onChange={(e) => handleTextChange(e, text)}
             />
           );
         }

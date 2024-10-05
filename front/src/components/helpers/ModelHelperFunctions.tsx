@@ -14,6 +14,15 @@ class ModelHelperFunctions {
     representationInstanceModel: RepresentationInstanceModel
   ): RepresentationInstanceObject | null {
     const representationRef = instanceObject.representation?.$ref!;
+
+    if (!representationRef) {
+      console.error(
+        "No representation found for instance object",
+        instanceObject
+      );
+      return null;
+    }
+
     const [modelUri, jsonPointer] = representationRef.split("#");
 
     // Ensure we're dealing with the correct model URI
@@ -35,11 +44,22 @@ class ModelHelperFunctions {
     representationMetaModel: RepresentationMetaModel
   ): Representation | null {
     const metaRepresentationRef = notationElement.representation?.$ref!;
+
+    if (!metaRepresentationRef) {
+      console.error("No representation found for class", notationElement);
+      return null;
+    }
+
     const [modelUri, jsonPointer] = metaRepresentationRef.split("#");
 
     // Ensure we're dealing with the correct model URI
     if (modelUri !== representationMetaModel.package.uri) {
       console.error("Model URI does not match the selected meta model");
+      console.error("Model URI:", modelUri);
+      console.error(
+        "Selected meta model URI:",
+        representationMetaModel.package.uri
+      );
       return null;
     }
 

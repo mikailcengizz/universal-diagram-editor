@@ -57,9 +57,15 @@ export type Shape =
   | "line"
   | "doubleLine";
 
+export interface Notation {
+  metaModel: MetaModel;
+  representationMetaModel: RepresentationMetaModel;
+}
+
 // DIAGRAM EDITOR
 export interface DiagramNodeData {
-  notation?: MetaModel; // notation (meta model)
+  notation?: Notation; // notation (meta model and representation model)
+  notationElement?: Class; // notation element (class) for this node
   instanceObject?: InstanceObject; // instance object for this node
   position?: Position;
   isNotationSlider?: boolean;
@@ -78,6 +84,7 @@ export interface CustomEdgeProps extends EdgeProps {
 export interface ConfigListItem {
   name: string;
   filename: string;
+  uri: string;
 }
 
 // PALETTE

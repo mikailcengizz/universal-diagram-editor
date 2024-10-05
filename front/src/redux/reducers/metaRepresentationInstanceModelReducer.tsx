@@ -16,11 +16,16 @@ const storedRepresentationInstanceModel: RepresentationInstanceModel =
   JSON.parse(localStorage.getItem("representationInstanceModel")!) ||
   fallbackRepresentationInstanceModel;
 
+localStorage.setItem(
+  "representationInstanceModel",
+  JSON.stringify(storedRepresentationInstanceModel)
+);
+
 const initialState = {
   model: storedRepresentationInstanceModel,
 };
 
-const representationInstanceModelReducer = (
+const metaRepresentationInstanceModelReducer = (
   state = initialState,
   action: any
 ) => {
@@ -53,4 +58,4 @@ const representationInstanceModelReducer = (
   }
 };
 
-export default representationInstanceModelReducer;
+export default metaRepresentationInstanceModelReducer;

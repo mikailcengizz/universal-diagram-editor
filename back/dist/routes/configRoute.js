@@ -1,12 +1,15 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const fs = require("fs");
-const express = require("express");
-const path = require("path");
-const router = express.Router();
-const multer = require("multer");
+const fs_1 = __importDefault(require("fs"));
+const express_1 = __importDefault(require("express"));
+const path_1 = __importDefault(require("path"));
+const router = express_1.default.Router();
+const multer_1 = __importDefault(require("multer"));
 const configDir = "./diagram-configs";
-const storage = multer.diskStorage({
+const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
         cb(null, configDir);
     },
@@ -15,7 +18,7 @@ const storage = multer.diskStorage({
         cb(null, originalName);
     },
 });
-const upload = multer({ storage });
+const upload = (0, multer_1.default)({ storage });
 router.post("/upload", upload.single("file"), (req, res) => {
     if (!req.file) {
         return res.status(400).send("No file uploaded.");
@@ -24,18 +27,20 @@ router.post("/upload", upload.single("file"), (req, res) => {
 });
 // Endpoint to get config by 'name' field inside the configuration file
 router.get("/get-meta-config-by-uri/:uri", (req, res) => {
-    const requestedUri = req.params.uri;
+    const requestedUri = decodeURIComponent(req.params.uri);
+    console.log("Requested URI", requestedUri);
     // Read all config files in the directory
-    fs.readdir(configDir, (err, files) => {
+    fs_1.default.readdir(configDir, (err, files) => {
         if (err) {
             return res.status(500).send("Unable to read configurations.");
         }
+        files = files.filter((file) => file.startsWith("meta"));
         for (const file of files) {
-            const filePath = path.join(configDir, file);
-            const content = fs.readFileSync(filePath, "utf-8");
+            const filePath = path_1.default.join(configDir, file);
+            const content = fs_1.default.readFileSync(filePath, "utf-8");
             const config = JSON.parse(content);
             // Check if the 'name' field in the config matches the requested name
-            if (config.package.uri === requestedUri) {
+            if (config.package && config.package.uri === requestedUri) {
                 return res.json(config); // Return the config if name matches
             }
         }
@@ -44,18 +49,20 @@ router.get("/get-meta-config-by-uri/:uri", (req, res) => {
     });
 });
 router.get("/get-representation-config-by-uri/:uri", (req, res) => {
-    const requestedUri = req.params.uri;
+    const requestedUri = decodeURIComponent(req.params.uri);
+    console.log("Requested URI", requestedUri);
     // Read all config files in the directory
-    fs.readdir(configDir, (err, files) => {
+    fs_1.default.readdir(configDir, (err, files) => {
         if (err) {
             return res.status(500).send("Unable to read configurations.");
         }
+        files = files.filter((file) => file.startsWith("representation-meta"));
         for (const file of files) {
-            const filePath = path.join(configDir, file);
-            const content = fs.readFileSync(filePath, "utf-8");
+            const filePath = path_1.default.join(configDir, file);
+            const content = fs_1.default.readFileSync(filePath, "utf-8");
             const config = JSON.parse(content);
             // Check if the 'name' field in the config matches the requested name
-            if (config.package.uri === requestedUri) {
+            if (config.package && config.package.uri === requestedUri) {
                 return res.json(config); // Return the config if name matches
             }
         }
@@ -72,15 +79,16 @@ router.post("/save", (req, res) => {
     // Check if a file with the same "name" exists inside the configuration file
     let configFileFound = false;
     let configFilename = "";
-    fs.readdir(configDir, (err, files) => {
+    fs_1.default.readdir(configDir, (err, files) => {
         if (err) {
             return res.status(500).send("Unable to save configuration.");
         }
+        files = files.filter((file) => file.startsWith("meta"));
         for (const file of files) {
-            const filePath = path.join(configDir, file);
-            const content = fs.readFileSync(filePath, "utf-8");
+            const filePath = path_1.default.join(configDir, file);
+            const content = fs_1.default.readFileSync(filePath, "utf-8");
             const config = JSON.parse(content);
-            if (config.package.uri === uri) {
+            if (config.package && config.package.uri === uri) {
                 // Match found, update this file
                 configFileFound = true;
                 configFilename = file;
@@ -96,7 +104,7 @@ router.post("/save", (req, res) => {
         };
         if (configFileFound) {
             // Update the existing file
-            fs.writeFileSync(path.join(configDir, configFilename), JSON.stringify(newConfig, null, 2));
+            fs_1.default.writeFileSync(path_1.default.join(configDir, configFilename), JSON.stringify(newConfig, null, 2));
             return res
                 .status(200)
                 .send(`Configuration "${name}" updated successfully.`);
@@ -104,7 +112,7 @@ router.post("/save", (req, res) => {
         else {
             // Create a new configuration file
             const newFilename = `${name.replace(/\s+/g, "_").toLowerCase()}.json`; // Create a filename from the config name
-            fs.writeFileSync(path.join(configDir, newFilename), JSON.stringify(newConfig, null, 2));
+            fs_1.default.writeFileSync(path_1.default.join(configDir, newFilename), JSON.stringify(newConfig, null, 2));
             return res
                 .status(201)
                 .send(`Configuration "${name}" saved successfully.`);
@@ -112,17 +120,17 @@ router.post("/save", (req, res) => {
     });
 });
 router.get("/list", (req, res) => {
-    fs.readdir(configDir, (err, files) => {
+    fs_1.default.readdir(configDir, (err, files) => {
         if (err) {
             return res.status(500).send("Unable to list configurations.");
         }
+        files = files.filter((file) => file.startsWith("meta"));
         let configs = files.map((file) => {
             if (file.startsWith("meta")) {
-                const content = fs.readFileSync(`${configDir}/${file}`, "utf-8");
+                const content = fs_1.default.readFileSync(`${configDir}/${file}`, "utf-8");
                 const config = JSON.parse(content);
-                console.log("Config", config);
                 if (config.package && config.package.name) {
-                    return { filename: file, name: config.package.name };
+                    return { filename: file, name: config.package.name, uri: config.package.uri };
                 }
             }
         });
@@ -134,7 +142,7 @@ router.get("/list", (req, res) => {
 router.get("/get-config-by-filename/:name", (req, res) => {
     const configName = req.params.name;
     console.log("Finding config with name", configName);
-    const configData = fs.readFileSync(`./${configDir}/${configName}`, "utf-8");
+    const configData = fs_1.default.readFileSync(`./${configDir}/${configName}`, "utf-8");
     console.log("Returning config data", JSON.parse(configData));
     res.json(JSON.parse(configData));
 });

@@ -39,7 +39,7 @@ const CombineObjectShapesNode = ({
     (state: any) => state.metaInstanceModelStore.model
   );
   const representationInstanceModel: RepresentationInstanceModel = useSelector(
-    (state: any) => state.representationInstanceModelStore.model
+    (state: any) => state.metaRepresentationInstanceModelStore.model
   );
 
   const [data, setData] = useState<DiagramNodeData>({ ...initialData });
@@ -48,35 +48,26 @@ const CombineObjectShapesNode = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1); // used for palette scaling
 
+  let representationRef = undefined;
+  if (isPalette) {
+    representationRef = data.notationElement?.representation!.$ref!;
+  } else {
+    representationRef = data.instanceObject?.representation!.$ref!;
+  }
+  const [representationUri, jsonPointer] = representationRef.split("#");
+  let representation = ReferenceHelper.resolveRef(
+    isPalette
+      ? data.notation?.representationMetaModel.package
+      : representationInstanceModel.package,
+    jsonPointer
+  )! as Representation | RepresentationInstanceObject;
+
   // Calculate the max width and max height when node is rendered on the canvas
   // to know our selection area when moving the node around
-  const representationInstanceRef = data.instanceObject?.representation!.$ref!;
-  const [representationUri, jsonPointer] = representationInstanceRef.split("#");
-  const representationInstanceObject: RepresentationInstanceObject =
-    ReferenceHelper.resolveRef(
-      representationInstanceModel.package,
-      jsonPointer
-    )!;
-
-  const metaRef = data.instanceObject?.type?.$ref!;
-  const [metaUri, metaJsonPointer] = metaRef.split("#");
-  const metaClass: Class = ReferenceHelper.resolveRef(
-    metaInstanceModel.package,
-    metaJsonPointer
-  )!;
-
-  const representationMetaRef = metaClass.representation!.$ref!;
-  const [representationMetaUri, representationMetaJsonPointer] =
-    representationMetaRef.split("#");
-  const representationMeta: Representation = ReferenceHelper.resolveRef(
-    representationInstanceModel.package,
-    representationMetaJsonPointer
-  )!;
-
   const maxWidth = isPalette
     ? 50
     : Math.max(
-        ...representationInstanceObject.graphicalRepresentation!.map(
+        ...representation.graphicalRepresentation!.map(
           (item) => item.position!.extent?.width! || 100
         )
       );
@@ -84,7 +75,7 @@ const CombineObjectShapesNode = ({
   const maxHeight = isPalette
     ? 50
     : Math.max(
-        ...representationInstanceObject.graphicalRepresentation!.map(
+        ...representation.graphicalRepresentation!.map(
           (item) => item.position.extent?.height || 100
         )
       );
@@ -99,7 +90,7 @@ const CombineObjectShapesNode = ({
   const [isNodeOperationModalOpen, setIsNodeOperationModalOpen] =
     useState(false); // second layer modal for node operations
   const [isAddParameterModalOpen, setIsAddParameterModalOpen] = useState(false); // third layer modal for adding parameters to operations
-  const metaAttribute: Class = data.notation?.package.elements.find(
+  const metaAttribute: Class = data.notation?.metaModel.package.elements.find(
     (element) => element.name === "Attribute"
   )!;
   const [modifiyingAttribute, setModifyingAttribute] = useState<Attribute>();
@@ -115,16 +106,13 @@ const CombineObjectShapesNode = ({
   }); */
 
   let adjustedRepresentation: NotationRepresentationItem[] = [];
-  if (representationInstanceObject.graphicalRepresentation!.length > 0) {
-    const validGraphicalItems =
-      representationInstanceObject.graphicalRepresentation!.filter(
-        (item) =>
-          (data.instanceObject !== undefined ||
-            (data.instanceObject !== undefined &&
-              item.shape !== "connector")) &&
-          item.position.x !== undefined &&
-          item.position.y !== undefined
-      ); // Only filter out connectors if isPalette is true
+  if (representation.graphicalRepresentation!.length > 0) {
+    const validGraphicalItems = representation.graphicalRepresentation!.filter(
+      (item) =>
+        (!isPalette || (isPalette && item.shape !== "connector")) &&
+        item.position.x !== undefined &&
+        item.position.y !== undefined
+    ); // Only filter out connectors if isPalette is true
     // sometimes the x and y are undefined when the notation is on the canvas
 
     // only adjust the representation if there are valid graphical items
@@ -458,7 +446,11 @@ const CombineObjectShapesNode = ({
       }}
     >
       {/* Render rectangles in the background */}
-      <RenderRectangles rectangles={rectangles} data={data} />
+      <RenderRectangles
+        rectangles={rectangles}
+        data={data}
+        isPalette={isPalette}
+      />
 
       {/* Render compartments */}
       <RenderCompartments
@@ -499,35 +491,37 @@ const CombineObjectShapesNode = ({
         />
       )}
 
-      {/* Modal for double click */}
-      <ModalDoubleClickNotation
-        data={data}
-        isNodeAttributeModalOpen={isNodeAttributeModalOpen}
-        isNodeModalOpen={isNodeModalOpen}
-        isNodeOperationModalOpen={isNodeOperationModalOpen}
-        setData={setData}
-        setIsNodeAttributeModalOpen={setIsNodeAttributeModalOpen}
-        setIsNodeModalOpen={setIsNodeModalOpen}
-        setIsNodeOperationModalOpen={setIsNodeOperationModalOpen}
-        onDataUpdate={(updatedData) => {
-          setData(updatedData);
-        }}
-      />
+      {!isPalette && (
+        <>
+          {/* Modal for double click */}
+          <ModalDoubleClickNotation
+            data={data}
+            isNodeAttributeModalOpen={isNodeAttributeModalOpen}
+            isNodeModalOpen={isNodeModalOpen}
+            isNodeOperationModalOpen={isNodeOperationModalOpen}
+            setData={setData}
+            setIsNodeAttributeModalOpen={setIsNodeAttributeModalOpen}
+            setIsNodeModalOpen={setIsNodeModalOpen}
+            setIsNodeOperationModalOpen={setIsNodeOperationModalOpen}
+            onDataUpdate={(updatedData) => {
+              setData(updatedData);
+            }}
+          />
 
-      {/* Attribute modal */}
-      {/* Add or modify attributes */}
-      <ModalAddAttribute
-        handleAttributeSubmit={handleAttributeSubmit}
-        isNodeAttributeModalOpen={isNodeAttributeModalOpen}
-        metaAttribute={metaAttribute}
-        newAttribute={modifiyingAttribute!}
-        setNewAttribute={setModifyingAttribute}
-        setIsNodeAttributeModalOpen={setIsNodeAttributeModalOpen}
-      />
+          {/* Attribute modal */}
+          {/* Add or modify attributes */}
+          <ModalAddAttribute
+            handleAttributeSubmit={handleAttributeSubmit}
+            isNodeAttributeModalOpen={isNodeAttributeModalOpen}
+            metaAttribute={metaAttribute}
+            newAttribute={modifiyingAttribute!}
+            setNewAttribute={setModifyingAttribute}
+            setIsNodeAttributeModalOpen={setIsNodeAttributeModalOpen}
+          />
 
-      {/* Operation modal */}
-      {/* Add or modify operations */}
-      {/* <ModalAddOperation
+          {/* Operation modal */}
+          {/* Add or modify operations */}
+          {/* <ModalAddOperation
         data={data}
         isNodeOperationModalOpen={isNodeOperationModalOpen}
         modifyingOperation={modifyingOperation}
@@ -537,14 +531,16 @@ const CombineObjectShapesNode = ({
         handleOperationSubmit={handleOperationSubmit}
       /> */}
 
-      {/* Add parameter modal */}
-      {/* <ModalAddParameter
+          {/* Add parameter modal */}
+          {/* <ModalAddParameter
         isAddParameterModalOpen={isAddParameterModalOpen}
         setIsAddParameterModalOpen={setIsAddParameterModalOpen}
         modifyingParameter={modifyingParameter}
         setModifyingParameter={setModifyingParameter}
         handleParameterSubmit={handleParameterSubmit}
       /> */}
+        </>
+      )}
     </div>
   );
 };
