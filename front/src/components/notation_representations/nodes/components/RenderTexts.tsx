@@ -33,12 +33,12 @@ function RenderTexts({
     <>
       {texts.map((textItem, idx) => {
         let text = "Class";
-        if (!isPalette && textItem.text === "name") {
+        if (!isPalette && !isNotationSlider && textItem.text === "name") {
           text = data.instanceObject!.name;
         }
 
         // we dont want editable field in palette notations
-        if (isPalette) {
+        if (isPalette || isNotationSlider) {
           return (
             <span
               key={idx}

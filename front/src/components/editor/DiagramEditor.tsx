@@ -238,12 +238,12 @@ const DiagramEditor = ({
       setNodes(initialNodes);
     }
   }, [
-    representationInstanceModel,
     instanceModel,
-    nodes,
-    setNodes,
+    nodes.length,
+    representationInstanceModel,
     selectedMetaModel,
     selectedRepresentationMetaModel,
+    setNodes,
   ]);
 
   useEffect(() => {
@@ -333,12 +333,12 @@ const DiagramEditor = ({
       setEdges(initialEdges);
     }
   }, [
+    edges.length,
     instanceModel,
-    representationInstanceModel,
-    edges,
-    setEdges,
-    selectedMetaModel,
     nodes,
+    representationInstanceModel,
+    selectedMetaModel,
+    setEdges,
   ]);
 
   const onConnect = useCallback(

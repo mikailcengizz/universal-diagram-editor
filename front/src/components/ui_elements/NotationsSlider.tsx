@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { Class, MetaModel, RepresentationMetaModel } from "../../types/types";
+import {
+  Class,
+  MetaModel,
+  NotationRepresentationItem,
+  Representation,
+  RepresentationMetaModel,
+} from "../../types/types";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
 import CombineRelationshipShapesNode from "../notation_representations/edges/CombineLinkShapesNode";
 import CombineRoleShapesNode from "../notation_representations/nodes/CombineRoleShapesNode";
@@ -22,18 +28,38 @@ function NotationsSlider({
   selectedRepresentationMetaModel,
   setCurrentNotationElement,
 }: NotationsSliderProps) {
+  const [loading, setLoading] = React.useState(true);
+
+  useEffect(() => {
+    if (selectedMetaModel && selectedRepresentationMetaModel) {
+      setLoading(false);
+    }
+  }, [selectedMetaModel, selectedRepresentationMetaModel]);
+
   const updatedSettings = {
     ...settings,
     infinite: selectedMetaModel.package.elements.length > 5, // Disable infinite scroll when there's only 5 slides
   };
-  const allNotationElements = selectedMetaModel.package.elements;
+  const allNotationElements = selectedMetaModel.package.elements as Class[];
+
+  let notationElementsRepresentation: Representation[] | null = null;
+  if (
+    selectedRepresentationMetaModel &&
+    selectedRepresentationMetaModel.package.elements.length > 0
+  ) {
+    notationElementsRepresentation = allNotationElements.map(
+      (notationElement) =>
+        ModelHelperFunctions.findRepresentationFromClassInRepresentationMetaModel(
+          notationElement,
+          selectedRepresentationMetaModel
+        )!
+    );
+  }
 
   const renderNodePreview = (notationElement: Class) => {
+    const notationElementIndex = allNotationElements.indexOf(notationElement);
     const notationElementRepresentation =
-      ModelHelperFunctions.findRepresentationFromClassInRepresentationMetaModel(
-        notationElement,
-        selectedRepresentationMetaModel
-      )!;
+      notationElementsRepresentation![notationElementIndex]!;
 
     switch (notationElementRepresentation.type) {
       case "ClassEdge":
@@ -48,6 +74,7 @@ function NotationsSlider({
                 metaModel: selectedMetaModel,
                 representationMetaModel: selectedRepresentationMetaModel,
               },
+              notationElement: notationElement,
               instanceObject: undefined, // not necessary for nodes inside the slider
               position: undefined, // not necessary for nodes inside the slider
               isNotationSlider: true,
@@ -70,6 +97,7 @@ function NotationsSlider({
                 metaModel: selectedMetaModel,
                 representationMetaModel: selectedRepresentationMetaModel,
               },
+              notationElement: notationElement,
               instanceObject: undefined, // not necessary for nodes inside the slider
               position: undefined, // not necessary for nodes inside the slider
               isNotationSlider: true,
@@ -81,35 +109,49 @@ function NotationsSlider({
     }
   };
 
-  return (
-    <Slider {...updatedSettings} className="mt-2">
-      {allNotationElements && allNotationElements.length > 0 ? (
-        (allNotationElements as Class[]).map((notationElement, index) => {
-          const representation =
-            ModelHelperFunctions.findRepresentationFromClassInRepresentationMetaModel(
-              notationElement,
-              selectedRepresentationMetaModel
-            );
+  const allGraphicalRepresentationItemsHasPosition = (
+    graphicalRepresentationItems: NotationRepresentationItem[]
+  ) => {
+    return graphicalRepresentationItems!.every((item) => item.position);
+  };
 
-          return (
-            <div
-              key={index}
-              className="border-[1px] border-black text-center h-28 p-2 cursor-pointer content-center"
-              onClick={() => setCurrentNotationElement(notationElement)}
-            >
-              {representation &&
-              representation.graphicalRepresentation!.length > 0 ? (
-                renderNodePreview(notationElement)
-              ) : (
-                <span>{notationElement.name}</span>
-              )}
-            </div>
-          );
-        })
+  return (
+    <>
+      {loading ? (
+        <p>Loading...</p>
       ) : (
-        <div>No Notations Available</div>
+        notationElementsRepresentation && (
+          <Slider {...updatedSettings} className="mt-2">
+            {allNotationElements && allNotationElements.length > 0 ? (
+              allNotationElements.map((notationElement, index) => {
+                console.log("notationElement", notationElement);
+                const representation = notationElementsRepresentation![index];
+
+                return (
+                  <div
+                    key={index}
+                    className="border-[1px] border-black text-center h-28 p-2 cursor-pointer content-center"
+                    onClick={() => setCurrentNotationElement(notationElement)}
+                  >
+                    {representation &&
+                    representation.graphicalRepresentation!.length > 0 &&
+                    allGraphicalRepresentationItemsHasPosition(
+                      representation.graphicalRepresentation!
+                    ) ? (
+                      renderNodePreview(notationElement)
+                    ) : (
+                      <span>{notationElement.name}</span>
+                    )}
+                  </div>
+                );
+              })
+            ) : (
+              <div>No Notations Available</div>
+            )}
+          </Slider>
+        )
       )}
-    </Slider>
+    </>
   );
 }
 

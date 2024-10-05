@@ -134,7 +134,11 @@ const PaletteEditorPanel = ({
                 .filter((notationElement, index) => {
                   const notationElementRepresentation =
                     notationElementsRepresentation![index];
-                  return notationElementRepresentation!.type === "ClassNode";
+                  return (
+                    notationElementRepresentation!.type === "ClassNode" &&
+                    notationElementRepresentation!.graphicalRepresentation
+                      ?.length! > 0
+                  );
                 })
                 .map((notationElement: Class, index) => (
                   <div

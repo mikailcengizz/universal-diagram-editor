@@ -76,6 +76,32 @@ function NotationDesignerConfigurePanel({
       <h2 className="text-xl font-bold mb-2">Configure Panel</h2>
 
       <div className="flex flex-col gap-y-2">
+        {/* Configuration uri */}
+        <Autocomplete
+          className={configureTextfieldStyle}
+          freeSolo
+          options={availableConfigs.map(
+            (availableConfig) => availableConfig?.uri
+          )} // List of existing configuration URIs
+          value={selectedMetaModel.package.uri}
+          onInputChange={(event, newInputValue) => {
+            setSelectedMetaModel({
+              package: {
+                ...selectedMetaModel.package,
+                uri: newInputValue,
+                elements: [],
+              },
+            });
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              className={configureTextfieldStyle}
+              placeholder="Configuration URI"
+            />
+          )}
+        />
+
         {/* Configuration name */}
         <Autocomplete
           className={configureTextfieldStyle}
@@ -83,13 +109,12 @@ function NotationDesignerConfigurePanel({
           options={availableConfigs.map(
             (availableConfig) => availableConfig?.name
           )} // List of existing configuration names
-          value={selectedMetaModel.package.uri}
+          value={selectedMetaModel.package.name}
           onInputChange={(event, newInputValue) => {
             setSelectedMetaModel({
               package: {
                 ...selectedMetaModel.package,
                 name: newInputValue,
-                uri: newInputValue,
                 elements: [],
               },
             });
@@ -153,8 +178,7 @@ function NotationDesignerConfigurePanel({
 
         {/* Properties Section */}
         <h3 className="text-xl font-bold">Properties</h3>
-        {(selectedMetaModel.package.elements[0] as Class).attributes!.length >
-          0 && (
+        {currentNotationElement.attributes!.length > 0 && (
           <List>
             {(selectedMetaModel.package.elements[0] as Class).attributes!.map(
               (prop, index) => {

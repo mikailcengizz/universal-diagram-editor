@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateRepresentationInstanceModel } from "../../../redux/actions/representationInstanceModelActions";
 import ReferenceHelper from "../../helpers/ReferenceHelper";
 import ModelHelperFunctions from "../../helpers/ModelHelperFunctions";
+import { updateInstanceModel } from "../../../redux/actions/objectInstanceModelActions";
 
 interface CombineObjectShapesNodeProps {
   id: string;
@@ -49,14 +50,14 @@ const CombineObjectShapesNode = ({
   const [scale, setScale] = useState(1); // used for palette scaling
 
   let representationRef = undefined;
-  if (isPalette) {
+  if (isPalette || isNotationSlider) {
     representationRef = data.notationElement?.representation!.$ref!;
   } else {
     representationRef = data.instanceObject?.representation!.$ref!;
   }
   const [representationUri, jsonPointer] = representationRef.split("#");
   let representation = ReferenceHelper.resolveRef(
-    isPalette
+    isPalette || isNotationSlider
       ? data.notation?.representationMetaModel.package
       : representationInstanceModel.package,
     jsonPointer
@@ -64,21 +65,23 @@ const CombineObjectShapesNode = ({
 
   // Calculate the max width and max height when node is rendered on the canvas
   // to know our selection area when moving the node around
-  const maxWidth = isPalette
-    ? 50
-    : Math.max(
-        ...representation.graphicalRepresentation!.map(
-          (item) => item.position!.extent?.width! || 100
-        )
-      );
+  const maxWidth =
+    isPalette || isNotationSlider
+      ? 50
+      : Math.max(
+          ...representation.graphicalRepresentation!.map(
+            (item) => item.position!.extent?.width! || 100
+          )
+        );
 
-  const maxHeight = isPalette
-    ? 50
-    : Math.max(
-        ...representation.graphicalRepresentation!.map(
-          (item) => item.position.extent?.height || 100
-        )
-      );
+  const maxHeight =
+    isPalette || isNotationSlider
+      ? 50
+      : Math.max(
+          ...representation.graphicalRepresentation!.map(
+            (item) => item.position.extent?.height || 100
+          )
+        );
 
   const [containerSize, setContainerSize] = useState({
     width: maxWidth,
@@ -107,6 +110,9 @@ const CombineObjectShapesNode = ({
     const validGraphicalItems = representation.graphicalRepresentation!.filter(
       (item) =>
         (!isPalette || (isPalette && item.shape !== "connector")) &&
+        (!isNotationSlider ||
+          (isNotationSlider && item.shape !== "connector")) &&
+        item.position &&
         item.position.x !== undefined &&
         item.position.y !== undefined
     ); // Only filter out connectors if isPalette is true
@@ -160,7 +166,7 @@ const CombineObjectShapesNode = ({
 
   // Calculate the scaling factor to fit the graphical representation into the grid column
   useEffect(() => {
-    if (containerRef.current && isPalette) {
+    if (containerRef.current && (isPalette || isNotationSlider)) {
       const scaleX = maxGridCellSize / maxX;
       const scaleY = maxGridCellSize / maxY;
 
@@ -170,7 +176,7 @@ const CombineObjectShapesNode = ({
       // Set the scale, ensuring it does not exceed the grid cell size
       setScale(newScale);
     }
-  }, [maxX, maxY, isPalette]);
+  }, [maxX, maxY, isPalette, isNotationSlider]);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -300,7 +306,7 @@ const CombineObjectShapesNode = ({
     newInstanceModel.package.objects.find(
       (cls) => cls.name === data.instanceObject!.name
     )!.name = newDefaultValue;
-    dispatch({ type: "UPDATE_MODEL", payload: newInstanceModel });
+    dispatch(updateInstanceModel(newInstanceModel));
   };
 
   const handleAttributeSubmit = () => {
@@ -426,6 +432,7 @@ const CombineObjectShapesNode = ({
   const connectors = adjustedRepresentation.filter(
     (representationItem) => representationItem.shape === "connector"
   );
+  // missing lines
 
   return (
     <div
@@ -447,6 +454,7 @@ const CombineObjectShapesNode = ({
         rectangles={rectangles}
         data={data}
         isPalette={isPalette}
+        isNotationSlider={isNotationSlider}
       />
 
       {/* Render compartments */}
@@ -469,16 +477,18 @@ const CombineObjectShapesNode = ({
       />
 
       {/* Render connectors in the front */}
-      <RenderConnectors
-        connectors={connectors}
-        id={nodeId}
-        key={nodeId}
-        isNotationSlider={isNotationSlider}
-        isPalette={isPalette}
-      />
+      {!isPalette && !isNotationSlider && (
+        <RenderConnectors
+          connectors={connectors}
+          id={nodeId}
+          key={nodeId}
+          isNotationSlider={isNotationSlider}
+          isPalette={isPalette}
+        />
+      )}
 
       {/* Node resizer */}
-      {!isPalette && selected && (
+      {!isPalette && !isNotationSlider && selected && (
         <NodeResizer
           color="#ff0071"
           onResize={handleResize}
@@ -488,7 +498,7 @@ const CombineObjectShapesNode = ({
         />
       )}
 
-      {!isPalette && (
+      {!isPalette && !isNotationSlider && (
         <>
           {/* Modal for double click */}
           <ModalDoubleClickNotation

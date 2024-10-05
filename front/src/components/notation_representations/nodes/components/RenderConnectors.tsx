@@ -17,8 +17,7 @@ function RenderConnectors({
 }: RenderConnectorsProps) {
   return (
     <>
-      {!isPalette &&
-        id &&
+      {id &&
         connectors.map((connector, index) => (
           <Handle
             type={connector.style.alignment === "left" ? "target" : "source"} // can not set exact position on connector so will stick with this for now

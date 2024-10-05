@@ -80,11 +80,15 @@ const NotationDesigner = () => {
 
   useEffect(() => {
     // Only load config if it's not loaded yet or when a new config name is selected
-    if (selectedMetaModel.package && !isConfigLoaded) {
+    if (
+      selectedMetaModel.package &&
+      selectedMetaModel.package.uri !== "" &&
+      !isConfigLoaded
+    ) {
       const loadMetaConfig = async () => {
         try {
           const response = await configService.getMetaConfigByUri(
-            selectedMetaModel.package.uri
+            encodeURIComponent(selectedMetaModel.package.uri)
           );
           if (
             !response.data ||
@@ -105,7 +109,9 @@ const NotationDesigner = () => {
       const loadRepresentationConfig = async () => {
         try {
           const response = await configService.getRepresentationConfigByUri(
-            selectedMetaModel.package.uri + "-representation"
+            encodeURIComponent(
+              selectedMetaModel.package.uri + "-representation"
+            )
           );
           if (
             !response.data ||
