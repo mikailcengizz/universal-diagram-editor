@@ -338,7 +338,7 @@ function NotationDesignerConfigurePanel({
                 element.name === "Reference"
               ) {
                 return (
-                  <MenuItem key={index} value={element.name}>
+                  <MenuItem key={index} value={index}>
                     {element.name}
                   </MenuItem>
                 );
