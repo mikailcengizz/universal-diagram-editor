@@ -171,13 +171,13 @@ function NotationDesignerConfigurePanel({
             <TextField
               {...params}
               className={configureTextfieldStyle}
-              placeholder="Notation Name"
+              placeholder="Class Name"
             />
           )}
         />
 
-        {/* Properties Section */}
-        <h3 className="text-xl font-bold">Properties</h3>
+        {/* Attributes Section */}
+        <h3 className="text-xl font-bold mt-2">Attributes</h3>
         {currentNotationElement.attributes!.length > 0 && (
           <List>
             {(selectedMetaModel.package.elements[0] as Class).attributes!.map(
@@ -213,7 +213,7 @@ function NotationDesignerConfigurePanel({
         <div className="flex items-center gap-x-2">
           <TextField
             className={propertyTextfieldStyle}
-            placeholder="Property Name"
+            placeholder="Attribute Name"
             value={newAttribute.name}
             onChange={(e) =>
               setNewAttribute({ ...newAttribute, name: e.target.value })
@@ -222,7 +222,7 @@ function NotationDesignerConfigurePanel({
           <TextField
             className={propertyTextfieldStyle}
             placeholder="Data Type"
-            value={newAttribute.attributeType}
+            value={newAttribute.attributeType.name}
             onChange={(e) =>
               setNewAttribute({ ...newAttribute, dataType: e.target.value })
             }
@@ -250,6 +250,86 @@ function NotationDesignerConfigurePanel({
             <MenuItem value="false">False</MenuItem>
           </Select>
           <IconButton onClick={handleAddProperty} size="small" id="icon-button">
+            <AddIcon fontSize="small" />
+          </IconButton>
+        </div>
+
+        {/* References section */}
+        <h3 className="text-xl font-bold mt-2">References</h3>
+        <div className="flex items-center gap-x-2">
+          <Autocomplete
+            className={propertyTextfieldStyle}
+            freeSolo
+            options={["type", "opposite"]} // List of existing notation names
+            value={currentNotationElement?.references![0].name}
+            onInputChange={(event, newInputValue) => {
+              const newNotationReference =
+                (selectedMetaModel.package.elements.find(
+                  (n) => n.name === newInputValue
+                ) as Class)!.references!.find(
+                  (reference) => reference.name === newInputValue
+                );
+              if (newNotationReference) {
+                setCurrentNotationElement({
+                  ...currentNotationElement,
+                  references: [newNotationReference],
+                });
+              } else {
+                setCurrentNotationElement({
+                  ...currentNotationElement,
+                  references: [
+                    {
+                      name: newInputValue,
+                      type: {
+                        $ref: "",
+                      },
+                    },
+                  ],
+                });
+              }
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                className={configureTextfieldStyle}
+                placeholder="Reference Name"
+              />
+            )}
+          />
+          <Select
+            className={propertyTextfieldStyle}
+            value={newReference.$ref || ""}
+            onChange={(e) =>
+              setNewReference({ ...newAttribute, $ref: e.target.value })
+            }
+            displayEmpty
+          >
+            <MenuItem value="" disabled>
+              References
+            </MenuItem>
+            {selectedMetaModel.package.elements.map((element, index) => {
+              const currentNotationElementIndex =
+                selectedMetaModel.package.elements.indexOf(
+                  currentNotationElement
+                );
+              // not possible to reference itself, unless it is a reference
+              if (
+                currentNotationElementIndex !== index ||
+                element.name === "Reference"
+              ) {
+                return (
+                  <MenuItem key={index} value={element.name}>
+                    {element.name}
+                  </MenuItem>
+                );
+              }
+            })}
+          </Select>
+          <IconButton
+            onClick={handleAddReference}
+            size="small"
+            id="icon-button"
+          >
             <AddIcon fontSize="small" />
           </IconButton>
         </div>

@@ -141,9 +141,13 @@ export interface Attribute extends NamedElement {
 }
 
 export interface Reference extends NamedElement {
-  type: Class;
+  type: ClassReference;
   isComposition?: boolean;
   opposite?: Reference;
+}
+
+export interface ClassReference {
+  $ref: string; // URI reference to the class
 }
 
 // INSTANCE MODEL
