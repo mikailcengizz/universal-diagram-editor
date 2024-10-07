@@ -213,7 +213,7 @@ const NotationDesigner = () => {
           setCurrentNotationElement={setCurrentNotationElement}
           newAttribute={newAttribute}
           setNewAttribute={setNewAttribute}
-          handleAddProperty={handleAddAttribute}
+          handleAddAttribute={handleAddAttribute}
           availableConfigs={availableConfigs}
           selectedMetaModel={selectedMetaModel}
           setSelectedMetaModel={(config) => {
