@@ -22,6 +22,7 @@ import {
   Class,
   Representation,
   RepresentationMetaModel,
+  Reference,
 } from "../../types/types";
 import NotationsSlider from "../ui_elements/NotationsSlider";
 
@@ -44,9 +45,12 @@ interface NotationDesignerConfigurePanelProps {
   currentNotationElementRepresentation: Representation; // updates automatically
   currentNotationElement: Class;
   setCurrentNotationElement: (value: Class) => void;
+  handleAddAttribute: (value: any) => void;
   newAttribute: Attribute;
-  setNewAttribute: (value: any) => void;
-  handleAddProperty: () => void;
+  setNewAttribute: (value: Attribute) => void;
+  handleAddReference: () => void;
+  newReference: Reference;
+  setNewReference: (value: Reference) => void;
   availableConfigs: ConfigListItem[];
   selectedMetaModel: MetaModel;
   setSelectedMetaModel: (value: MetaModel) => void;
@@ -61,9 +65,12 @@ function NotationDesignerConfigurePanel({
   currentNotationElementRepresentation,
   currentNotationElement,
   setCurrentNotationElement,
+  handleAddAttribute,
   newAttribute,
   setNewAttribute,
-  handleAddProperty,
+  newReference,
+  setNewReference,
+  handleAddReference,
   availableConfigs,
   selectedMetaModel,
   setSelectedMetaModel,
@@ -224,7 +231,10 @@ function NotationDesignerConfigurePanel({
             placeholder="Data Type"
             value={newAttribute.attributeType.name}
             onChange={(e) =>
-              setNewAttribute({ ...newAttribute, dataType: e.target.value })
+              setNewAttribute({
+                ...newAttribute,
+                attributeType: { name: e.target.value },
+              })
             }
           />
           <TextField
@@ -239,7 +249,10 @@ function NotationDesignerConfigurePanel({
             className={propertyTextfieldStyle}
             value={newAttribute.isUnique || ""}
             onChange={(e) =>
-              setNewAttribute({ ...newAttribute, isUnique: e.target.value })
+              setNewAttribute({
+                ...newAttribute,
+                isUnique: e.target.value as boolean,
+              })
             }
             displayEmpty
           >
@@ -249,7 +262,11 @@ function NotationDesignerConfigurePanel({
             <MenuItem value="true">True</MenuItem>
             <MenuItem value="false">False</MenuItem>
           </Select>
-          <IconButton onClick={handleAddProperty} size="small" id="icon-button">
+          <IconButton
+            onClick={handleAddAttribute}
+            size="small"
+            id="icon-button"
+          >
             <AddIcon fontSize="small" />
           </IconButton>
         </div>
@@ -298,9 +315,12 @@ function NotationDesignerConfigurePanel({
           />
           <Select
             className={propertyTextfieldStyle}
-            value={newReference.$ref || ""}
+            value={newReference.type.$ref || ""}
             onChange={(e) =>
-              setNewReference({ ...newAttribute, $ref: e.target.value })
+              setNewReference({
+                ...newReference,
+                type: { $ref: e.target.value },
+              })
             }
             displayEmpty
           >
