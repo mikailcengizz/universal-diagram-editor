@@ -70,6 +70,7 @@ const NotationDesigner = () => {
   });
   const [isConfigurePanelOpen, setIsConfigurePanelOpen] =
     useState<boolean>(true);
+  const [isButtonVisible, setIsButtonVisible] = useState(false);
 
   useEffect(() => {
     // Fetch available configurations from the server
@@ -306,11 +307,25 @@ const NotationDesigner = () => {
     });
   };
 
+  useEffect(() => {
+    // show the button with animation
+    if (currentNotationElement.name !== "") {
+      setTimeout(() => {
+        setIsButtonVisible(true);
+      }, 100); // small delay for smoother appearance
+    }
+  }, [currentNotationElement.name]);
+
   return (
-    <div className="flex flex-col h-full bg-white min-h-screen w-full ">
-      <div className="w-full pt-4 pb-4 px-12">
+    <div className="flex flex-col h-full bg-white min-h-screen w-full pt-8 relative">
+      {currentNotationElement.name !== "" && (
         <div
-          className="bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer float-right hover:opacity-85 transition duration-300 ease-in-out"
+          className={`absolute top-11 right-12 bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer float-right hover:opacity-85 transition-opacity transition-transform duration-300 ease-in-out transform 
+          ${
+            isButtonVisible
+              ? "opacity-100 translate-x-0"
+              : "opacity-0 translate-x-10"
+          }`}
           onClick={() => setIsConfigurePanelOpen(!isConfigurePanelOpen)}
         >
           <span className="text-sm">
@@ -318,7 +333,7 @@ const NotationDesigner = () => {
           </span>
           <AutorenewIcon className="ml-1" fontSize="small" />
         </div>
-      </div>
+      )}
 
       {/* Pass the same currentNotation and setCurrentNotation to both panels */}
       {isConfigurePanelOpen ? (

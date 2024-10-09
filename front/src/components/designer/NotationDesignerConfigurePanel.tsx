@@ -76,8 +76,7 @@ const configureTextfieldStyle = "w-1/3 2xl:w-[450px]";
 
 const propertyTextfieldStyle = "w-1/6 2xl:w-[200px]";
 
-const seperationBorder =
-  "border-black border-[1px] h-[1px] w-1/3 2xl:w-[450px]";
+const seperationBorder = "border-black border-b-[2px] w-1/3 2xl:w-[450px]";
 
 interface NotationDesignerConfigurePanelProps {
   availableConfigs: ConfigListItem[];
@@ -186,11 +185,10 @@ function NotationDesignerConfigurePanel({
 
   return (
     <div className="px-12 pb-24">
-      <div className="mb-2">
-        <h2 className="text-lg text-white bg-[#1B1B20] w-fit px-3 py-1 rounded-sm">
+      <div className={seperationBorder + " mb-2"}>
+        <h2 className="text-lg text-white bg-[#1B1B20] w-fit px-3 py-1 rounded-t-sm">
           Configure Panel
         </h2>
-        <div className={seperationBorder}></div>
       </div>
 
       <div className="flex flex-col gap-y-2">
@@ -238,7 +236,7 @@ function NotationDesignerConfigurePanel({
             (config) => config.uri === selectedMetaModel.package.uri // exists in the backend?
           ) && (
             <div
-              className={`bg-[#9b0f0f] px-4 py-2 w-fit rounded-md items-center flex gap-x-[6px] text-white text-sm cursor-pointer hover:opacity-85 trransition duration-300 ease-in-out float-left`}
+              className={`bg-[#9b0f0f] px-4 py-2 w-fit rounded-md items-center flex gap-x-[6px] text-white text-xs cursor-pointer hover:opacity-85 trransition duration-300 ease-in-out float-left`}
               onClick={() => handleDeleteConfig(selectedMetaModel.package.uri)}
             >
               Delete selected configuration
@@ -249,11 +247,10 @@ function NotationDesignerConfigurePanel({
           )}
 
         {/* Element Name */}
-        <div>
-          <h3 className="text-lg text-white mt-2 bg-[#1B1B20] w-fit px-3 py-1 rounded-t-sm">
+        <div className={seperationBorder + " mt-2"}>
+          <h3 className="text-lg text-white bg-[#1B1B20] w-fit px-3 py-1 rounded-t-sm">
             Element
           </h3>
-          <div className={seperationBorder}></div>
         </div>
         <Autocomplete
           className={configureTextfieldStyle}
@@ -374,7 +371,7 @@ function NotationDesignerConfigurePanel({
             (n) => n.name === currentNotationElement.name
           ) && (
             <div
-              className={`bg-[#9b0f0f] px-4 py-2 w-fit rounded-md items-center flex gap-x-[6px] text-white text-sm cursor-pointer hover:opacity-85 trransition duration-300 ease-in-out float-left`}
+              className={`bg-[#9b0f0f] px-4 py-2 w-fit rounded-md items-center flex gap-x-[6px] text-white text-xs cursor-pointer hover:opacity-85 trransition duration-300 ease-in-out float-left`}
               onClick={() =>
                 setSelectedMetaModel({
                   package: {

@@ -83,7 +83,7 @@ function PaletteDrawPanel({ saveNotation }: PaletteDrawPanelProps) {
   };
 
   return (
-    <div className="px-12 w-full h-16 flex flex-row items-center align-middle my-auto border-y-[1px] border-gray-200">
+    <div className="px-12 w-[82%] h-16 flex flex-row items-center align-middle my-auto border-y-[1px] border-gray-200">
       <div className="flex flex-row items-center align-middle my-auto justify-between w-full">
         <div className="flex flex-row items-center align-middle my-auto gap-x-1">
           {shapes.map((shape, index) => (
