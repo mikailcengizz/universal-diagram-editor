@@ -75,7 +75,9 @@ router.get(
         return res.status(500).send("Unable to read configurations.");
       }
 
-      files = files.filter((file: any) => file.startsWith("representation-meta"));
+      files = files.filter((file: any) =>
+        file.startsWith("representation-meta")
+      );
 
       for (const file of files) {
         const filePath = path.join(configDir, file);
@@ -145,7 +147,9 @@ router.post("/save-meta-model-file", (req: Request, res: Response) => {
         .send(`Configuration "${name}" updated successfully.`);
     } else {
       // Create a new meta file
-      const newFilename = `meta-model-${name.replace(/\s+/g, "-").toLowerCase()}.json`; // Create a filename from the config name
+      const newFilename = `meta-model-${name
+        .replace(/\s+/g, "-")
+        .toLowerCase()}.json`; // Create a filename from the config name
       fs.writeFileSync(
         path.join(configDir, newFilename),
         JSON.stringify(newConfig, null, 2)
@@ -161,7 +165,8 @@ router.post("/save-meta-model-file", (req: Request, res: Response) => {
 router.post(
   "/save-representation-meta-model-file",
   (req: Request, res: Response) => {
-    const { name, uri, elements } = (req.body as RepresentationMetaModel).package;
+    const { name, uri, elements } = (req.body as RepresentationMetaModel)
+      .package;
 
     if (!name || !uri || !elements) {
       return res.status(400).send("Configuration uri or elements are missing.");
@@ -176,7 +181,9 @@ router.post(
         return res.status(500).send("Unable to save configuration.");
       }
 
-      files = files.filter((file: any) => file.startsWith("representation-meta"));
+      files = files.filter((file: any) =>
+        file.startsWith("representation-meta")
+      );
 
       for (const file of files) {
         const filePath = path.join(configDir, file);
@@ -232,13 +239,17 @@ router.get("/list", (req: Request, res: Response) => {
     }
 
     files = files.filter((file: any) => file.startsWith("meta"));
-    
+
     let configs = files.map((file: Express.Multer.File) => {
       if ((file as any).startsWith("meta")) {
         const content = fs.readFileSync(`${configDir}/${file}`, "utf-8");
         const config: MetaModel = JSON.parse(content);
         if (config.package && config.package.name) {
-          return { filename: file, name: config.package.name, uri: config.package.uri };
+          return {
+            filename: file,
+            name: config.package.name,
+            uri: config.package.uri,
+          };
         }
       }
     });
@@ -254,6 +265,44 @@ router.get("/get-config-by-filename/:name", (req: Request, res: Response) => {
   const configData = fs.readFileSync(`./${configDir}/${configName}`, "utf-8");
   console.log("Returning config data", JSON.parse(configData));
   res.json(JSON.parse(configData));
+});
+
+// delete meta model file and representation meta model file by uri
+router.delete("/delete-config/:uri", (req: Request, res: Response) => {
+  const requestedUri = decodeURIComponent(req.params.uri);
+
+  console.log("Requested URI", requestedUri);
+
+  // Read all config files in the directory
+  fs.readdir(configDir, (err: any, files: string[]) => {
+    if (err) {
+      return res.status(500).send("Unable to read configurations.");
+    }
+
+    for (const file of files) {
+      const filePath = path.join(configDir, file);
+      const content = fs.readFileSync(filePath, "utf-8");
+      const config: MetaModel | RepresentationMetaModel = JSON.parse(content);
+
+      // Check if the 'name' field in the config matches the requested name
+      if (config.package) {
+        if (config.package.uri === requestedUri) {
+          fs.unlinkSync(filePath);
+          return res
+            .status(200)
+            .send("Configuration deleted successfully: " + requestedUri);
+        } else if (config.package.uri === requestedUri + "-representation") {
+          fs.unlinkSync(filePath);
+          return res
+            .status(200)
+            .send("Configuration deleted successfully: " + requestedUri);
+        }
+      }
+    }
+
+    // If no config is found with the matching name
+    res.status(404).send(null);
+  });
 });
 
 export default router;

@@ -197,4 +197,27 @@ router.get("/get-config-by-filename/:name", (req, res) => {
     console.log("Returning config data", JSON.parse(configData));
     res.json(JSON.parse(configData));
 });
+// delete meta model file and representation meta model file by uri
+router.delete("/delete-config/:uri", (req, res) => {
+    const requestedUri = decodeURIComponent(req.params.uri);
+    console.log("Requested URI", requestedUri);
+    // Read all config files in the directory
+    fs_1.default.readdir(configDir, (err, files) => {
+        if (err) {
+            return res.status(500).send("Unable to read configurations.");
+        }
+        for (const file of files) {
+            const filePath = path_1.default.join(configDir, file);
+            const content = fs_1.default.readFileSync(filePath, "utf-8");
+            const config = JSON.parse(content);
+            // Check if the 'name' field in the config matches the requested name
+            if (config.package && config.package.uri === requestedUri) {
+                fs_1.default.unlinkSync(filePath);
+                return res.status(200).send("Configuration deleted successfully: " + requestedUri);
+            }
+        }
+        // If no config is found with the matching name
+        res.status(404).send(null);
+    });
+});
 exports.default = router;

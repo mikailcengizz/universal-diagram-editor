@@ -37,16 +37,20 @@ const NotationDesigner = () => {
 
   const [currentNotationElement, setCurrentNotationElement] = useState<Class>({
     name: "",
+    isAbstract: false,
+    isInterface: false,
     attributes: [],
     references: [],
-    representation: undefined,
+    representation: {
+      $ref: "",
+    },
   });
   const [
     currentNotationElementRepresentation,
     setCurrentNotationElementRepresentation,
   ] = useState<Representation>({
     name: "",
-    type: "ClassNode",
+    type: "None",
     graphicalRepresentation: [],
   });
 
@@ -60,7 +64,7 @@ const NotationDesigner = () => {
   });
   const [newReference, setNewReference] = useState<Reference>({
     name: "",
-    type: {
+    class: {
       $ref: "",
     },
   });
@@ -115,13 +119,25 @@ const NotationDesigner = () => {
     }
   };
 
+  const deleteConfig = async (uri: string) => {
+    try {
+      await configService.deleteConfig(encodeURIComponent(uri));
+    } catch (error) {
+      console.error("Error deleting configuration:", error);
+    }
+  };
+
   const handleSelectUri = async (uri: string) => {
     // always reset current notation element
     setCurrentNotationElement({
       name: "",
+      isAbstract: false,
+      isInterface: false,
       attributes: [],
       references: [],
-      representation: undefined,
+      representation: {
+        $ref: "",
+      },
     });
     // if the uri is already registered, load the config
     const config = availableConfigs.find((c) => c.uri === uri);
@@ -205,7 +221,10 @@ const NotationDesigner = () => {
       (element) => element.name === currentNotationElement.name
     );
 
-    if (currentNotationElementIndex === -1) {
+    if (
+      currentNotationElementIndex === -1 &&
+      currentNotationElement.name !== ""
+    ) {
       updatedElements.push(currentNotationElement);
     } else {
       updatedElements[currentNotationElementIndex] = currentNotationElement;
@@ -277,6 +296,18 @@ const NotationDesigner = () => {
     saveRepresentationConfig();
   };
 
+  const handleDeleteConfig = (uri: string) => {
+    deleteConfig(uri);
+    setAvailableConfigs(availableConfigs.filter((c) => c.uri !== uri));
+    setSelectedMetaModel({
+      package: {
+        name: "",
+        uri: "",
+        elements: [],
+      },
+    });
+  };
+
   return (
     <div className="flex flex-col h-full bg-white min-h-screen w-full ">
       <div className="w-full pt-4 pb-4 px-12">
@@ -294,6 +325,8 @@ const NotationDesigner = () => {
       {/* Pass the same currentNotation and setCurrentNotation to both panels */}
       {isConfigurePanelOpen ? (
         <NotationDesignerConfigurePanel
+          availableConfigs={availableConfigs}
+          handleDeleteConfig={handleDeleteConfig}
           handleSelectUri={handleSelectUri}
           currentNotationElementRepresentation={
             currentNotationElementRepresentation
@@ -309,7 +342,6 @@ const NotationDesigner = () => {
           handleAddReference={handleAddReference}
           newReference={newReference}
           setNewReference={setNewReference}
-          availableConfigs={availableConfigs}
           selectedMetaModel={selectedMetaModel}
           setSelectedMetaModel={setSelectedMetaModel}
           selectedRepresentationMetaModel={selectedRepresentationMetaModel}

@@ -1,0 +1,37 @@
+{
+  "package": {
+    "name": "Petri Net Test",
+    "uri": "http://www.compute.dtu.dk/sse/models/test",
+    "elements": [
+      {
+        "name": "Transition",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [
+          {
+            "name": "name",
+            "attributeType": {
+              "name": "String"
+            },
+            "defaultValue": "transition",
+            "isUnique": false
+          }
+        ],
+        "references": [],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/0"
+        }
+      },
+      {
+        "name": "Node",
+        "isAbstract": true,
+        "isInterface": false,
+        "attributes": [],
+        "references": [],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/1"
+        }
+      }
+    ]
+  }
+}

@@ -149,7 +149,7 @@ function ModalDoubleClickNotation({
       const classifier: Class | undefined =
         data.notation.metaModel.package.elements.find((element) => {
           return element.name === data.instanceObject!.name;
-        });
+        }) as Class;
       setClassAttributes(classifier?.attributes!);
     }
   }, [instanceModel]);

@@ -1,11 +1,16 @@
 {
   "package": {
-    "name": "test notation Representation",
+    "name": "Petri Net Test Representation",
     "uri": "http://www.compute.dtu.dk/sse/models/test-representation",
     "elements": [
       {
-        "name": "test element",
+        "name": "Transition",
         "type": "ClassNode",
+        "graphicalRepresentation": []
+      },
+      {
+        "name": "Node",
+        "type": "None",
         "graphicalRepresentation": []
       }
     ]

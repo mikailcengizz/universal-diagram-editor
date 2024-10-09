@@ -1,6 +1,9 @@
 import {
   Autocomplete,
+  Checkbox,
   FormControl,
+  FormControlLabel,
+  FormGroup,
   IconButton,
   List,
   ListItem,
@@ -38,7 +41,7 @@ var notationsSliderSettings = {
 
 const textFieldsStyleMuiSx = {
   "& .MuiOutlinedInput-root": {
-    border: "1px solid red",
+    border: "1px solid #d3d3d3",
   },
   "& .MuiOutlinedInput-notchedOutline": {
     border: "none",
@@ -47,23 +50,36 @@ const textFieldsStyleMuiSx = {
 
 const selectsStyleMuiSx = {
   "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "red",
+    borderColor: "#d3d3d3",
   },
   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-    borderColor: "red",
+    borderColor: "#d3d3d3",
   },
   "&:hover .MuiOutlinedInput-notchedOutline": {
-    borderColor: "red",
+    borderColor: "#d3d3d3",
   },
 };
 
-// #d3d3d3
+const listItemsStyle = {
+  border: "1px solid #d3d3d3",
+  borderRadius: "5px",
+  marginBottom: "5px",
+};
+
+const listStyle = {
+  width: "33%",
+};
 
 const configureTextfieldStyle = "w-1/3 2xl:w-[450px]";
 
 const propertyTextfieldStyle = "w-1/6 2xl:w-[200px]";
 
+const seperationBorder =
+  "border-black border-[1px] h-[1px] w-1/3 2xl:w-[450px]";
+
 interface NotationDesignerConfigurePanelProps {
+  availableConfigs: ConfigListItem[];
+  handleDeleteConfig: (uri: string) => void;
   handleSelectUri: (selectedUri: string) => void;
   currentNotationElementRepresentation: Representation; // updates automatically
   setCurrentNotationElementRepresentation: (value: Representation) => void;
@@ -75,7 +91,6 @@ interface NotationDesignerConfigurePanelProps {
   handleAddReference: () => void;
   newReference: Reference;
   setNewReference: (value: Reference) => void;
-  availableConfigs: ConfigListItem[];
   selectedMetaModel: MetaModel;
   setSelectedMetaModel: (value: MetaModel) => void;
   selectedRepresentationMetaModel: RepresentationMetaModel;
@@ -84,6 +99,8 @@ interface NotationDesignerConfigurePanelProps {
 }
 
 function NotationDesignerConfigurePanel({
+  availableConfigs,
+  handleDeleteConfig,
   handleSelectUri,
   currentNotationElementRepresentation,
   setCurrentNotationElementRepresentation,
@@ -95,7 +112,6 @@ function NotationDesignerConfigurePanel({
   newReference,
   setNewReference,
   handleAddReference,
-  availableConfigs,
   selectedMetaModel,
   setSelectedMetaModel,
   selectedRepresentationMetaModel,
@@ -111,20 +127,27 @@ function NotationDesignerConfigurePanel({
   };
 
   const isReferenceButtonDisabled = (reference: Reference) => {
-    return reference.name === "" || reference.type.$ref === "";
+    return reference.name === "" || reference.class.$ref === "";
   };
 
   const handleNotationNameChange = (newInputValue: string) => {
-    const newNotation = selectedMetaModel.package.elements.find(
+    const existingNotationIndex = selectedMetaModel.package.elements.findIndex(
       (n) => n.name === newInputValue
     );
-    if (newNotation) {
-      setCurrentNotationElement(newNotation);
+    if (existingNotationIndex !== -1) {
+      const existingNotation = selectedMetaModel.package.elements[
+        existingNotationIndex
+      ] as Class;
+      const existingNotationRepresentation = selectedRepresentationMetaModel
+        .package.elements[existingNotationIndex] as Representation;
+
+      setCurrentNotationElement(existingNotation);
+      setCurrentNotationElementRepresentation(existingNotationRepresentation);
     } else {
       // initialize notation element's representation in representation meta model and establish ref
-      const newNotationElementRepresentation = {
+      const newNotationElementRepresentation: Representation = {
         name: newInputValue,
-        type: currentNotationElementRepresentation.type || "ClassNode",
+        type: "None",
         graphicalRepresentation: [],
       };
       const indexRef = selectedRepresentationMetaModel.package.elements.length;
@@ -132,6 +155,10 @@ function NotationDesignerConfigurePanel({
 
       setCurrentNotationElement({
         ...currentNotationElement,
+        isAbstract: false,
+        isInterface: false,
+        attributes: [],
+        references: [],
         name: newInputValue,
         representation: {
           $ref: `${
@@ -139,12 +166,27 @@ function NotationDesignerConfigurePanel({
           }#/elements/${indexRef}`,
         },
       });
+      setNewAttribute({
+        name: "",
+        attributeType: { name: "" },
+        defaultValue: "",
+        isUnique: undefined,
+      });
+      setNewReference({
+        name: "",
+        class: { $ref: "" },
+      });
     }
   };
 
   return (
     <div className="px-12 pb-24">
-      <h2 className="text-xl font-bold mb-2">Configure Panel</h2>
+      <div className="mb-2">
+        <h2 className="text-lg text-white bg-[#1B1B20] w-fit px-3 py-1 rounded-sm">
+          Configure Panel
+        </h2>
+        <div className={seperationBorder}></div>
+      </div>
 
       <div className="flex flex-col gap-y-2">
         {/* Configuration uri */}
@@ -185,8 +227,29 @@ function NotationDesignerConfigurePanel({
           }
         />
 
+        {/* Delete configuration */}
+        {selectedMetaModel.package.uri &&
+          availableConfigs.find(
+            (config) => config.uri === selectedMetaModel.package.uri // exists in the backend?
+          ) && (
+            <div
+              className={`bg-[#9b0f0f] px-4 py-2 w-fit rounded-md items-center flex gap-x-[6px] text-white text-sm cursor-pointer hover:opacity-85 trransition duration-300 ease-in-out float-left`}
+              onClick={() => handleDeleteConfig(selectedMetaModel.package.uri)}
+            >
+              Delete selected configuration
+              <DeleteIcon
+                style={{ width: "15px", height: "15px", objectFit: "contain" }}
+              />
+            </div>
+          )}
+
         {/* Element Name */}
-        <h3 className="text-lg mt-2">Element</h3>
+        <div>
+          <h3 className="text-lg text-white mt-2 bg-[#1B1B20] w-fit px-3 py-1 rounded-t-sm">
+            Element
+          </h3>
+          <div className={seperationBorder}></div>
+        </div>
         <Autocomplete
           className={configureTextfieldStyle}
           freeSolo
@@ -239,19 +302,86 @@ function NotationDesignerConfigurePanel({
             <MenuItem value="" disabled style={{ display: "none" }}>
               Select Notation Type
             </MenuItem>
+            <MenuItem value="None">None</MenuItem>
             <MenuItem value="ClassNode">Node</MenuItem>
             <MenuItem value="ClassEdge">Edge</MenuItem>
           </Select>
         </FormControl>
 
+        {/* Is abstract and Is interface checkbox */}
+        <FormControl className={configureTextfieldStyle}>
+          <FormGroup>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  style={{
+                    color: "#1B1B20",
+                  }}
+                  checked={currentNotationElement.isAbstract}
+                  onChange={(e) =>
+                    setCurrentNotationElement({
+                      ...currentNotationElement,
+                      isAbstract: e.target.checked,
+                    })
+                  }
+                />
+              }
+              label="Is abstract?"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  style={{
+                    color: "#1B1B20",
+                  }}
+                  checked={currentNotationElement.isInterface}
+                  onChange={(e) =>
+                    setCurrentNotationElement({
+                      ...currentNotationElement,
+                      isInterface: e.target.checked,
+                    })
+                  }
+                />
+              }
+              label="Is interface?"
+            />
+          </FormGroup>
+        </FormControl>
+
+        {/* Delete selected notation element */}
+        {currentNotationElement.name &&
+          selectedMetaModel.package.elements.length > 0 &&
+          selectedMetaModel.package.elements.find(
+            (n) => n.name === currentNotationElement.name
+          ) && (
+            <div
+              className={`bg-[#9b0f0f] px-4 py-2 w-fit rounded-md items-center flex gap-x-[6px] text-white text-sm cursor-pointer hover:opacity-85 trransition duration-300 ease-in-out float-left`}
+              onClick={() =>
+                setSelectedMetaModel({
+                  package: {
+                    ...selectedMetaModel.package,
+                    elements: selectedMetaModel.package.elements.filter(
+                      (n) => n.name !== currentNotationElement.name
+                    ),
+                  },
+                })
+              }
+            >
+              Delete selected element
+              <DeleteIcon
+                style={{ width: "15px", height: "15px", objectFit: "contain" }}
+              />
+            </div>
+          )}
+
         {/* Attributes Section */}
         <h3 className="text-lg mt-2">Element Attributes</h3>
         {currentNotationElement.attributes!.length > 0 && (
-          <List style={{ width: "40%" }}>
+          <List style={listStyle}>
             {currentNotationElement.attributes!.map((prop, index) => {
               const attribute = prop as Attribute;
               return (
-                <ListItem key={index} style={{ border: "" }}>
+                <ListItem key={index} style={listItemsStyle}>
                   <ListItemText
                     primary={`${attribute.name} (${attribute.attributeType.name})`}
                     secondary={attribute.defaultValue?.toString() || ""}
@@ -349,13 +479,11 @@ function NotationDesignerConfigurePanel({
           <Autocomplete
             className={propertyTextfieldStyle}
             freeSolo
-            options={["type", "opposite"]} // List of existing notation names
+            options={["superType", "type", "opposite"]} // List of existing notation names
             value={newReference.name}
             onInputChange={(event, newInputValue) => {
               const newNotationReference =
-                (selectedMetaModel.package.elements.find(
-                  (n) => n.name === newInputValue
-                ) as Class)!.references!.find(
+                currentNotationElement.references!.find(
                   (reference) => reference.name === newInputValue
                 );
               if (newNotationReference) {
@@ -369,7 +497,7 @@ function NotationDesignerConfigurePanel({
                   references: [
                     {
                       name: newInputValue,
-                      type: {
+                      class: {
                         $ref: "",
                       },
                     },
@@ -389,11 +517,11 @@ function NotationDesignerConfigurePanel({
           <Select
             className={propertyTextfieldStyle}
             sx={selectsStyleMuiSx}
-            value={newReference.type.$ref || ""}
+            value={newReference.class.$ref || ""}
             onChange={(e) =>
               setNewReference({
                 ...newReference,
-                type: { $ref: e.target.value },
+                class: { $ref: e.target.value },
               })
             }
             displayEmpty
@@ -403,25 +531,22 @@ function NotationDesignerConfigurePanel({
             </MenuItem>
             {Array.isArray(selectedMetaModel.package.elements) &&
               selectedMetaModel.package.elements.map((element, index) => {
-                const currentNotationElementIndex =
-                  selectedMetaModel.package.elements.indexOf(
-                    currentNotationElement
-                  );
-                // not possible to reference itself, unless it is a reference
-                if (
-                  currentNotationElementIndex !== index ||
-                  element.name === "Reference"
-                ) {
-                  return (
-                    <MenuItem key={index} value={index}>
-                      {element.name}
-                    </MenuItem>
-                  );
-                }
+                return (
+                  <MenuItem key={index} value={index}>
+                    {element.name}
+                  </MenuItem>
+                );
               })}
           </Select>
           <IconButton
             onClick={handleAddReference}
+            disabled={isReferenceButtonDisabled(newReference)}
+            style={{
+              opacity: isReferenceButtonDisabled(newReference) ? 0.5 : 1,
+              cursor: isReferenceButtonDisabled(newReference)
+                ? "not-allowed"
+                : "",
+            }}
             size="small"
             id="icon-button"
           >
@@ -429,7 +554,7 @@ function NotationDesignerConfigurePanel({
           </IconButton>
         </div>
 
-        <h3 className="text-xl font-bold">Roles</h3>
+        {/* <h3 className="text-xl font-bold">Roles</h3> */}
         {/* Roles section */}
         {/* {currentNotation.type === "EClass" &&
           currentNotation.roles?.map((role) => {
@@ -692,14 +817,6 @@ function NotationDesignerConfigurePanel({
             }
           })} */}
 
-        {/* Save and export buttons */}
-        <button
-          onClick={saveNotation}
-          className="bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer hover:opacity-85 trransition duration-300 ease-in-out float-left mt-4"
-        >
-          <span className="text-sm">Save Notation</span>
-        </button>
-
         <div className="relative max-w-xl">
           <h3 className="text-lg font-bold mt-8">Current Notations</h3>
           <input
@@ -714,6 +831,14 @@ function NotationDesignerConfigurePanel({
             setCurrentNotationElement={setCurrentNotationElement}
           />
         </div>
+
+        {/* Save button */}
+        <button
+          onClick={saveNotation}
+          className="bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer hover:opacity-85 trransition duration-300 ease-in-out float-left mt-4"
+        >
+          <span className="text-[16px]">Save Notation</span>
+        </button>
       </div>
     </div>
   );

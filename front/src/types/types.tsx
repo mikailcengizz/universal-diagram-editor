@@ -119,11 +119,11 @@ export abstract class TypedElement extends NamedElement {
 export abstract class Classifier extends NamedElement {}
 
 export interface Class extends Classifier {
-  isAbstract?: boolean;
-  isInterface?: boolean;
-  attributes?: Attribute[];
-  references?: Reference[];
-  representation?: RepresentationReference;
+  isAbstract: boolean;
+  isInterface: boolean;
+  attributes: Attribute[];
+  references: Reference[];
+  representation: RepresentationReference;
 }
 
 export interface RepresentationReference {
@@ -141,7 +141,7 @@ export interface Attribute extends NamedElement {
 }
 
 export interface Reference extends NamedElement {
-  type: ClassReference;
+  class: ClassReference;
   isComposition?: boolean;
   opposite?: Reference;
 }
@@ -201,7 +201,7 @@ export interface RepresentationPackage {
   elements: Representation[];
 }
 
-export type RepresentationType = "ClassNode" | "ClassEdge";
+export type RepresentationType = "ClassNode" | "ClassEdge" | "None";
 
 export interface Representation {
   name: string;

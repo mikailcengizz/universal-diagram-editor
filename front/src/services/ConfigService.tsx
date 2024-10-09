@@ -54,6 +54,13 @@ class ConfigService {
       }
     );
   }
+
+  // deletes meta model file and representation meta model file by uri
+  deleteConfig(uri: string) {
+    return axios.delete(CONFIG_API_BASE_URL + "/delete-config/" + uri, {
+      headers,
+    });
+  }
 }
 
 const configService = new ConfigService();
