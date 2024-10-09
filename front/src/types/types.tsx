@@ -141,7 +141,7 @@ export interface Attribute extends NamedElement {
 }
 
 export interface Reference extends NamedElement {
-  class: ClassReference;
+  element: ClassReference;
   isComposition?: boolean;
   opposite?: Reference;
 }

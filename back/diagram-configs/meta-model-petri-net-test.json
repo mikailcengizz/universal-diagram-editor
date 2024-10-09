@@ -17,7 +17,14 @@
             "isUnique": false
           }
         ],
-        "references": [],
+        "references": [
+          {
+            "name": "superType",
+            "element": {
+              "$ref": "#/elements/1"
+            }
+          }
+        ],
         "representation": {
           "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/0"
         }

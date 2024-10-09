@@ -237,7 +237,9 @@
         "references": [
           {
             "name": "superType",
-            "$ref": "#/elements/4"
+            "$ref": {
+              "element": "#/elements/4"
+            }
           }
         ],
         "representation": {

@@ -29,6 +29,8 @@ import {
   RepresentationType,
 } from "../../types/types";
 import NotationsSlider from "../ui_elements/NotationsSlider";
+import ReferenceHelper from "../helpers/ReferenceHelper";
+import ModelHelperFunctions from "../helpers/ModelHelperFunctions";
 
 var notationsSliderSettings = {
   infinite: true,
@@ -127,7 +129,7 @@ function NotationDesignerConfigurePanel({
   };
 
   const isReferenceButtonDisabled = (reference: Reference) => {
-    return reference.name === "" || reference.class.$ref === "";
+    return reference.name === "" || reference.element.$ref === "";
   };
 
   const handleNotationNameChange = (newInputValue: string) => {
@@ -174,10 +176,13 @@ function NotationDesignerConfigurePanel({
       });
       setNewReference({
         name: "",
-        class: { $ref: "" },
+        element: { $ref: "" },
       });
     }
   };
+
+  console.log("new attribute lige nu", newAttribute);
+  console.log("new reference lige nu", newReference);
 
   return (
     <div className="px-12 pb-24">
@@ -317,6 +322,13 @@ function NotationDesignerConfigurePanel({
                   style={{
                     color: "#1B1B20",
                   }}
+                  sx={{
+                    paddingTop: "4px",
+                    paddingBottom: "4px",
+                    "&:hover": {
+                      backgroundColor: "transparent",
+                    },
+                  }}
                   checked={currentNotationElement.isAbstract}
                   onChange={(e) =>
                     setCurrentNotationElement({
@@ -333,6 +345,13 @@ function NotationDesignerConfigurePanel({
                 <Checkbox
                   style={{
                     color: "#1B1B20",
+                  }}
+                  sx={{
+                    paddingTop: "4px",
+                    paddingBottom: "4px",
+                    "&:hover": {
+                      backgroundColor: "transparent",
+                    },
                   }}
                   checked={currentNotationElement.isInterface}
                   onChange={(e) =>
@@ -475,6 +494,42 @@ function NotationDesignerConfigurePanel({
 
         {/* References section */}
         <h3 className="text-lg mt-2">Element References</h3>
+        {currentNotationElement.references!.length > 0 && (
+          <List style={listStyle}>
+            {currentNotationElement.references!.map((prop, index) => {
+              const reference = prop as Reference;
+              return (
+                <ListItem key={index} style={listItemsStyle}>
+                  <ListItemText
+                    primary={`${reference.name} (${
+                      (
+                        ReferenceHelper.resolveRef(
+                          selectedMetaModel.package,
+                          reference.element.$ref
+                        ) as Class
+                      ).name
+                    })`}
+                  />
+                  <ListItemSecondaryAction>
+                    <IconButton
+                      edge="end"
+                      onClick={() =>
+                        setCurrentNotationElement({
+                          ...currentNotationElement,
+                          /* properties: (
+                              selectedMetaModel.package.elements[0] as Class
+                            ).attributes!.filter((_, i) => i !== index), */
+                        })
+                      }
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+              );
+            })}
+          </List>
+        )}
         <div className="flex items-center gap-x-2">
           <Autocomplete
             className={propertyTextfieldStyle}
@@ -482,28 +537,7 @@ function NotationDesignerConfigurePanel({
             options={["superType", "type", "opposite"]} // List of existing notation names
             value={newReference.name}
             onInputChange={(event, newInputValue) => {
-              const newNotationReference =
-                currentNotationElement.references!.find(
-                  (reference) => reference.name === newInputValue
-                );
-              if (newNotationReference) {
-                setCurrentNotationElement({
-                  ...currentNotationElement,
-                  references: [newNotationReference],
-                });
-              } else {
-                setCurrentNotationElement({
-                  ...currentNotationElement,
-                  references: [
-                    {
-                      name: newInputValue,
-                      class: {
-                        $ref: "",
-                      },
-                    },
-                  ],
-                });
-              }
+              setNewReference({ ...newReference, name: newInputValue });
             }}
             renderInput={(params) => (
               <TextField
@@ -517,16 +551,16 @@ function NotationDesignerConfigurePanel({
           <Select
             className={propertyTextfieldStyle}
             sx={selectsStyleMuiSx}
-            value={newReference.class.$ref || ""}
+            value={newReference.element.$ref.split("/").pop()}
             onChange={(e) =>
               setNewReference({
                 ...newReference,
-                class: { $ref: e.target.value },
+                element: { $ref: "#/elements/" + e.target.value },
               })
             }
             displayEmpty
           >
-            <MenuItem value="" disabled>
+            <MenuItem value="" disabled style={{ display: "none" }}>
               References
             </MenuItem>
             {Array.isArray(selectedMetaModel.package.elements) &&

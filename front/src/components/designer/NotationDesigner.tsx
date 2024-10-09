@@ -64,7 +64,7 @@ const NotationDesigner = () => {
   });
   const [newReference, setNewReference] = useState<Reference>({
     name: "",
-    class: {
+    element: {
       $ref: "",
     },
   });
@@ -198,18 +198,16 @@ const NotationDesigner = () => {
   };
 
   const handleAddReference = () => {
-    /* setCurrentNotation({
-      ...currentNotation,
-      references: [...currentNotation.references!, newReference],
+    setCurrentNotationElement({
+      ...currentNotationElement,
+      references: [...currentNotationElement.references!, newReference],
     });
     setNewReference({
-      id: "",
       name: "",
-      eReferenceType: undefined,
-      isUnique: false,
-      lowerBound: 0,
-      upperBound: 1,
-    }); */
+      element: {
+        $ref: "",
+      },
+    });
   };
 
   const saveNotation = () => {

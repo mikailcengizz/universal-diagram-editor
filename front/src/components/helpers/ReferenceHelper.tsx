@@ -15,7 +15,10 @@ class ReferenceHelper {
     // Start from the root object and traverse the path
     let current: any = root;
 
+    console.log("pathSegments:", pathSegments);
     for (const segment of pathSegments) {
+      console.log("segment:", segment);
+      console.log("current:", current);
       if (current && current.hasOwnProperty(segment)) {
         current = current[segment];
       } else {
@@ -24,6 +27,7 @@ class ReferenceHelper {
       }
     }
 
+    console.log("returning current:", current);
     return current as T;
   }
 }
