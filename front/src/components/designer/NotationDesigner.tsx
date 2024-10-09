@@ -12,6 +12,7 @@ import {
   RepresentationMetaModel,
   Class,
   Representation,
+  Reference,
 } from "../../types/types";
 import ModelHelperFunctions from "../helpers/ModelHelperFunctions";
 
@@ -55,10 +56,17 @@ const NotationDesigner = () => {
     attributeType: {
       name: "String",
     },
+    defaultValue: "",
+    isUnique: undefined,
+  });
+  const [newReference, setNewReference] = useState<Reference>({
+    name: "",
+    type: {
+      $ref: "",
+    },
   });
   const [isConfigurePanelOpen, setIsConfigurePanelOpen] =
     useState<boolean>(true);
-  const [isConfigLoaded, setIsConfigLoaded] = useState<boolean>(false);
 
   useEffect(() => {
     // Fetch available configurations from the server
@@ -78,57 +86,59 @@ const NotationDesigner = () => {
     fetchConfigs();
   }, []);
 
-  useEffect(() => {
-    // Only load config if it's not loaded yet or when a new config name is selected
-    if (
-      selectedMetaModel.package &&
-      selectedMetaModel.package.uri !== "" &&
-      !isConfigLoaded
-    ) {
-      const loadMetaConfig = async () => {
-        try {
-          const response = await configService.getMetaConfigByUri(
-            encodeURIComponent(selectedMetaModel.package.uri)
-          );
-          if (
-            !response.data ||
-            response.data === "" ||
-            response.data === null
-          ) {
-            return;
-          }
-          const config = response.data as MetaModel;
-          setSelectedMetaModel(config);
-          setIsConfigLoaded(true); // Mark config as loaded
-        } catch (error) {
-          console.error("Error loading configuration:", error);
-        }
-      };
-      loadMetaConfig();
-
-      const loadRepresentationConfig = async () => {
-        try {
-          const response = await configService.getRepresentationConfigByUri(
-            encodeURIComponent(
-              selectedMetaModel.package.uri + "-representation"
-            )
-          );
-          if (
-            !response.data ||
-            response.data === "" ||
-            response.data === null
-          ) {
-            return;
-          }
-          const config = response.data as RepresentationMetaModel;
-          setSelectedRepresentationMetaModel(config);
-        } catch (error) {
-          console.error("Error loading configuration:", error);
-        }
-      };
-      loadRepresentationConfig();
+  const loadMetaConfig = async (selectedUri: string) => {
+    try {
+      const response = await configService.getMetaConfigByUri(
+        encodeURIComponent(selectedUri)
+      );
+      if (!response.data || response.data === "" || response.data === null) {
+        return;
+      }
+      const config = response.data as MetaModel;
+      setSelectedMetaModel(config);
+    } catch (error) {
+      console.error("Error loading meta configuration:", error);
     }
-  }, [selectedMetaModel.package, isConfigLoaded]);
+  };
+
+  const loadRepresentationConfig = async (selectedUri: string) => {
+    try {
+      const response = await configService.getRepresentationConfigByUri(
+        encodeURIComponent(selectedUri + "-representation")
+      );
+      if (!response.data || response.data === "" || response.data === null) {
+        return;
+      }
+      const config = response.data as RepresentationMetaModel;
+      setSelectedRepresentationMetaModel(config);
+    } catch (error) {
+      console.error("Error loading representation configuration:", error);
+    }
+  };
+
+  const handleSelectUri = async (uri: string) => {
+    // if the uri is already registered, load the config
+    const config = availableConfigs.find((c) => c.uri === uri);
+    if (config) {
+      setSelectedMetaModel({
+        package: {
+          uri: config.uri,
+          name: config.name,
+          elements: [],
+        },
+      });
+      await loadMetaConfig(config.uri);
+      await loadRepresentationConfig(config.uri);
+    } else {
+      setSelectedMetaModel({
+        package: {
+          uri: uri,
+          name: "",
+          elements: [],
+        },
+      });
+    }
+  };
 
   const handleNotationTypeChange = (e: SelectChangeEvent<string>) => {
     /* setSelectedNotationType(value);
@@ -139,15 +149,27 @@ const NotationDesigner = () => {
   };
 
   const handleAddAttribute = () => {
-    /* setCurrentNotation({
-      ...currentNotation,
-      attributes: [...currentNotation.attributes!, newAttribute],
+    setCurrentNotationElement({
+      ...currentNotationElement,
+      attributes: [...currentNotationElement.attributes!, newAttribute],
     });
     setNewAttribute({
-      id: "",
       name: "",
       defaultValue: "",
-      eAttributeType: undefined,
+      attributeType: { name: "String" },
+      isUnique: undefined,
+    });
+  };
+
+  const handleAddReference = () => {
+    /* setCurrentNotation({
+      ...currentNotation,
+      references: [...currentNotation.references!, newReference],
+    });
+    setNewReference({
+      id: "",
+      name: "",
+      eReferenceType: undefined,
       isUnique: false,
       lowerBound: 0,
       upperBound: 1,
@@ -206,20 +228,21 @@ const NotationDesigner = () => {
         <NotationDesignerConfigurePanel
           selectedNotationType={selectedNotationType!}
           handleNotationTypeChange={handleNotationTypeChange}
+          handleSelectUri={handleSelectUri}
           currentNotationElementRepresentation={
             currentNotationElementRepresentation
           }
           currentNotationElement={currentNotationElement}
           setCurrentNotationElement={setCurrentNotationElement}
+          handleAddAttribute={handleAddAttribute}
           newAttribute={newAttribute}
           setNewAttribute={setNewAttribute}
-          handleAddAttribute={handleAddAttribute}
+          handleAddReference={handleAddReference}
+          newReference={newReference}
+          setNewReference={setNewReference}
           availableConfigs={availableConfigs}
           selectedMetaModel={selectedMetaModel}
-          setSelectedMetaModel={(config) => {
-            setSelectedMetaModel(config);
-            setIsConfigLoaded(false); // Reset flag if a new config is selected
-          }}
+          setSelectedMetaModel={setSelectedMetaModel}
           selectedRepresentationMetaModel={selectedRepresentationMetaModel}
           setSelectedRepresentationMetaModel={
             setSelectedRepresentationMetaModel

@@ -124,7 +124,6 @@ function NotationsSlider({
           <Slider {...updatedSettings} className="mt-2">
             {allNotationElements && allNotationElements.length > 0 ? (
               allNotationElements.map((notationElement, index) => {
-                console.log("notationElement", notationElement);
                 const representation = notationElementsRepresentation![index];
 
                 return (
