@@ -91,6 +91,7 @@ const DiagramEditor = ({
   const [selectedRepresentationMetaModel, setSelectedRepresentationMetaModel] =
     useState<RepresentationMetaModel>({
       package: {
+        name: "",
         uri: "",
         elements: [],
       },

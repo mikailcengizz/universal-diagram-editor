@@ -1,0 +1,13 @@
+{
+  "package": {
+    "name": "test notation Representation",
+    "uri": "http://www.compute.dtu.dk/sse/models/test-representation",
+    "elements": [
+      {
+        "name": "test element",
+        "type": "ClassNode",
+        "graphicalRepresentation": []
+      }
+    ]
+  }
+}

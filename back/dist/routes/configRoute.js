@@ -70,10 +70,10 @@ router.get("/get-representation-config-by-uri/:uri", (req, res) => {
         res.status(404).send(null);
     });
 });
-// Save configuration by type or update an existing one by type
-router.post("/save", (req, res) => {
-    const { name, uri, elements } = req.body;
-    if (!uri || !elements) {
+// Save meta model file by type or update an existing one by type
+router.post("/save-meta-model-file", (req, res) => {
+    const { name, uri, elements } = req.body.package;
+    if (!name || !uri || !elements) {
         return res.status(400).send("Configuration uri or elements are missing.");
     }
     // Check if a file with the same "name" exists inside the configuration file
@@ -103,15 +103,66 @@ router.post("/save", (req, res) => {
             },
         };
         if (configFileFound) {
-            // Update the existing file
+            // Update the existing meta file
             fs_1.default.writeFileSync(path_1.default.join(configDir, configFilename), JSON.stringify(newConfig, null, 2));
             return res
                 .status(200)
                 .send(`Configuration "${name}" updated successfully.`);
         }
         else {
-            // Create a new configuration file
-            const newFilename = `${name.replace(/\s+/g, "_").toLowerCase()}.json`; // Create a filename from the config name
+            // Create a new meta file
+            const newFilename = `meta-model-${name.replace(/\s+/g, "-").toLowerCase()}.json`; // Create a filename from the config name
+            fs_1.default.writeFileSync(path_1.default.join(configDir, newFilename), JSON.stringify(newConfig, null, 2));
+            return res
+                .status(201)
+                .send(`Configuration "${name}" saved successfully.`);
+        }
+    });
+});
+// Save representation meta model file by type or update an existing one by type
+router.post("/save-representation-meta-model-file", (req, res) => {
+    const { name, uri, elements } = req.body.package;
+    if (!name || !uri || !elements) {
+        return res.status(400).send("Configuration uri or elements are missing.");
+    }
+    // Check if a file with the same "name" exists inside the configuration file
+    let configFileFound = false;
+    let configFilename = "";
+    fs_1.default.readdir(configDir, (err, files) => {
+        if (err) {
+            return res.status(500).send("Unable to save configuration.");
+        }
+        files = files.filter((file) => file.startsWith("representation-meta"));
+        for (const file of files) {
+            const filePath = path_1.default.join(configDir, file);
+            const content = fs_1.default.readFileSync(filePath, "utf-8");
+            const config = JSON.parse(content);
+            if (config.package && config.package.uri === uri) {
+                // Match found, update this file
+                configFileFound = true;
+                configFilename = file;
+                break;
+            }
+        }
+        const newConfig = {
+            package: {
+                name: name,
+                uri: uri,
+                elements: elements,
+            },
+        };
+        if (configFileFound) {
+            // Update the existing representation meta file
+            fs_1.default.writeFileSync(path_1.default.join(configDir, configFilename), JSON.stringify(newConfig, null, 2));
+            return res
+                .status(200)
+                .send(`Configuration "${name}" updated successfully.`);
+        }
+        else {
+            // Create a new representation meta file
+            const newFilename = `representation-meta-model-${name
+                .replace(/\s+/g, "-")
+                .toLowerCase()}.json`; // Create a filename from the config name
             fs_1.default.writeFileSync(path_1.default.join(configDir, newFilename), JSON.stringify(newConfig, null, 2));
             return res
                 .status(201)

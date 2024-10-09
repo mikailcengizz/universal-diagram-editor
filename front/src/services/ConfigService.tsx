@@ -1,4 +1,5 @@
 import axios from "axios";
+import { MetaModel, RepresentationMetaModel } from "../types/types";
 
 const CONFIG_API_BASE_URL = "http://localhost:8080/config";
 
@@ -32,6 +33,26 @@ class ConfigService {
     return axios.get(CONFIG_API_BASE_URL + "/list", {
       headers,
     });
+  }
+
+  saveMetaConfig(metaModel: MetaModel) {
+    return axios.post(
+      CONFIG_API_BASE_URL + "/save-meta-model-file",
+      metaModel,
+      {
+        headers,
+      }
+    );
+  }
+
+  saveRepresentationConfig(representationMetaModel: RepresentationMetaModel) {
+    return axios.post(
+      CONFIG_API_BASE_URL + "/save-representation-meta-model-file",
+      representationMetaModel,
+      {
+        headers,
+      }
+    );
   }
 }
 

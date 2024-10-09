@@ -45,7 +45,9 @@ function NotationsSlider({
   let notationElementsRepresentation: Representation[] | null = null;
   if (
     selectedRepresentationMetaModel &&
-    selectedRepresentationMetaModel.package.elements.length > 0
+    selectedRepresentationMetaModel.package.elements.length > 0 &&
+    Array.isArray(allNotationElements) &&
+    allNotationElements.length > 0
   ) {
     notationElementsRepresentation = allNotationElements.map(
       (notationElement) =>

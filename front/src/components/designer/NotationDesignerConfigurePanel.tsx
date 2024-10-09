@@ -23,6 +23,7 @@ import {
   Representation,
   RepresentationMetaModel,
   Reference,
+  RepresentationType,
 } from "../../types/types";
 import NotationsSlider from "../ui_elements/NotationsSlider";
 
@@ -58,15 +59,14 @@ const selectsStyleMuiSx = {
 
 // #d3d3d3
 
-const configureTextfieldStyle = "w-1/3 2xl:w-[350px]";
+const configureTextfieldStyle = "w-1/3 2xl:w-[450px]";
 
 const propertyTextfieldStyle = "w-1/6 2xl:w-[200px]";
 
 interface NotationDesignerConfigurePanelProps {
-  selectedNotationType: string;
-  handleNotationTypeChange: (e: SelectChangeEvent<string>) => void;
   handleSelectUri: (selectedUri: string) => void;
   currentNotationElementRepresentation: Representation; // updates automatically
+  setCurrentNotationElementRepresentation: (value: Representation) => void;
   currentNotationElement: Class;
   setCurrentNotationElement: (value: Class) => void;
   handleAddAttribute: () => void;
@@ -84,10 +84,9 @@ interface NotationDesignerConfigurePanelProps {
 }
 
 function NotationDesignerConfigurePanel({
-  selectedNotationType,
-  handleNotationTypeChange,
   handleSelectUri,
   currentNotationElementRepresentation,
+  setCurrentNotationElementRepresentation,
   currentNotationElement,
   setCurrentNotationElement,
   handleAddAttribute,
@@ -113,6 +112,34 @@ function NotationDesignerConfigurePanel({
 
   const isReferenceButtonDisabled = (reference: Reference) => {
     return reference.name === "" || reference.type.$ref === "";
+  };
+
+  const handleNotationNameChange = (newInputValue: string) => {
+    const newNotation = selectedMetaModel.package.elements.find(
+      (n) => n.name === newInputValue
+    );
+    if (newNotation) {
+      setCurrentNotationElement(newNotation);
+    } else {
+      // initialize notation element's representation in representation meta model and establish ref
+      const newNotationElementRepresentation = {
+        name: newInputValue,
+        type: currentNotationElementRepresentation.type || "ClassNode",
+        graphicalRepresentation: [],
+      };
+      const indexRef = selectedRepresentationMetaModel.package.elements.length;
+      setCurrentNotationElementRepresentation(newNotationElementRepresentation);
+
+      setCurrentNotationElement({
+        ...currentNotationElement,
+        name: newInputValue,
+        representation: {
+          $ref: `${
+            selectedMetaModel.package.uri + "-representation"
+          }#/elements/${indexRef}`,
+        },
+      });
+    }
   };
 
   return (
@@ -142,74 +169,49 @@ function NotationDesignerConfigurePanel({
         />
 
         {/* Configuration name */}
-        <Autocomplete
+        <TextField
           className={configureTextfieldStyle}
-          freeSolo
-          options={availableConfigs.map(
-            (availableConfig) => availableConfig?.name
-          )} // List of existing configuration names
+          sx={textFieldsStyleMuiSx}
+          placeholder="Notation Name"
           value={selectedMetaModel.package.name}
-          onInputChange={(event, newInputValue) => {
+          onChange={(e) =>
             setSelectedMetaModel({
               package: {
                 ...selectedMetaModel.package,
-                name: newInputValue,
+                name: e.target.value,
                 elements: [],
               },
-            });
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              className={configureTextfieldStyle}
-              sx={textFieldsStyleMuiSx}
-              placeholder="Notation Name"
-            />
-          )}
+            })
+          }
         />
 
-        {/* Notation type selection */}
-        {/* <FormControl className={configureTextfieldStyle}>
-          <Select
-            value={currentDiagramNode.type || ""}
-            onChange={handleNotationTypeChange}
-            displayEmpty
-          >
-            <MenuItem value="" disabled>
-              Select Notation Type
-            </MenuItem>
-            <MenuItem value="object">Object</MenuItem>
-            <MenuItem value="relationship">Relationship</MenuItem>
-            <MenuItem value="role">Role</MenuItem>
-          </Select>
-        </FormControl> */}
-
-        {/* Notation Name */}
+        {/* Element Name */}
         <h3 className="text-lg mt-2">Element</h3>
         <Autocomplete
           className={configureTextfieldStyle}
           freeSolo
           options={
             (Array.isArray(selectedMetaModel.package.elements) &&
-              selectedMetaModel.package.elements.map(
-                (notation) => notation.name
-              )) ||
+              selectedMetaModel.package.elements.map((notation, index) => ({
+                name: notation.name,
+                key: `${notation.name}-${index}`, // Ensures unique key
+              }))) ||
             []
           } // List of existing notation names
+          getOptionLabel={(option) =>
+            typeof option === "string" ? option : option.name!
+          }
+          renderOption={(props, option) => (
+            <li {...props} key={option.key}>
+              {" "}
+              {/* Use the unique `id` as the key */}
+              {option.name}
+            </li>
+          )}
           value={currentNotationElement?.name}
-          onInputChange={(event, newInputValue) => {
-            const newNotation = selectedMetaModel.package.elements.find(
-              (n) => n.name === newInputValue
-            );
-            if (newNotation) {
-              setCurrentNotationElement(newNotation);
-            } else {
-              setCurrentNotationElement({
-                ...currentNotationElement,
-                name: newInputValue,
-              });
-            }
-          }}
+          onInputChange={(event, newInputValue) =>
+            handleNotationNameChange(newInputValue)
+          }
           renderInput={(params) => (
             <TextField
               {...params}
@@ -219,6 +221,28 @@ function NotationDesignerConfigurePanel({
             />
           )}
         />
+
+        {/* Element type selection */}
+        <FormControl className={configureTextfieldStyle}>
+          <Select
+            sx={selectsStyleMuiSx}
+            value={currentNotationElementRepresentation.type}
+            onChange={(e) => {
+              const value = e.target.value as RepresentationType;
+              setCurrentNotationElementRepresentation({
+                ...currentNotationElementRepresentation,
+                type: value,
+              });
+            }}
+            displayEmpty
+          >
+            <MenuItem value="" disabled style={{ display: "none" }}>
+              Select Notation Type
+            </MenuItem>
+            <MenuItem value="ClassNode">Node</MenuItem>
+            <MenuItem value="ClassEdge">Edge</MenuItem>
+          </Select>
+        </FormControl>
 
         {/* Attributes Section */}
         <h3 className="text-lg mt-2">Element Attributes</h3>
@@ -286,7 +310,11 @@ function NotationDesignerConfigurePanel({
           <Select
             className={propertyTextfieldStyle}
             sx={selectsStyleMuiSx}
-            value={newAttribute.isUnique || ""}
+            value={
+              newAttribute.isUnique !== undefined
+                ? newAttribute.isUnique.toString()
+                : ""
+            }
             onChange={(e) => {
               const value = e.target.value === "true";
               setNewAttribute({ ...newAttribute, isUnique: value });
@@ -360,6 +388,7 @@ function NotationDesignerConfigurePanel({
           />
           <Select
             className={propertyTextfieldStyle}
+            sx={selectsStyleMuiSx}
             value={newReference.type.$ref || ""}
             onChange={(e) =>
               setNewReference({

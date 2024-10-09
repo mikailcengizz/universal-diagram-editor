@@ -1,5 +1,6 @@
 {
   "package": {
+    "name": "Petri Net",
     "uri": "http://www.compute.dtu.dk/sse/models/petri-net-representation",
     "elements": [
       {

@@ -135,6 +135,7 @@ export interface RepresentationMetaModel {
 }
 
 export interface RepresentationPackage {
+  name: string;
   uri: string;
   elements: Representation[];
 }
