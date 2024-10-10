@@ -610,13 +610,23 @@ function NotationDesignerConfigurePanel({
               References
             </MenuItem>
             {Array.isArray(selectedMetaModel.package.elements) &&
-              selectedMetaModel.package.elements.map((element, index) => {
-                return (
-                  <MenuItem key={index} value={index}>
-                    {element.name}
-                  </MenuItem>
-                );
-              })}
+              (selectedMetaModel.package.elements as Class[]).map(
+                (element, index) => {
+                  const elementReferencing = ReferenceHelper.resolveRef(
+                    selectedMetaModel.package,
+                    element.references.find((r) => r.name === "type")?.element
+                      .$ref!
+                  ) as Class;
+
+                  return (
+                    <MenuItem key={index} value={index}>
+                      {element.name}{" "}
+                      {elementReferencing &&
+                        "(target: " + elementReferencing.name + ")"}
+                    </MenuItem>
+                  );
+                }
+              )}
           </Select>
           <IconButton
             onClick={handleAddReference}

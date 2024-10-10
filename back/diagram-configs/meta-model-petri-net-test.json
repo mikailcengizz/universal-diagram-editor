@@ -55,6 +55,88 @@
         "representation": {
           "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/2"
         }
+      },
+      {
+        "name": "Object",
+        "isAbstract": true,
+        "isInterface": false,
+        "attributes": [],
+        "references": [],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/3"
+        }
+      },
+      {
+        "name": "Reference",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [
+          {
+            "name": "name",
+            "attributeType": {
+              "name": "String"
+            },
+            "defaultValue": "objects",
+            "isUnique": false
+          },
+          {
+            "name": "isComposition",
+            "attributeType": {
+              "name": "Boolean"
+            },
+            "defaultValue": "true",
+            "isUnique": false
+          }
+        ],
+        "references": [
+          {
+            "name": "type",
+            "element": {
+              "$ref": "#/elements/3"
+            }
+          },
+          {
+            "name": "opposite",
+            "element": {
+              "$ref": "#/elements/5"
+            }
+          }
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/4"
+        }
+      },
+      {
+        "name": "Reference",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [
+          {
+            "name": "name",
+            "attributeType": {
+              "name": "String"
+            },
+            "defaultValue": "petriNet",
+            "isUnique": false
+          }
+        ],
+        "references": [
+          {
+            "name": "type",
+            "element": {
+              "$ref": "#/elements/2"
+            }
+          },
+          {
+            "name": "opposite",
+            "element": {
+              "$ref": "#/elements/4"
+            }
+          }
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/5"
+        }
       }
     ]
   }

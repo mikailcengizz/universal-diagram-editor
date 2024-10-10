@@ -301,6 +301,22 @@ const NotationDesigner = () => {
     };
     saveRepresentationConfig();
 
+    setCurrentNotationElement({
+      name: "",
+      isAbstract: false,
+      isInterface: false,
+      attributes: [],
+      references: [],
+      representation: {
+        $ref: "",
+      },
+    });
+    setCurrentNotationElementRepresentation({
+      name: "",
+      type: "None",
+      graphicalRepresentation: [],
+    });
+
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
