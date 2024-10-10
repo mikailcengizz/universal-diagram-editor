@@ -18,7 +18,7 @@ interface NotationDesignerDrawPanelProps {
   setSelectedMetaModel: (value: MetaModel) => void;
   selectedRepresentationMetaModel: RepresentationMetaModel;
   setSelectedRepresentationMetaModel: (value: RepresentationMetaModel) => void;
-  saveNotation: () => void;
+  saveNotation: (selectedElementIndex: number) => void;
 }
 
 const gridSize = 10; // Size of the grid squares
@@ -36,7 +36,13 @@ function NotationDesignerDrawPanel({
 }: NotationDesignerDrawPanelProps) {
   return (
     <div className="flex flex-col border-t-[1px] border-gray-200">
-      <PaletteDrawPanel saveNotation={saveNotation} />
+      <PaletteDrawPanel
+        selectedMetaModel={selectedMetaModel}
+        currentNotationElement={currentNotationElement}
+        saveNotation={(selectedElementIndex) =>
+          saveNotation(selectedElementIndex)
+        }
+      />
       <div className="flex flex-col overflow-y-auto">
         <NotationDesignerDrawPanelGrid
           currentNotationElementRepresentation={

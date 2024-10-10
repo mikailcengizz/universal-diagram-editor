@@ -5,6 +5,10 @@ import {
 
 class ReferenceHelper {
   static resolveRef<T>(root: any, ref: string): T | null {
+    if (ref === undefined) {
+      return null;
+    }
+
     if (ref.startsWith("#")) {
       ref = ref.slice(1);
     }

@@ -5,6 +5,7 @@ import SmartButtonIcon from "@mui/icons-material/SmartButton";
 import CircleIcon from "@mui/icons-material/Circle";
 import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";
 import zIndex from "@mui/material/styles/zIndex";
+import { Class, MetaModel } from "../../types/types";
 
 const shapes = [
   {
@@ -71,10 +72,16 @@ const shapes = [
 ];
 
 interface PaletteDrawPanelProps {
-  saveNotation: () => void;
+  selectedMetaModel: MetaModel;
+  currentNotationElement: Class;
+  saveNotation: (selectedElementIndex: number) => void;
 }
 
-function PaletteDrawPanel({ saveNotation }: PaletteDrawPanelProps) {
+function PaletteDrawPanel({
+  selectedMetaModel,
+  currentNotationElement,
+  saveNotation,
+}: PaletteDrawPanelProps) {
   const handleDragStart = (
     event: React.DragEvent<HTMLDivElement>,
     shape: any
@@ -99,7 +106,13 @@ function PaletteDrawPanel({ saveNotation }: PaletteDrawPanelProps) {
         </div>
         <div
           className="bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer float-right hover:opacity-85 trransition duration-300 ease-in-out"
-          onClick={saveNotation}
+          onClick={() =>
+            saveNotation(
+              selectedMetaModel.package.elements.findIndex(
+                (element) => element === currentNotationElement
+              )
+            )
+          }
         >
           <span className="text-sm">Save notation</span>
         </div>

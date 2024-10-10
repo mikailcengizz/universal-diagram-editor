@@ -36,21 +36,6 @@
         "name": "PetriNet",
         "type": "None",
         "graphicalRepresentation": []
-      },
-      {
-        "name": "Reference",
-        "type": "None",
-        "graphicalRepresentation": []
-      },
-      {
-        "name": "Object",
-        "type": "None",
-        "graphicalRepresentation": []
-      },
-      {
-        "name": "Reference",
-        "type": "None",
-        "graphicalRepresentation": []
       }
     ]
   }

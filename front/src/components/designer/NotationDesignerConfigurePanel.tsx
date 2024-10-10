@@ -98,7 +98,7 @@ interface NotationDesignerConfigurePanelProps {
   setSelectedMetaModel: (value: MetaModel) => void;
   selectedRepresentationMetaModel: RepresentationMetaModel;
   setSelectedRepresentationMetaModel: (value: RepresentationMetaModel) => void;
-  saveNotation: () => void;
+  saveNotation: (selectedElementIndex: number) => void;
 }
 
 function NotationDesignerConfigurePanel({
@@ -121,6 +121,8 @@ function NotationDesignerConfigurePanel({
   setSelectedRepresentationMetaModel,
   saveNotation,
 }: NotationDesignerConfigurePanelProps) {
+  const [selectedElementIndex, setSelectedElementIndex] = useState<number>(-1);
+
   const isAttributeButtonDisabled = (attribute: Attribute) => {
     return (
       attribute.name === "" ||
@@ -133,15 +135,15 @@ function NotationDesignerConfigurePanel({
     return reference.name === "" || reference.element.$ref === "";
   };
 
-  const handleNotationNameChange = (newInputValue: any) => {
-    // Check if the newInputValue is an object (selected from the dropdown) or just a string (typed in)
+  const handleNotationNameChange = (selectedIndexOrInput: number | string) => {
+    // Check if the newInputValue is a number (selected from the dropdown) or just a string (typed in)
     const isExistingNotation =
-      typeof newInputValue === "object" && newInputValue !== null;
+      typeof selectedIndexOrInput === "number" && selectedIndexOrInput !== null;
     console.log("isExistingNotation", isExistingNotation);
 
     if (isExistingNotation) {
       // Use the index directly from the Autocomplete's selected option
-      const existingNotationIndex = newInputValue.index; // Get the index of the existing notation
+      const existingNotationIndex = selectedIndexOrInput; // Get the index of the existing notation
       const existingNotation = selectedMetaModel.package.elements[
         existingNotationIndex
       ] as Class;
@@ -154,7 +156,7 @@ function NotationDesignerConfigurePanel({
     } else {
       // If it's a new notation (typed by the user), proceed to initialize a new notation
       const newNotationElementRepresentation: Representation = {
-        name: newInputValue,
+        name: selectedIndexOrInput,
         type: "None",
         graphicalRepresentation: [],
       };
@@ -171,7 +173,7 @@ function NotationDesignerConfigurePanel({
         isInterface: false,
         attributes: [],
         references: [],
-        name: newInputValue, // Set the name as the typed value
+        name: selectedIndexOrInput, // Set the name as the typed value
         representation: {
           $ref: `${selectedMetaModel.package.uri}-representation#/elements/${indexRef}`,
         },
@@ -281,7 +283,7 @@ function NotationDesignerConfigurePanel({
                   }
 
                   return {
-                    name: notation.name, // Displayed name in the dropdown
+                    label: notation.name, // Displayed name in the dropdown
                     referencing: notationReferencing
                       ? notationReferencing.name
                       : "", // Display additional reference info
@@ -293,22 +295,29 @@ function NotationDesignerConfigurePanel({
             []
           } // List of existing notation names
           getOptionLabel={(option) =>
-            typeof option === "string" ? option : option.name!
+            typeof option === "string" ? option : option.label!
           }
           renderOption={(props, option) => (
             <li {...props} key={option.key}>
-              {option.name}{" "}
+              {option.label}{" "}
               {option.referencing !== "" &&
                 "(target: " + option.referencing + ")"}
             </li>
           )}
-          value={currentNotationElement?.name}
+          value={currentNotationElement ? currentNotationElement.name : ""}
           onInputChange={(event, newInputValue) => {
             if (newInputValue) {
               handleNotationNameChange(newInputValue);
             }
           }}
-          onChange={(event, newValue) => handleNotationNameChange(newValue)} // handle change on select
+          onChange={(event, newValue) => {
+            const index =
+              typeof newValue === "string" ? newValue : newValue?.index!;
+            if (typeof index === "number") {
+              setSelectedElementIndex(index);
+            }
+            handleNotationNameChange(index);
+          }} // handle change on select
           renderInput={(params) => (
             <TextField
               {...params}
@@ -440,9 +449,9 @@ function NotationDesignerConfigurePanel({
                       onClick={() =>
                         setCurrentNotationElement({
                           ...currentNotationElement,
-                          /* properties: (
-                              selectedMetaModel.package.elements[0] as Class
-                            ).attributes!.filter((_, i) => i !== index), */
+                          attributes: currentNotationElement.attributes!.filter(
+                            (_, i) => i !== index
+                          ),
                         })
                       }
                     >
@@ -464,10 +473,9 @@ function NotationDesignerConfigurePanel({
               setNewAttribute({ ...newAttribute, name: e.target.value })
             }
           />
-          <TextField
+          <Select
             className={propertyTextfieldStyle}
-            sx={textFieldsStyleMuiSx}
-            placeholder="Data Type"
+            sx={selectsStyleMuiSx}
             value={newAttribute.attributeType.name}
             onChange={(e) =>
               setNewAttribute({
@@ -475,7 +483,15 @@ function NotationDesignerConfigurePanel({
                 attributeType: { name: e.target.value },
               })
             }
-          />
+            displayEmpty
+          >
+            <MenuItem value="" disabled style={{ display: "none" }}>
+              Data Type
+            </MenuItem>
+            <MenuItem value="String">String</MenuItem>
+            <MenuItem value="Integer">Integer</MenuItem>
+            <MenuItem value="Boolean">Boolean</MenuItem>
+          </Select>
           <TextField
             className={propertyTextfieldStyle}
             sx={textFieldsStyleMuiSx}
@@ -528,9 +544,6 @@ function NotationDesignerConfigurePanel({
             <List style={listStyle}>
               {currentNotationElement.references!.map((prop, index) => {
                 const reference = prop as Reference;
-                console.log("prop", prop);
-                console.log("reference", reference);
-                console.log("selectedMetaModel", selectedMetaModel);
                 return (
                   <ListItem key={index} style={listItemsStyle}>
                     <ListItemText
@@ -905,7 +918,7 @@ function NotationDesignerConfigurePanel({
 
         {/* Save button */}
         <button
-          onClick={saveNotation}
+          onClick={() => saveNotation(selectedElementIndex)}
           className="bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer hover:opacity-85 trransition duration-300 ease-in-out float-left mt-4"
         >
           <span className="text-[16px]">Save Notation</span>

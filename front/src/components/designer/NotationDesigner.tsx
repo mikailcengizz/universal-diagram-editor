@@ -217,22 +217,17 @@ const NotationDesigner = () => {
     });
   };
 
-  const saveNotation = () => {
+  const saveNotation = (selectedElementIndex: number) => {
+    console.log("currentNotationElement", currentNotationElement);
+    console.log("updatedElements", selectedMetaModel.package.elements);
+    console.log("selectedElementIndex", selectedElementIndex);
     // Save in the frontend
     const updatedElements = [...selectedMetaModel.package.elements];
 
-    // Make sure the current notation is also in the updated elements
-    const currentNotationElementIndex = updatedElements.indexOf(
-      currentNotationElement
-    );
-
-    if (
-      currentNotationElementIndex === -1 &&
-      currentNotationElement.name !== ""
-    ) {
+    if (selectedElementIndex === -1 && currentNotationElement.name !== "") {
       updatedElements.push(currentNotationElement);
     } else {
-      updatedElements[currentNotationElementIndex] = currentNotationElement;
+      updatedElements[selectedElementIndex] = currentNotationElement;
     }
 
     const updatedMetaModel = {
@@ -266,16 +261,10 @@ const NotationDesigner = () => {
       ...selectedRepresentationMetaModel.package.elements,
     ];
 
-    // Make sure the current notation representation is also in the updated elements
-    const currentNotationElementRepresentationIndex =
-      updatedRepresentationElements.indexOf(
-        currentNotationElementRepresentation
-      );
-
-    if (currentNotationElementRepresentationIndex === -1) {
+    if (selectedElementIndex === -1 && currentNotationElement.name !== "") {
       updatedRepresentationElements.push(currentNotationElementRepresentation);
     } else {
-      updatedRepresentationElements[currentNotationElementRepresentationIndex] =
+      updatedRepresentationElements[selectedElementIndex] =
         currentNotationElementRepresentation;
     }
 
@@ -384,7 +373,9 @@ const NotationDesigner = () => {
           setSelectedRepresentationMetaModel={
             setSelectedRepresentationMetaModel
           }
-          saveNotation={saveNotation}
+          saveNotation={(selectedElementIndex) =>
+            saveNotation(selectedElementIndex)
+          }
         />
       ) : (
         <NotationDesignerDrawPanel
