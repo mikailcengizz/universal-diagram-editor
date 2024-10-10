@@ -32,10 +32,6 @@ const metaRepresentationInstanceModelReducer = (
   switch (action.type) {
     case UPDATE_REPRESENTATION_INSTANCE_MODEL:
       const updatedModel = action.payload;
-      console.log(
-        "saving representation instance model in local storage",
-        updatedModel
-      );
       // Save the entire model to localStorage
       localStorage.setItem(
         "representationInstanceModel",

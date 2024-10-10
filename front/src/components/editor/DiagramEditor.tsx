@@ -56,6 +56,7 @@ const edgeTypes = {
 
 interface DiagramEditorProps {
   selectedMetaModelURI: string;
+  showGrid: boolean;
   diagramAreaRef: React.RefObject<HTMLDivElement>;
   nodes: Node[];
   setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
@@ -65,6 +66,7 @@ interface DiagramEditorProps {
 
 const DiagramEditor = ({
   selectedMetaModelURI,
+  showGrid,
   diagramAreaRef,
   nodes,
   setNodes,
@@ -80,6 +82,8 @@ const DiagramEditor = ({
   );
   selectedMetaModelURI =
     localStorage.getItem("selectedMetaModel") || selectedMetaModelURI;
+
+  console.log("showGrid", showGrid);
 
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedMetaModel, setSelectedMetaModel] = useState<MetaModel>({
@@ -103,6 +107,7 @@ const DiagramEditor = ({
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null); // Store the selected edge ID
 
   useEffect(() => {
+    console.log("Selected meta model URI:", selectedMetaModelURI);
     if (selectedMetaModelURI) {
       const fetchMetaConfig = async () => {
         try {
@@ -814,13 +819,14 @@ const DiagramEditor = ({
               onConnect={onConnect}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
-              onLoad={onLoad}
+              onReactFlowLoad={onLoad}
               onDrop={onDrop}
               onDragOver={onDragOver}
               nodeTypes={nodeTypes}
               edgeTypes={edgeTypes}
               snapToGrid={true}
               snapGrid={[15, 15]}
+              showGrid={showGrid}
             />
           </div>
         </div>

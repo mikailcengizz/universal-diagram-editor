@@ -13,6 +13,8 @@ import { updateSelectedMetaModel } from "../../redux/actions/selectedConfigActio
 
 interface SubHeaderProps {
   onSelectConfig: (configURI: string) => void;
+  showGrid: boolean;
+  setShowGrid: (value: boolean) => void;
   diagramAreaRef: React.RefObject<HTMLDivElement>;
   nodes: ReactFlowNode[];
   edges: Edge[];
@@ -20,6 +22,8 @@ interface SubHeaderProps {
 
 function SubHeader({
   onSelectConfig,
+  showGrid,
+  setShowGrid,
   diagramAreaRef,
   nodes,
   edges,
@@ -111,6 +115,30 @@ function SubHeader({
 
     dispatch(updateSelectedMetaModel(null));
     onSelectConfig("");
+  };
+
+  const handleDiagramTypeSelect = (configURI: string) => {
+    setDropdownVisibleDiagramType(false);
+    onSelectConfig(configURI);
+    dispatch(updateSelectedMetaModel(configURI));
+
+    // Clear the diagram instance
+    dispatch(
+      updateInstanceModel({
+        package: {
+          uri: "",
+          objects: [],
+        },
+      })
+    );
+    dispatch(
+      updateRepresentationInstanceModel({
+        package: {
+          uri: "",
+          objects: [],
+        },
+      })
+    );
   };
 
   const onSaveDiagramHandler = () => {
@@ -290,10 +318,7 @@ function SubHeader({
                 <div
                   key={index}
                   className={dropdownItemCSS}
-                  onClick={() => {
-                    onSelectConfig(config.uri);
-                    setDropdownVisibleDiagramType(false);
-                  }}
+                  onClick={() => handleDiagramTypeSelect(config.uri)}
                 >
                   {config.name ? config.name : "Untitled"}
                 </div>
@@ -306,7 +331,15 @@ function SubHeader({
         {dropdownVisibleDisplay && (
           <div className="absolute top-0 left-[16.5rem] w-48 bg-white border border-gray-200 rounded shadow-lg">
             <div className="py-2">
-              <div className={dropdownItemCSS}>Grid</div>
+              <div
+                className={dropdownItemCSS}
+                onClick={() => {
+                  setShowGrid(!showGrid);
+                  setDropdownVisibleDisplay(false);
+                }}
+              >
+                Grid
+              </div>
               <div className={dropdownItemCSS}>Fullscreen</div>
             </div>
           </div>

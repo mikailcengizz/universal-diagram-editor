@@ -135,8 +135,9 @@ const PaletteEditorPanel = ({
                   const notationElementRepresentation =
                     notationElementsRepresentation![index];
                   return (
-                    notationElementRepresentation!.type === "ClassNode" &&
-                    notationElementRepresentation!.graphicalRepresentation
+                    notationElementRepresentation &&
+                    notationElementRepresentation.type === "ClassNode" &&
+                    notationElementRepresentation.graphicalRepresentation
                       ?.length! > 0
                   );
                 })
@@ -166,7 +167,10 @@ const PaletteEditorPanel = ({
                 .filter((notationElement, index) => {
                   const notationElementRepresentation =
                     notationElementsRepresentation![index];
-                  return notationElementRepresentation!.type === "ClassEdge";
+                  return (
+                    notationElementRepresentation &&
+                    notationElementRepresentation.type === "ClassEdge"
+                  );
                 })
                 .map((notationElement: Class, index) => (
                   <div

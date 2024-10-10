@@ -27,7 +27,7 @@ class ModelHelperFunctions {
 
     // Ensure we're dealing with the correct model URI
     if (modelUri !== representationInstanceModel.package.uri) {
-      console.error("Model URI does not match the selected meta model");
+      //console.error("Model URI does not match the selected meta model");
       return null;
     }
 
@@ -54,12 +54,12 @@ class ModelHelperFunctions {
 
     // Ensure we're dealing with the correct model URI
     if (modelUri !== representationMetaModel.package.uri) {
-      console.error("Model URI does not match the selected meta model");
+      /* console.error("Model URI does not match the selected meta model");
       console.error("Model URI:", modelUri);
       console.error(
         "Selected meta model URI:",
         representationMetaModel.package.uri
-      );
+      ); */
       return null;
     }
 
@@ -87,7 +87,7 @@ class ModelHelperFunctions {
 
     // Ensure we're dealing with the correct model URI
     if (modelUri !== representationInstanceModel.package.uri) {
-      console.error("Model URI does not match the selected meta model");
+      //console.error("Model URI does not match the selected meta model");
       return null;
     }
 

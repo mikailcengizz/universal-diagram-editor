@@ -1,19 +1,45 @@
-import { Background, Controls, useReactFlow, ReactFlow } from "@xyflow/react";
+import {
+  Background,
+  Controls,
+  useReactFlow,
+  ReactFlow,
+  Edge,
+  ReactFlowInstance,
+  Node,
+  ReactFlowProps,
+} from "@xyflow/react";
 import { useEffect } from "react";
 
-const ReactFlowWithInstance = (props: any) => {
-  const reactFlowInstance = useReactFlow();
+// Define the props type for the ReactFlowWithInstance component, extending ReactFlowProps
+interface ReactFlowWithInstanceProps<
+  NodeType extends Node = Node,
+  EdgeType extends Edge = Edge
+> extends Omit<ReactFlowProps<NodeType, EdgeType>, "onLoad"> {
+  onReactFlowLoad?: (instance: ReactFlowInstance<NodeType, EdgeType>) => void; // Rename the prop here
+  showGrid?: boolean;
+}
+
+// Create the component using the props type with generics
+const ReactFlowWithInstance = <
+  NodeType extends Node = Node,
+  EdgeType extends Edge = Edge
+>(
+  props: ReactFlowWithInstanceProps<NodeType, EdgeType> &
+    React.RefAttributes<HTMLDivElement>
+) => {
+  const { showGrid, ...restProps } = props;
+  const reactFlowInstance = useReactFlow<NodeType, EdgeType>();
 
   useEffect(() => {
     if (reactFlowInstance) {
-      props.onLoad?.(reactFlowInstance); // ensure the onLoad callback is called with the instance
+      restProps.onReactFlowLoad?.(reactFlowInstance); // Call the renamed prop with the instance
     }
-  }, [reactFlowInstance, props]);
+  }, [reactFlowInstance, restProps]);
 
   return (
-    <ReactFlow {...props}>
+    <ReactFlow {...restProps}>
       <Controls />
-      <Background color="#aaa" gap={16} />
+      {showGrid && <Background color="#aaa" gap={16} />}
     </ReactFlow>
   );
 };
