@@ -44,7 +44,7 @@ import { updateSelectedMetaModel } from "../../redux/actions/selectedConfigActio
 import { v4 as uuidv4 } from "uuid"; // Import UUID generator
 import ReferenceHelper from "../helpers/ReferenceHelper";
 import ModelHelperFunctions from "../helpers/ModelHelperFunctions";
-import OnNodesChangeHelper from "../helpers/OnNodesChangeHelper";
+import OnNodesChangeHelper from "../helpers/react-flow-helpers/OnNodesChangeHelper";
 
 const nodeTypes = {
   ClassNode: CombineObjectShapesNode,
@@ -758,40 +758,6 @@ const DiagramEditor = ({
     ]
   );
 
-  const importFromXMI = async (xmiFile: File) => {
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const xmiData = event.target?.result as string;
-      const result = await parseStringPromise(xmiData);
-      const importedNodes: Node[] = result.XMI["UML:Model"][0][
-        "UML:Class"
-      ]?.map((cls: any, index: number) => ({
-        id: `node-${index}`,
-        type: cls.$.type,
-        data: {
-          label: cls.$.name,
-          sections: cls["Compartment"]?.map((compartment: any) => {
-            return { name: compartment.$.name, default: compartment.$.default };
-          }),
-        },
-        position: {
-          x: parseFloat(cls.Position[0].$.x),
-          y: parseFloat(cls.Position[0].$.y),
-        },
-      }));
-      const importedEdges: Edge[] = result.XMI["UML:Model"][0][
-        "UML:Association"
-      ]?.map((assoc: any, index: number) => ({
-        id: `edge-${index}`,
-        source: assoc.$.source,
-        target: assoc.$.target,
-      }));
-      setNodes(importedNodes);
-      setEdges(importedEdges);
-    };
-    reader.readAsText(xmiFile);
-  };
-
   return (
     <div className="flex h-full bg-white">
       <ReactFlowProvider>
@@ -851,21 +817,6 @@ const DiagramEditor = ({
           }}
         />
       )}
-
-      <div>
-        <h3 className="font-bold">Import from XMI</h3>
-        <input
-          type="file"
-          accept=".xmi"
-          alt="Import from XMI"
-          placeholder="Import from XMI"
-          onChange={(e) => {
-            if (e.target.files) {
-              importFromXMI(e.target.files[0]);
-            }
-          }}
-        />
-      </div>
     </div>
   );
 };

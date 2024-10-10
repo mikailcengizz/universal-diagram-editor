@@ -4,10 +4,10 @@ import {
   InstanceModel,
   Position,
   RepresentationInstanceModel,
-} from "../../types/types";
-import { updateInstanceModel } from "../../redux/actions/objectInstanceModelActions";
-import { updateRepresentationInstanceModel } from "../../redux/actions/representationInstanceModelActions";
-import ModelHelperFunctions from "./ModelHelperFunctions";
+} from "../../../types/types";
+import { updateInstanceModel } from "../../../redux/actions/objectInstanceModelActions";
+import { updateRepresentationInstanceModel } from "../../../redux/actions/representationInstanceModelActions";
+import ModelHelperFunctions from "../ModelHelperFunctions";
 
 class OnNodesChangeHelper {
   static removeNode(

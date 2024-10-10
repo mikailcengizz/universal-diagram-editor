@@ -119,7 +119,7 @@ const PaletteEditorPanel = ({
     <aside
       style={{
         padding: "10px",
-        width: "19%",
+        width: "17%",
         height: "100vh",
         backgroundColor: "#f4f4f4",
         borderRight: "1px solid #ddd",

@@ -171,6 +171,16 @@
         "representation": {
           "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/7"
         }
+      },
+      {
+        "name": "Place",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [],
+        "references": [],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/8"
+        }
       }
     ]
   }
