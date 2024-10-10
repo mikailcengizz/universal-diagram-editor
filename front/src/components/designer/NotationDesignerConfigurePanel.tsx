@@ -1,4 +1,5 @@
 import {
+  Alert,
   Autocomplete,
   Checkbox,
   FormControl,
@@ -31,6 +32,7 @@ import {
 import NotationsSlider from "../ui_elements/NotationsSlider";
 import ReferenceHelper from "../helpers/ReferenceHelper";
 import ModelHelperFunctions from "../helpers/ModelHelperFunctions";
+import CheckIcon from "@mui/icons-material/Check";
 
 var notationsSliderSettings = {
   infinite: true,
@@ -76,7 +78,7 @@ const configureTextfieldStyle = "w-1/3 2xl:w-[450px]";
 
 const propertyTextfieldStyle = "w-1/6 2xl:w-[200px]";
 
-const seperationBorder = "border-black border-b-[2px] w-1/3 2xl:w-[450px]";
+const seperationBorder = "border-[#1B1B20] border-b-[2px] w-1/3 2xl:w-[450px]";
 
 interface NotationDesignerConfigurePanelProps {
   availableConfigs: ConfigListItem[];
@@ -531,7 +533,7 @@ function NotationDesignerConfigurePanel({
           <Autocomplete
             className={propertyTextfieldStyle}
             freeSolo
-            options={["superType", "type", "opposite"]} // List of existing notation names
+            options={["superType", "type", "opposite", "reference"]} // List of existing notation names
             value={newReference.name}
             onInputChange={(event, newInputValue) => {
               setNewReference({ ...newReference, name: newInputValue });
@@ -849,12 +851,16 @@ function NotationDesignerConfigurePanel({
           })} */}
 
         <div className="relative max-w-xl">
-          <h3 className="text-lg font-bold mt-8">Current Notations</h3>
-          <input
+          <div className={"border-[#1B1B20] border-b-[2px] w-full mt-2"}>
+            <h3 className="text-lg text-white bg-[#1B1B20] w-fit px-3 py-1 rounded-t-sm">
+              Current notation elements
+            </h3>
+          </div>
+          {/* <input
             type="text"
             className="border-[1px] border-solid border-[#C8C8C8] rounded-md w-60 h-[38px] px-[16px] py-2 text-[#595959]"
             placeholder="Search..."
-          />
+          /> */}
           <NotationsSlider
             settings={notationsSliderSettings}
             selectedMetaModel={selectedMetaModel}

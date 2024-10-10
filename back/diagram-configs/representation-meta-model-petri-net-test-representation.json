@@ -12,6 +12,21 @@
         "name": "Node",
         "type": "None",
         "graphicalRepresentation": []
+      },
+      {
+        "name": "PetriNet",
+        "type": "None",
+        "graphicalRepresentation": []
+      },
+      {
+        "name": "Reference",
+        "type": "None",
+        "graphicalRepresentation": []
+      },
+      {
+        "name": "",
+        "type": "None",
+        "graphicalRepresentation": []
       }
     ]
   }

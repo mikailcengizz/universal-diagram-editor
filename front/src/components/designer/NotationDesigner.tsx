@@ -14,6 +14,7 @@ import {
   Representation,
   Reference,
 } from "../../types/types";
+import AlertWithFade from "../ui_elements/AlertWithFade";
 
 const NotationDesigner = () => {
   const [availableConfigs, setAvailableConfigs] = useState<ConfigListItem[]>(
@@ -71,6 +72,11 @@ const NotationDesigner = () => {
   const [isConfigurePanelOpen, setIsConfigurePanelOpen] =
     useState<boolean>(true);
   const [isButtonVisible, setIsButtonVisible] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
+    "success"
+  );
 
   useEffect(() => {
     // Fetch available configurations from the server
@@ -244,7 +250,13 @@ const NotationDesigner = () => {
     const saveConfig = async () => {
       try {
         await configService.saveMetaConfig(updatedMetaModel);
+        setAlertMessage("Your notation was saved successfully!");
+        setAlertSeverity("success");
       } catch (error) {
+        setAlertMessage(
+          "Failed to save notation. Please try again or contact support."
+        );
+        setAlertSeverity("error");
         console.error("Error saving configuration:", error);
       }
     };
@@ -288,11 +300,22 @@ const NotationDesigner = () => {
         await configService.saveRepresentationConfig(
           updatedRepresentationMetaModel
         );
+        setAlertMessage("Your notation was saved successfully!");
+        setAlertSeverity("success");
       } catch (error) {
+        setAlertMessage(
+          "Failed to save notation's representation. Please try again."
+        );
+        setAlertSeverity("error");
         console.error("Error saving representation configuration:", error);
       }
     };
     saveRepresentationConfig();
+
+    setShowAlert(true);
+    setTimeout(() => {
+      setShowAlert(false);
+    }, 3000); // Alert will fade out after 3 seconds
   };
 
   const handleDeleteConfig = (uri: string) => {
@@ -380,6 +403,12 @@ const NotationDesigner = () => {
           saveNotation={saveNotation}
         />
       )}
+
+      <AlertWithFade
+        message={alertMessage}
+        showAlert={showAlert}
+        severity={alertSeverity}
+      />
     </div>
   );
 };

@@ -111,7 +111,9 @@ router.post("/save-meta-model-file", (req, res) => {
         }
         else {
             // Create a new meta file
-            const newFilename = `meta-model-${name.replace(/\s+/g, "-").toLowerCase()}.json`; // Create a filename from the config name
+            const newFilename = `meta-model-${name
+                .replace(/\s+/g, "-")
+                .toLowerCase()}.json`; // Create a filename from the config name
             fs_1.default.writeFileSync(path_1.default.join(configDir, newFilename), JSON.stringify(newConfig, null, 2));
             return res
                 .status(201)
@@ -121,7 +123,8 @@ router.post("/save-meta-model-file", (req, res) => {
 });
 // Save representation meta model file by type or update an existing one by type
 router.post("/save-representation-meta-model-file", (req, res) => {
-    const { name, uri, elements } = req.body.package;
+    const { name, uri, elements } = req.body
+        .package;
     if (!name || !uri || !elements) {
         return res.status(400).send("Configuration uri or elements are missing.");
     }
@@ -181,7 +184,11 @@ router.get("/list", (req, res) => {
                 const content = fs_1.default.readFileSync(`${configDir}/${file}`, "utf-8");
                 const config = JSON.parse(content);
                 if (config.package && config.package.name) {
-                    return { filename: file, name: config.package.name, uri: config.package.uri };
+                    return {
+                        filename: file,
+                        name: config.package.name,
+                        uri: config.package.uri,
+                    };
                 }
             }
         });
@@ -211,9 +218,19 @@ router.delete("/delete-config/:uri", (req, res) => {
             const content = fs_1.default.readFileSync(filePath, "utf-8");
             const config = JSON.parse(content);
             // Check if the 'name' field in the config matches the requested name
-            if (config.package && config.package.uri === requestedUri) {
-                fs_1.default.unlinkSync(filePath);
-                return res.status(200).send("Configuration deleted successfully: " + requestedUri);
+            if (config.package) {
+                if (config.package.uri === requestedUri) {
+                    fs_1.default.unlinkSync(filePath);
+                    return res
+                        .status(200)
+                        .send("Configuration deleted successfully: " + requestedUri);
+                }
+                else if (config.package.uri === requestedUri + "-representation") {
+                    fs_1.default.unlinkSync(filePath);
+                    return res
+                        .status(200)
+                        .send("Configuration deleted successfully: " + requestedUri);
+                }
             }
         }
         // If no config is found with the matching name

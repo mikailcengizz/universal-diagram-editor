@@ -123,7 +123,10 @@ function NotationsSlider({
         <p>Loading...</p>
       ) : (
         notationElementsRepresentation && (
-          <Slider {...updatedSettings} className="mt-2">
+          <Slider
+            {...updatedSettings}
+            className="mt-2 border-[1px] border-[#d3d3d3] rounded-md"
+          >
             {allNotationElements && allNotationElements.length > 0 ? (
               allNotationElements.map((notationElement, index) => {
                 const representation = notationElementsRepresentation![index];

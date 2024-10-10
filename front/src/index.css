@@ -20,11 +20,15 @@
   color: black !important;
 }
 .slick-next {
+  background-color: #fff !important;
   right: -10px !important;
+  padding-top: 2px !important;
   z-index: 1;
 }
 .slick-prev {
+  background-color: #fff !important;
   left: -10px !important;
+  padding-top: 2px !important;
   z-index: 1;
 }
 #configure-notation-input {

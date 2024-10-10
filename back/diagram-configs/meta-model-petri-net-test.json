@@ -38,6 +38,66 @@
         "representation": {
           "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/1"
         }
+      },
+      {
+        "name": "PetriNet",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [],
+        "references": [
+          {
+            "name": "reference",
+            "element": {
+              "$ref": "#/elements/3"
+            }
+          }
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/2"
+        }
+      },
+      {
+        "name": "Reference",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [
+          {
+            "name": "name",
+            "attributeType": {
+              "name": "String"
+            },
+            "defaultValue": "objects",
+            "isUnique": false
+          },
+          {
+            "name": "isComposition",
+            "defaultValue": "true",
+            "attributeType": {
+              "name": "Boolean"
+            },
+            "isUnique": false
+          },
+          {
+            "name": "lowerBound",
+            "defaultValue": "0",
+            "attributeType": {
+              "name": "Integer"
+            },
+            "isUnique": false
+          },
+          {
+            "name": "upperBound",
+            "defaultValue": "infinite",
+            "attributeType": {
+              "name": "Integer"
+            },
+            "isUnique": false
+          }
+        ],
+        "references": [],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/3"
+        }
       }
     ]
   }
