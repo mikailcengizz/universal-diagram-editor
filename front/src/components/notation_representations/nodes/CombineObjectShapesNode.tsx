@@ -44,6 +44,13 @@ const CombineObjectShapesNode = ({
   );
 
   const [data, setData] = useState<DiagramNodeData>({ ...initialData });
+  const [isNodeModalOpen, setIsNodeModalOpen] = useState(false);
+  const [isNodeAttributeModalOpen, setIsNodeAttributeModalOpen] =
+    useState(false); // second layer modal for node attributes
+  const [isNodeOperationModalOpen, setIsNodeOperationModalOpen] =
+    useState(false); // second layer modal for node operations
+  const [isAddParameterModalOpen, setIsAddParameterModalOpen] = useState(false); // third layer modal for adding parameters to operations
+  const [modifiyingAttribute, setModifyingAttribute] = useState<Attribute>();
   const isNotationSlider = data.isNotationSlider || false;
   const isPalette = data.instanceObject === undefined && !isNotationSlider;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -62,6 +69,29 @@ const CombineObjectShapesNode = ({
       : representationInstanceModel.package,
     jsonPointer
   )! as Representation | RepresentationInstanceObject;
+
+  const validGraphicalItems = representation.graphicalRepresentation!.filter(
+    (item) =>
+      (!isPalette || (isPalette && item.shape !== "connector")) &&
+      (!isNotationSlider || (isNotationSlider && item.shape !== "connector")) &&
+      item.position &&
+      item.position.x !== undefined &&
+      item.position.y !== undefined
+  ); // Only filter out connectors if isPalette is true
+  // sometimes the x and y are undefined when the notation is on the canvas
+  let adjustedRepresentation: NotationRepresentationItem[] =
+    validGraphicalItems;
+
+  let maxX = Math.max(
+    ...validGraphicalItems.map(
+      (item) => item.position.x + (item.position.extent?.width || 100)
+    )
+  );
+  let maxY = Math.max(
+    ...validGraphicalItems.map(
+      (item) => item.position.y + (item.position.extent?.height || 100)
+    )
+  );
 
   // Calculate the max width and max height when node is rendered on the canvas
   // to know our selection area when moving the node around
@@ -87,13 +117,6 @@ const CombineObjectShapesNode = ({
     width: maxWidth,
     height: maxHeight,
   });
-  const [isNodeModalOpen, setIsNodeModalOpen] = useState(false);
-  const [isNodeAttributeModalOpen, setIsNodeAttributeModalOpen] =
-    useState(false); // second layer modal for node attributes
-  const [isNodeOperationModalOpen, setIsNodeOperationModalOpen] =
-    useState(false); // second layer modal for node operations
-  const [isAddParameterModalOpen, setIsAddParameterModalOpen] = useState(false); // third layer modal for adding parameters to operations
-  const [modifiyingAttribute, setModifyingAttribute] = useState<Attribute>();
 
   /* const [modifyingOperation, setModifyingOperation] = useState<EOperation>({
     name: "",
@@ -105,122 +128,84 @@ const CombineObjectShapesNode = ({
     eType: undefined,
   }); */
 
-  let adjustedRepresentation: NotationRepresentationItem[] = [];
-  if (representation.graphicalRepresentation!.length > 0) {
-    const validGraphicalItems = representation.graphicalRepresentation!.filter(
-      (item) =>
-        (!isPalette || (isPalette && item.shape !== "connector")) &&
-        (!isNotationSlider ||
-          (isNotationSlider && item.shape !== "connector")) &&
-        item.position &&
-        item.position.x !== undefined &&
-        item.position.y !== undefined
-    ); // Only filter out connectors if isPalette is true
-    // sometimes the x and y are undefined when the notation is on the canvas
+  if (isNotationSlider || isPalette) {
+    // Calculate the minimum x and y coordinates to center the notation in the palette/slider
+    const minX = Math.min(
+      ...validGraphicalItems.map((item) => item.position.x)
+    );
+    const minY = Math.min(
+      ...validGraphicalItems.map((item) => item.position.y)
+    );
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
 
-    // only adjust the representation if there are valid graphical items
-    if (validGraphicalItems.length > 0) {
-      // Calculate the minimum x and y coordinates from the valid graphical items
-      const minX = Math.min(
-        ...validGraphicalItems.map((item) => item.position.x)
-      );
-      const minY = Math.min(
-        ...validGraphicalItems.map((item) => item.position.y)
-      );
-      adjustedRepresentation = validGraphicalItems.map((item) => {
-        let newX = item.position.x - minX;
-        let newY = item.position.y - minY;
+    adjustedRepresentation = validGraphicalItems.map((item) => ({
+      ...item,
+      position: {
+        ...item.position,
+        x: item.position.x - centerX + (isNotationSlider ? 97 / 2 : 105 / 2), // adjust for center in slider
+        y: item.position.y - centerY + (isNotationSlider ? 97 / 2 : 105 / 2),
+      },
+    }));
 
-        if (item.position.x === minX) {
-          newX = 0; // if the x is the minimum, set it to 0 so that it starts from the left
-        }
-        if (item.position.y === minY) {
-          newY = 0; // if the y is the minimum, set it to 0 so that it starts from the top
-        }
+    maxX = Math.max(
+      ...adjustedRepresentation.map(
+        (item) => item.position.x + (item.position.extent?.width || 100)
+      )
+    );
+    maxY = Math.max(
+      ...adjustedRepresentation.map(
+        (item) => item.position.y + (item.position.extent?.height || 100)
+      )
+    );
+  } else {
+    // Calculate the minimum x and y coordinates from the valid graphical items
+    const minX = Math.min(
+      ...validGraphicalItems.map((item) => item.position.x)
+    );
+    const minY = Math.min(
+      ...validGraphicalItems.map((item) => item.position.y)
+    );
+    adjustedRepresentation = validGraphicalItems.map((item) => {
+      let newX = item.position.x - minX;
+      let newY = item.position.y - minY;
 
-        return {
-          ...item,
-          position: {
-            ...item.position,
-            x: newX,
-            y: newY,
-          },
-        };
-      });
-    }
+      if (item.position.x === minX) {
+        newX = 0; // if the x is the minimum, set it to 0 so that it starts from the left
+      }
+      if (item.position.y === minY) {
+        newY = 0; // if the y is the minimum, set it to 0 so that it starts from the top
+      }
+
+      return {
+        ...item,
+        position: {
+          ...item.position,
+          x: newX,
+          y: newY,
+        },
+      };
+    });
   }
 
-  const maxX = Math.max(
-    ...adjustedRepresentation.map(
-      (item) => item.position.x + (item.position.extent?.width || 100)
-    )
-  );
-  const maxY = Math.max(
-    ...adjustedRepresentation.map(
-      (item) => item.position.y + (item.position.extent?.height || 100)
-    )
-  );
-
-  // Set the size constraints for the grid columns
-  const maxGridCellSize = isNotationSlider ? 97 : 54;
-
-  // Calculate the scaling factor to fit the graphical representation into the grid column
   useEffect(() => {
     if (containerRef.current && (isPalette || isNotationSlider)) {
-      const scaleX = maxGridCellSize / maxX;
-      const scaleY = maxGridCellSize / maxY;
-
-      // Choose the smaller scale to fit within the container
+      const scaleX = (isNotationSlider ? 97 : 54) / maxX;
+      const scaleY = (isNotationSlider ? 97 : 54) / maxY;
       const newScale = Math.min(scaleX, scaleY, 1);
-
-      // Set the scale, ensuring it does not exceed the grid cell size
       setScale(newScale);
     }
-  }, [maxX, maxY, isPalette, isNotationSlider]);
 
-  useEffect(() => {
     if (containerRef.current) {
       const { width, height } = containerRef.current.getBoundingClientRect();
-      setContainerSize({ width, height }); // for extending the node when resizing
+      setContainerSize({ width, height });
     }
-
-    // initialize newAttribute with default values of the meta attribute
-    /* if (metaAttribute.eAttributes) {
-      metaAttribute.eAttributes.forEach((attribute) => {
-        if (!modifiyingAttribute[attribute.name as keyof EAttributeInstance]) {
-          setModifyingAttribute({
-            ...modifiyingAttribute,
-            [attribute.name]: attribute.defaultValue,
-          });
-        }
-      });
-    } */
-  }, []);
+  }, [maxX, maxY, isPalette, isNotationSlider]);
 
   const handleResize = (
     event: any,
     { width, height }: { width: number; height: number }
   ) => {
-    // Calculate the aspect ratio of the container
-    const aspectRatio = containerSize.width / containerSize.height;
-
-    // Maintain aspect ratio: calculate the new height based on the aspect ratio and the new width
-    const newWidth = width;
-    const newHeight = newWidth / aspectRatio;
-
-    // Calculate scaling factors based on the new size
-    const scaleX = newWidth / containerSize.width;
-    const scaleY = newHeight / containerSize.height;
-
-    // Update the container size and scale
-    setContainerSize({ width: newWidth, height: newHeight });
-    setScale(scaleX); // Apply scaling uniformly for simplicity
-
-    // Update the container's transform style to apply the new scale
-    if (containerRef.current) {
-      containerRef.current.style.transform = `scale(${scaleX})`;
-    }
-
     // Find the class representation in local storage
     const notationElementRepresentationInstance =
       ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
@@ -229,41 +214,42 @@ const CombineObjectShapesNode = ({
       );
 
     if (notationElementRepresentationInstance) {
-      // Calculate max dimensions of the original graphicalRepresentation items
-      const originalMaxWidth = Math.max(
-        ...notationElementRepresentationInstance.graphicalRepresentation!.map(
-          (item) => item.position.extent?.width || 100
-        )
-      );
-      const originalMaxHeight = Math.max(
-        ...notationElementRepresentationInstance.graphicalRepresentation!.map(
-          (item) => item.position.extent?.height || 100
-        )
-      );
+      // Get the original width and height of the container
+      const originalWidth = containerSize.width;
+      const originalHeight = containerSize.height;
 
-      // Calculate overall scaling factor to maintain aspect ratio based on new width and height
-      const scaleFactorWidth = newWidth / originalMaxWidth;
-      const scaleFactorHeight = newHeight / originalMaxHeight;
+      // Calculate the uniform scaling factor based on the new width and height
+      const scaleX = width / originalWidth;
+      const scaleY = height / originalHeight;
+      const uniformScale = Math.min(scaleX, scaleY);
 
-      // Ensure both X and Y scaling maintain aspect ratio
-      const uniformScaleFactor = Math.min(scaleFactorWidth, scaleFactorHeight);
+      // Update the container size based on the new width and height
+      //setContainerSize({ width, height });
+      setScale(uniformScale); // Set the uniform scaling factor
 
-      // Update the extent (width and height) **and** position (x and y) for **all** items
+      if (containerRef.current) {
+        containerRef.current.style.transform = `scale(${uniformScale})`;
+      }
+
+      // Apply scaling to the graphical elements
       const updatedGraphicalRepresentation =
         notationElementRepresentationInstance.graphicalRepresentation!.map(
           (item) => {
+            // Scale both the position and the extent (size)
             return {
               ...item,
               position: {
                 ...item.position,
-                x: item.position.x * uniformScaleFactor, // Scale position x
-                y: item.position.y * uniformScaleFactor, // Scale position y
-                extent: {
-                  width:
-                    (item.position.extent?.width || 100) * uniformScaleFactor, // Scale width
-                  height:
-                    (item.position.extent?.height || 100) * uniformScaleFactor, // Scale height
-                },
+                x: item.position.x, // Scale position X
+                y: item.position.y, // Scale position Y
+                extent: item.position.extent
+                  ? {
+                      width:
+                        (item.position.extent?.width || 100) * uniformScale, // Scale width
+                      height:
+                        (item.position.extent?.height || 100) * uniformScale, // Scale height
+                    }
+                  : item.position.extent,
               },
             };
           }
@@ -272,7 +258,8 @@ const CombineObjectShapesNode = ({
       const instanceObjectIndex = metaInstanceModel.package.objects.findIndex(
         (obj) => obj.name === data.instanceObject!.name
       );
-      // Update the representation instance model with the updated graphical representation corresponding to the instance object
+
+      // Update the representation instance model with the scaled graphical representation
       const updatedRepresentationInstanceModel: RepresentationInstanceModel = {
         package: {
           ...representationInstanceModel.package,
@@ -440,13 +427,19 @@ const CombineObjectShapesNode = ({
       onDoubleClick={() => setIsNodeModalOpen(true)}
       style={{
         position: "relative",
-        width: isPalette ? "100%" : `${containerSize.width}px`,
-        height: isPalette ? "100%" : `${containerSize.height}px`,
+        width:
+          isPalette || isNotationSlider
+            ? `${maxX}px`
+            : `${containerSize.width}px`,
+        height:
+          isPalette || isNotationSlider
+            ? `${maxY}px`
+            : `${containerSize.height}px`,
         transform: `scale(${scale})`,
         transformOrigin: "top left",
         display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: isNotationSlider ? "center" : "flex-start",
+        alignItems: isNotationSlider ? "center" : "flex-start",
       }}
     >
       {/* Render rectangles in the background */}

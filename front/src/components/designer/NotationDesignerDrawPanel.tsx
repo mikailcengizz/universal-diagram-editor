@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Class,
+  MetaModel,
   NotationRepresentationItem,
   Representation,
   RepresentationMetaModel,
@@ -13,6 +14,8 @@ interface NotationDesignerDrawPanelProps {
   setCurrentNotationElementRepresentation: (value: Representation) => void;
   currentNotationElement: Class;
   setCurrentNotationElement: (value: any) => void;
+  selectedMetaModel: MetaModel;
+  setSelectedMetaModel: (value: MetaModel) => void;
   selectedRepresentationMetaModel: RepresentationMetaModel;
   setSelectedRepresentationMetaModel: (value: RepresentationMetaModel) => void;
   saveNotation: () => void;
@@ -25,12 +28,14 @@ function NotationDesignerDrawPanel({
   setCurrentNotationElementRepresentation,
   currentNotationElement,
   setCurrentNotationElement,
+  selectedMetaModel,
+  setSelectedMetaModel,
   selectedRepresentationMetaModel,
   setSelectedRepresentationMetaModel,
   saveNotation,
 }: NotationDesignerDrawPanelProps) {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col border-t-[1px] border-gray-200">
       <PaletteDrawPanel saveNotation={saveNotation} />
       <div className="flex flex-col overflow-y-auto">
         <NotationDesignerDrawPanelGrid
@@ -42,6 +47,8 @@ function NotationDesignerDrawPanel({
           }
           currentNotationElement={currentNotationElement}
           setCurrentNotationElement={setCurrentNotationElement}
+          selectedMetaModel={selectedMetaModel}
+          setSelectedMetaModel={setSelectedMetaModel}
           selectedRepresentationMetaModel={selectedRepresentationMetaModel}
           setSelectedRepresentationMetaModel={
             setSelectedRepresentationMetaModel

@@ -396,6 +396,8 @@ const NotationDesigner = () => {
           }
           currentNotationElement={currentNotationElement}
           setCurrentNotationElement={setCurrentNotationElement}
+          selectedMetaModel={selectedMetaModel}
+          setSelectedMetaModel={setSelectedMetaModel}
           selectedRepresentationMetaModel={selectedRepresentationMetaModel}
           setSelectedRepresentationMetaModel={
             setSelectedRepresentationMetaModel

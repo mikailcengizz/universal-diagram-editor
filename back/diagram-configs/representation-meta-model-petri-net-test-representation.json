@@ -6,7 +6,26 @@
       {
         "name": "Transition",
         "type": "ClassNode",
-        "graphicalRepresentation": []
+        "graphicalRepresentation": [
+          {
+            "shape": "square",
+            "style": {
+              "backgroundColor": "#f9f9f9",
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "borderStyle": "solid",
+              "zIndex": 1
+            },
+            "position": {
+              "x": 480,
+              "y": 120,
+              "extent": {
+                "width": 100,
+                "height": 100
+              }
+            }
+          }
+        ]
       },
       {
         "name": "Node",

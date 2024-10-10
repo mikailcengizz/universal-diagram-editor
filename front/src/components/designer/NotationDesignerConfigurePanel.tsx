@@ -182,8 +182,8 @@ function NotationDesignerConfigurePanel({
     }
   };
 
-  console.log("new attribute lige nu", newAttribute);
-  console.log("new reference lige nu", newReference);
+  console.log("current notation element lige nu", currentNotationElement);
+  console.log("loaded meta model lige nu", selectedMetaModel);
 
   return (
     <div className="px-12 pb-24">
@@ -493,42 +493,46 @@ function NotationDesignerConfigurePanel({
 
         {/* References section */}
         <h3 className="text-lg mt-2">Element References</h3>
-        {currentNotationElement.references!.length > 0 && (
-          <List style={listStyle}>
-            {currentNotationElement.references!.map((prop, index) => {
-              const reference = prop as Reference;
-              return (
-                <ListItem key={index} style={listItemsStyle}>
-                  <ListItemText
-                    primary={`${reference.name} (${
-                      (
-                        ReferenceHelper.resolveRef(
-                          selectedMetaModel.package,
-                          reference.element.$ref
-                        ) as Class
-                      ).name
-                    })`}
-                  />
-                  <ListItemSecondaryAction>
-                    <IconButton
-                      edge="end"
-                      onClick={() =>
-                        setCurrentNotationElement({
-                          ...currentNotationElement,
-                          /* properties: (
+        {currentNotationElement.references!.length > 0 &&
+          selectedMetaModel.package.elements.length > 0 && (
+            <List style={listStyle}>
+              {currentNotationElement.references!.map((prop, index) => {
+                const reference = prop as Reference;
+                console.log("prop", prop);
+                console.log("reference", reference);
+                console.log("selectedMetaModel", selectedMetaModel);
+                return (
+                  <ListItem key={index} style={listItemsStyle}>
+                    <ListItemText
+                      primary={`${reference.name} (${
+                        (
+                          ReferenceHelper.resolveRef(
+                            selectedMetaModel.package,
+                            reference.element.$ref
+                          ) as Class
+                        ).name
+                      })`}
+                    />
+                    <ListItemSecondaryAction>
+                      <IconButton
+                        edge="end"
+                        onClick={() =>
+                          setCurrentNotationElement({
+                            ...currentNotationElement,
+                            /* properties: (
                               selectedMetaModel.package.elements[0] as Class
                             ).attributes!.filter((_, i) => i !== index), */
-                        })
-                      }
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              );
-            })}
-          </List>
-        )}
+                          })
+                        }
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </ListItemSecondaryAction>
+                  </ListItem>
+                );
+              })}
+            </List>
+          )}
         <div className="flex items-center gap-x-2">
           <Autocomplete
             className={propertyTextfieldStyle}

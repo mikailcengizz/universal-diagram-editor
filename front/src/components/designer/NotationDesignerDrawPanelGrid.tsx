@@ -4,6 +4,7 @@ import {
   Class,
   Representation,
   RepresentationMetaModel,
+  MetaModel,
 } from "../../types/types";
 import ModalDoubleClickSquare from "./components/modals/first_layer/ModalDoubleClickSquare";
 import ModalDoubleClickText from "./components/modals/first_layer/ModalDoubleClickText";
@@ -15,6 +16,8 @@ interface NotationDesignerDrawPanelGridProps {
   setCurrentNotationElementRepresentation: (value: Representation) => void;
   currentNotationElement: Class;
   setCurrentNotationElement: (value: Class) => void;
+  selectedMetaModel: MetaModel;
+  setSelectedMetaModel: (value: MetaModel) => void;
   selectedRepresentationMetaModel: RepresentationMetaModel;
   setSelectedRepresentationMetaModel: (value: RepresentationMetaModel) => void;
   gridSize: number;
@@ -25,6 +28,8 @@ const NotationDesignerDrawPanelGrid = ({
   setCurrentNotationElementRepresentation,
   currentNotationElement,
   setCurrentNotationElement,
+  selectedMetaModel,
+  setSelectedMetaModel,
   selectedRepresentationMetaModel,
   setSelectedRepresentationMetaModel,
   gridSize,
@@ -107,6 +112,8 @@ const NotationDesignerDrawPanelGrid = ({
     selectedElementIndex,
     currentNotationElement,
     setCurrentNotationElement,
+    currentNotationElementRepresentation,
+    setCurrentNotationElementRepresentation,
     gridSize,
   ]);
 
@@ -129,7 +136,16 @@ const NotationDesignerDrawPanelGrid = ({
 
     // If shapeData exists, this means we are adding a new element from the palette
     if (shapeData) {
-      const newElement: NotationRepresentationItem = JSON.parse(shapeData);
+      const representationData: NotationRepresentationItem =
+        JSON.parse(shapeData);
+      const newElement: NotationRepresentationItem = {
+        shape: representationData.shape,
+        style: representationData.style,
+        position: representationData.position,
+        generator: representationData.generator,
+        marker: representationData.marker,
+        text: representationData.text,
+      };
       const extent = newElement.position?.extent || { width: 100, height: 100 };
 
       newElement.position = {
@@ -323,6 +339,8 @@ const NotationDesignerDrawPanelGrid = ({
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseup", onMouseUp);
   };
+
+  console.log("loaded meta model in draw panel", selectedMetaModel);
 
   return (
     <>
