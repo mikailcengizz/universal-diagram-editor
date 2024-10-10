@@ -43,7 +43,12 @@
         "graphicalRepresentation": []
       },
       {
-        "name": "",
+        "name": "Object",
+        "type": "None",
+        "graphicalRepresentation": []
+      },
+      {
+        "name": "Reference",
         "type": "None",
         "graphicalRepresentation": []
       }

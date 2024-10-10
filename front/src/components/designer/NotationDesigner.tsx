@@ -222,8 +222,8 @@ const NotationDesigner = () => {
     const updatedElements = [...selectedMetaModel.package.elements];
 
     // Make sure the current notation is also in the updated elements
-    const currentNotationElementIndex = updatedElements.findIndex(
-      (element) => element.name === currentNotationElement.name
+    const currentNotationElementIndex = updatedElements.indexOf(
+      currentNotationElement
     );
 
     if (
@@ -268,8 +268,8 @@ const NotationDesigner = () => {
 
     // Make sure the current notation representation is also in the updated elements
     const currentNotationElementRepresentationIndex =
-      updatedRepresentationElements.findIndex(
-        (element) => element.name === currentNotationElementRepresentation.name
+      updatedRepresentationElements.indexOf(
+        currentNotationElementRepresentation
       );
 
     if (currentNotationElementRepresentationIndex === -1) {

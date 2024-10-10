@@ -60,43 +60,44 @@
         "name": "Reference",
         "isAbstract": false,
         "isInterface": false,
-        "attributes": [
+        "attributes": [],
+        "references": [
           {
-            "name": "name",
-            "attributeType": {
-              "name": "String"
-            },
-            "defaultValue": "objects",
-            "isUnique": false
-          },
-          {
-            "name": "isComposition",
-            "defaultValue": "true",
-            "attributeType": {
-              "name": "Boolean"
-            },
-            "isUnique": false
-          },
-          {
-            "name": "lowerBound",
-            "defaultValue": "0",
-            "attributeType": {
-              "name": "Integer"
-            },
-            "isUnique": false
-          },
-          {
-            "name": "upperBound",
-            "defaultValue": "infinite",
-            "attributeType": {
-              "name": "Integer"
-            },
-            "isUnique": false
+            "name": "type",
+            "element": {
+              "$ref": "#/elements/2"
+            }
           }
         ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/5"
+        }
+      },
+      {
+        "name": "Object",
+        "isAbstract": true,
+        "isInterface": false,
+        "attributes": [],
         "references": [],
         "representation": {
-          "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/3"
+          "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/5"
+        }
+      },
+      {
+        "name": "Reference",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [],
+        "references": [
+          {
+            "name": "type",
+            "element": {
+              "$ref": "#/elements/4"
+            }
+          }
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/5"
         }
       }
     ]

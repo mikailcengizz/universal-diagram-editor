@@ -133,27 +133,36 @@ function NotationDesignerConfigurePanel({
     return reference.name === "" || reference.element.$ref === "";
   };
 
-  const handleNotationNameChange = (newInputValue: string) => {
-    const existingNotationIndex = selectedMetaModel.package.elements.findIndex(
-      (n) => n.name === newInputValue
-    );
-    if (existingNotationIndex !== -1) {
+  const handleNotationNameChange = (newInputValue: any) => {
+    // Check if the newInputValue is an object (selected from the dropdown) or just a string (typed in)
+    const isExistingNotation =
+      typeof newInputValue === "object" && newInputValue !== null;
+    console.log("isExistingNotation", isExistingNotation);
+
+    if (isExistingNotation) {
+      // Use the index directly from the Autocomplete's selected option
+      const existingNotationIndex = newInputValue.index; // Get the index of the existing notation
       const existingNotation = selectedMetaModel.package.elements[
         existingNotationIndex
       ] as Class;
       const existingNotationRepresentation = selectedRepresentationMetaModel
         .package.elements[existingNotationIndex] as Representation;
 
+      // Update the current notation element and its representation
       setCurrentNotationElement(existingNotation);
       setCurrentNotationElementRepresentation(existingNotationRepresentation);
     } else {
-      // initialize notation element's representation in representation meta model and establish ref
+      // If it's a new notation (typed by the user), proceed to initialize a new notation
       const newNotationElementRepresentation: Representation = {
         name: newInputValue,
         type: "None",
         graphicalRepresentation: [],
       };
+
+      // Add the new element at the end of the representation array
       const indexRef = selectedRepresentationMetaModel.package.elements.length;
+
+      // Update the state with the new notation element and its representation
       setCurrentNotationElementRepresentation(newNotationElementRepresentation);
 
       setCurrentNotationElement({
@@ -162,28 +171,26 @@ function NotationDesignerConfigurePanel({
         isInterface: false,
         attributes: [],
         references: [],
-        name: newInputValue,
+        name: newInputValue, // Set the name as the typed value
         representation: {
-          $ref: `${
-            selectedMetaModel.package.uri + "-representation"
-          }#/elements/${indexRef}`,
+          $ref: `${selectedMetaModel.package.uri}-representation#/elements/${indexRef}`,
         },
       });
+
+      // Reset the new attribute and reference inputs
       setNewAttribute({
         name: "",
         attributeType: { name: "" },
         defaultValue: "",
         isUnique: undefined,
       });
+
       setNewReference({
         name: "",
         element: { $ref: "" },
       });
     }
   };
-
-  console.log("current notation element lige nu", currentNotationElement);
-  console.log("loaded meta model lige nu", selectedMetaModel);
 
   return (
     <div className="px-12 pb-24">
@@ -259,10 +266,30 @@ function NotationDesignerConfigurePanel({
           freeSolo
           options={
             (Array.isArray(selectedMetaModel.package.elements) &&
-              selectedMetaModel.package.elements.map((notation, index) => ({
-                name: notation.name,
-                key: `${notation.name}-${index}`, // Ensures unique key
-              }))) ||
+              (selectedMetaModel.package.elements as Class[]).map(
+                (notation, index) => {
+                  const notationReference = notation.references.find(
+                    (r) => r.name === "type"
+                  )?.element.$ref;
+
+                  let notationReferencing = null;
+                  if (notationReference !== undefined) {
+                    notationReferencing = ReferenceHelper.resolveRef(
+                      selectedMetaModel.package,
+                      notationReference
+                    ) as Class;
+                  }
+
+                  return {
+                    name: notation.name, // Displayed name in the dropdown
+                    referencing: notationReferencing
+                      ? notationReferencing.name
+                      : "", // Display additional reference info
+                    index: index, // Store the index as value
+                    key: `${notation.name}-${index}`, // Ensure unique key
+                  };
+                }
+              )) ||
             []
           } // List of existing notation names
           getOptionLabel={(option) =>
@@ -270,15 +297,18 @@ function NotationDesignerConfigurePanel({
           }
           renderOption={(props, option) => (
             <li {...props} key={option.key}>
-              {" "}
-              {/* Use the unique `id` as the key */}
-              {option.name}
+              {option.name}{" "}
+              {option.referencing !== "" &&
+                "(target: " + option.referencing + ")"}
             </li>
           )}
           value={currentNotationElement?.name}
-          onInputChange={(event, newInputValue) =>
-            handleNotationNameChange(newInputValue)
-          }
+          onInputChange={(event, newInputValue) => {
+            if (newInputValue) {
+              handleNotationNameChange(newInputValue);
+            }
+          }}
+          onChange={(event, newValue) => handleNotationNameChange(newValue)} // handle change on select
           renderInput={(params) => (
             <TextField
               {...params}
@@ -369,9 +399,9 @@ function NotationDesignerConfigurePanel({
         {/* Delete selected notation element */}
         {currentNotationElement.name &&
           selectedMetaModel.package.elements.length > 0 &&
-          selectedMetaModel.package.elements.find(
-            (n) => n.name === currentNotationElement.name
-          ) && (
+          selectedMetaModel.package.elements[
+            selectedMetaModel.package.elements.indexOf(currentNotationElement)
+          ] && (
             <div
               className={`bg-[#9b0f0f] px-4 py-2 w-fit rounded-md items-center flex gap-x-[6px] text-white text-xs cursor-pointer hover:opacity-85 trransition duration-300 ease-in-out float-left`}
               onClick={() =>
