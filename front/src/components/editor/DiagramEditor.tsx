@@ -44,6 +44,7 @@ import { updateSelectedMetaModel } from "../../redux/actions/selectedConfigActio
 import { v4 as uuidv4 } from "uuid"; // Import UUID generator
 import ReferenceHelper from "../helpers/ReferenceHelper";
 import ModelHelperFunctions from "../helpers/ModelHelperFunctions";
+import OnNodesChangeHelper from "../helpers/OnNodesChangeHelper";
 
 const nodeTypes = {
   ClassNode: CombineObjectShapesNode,
@@ -259,13 +260,17 @@ const DiagramEditor = ({
       const returnEdges = instanceModel.package.objects
         // temporary fix for edge nodes, this needs to be done by not having edges in the eClassifiers array
         // but instead in eFeatures array, and then just reference them by id in the eReferences array
-        .filter(
-          (instanceObj) =>
+        .filter((instanceObj) => {
+          const representationInstanceObj =
             ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
               instanceObj,
               representationInstanceModel
-            )!.type === "ClassEdge"
-        )
+            );
+          return (
+            representationInstanceObj &&
+            representationInstanceObj?.type === "ClassEdge"
+          );
+        })
         .map((instanceObj) => {
           const edgeRepresentation =
             ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
@@ -511,98 +516,31 @@ const DiagramEditor = ({
         console.log("Nodes changed:", changes);
         const updatedNodes = applyNodeChanges(changes, nds);
         console.log("Updated nodes:", updatedNodes);
+        console.log("Current nodes:", nds);
 
-        // then apply the changes to the representation instance model
+        // then apply the changes to the instance models
         changes.forEach((change) => {
-          if (change.type === "position" && "id" in change) {
-            const changedNode = updatedNodes.find(
-              (node) => node.id === change.id
-            );
-
-            if (!changedNode) {
-              console.error("Node not found in updated nodes:", change.id);
-              return;
-            }
-
-            const changedNodeData = changedNode?.data as DiagramNodeData;
-
-            console.log("Node changed:", changedNode);
-            console.log("Change:", change);
-            console.log("changed node data:", changedNode?.data);
-            const nodeName = changedNodeData.instanceObject!.name;
-
-            const instanceObjectChanged = instanceModel.package.objects.find(
-              (obj) => obj.name === nodeName
-            );
-            const indexInstanceObjectChanged =
-              instanceModel.package.objects.indexOf(instanceObjectChanged!);
-
-            if (instanceObjectChanged) {
-              // Ensure the new position is valid, fallback to the last known position if not
-              const newPosition: Position = {
-                x:
-                  change.position &&
-                  typeof change.position.x === "number" &&
-                  !isNaN(change.position.x)
-                    ? change.position.x
-                    : ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
-                        instanceObjectChanged,
-                        representationInstanceModel
-                      )!.position!.x,
-                y:
-                  change.position &&
-                  typeof change.position.y === "number" &&
-                  !isNaN(change.position.y)
-                    ? change.position.y
-                    : ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
-                        instanceObjectChanged,
-                        representationInstanceModel
-                      )!.position!.y,
-              };
-
-              console.log("New position: ", newPosition);
-
-              const updatedRepresentationInstanceModel = {
-                ...representationInstanceModel,
-                package: {
-                  ...representationInstanceModel.package,
-                  objects: representationInstanceModel.package.objects.map(
-                    (obj, index) => {
-                      // find the representation object that is mapped to the instance object
-                      // they have the same index as their relation is always 1:1
-                      if (index === indexInstanceObjectChanged) {
-                        return {
-                          ...obj,
-                          position: newPosition, // Update position with valid or fallback position
-                        };
-                      }
-                      return obj;
-                    }
-                  ),
-                },
-              };
-
-              dispatch(
-                updateRepresentationInstanceModel(
-                  updatedRepresentationInstanceModel
-                )
-              );
-
-              console.log("Position saved to localStorage.");
-            } else {
-              console.error(
-                "Classifier not found in representation model for ID: ",
-                change.id
-              );
-            }
-          }
+          OnNodesChangeHelper.updateNodePosition(
+            updatedNodes,
+            change,
+            instanceModel,
+            representationInstanceModel,
+            dispatch
+          );
+          OnNodesChangeHelper.removeNode(
+            nds,
+            change,
+            instanceModel,
+            representationInstanceModel,
+            dispatch
+          );
         });
 
         return updatedNodes;
       });
     },
 
-    [setNodes, representationInstanceModel, dispatch, instanceModel]
+    [representationInstanceModel, dispatch, instanceModel]
   );
 
   const onEdgesChange: OnEdgesChange = useCallback(
@@ -620,96 +558,104 @@ const DiagramEditor = ({
     console.log("onDragOver triggered"); // log drag over event
   }, []);
 
-  const updateInstanceModelWithNewNode = (
-    newNode: Node | Edge,
-    isNode: boolean, // boolean to tell if the new node is a node or an edge
-    notation: InstanceObject
-  ) => {
-    let newInstanceModel = { ...instanceModel };
+  const updateInstanceModelWithNewNode = useCallback(
+    (
+      newNode: Node | Edge,
+      isNode: boolean, // boolean to tell if the new node is a node or an edge
+      notation: InstanceObject
+    ) => {
+      let newInstanceModel = { ...instanceModel };
 
-    // if it is the first node we drop, we set the uri
-    if (newInstanceModel.package.uri === "") {
-      newInstanceModel.package.uri = selectedMetaModel.package.uri;
-    }
+      // if it is the first node we drop, we set the uri
+      if (newInstanceModel.package.uri === "") {
+        newInstanceModel.package.uri = selectedMetaModel.package.uri;
+      }
 
-    // Add the new node to the instance model together with its id
-    const uniqueId = newNode.id;
-    let newInstanceObject = { ...notation };
+      // Add the new node to the instance model together with its id
+      const uniqueId = newNode.id;
+      let newInstanceObject = { ...notation };
 
-    if (!isNode) {
-      const newEdge = newNode as Edge;
-      const sourceNode = nodes.find((node) => node.id === newEdge.source);
-      const targetNode = nodes.find((node) => node.id === newEdge.target);
-      // Add source and target references to the edge
-      newInstanceObject = {
-        ...newInstanceObject,
-        links: [
-          {
-            name: "source",
-            target: {
-              $ref:
-                "#/objects/" +
-                instanceModel.package.objects.findIndex(
-                  (obj) =>
-                    obj.name ===
-                    (sourceNode!.data as DiagramNodeData).instanceObject?.name
-                ),
+      if (!isNode) {
+        const newEdge = newNode as Edge;
+        const sourceNode = nodes.find((node) => node.id === newEdge.source);
+        const targetNode = nodes.find((node) => node.id === newEdge.target);
+        // Add source and target references to the edge
+        newInstanceObject = {
+          ...newInstanceObject,
+          links: [
+            {
+              name: "source",
+              target: {
+                $ref:
+                  "#/objects/" +
+                  instanceModel.package.objects.findIndex(
+                    (obj) =>
+                      obj.name ===
+                      (sourceNode!.data as DiagramNodeData).instanceObject?.name
+                  ),
+              },
             },
-          },
-          {
-            name: "target",
-            target: {
-              $ref:
-                "#/objects/" +
-                instanceModel.package.objects.findIndex(
-                  (obj) =>
-                    obj.name ===
-                    (targetNode!.data as DiagramNodeData).instanceObject?.name
-                ),
+            {
+              name: "target",
+              target: {
+                $ref:
+                  "#/objects/" +
+                  instanceModel.package.objects.findIndex(
+                    (obj) =>
+                      obj.name ===
+                      (targetNode!.data as DiagramNodeData).instanceObject?.name
+                  ),
+              },
             },
+          ],
+        };
+      }
+
+      newInstanceModel.package.objects.push(newInstanceObject);
+
+      dispatch(updateInstanceModel(newInstanceModel));
+    },
+    [instanceModel, selectedMetaModel, nodes, dispatch]
+  );
+
+  const updateRepresentationInstanceModelWithNewNode = useCallback(
+    (
+      newNode: Node | Edge,
+      isNode: boolean, // boolean to tell if the new node is a node or an edge
+      notation: RepresentationInstanceObject
+    ) => {
+      let newRepresentationInstanceModel = { ...representationInstanceModel };
+
+      // if it is the first node we drop, we set the uri
+      if (newRepresentationInstanceModel.package.uri === "") {
+        newRepresentationInstanceModel.package.uri =
+          selectedRepresentationMetaModel.package.uri;
+      }
+
+      // Add the new node to the instance model together with its id
+      let newRepresentationInstanceObject = { ...notation };
+
+      if (isNode) {
+        newNode = newNode as Node;
+        newRepresentationInstanceObject = {
+          ...newRepresentationInstanceObject,
+          position: {
+            x: newNode.position.x,
+            y: newNode.position.y,
           },
-        ],
-      };
-    }
+        };
+      }
 
-    newInstanceModel.package.objects.push(newInstanceObject);
+      newRepresentationInstanceModel.package.objects.push(
+        newRepresentationInstanceObject
+      );
 
-    dispatch(updateInstanceModel(newInstanceModel));
-  };
-
-  const updateRepresentationInstanceModelWithNewNode = (
-    newNode: Node | Edge,
-    isNode: boolean, // boolean to tell if the new node is a node or an edge
-    notation: RepresentationInstanceObject
-  ) => {
-    let newRepresentationInstanceModel = { ...representationInstanceModel };
-
-    // if it is the first node we drop, we set the uri
-    if (newRepresentationInstanceModel.package.uri === "") {
-      newRepresentationInstanceModel.package.uri =
-        selectedRepresentationMetaModel.package.uri;
-    }
-
-    // Add the new node to the instance model together with its id
-    let newRepresentationInstanceObject = { ...notation };
-
-    if (isNode) {
-      newNode = newNode as Node;
-      newRepresentationInstanceObject = {
-        ...newRepresentationInstanceObject,
-        position: {
-          x: newNode.position.x,
-          y: newNode.position.y,
-        },
-      };
-    }
-
-    newRepresentationInstanceModel.package.objects.push(
-      newRepresentationInstanceObject
-    );
-
-    dispatch(updateRepresentationInstanceModel(newRepresentationInstanceModel));
-  };
+      dispatch(
+        updateRepresentationInstanceModel(newRepresentationInstanceModel)
+      );
+    },
+    [representationInstanceModel, selectedRepresentationMetaModel, dispatch]
+  );
 
   const onDrop = useCallback(
     (event: React.DragEvent) => {
@@ -726,7 +672,6 @@ const DiagramEditor = ({
       const { notationElement } = dragData;
 
       const uniqueId = `${notationElement.name}-${uuidv4()}`;
-      const nodeType = notationElement.name; // ClassNode, EdgeNode
       const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
@@ -779,7 +724,7 @@ const DiagramEditor = ({
 
       const newNode: Node = {
         id: uniqueId,
-        type: nodeType,
+        type: notationElementRepresentation.type, // ClassNode, EdgeNode
         position,
         data: nodeData as any,
       };
@@ -796,12 +741,13 @@ const DiagramEditor = ({
         true,
         representationInstanceObject
       );
+
+      console.log("nodes after drop:", nodes);
     },
     [
       selectedMetaModel,
       selectedRepresentationMetaModel,
       reactFlowInstance,
-      instanceModel,
       representationInstanceModel,
       setNodes,
     ]

@@ -274,39 +274,40 @@ function ModalDoubleClickNotation({
 
         <br />
 
-        {representationInstanceObject!.type === "ClassEdge" && (
-          <div>
-            <div className="flex flex-row w-full">
-              <div className="w-1/3">
-                <button
-                  onClick={() => setRelationshipTab(1)}
-                  className="bg-black text-white px-2 py-[2px] font-semibold w-full"
-                >
-                  Edge
-                </button>
-              </div>
-              <div className="w-1/3">
-                <button
-                  onClick={() => setRelationshipTab(2)}
-                  className="bg-black text-white px-2 py-[2px] font-semibold w-full"
-                >
-                  Source
-                </button>
+        {representationInstanceObject &&
+          representationInstanceObject!.type === "ClassEdge" && (
+            <div>
+              <div className="flex flex-row w-full">
+                <div className="w-1/3">
+                  <button
+                    onClick={() => setRelationshipTab(1)}
+                    className="bg-black text-white px-2 py-[2px] font-semibold w-full"
+                  >
+                    Edge
+                  </button>
+                </div>
+                <div className="w-1/3">
+                  <button
+                    onClick={() => setRelationshipTab(2)}
+                    className="bg-black text-white px-2 py-[2px] font-semibold w-full"
+                  >
+                    Source
+                  </button>
+                </div>
+
+                <div className="w-1/3">
+                  <button
+                    onClick={() => setRelationshipTab(3)}
+                    className="bg-black text-white px-2 py-[2px] font-semibold w-full"
+                  >
+                    Target
+                  </button>
+                </div>
               </div>
 
-              <div className="w-1/3">
-                <button
-                  onClick={() => setRelationshipTab(3)}
-                  className="bg-black text-white px-2 py-[2px] font-semibold w-full"
-                >
-                  Target
-                </button>
-              </div>
-            </div>
-
-            {relationshipTab === 1 ? (
-              <></>
-            ) : /* <div className="flex flex-col w-full">
+              {relationshipTab === 1 ? (
+                <></>
+              ) : /* <div className="flex flex-col w-full">
                 {data.nodeNotation.properties!.map((property, index) => (
                   <div key={index}>
                     <label>{property.name}</label>
@@ -352,10 +353,10 @@ function ModalDoubleClickNotation({
                   <option value="dashed">Dashed</option>
                 </select>
               </div> */
-            relationshipTab === 2 ? (
-              <></>
-            ) : (
-              /* <div className="flex flex-col w-full">
+              relationshipTab === 2 ? (
+                <></>
+              ) : (
+                /* <div className="flex flex-col w-full">
                 <h3 className="font-bold">Role</h3>
                 {data.notations.relationships.map((relationship, index) => (
                   <>
@@ -418,10 +419,10 @@ function ModalDoubleClickNotation({
                   <option value="closedArrow">Closed arrow</option>
                 </select>
               </div> */
-              // Target tab
-              relationshipTab === 3 && (
-                <></>
-                /* <div className="flex flex-col w-full">
+                // Target tab
+                relationshipTab === 3 && (
+                  <></>
+                  /* <div className="flex flex-col w-full">
                     <h3 className="font-bold">Role</h3>
                     {data.notations.relationships.map((relationship, index) => (
                       <>
@@ -494,10 +495,10 @@ function ModalDoubleClickNotation({
                       <option value="closedArrow">Closed arrow</option>
                     </select>
                   </div> */
-              )
-            )}
-          </div>
-        )}
+                )
+              )}
+            </div>
+          )}
       </div>
     </CustomModal>
   );

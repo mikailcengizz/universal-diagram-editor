@@ -55,6 +55,13 @@ const CombineObjectShapesNode = ({
   const isPalette = data.instanceObject === undefined && !isNotationSlider;
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1); // used for palette scaling
+  const [containerSize, setContainerSize] = useState({
+    width: 0,
+    height: 0,
+  });
+  const [validGraphicalItems, setValidGraphicalItems] = useState<
+    NotationRepresentationItem[]
+  >([]);
 
   let representationRef = undefined;
   if (isPalette || isNotationSlider) {
@@ -70,17 +77,47 @@ const CombineObjectShapesNode = ({
     jsonPointer
   )! as Representation | RepresentationInstanceObject;
 
-  const validGraphicalItems = representation.graphicalRepresentation!.filter(
-    (item) =>
-      (!isPalette || (isPalette && item.shape !== "connector")) &&
-      (!isNotationSlider || (isNotationSlider && item.shape !== "connector")) &&
-      item.position &&
-      item.position.x !== undefined &&
-      item.position.y !== undefined
-  ); // Only filter out connectors if isPalette is true
-  // sometimes the x and y are undefined when the notation is on the canvas
-  let adjustedRepresentation: NotationRepresentationItem[] =
-    validGraphicalItems;
+  useEffect(() => {
+    if (!representation) {
+      return;
+    }
+
+    // Filter valid graphical items
+    const filteredGraphicalItems =
+      representation.graphicalRepresentation!.filter(
+        (item) =>
+          (!isPalette || (isPalette && item.shape !== "connector")) &&
+          (!isNotationSlider ||
+            (isNotationSlider && item.shape !== "connector")) &&
+          item.position &&
+          item.position.x !== undefined &&
+          item.position.y !== undefined
+      );
+
+    // Set the valid graphical items
+    setValidGraphicalItems(filteredGraphicalItems);
+
+    // Set container size for the graphical representation
+    const maxWidth = Math.max(
+      ...filteredGraphicalItems.map(
+        (item) => item.position.extent?.width || 100
+      )
+    );
+    const maxHeight = Math.max(
+      ...filteredGraphicalItems.map(
+        (item) => item.position.extent?.height || 100
+      )
+    );
+
+    setContainerSize({
+      width: maxWidth,
+      height: maxHeight,
+    });
+    if (containerRef.current) {
+      containerRef.current.style.width = `${maxWidth}px`;
+      containerRef.current.style.height = `${maxHeight}px`;
+    }
+  }, [representation, isPalette, isNotationSlider]);
 
   let maxX = Math.max(
     ...validGraphicalItems.map(
@@ -93,30 +130,28 @@ const CombineObjectShapesNode = ({
     )
   );
 
-  // Calculate the max width and max height when node is rendered on the canvas
-  // to know our selection area when moving the node around
-  const maxWidth =
-    isPalette || isNotationSlider
-      ? 50
-      : Math.max(
-          ...representation.graphicalRepresentation!.map(
-            (item) => item.position!.extent?.width! || 100
-          )
-        );
+  useEffect(() => {
+    if (containerRef.current && (isPalette || isNotationSlider)) {
+      const scaleX = (isNotationSlider ? 97 : 54) / maxX;
+      const scaleY = (isNotationSlider ? 97 : 54) / maxY;
+      const newScale = Math.min(scaleX, scaleY, 1);
+      setScale(newScale);
+    }
 
-  const maxHeight =
-    isPalette || isNotationSlider
-      ? 50
-      : Math.max(
-          ...representation.graphicalRepresentation!.map(
-            (item) => item.position.extent?.height || 100
-          )
-        );
+    if (containerRef.current) {
+      // Calculate the max width and max height when node is rendered on the canvas
+      // to know our selection area when moving the node around
+      const { width, height } = containerRef.current.getBoundingClientRect();
+      setContainerSize({ width, height });
+      if (!isPalette && !isNotationSlider) {
+        containerRef.current.style.width = `${width}px`;
+        containerRef.current.style.height = `${height}px`;
+      }
+    }
+  }, [maxX, maxY, isPalette, isNotationSlider]);
 
-  const [containerSize, setContainerSize] = useState({
-    width: maxWidth,
-    height: maxHeight,
-  });
+  let adjustedRepresentation: NotationRepresentationItem[] =
+    validGraphicalItems;
 
   /* const [modifyingOperation, setModifyingOperation] = useState<EOperation>({
     name: "",
@@ -187,20 +222,6 @@ const CombineObjectShapesNode = ({
       };
     });
   }
-
-  useEffect(() => {
-    if (containerRef.current && (isPalette || isNotationSlider)) {
-      const scaleX = (isNotationSlider ? 97 : 54) / maxX;
-      const scaleY = (isNotationSlider ? 97 : 54) / maxY;
-      const newScale = Math.min(scaleX, scaleY, 1);
-      setScale(newScale);
-    }
-
-    if (containerRef.current) {
-      const { width, height } = containerRef.current.getBoundingClientRect();
-      setContainerSize({ width, height });
-    }
-  }, [maxX, maxY, isPalette, isNotationSlider]);
 
   const handleResize = (
     event: any,
