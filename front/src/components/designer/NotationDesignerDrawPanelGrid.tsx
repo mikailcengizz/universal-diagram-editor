@@ -122,7 +122,6 @@ const NotationDesignerDrawPanelGrid = ({
 
     const shapeData = event.dataTransfer.getData("shape");
     const elementIndex = event.dataTransfer.getData("elementIndex");
-    console.log("elementIndex", elementIndex);
 
     const grid = event.currentTarget.getBoundingClientRect();
 
@@ -132,12 +131,12 @@ const NotationDesignerDrawPanelGrid = ({
     const updatedRepresentation = [
       ...currentNotationElementRepresentation.graphicalRepresentation!,
     ];
-    console.log("updatedRepresentation", updatedRepresentation);
 
     // If shapeData exists, this means we are adding a new element from the palette
     if (shapeData) {
       const representationData: NotationRepresentationItem =
         JSON.parse(shapeData);
+      console.log("representationData", representationData);
       const newElement: NotationRepresentationItem = {
         shape: representationData.shape,
         style: representationData.style,
@@ -213,6 +212,9 @@ const NotationDesignerDrawPanelGrid = ({
   ) => {
     setSelectedElementIndex(index);
     switch (element.shape) {
+      case "circle":
+        // todo
+        break;
       case "square":
         setIsSquareModalOpen(true);
         setIsModalOpen(true); // Mark that a modal is open
@@ -342,6 +344,27 @@ const NotationDesignerDrawPanelGrid = ({
 
   console.log("loaded meta model in draw panel", selectedMetaModel);
 
+  const squares =
+    currentNotationElementRepresentation.graphicalRepresentation?.filter(
+      (element) => element.shape === "square"
+    );
+  const circles =
+    currentNotationElementRepresentation.graphicalRepresentation?.filter(
+      (element) => element.shape === "circle"
+    );
+  const texts =
+    currentNotationElementRepresentation.graphicalRepresentation?.filter(
+      (element) => element.shape === "text"
+    );
+  const compartments =
+    currentNotationElementRepresentation.graphicalRepresentation?.filter(
+      (element) => element.shape === "compartment"
+    );
+  const connectors =
+    currentNotationElementRepresentation.graphicalRepresentation?.filter(
+      (element) => element.shape === "connector"
+    );
+
   return (
     <>
       <div
@@ -377,7 +400,7 @@ const NotationDesignerDrawPanelGrid = ({
                   borderWidth: `${element.style?.borderWidth || 0}px`,
                   borderStyle: element.style?.borderStyle || "solid",
                   borderColor: element.style?.borderColor || "black",
-                  borderRadius: `${element.style?.borderRadius || 0}px`,
+                  borderRadius: element.style?.borderRadius || 0,
                   color: element.style?.color || "black",
                   fontSize: `${element.style?.fontSize || 14}px`,
                   display: "flex",

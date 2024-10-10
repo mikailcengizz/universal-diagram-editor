@@ -23,6 +23,7 @@ import { updateRepresentationInstanceModel } from "../../../redux/actions/repres
 import ReferenceHelper from "../../helpers/ReferenceHelper";
 import ModelHelperFunctions from "../../helpers/ModelHelperFunctions";
 import { updateInstanceModel } from "../../../redux/actions/objectInstanceModelActions";
+import RenderCircles from "./components/RenderCircles";
 
 interface CombineObjectShapesNodeProps {
   id: string;
@@ -431,6 +432,9 @@ const CombineObjectShapesNode = ({
   const rectangles = adjustedRepresentation.filter(
     (representationItem) => representationItem.shape === "square"
   );
+  const circles = adjustedRepresentation.filter(
+    (representationItem) => representationItem.shape === "circle"
+  );
   const compartments = adjustedRepresentation.filter(
     (representationItem) => representationItem.shape === "compartment"
   );
@@ -440,7 +444,6 @@ const CombineObjectShapesNode = ({
   const connectors = adjustedRepresentation.filter(
     (representationItem) => representationItem.shape === "connector"
   );
-  // missing lines
 
   return (
     <div
@@ -466,6 +469,13 @@ const CombineObjectShapesNode = ({
       {/* Render rectangles in the background */}
       <RenderRectangles
         rectangles={rectangles}
+        data={data}
+        isPalette={isPalette}
+        isNotationSlider={isNotationSlider}
+      />
+
+      <RenderCircles
+        circles={circles}
         data={data}
         isPalette={isPalette}
         isNotationSlider={isNotationSlider}

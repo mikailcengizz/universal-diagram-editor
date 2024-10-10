@@ -98,7 +98,7 @@ interface NotationDesignerConfigurePanelProps {
   setSelectedMetaModel: (value: MetaModel) => void;
   selectedRepresentationMetaModel: RepresentationMetaModel;
   setSelectedRepresentationMetaModel: (value: RepresentationMetaModel) => void;
-  saveNotation: (selectedElementIndex: number) => void;
+  saveNotation: (selectedElementIndex: number, removeElement: boolean) => void;
 }
 
 function NotationDesignerConfigurePanel({
@@ -123,6 +123,8 @@ function NotationDesignerConfigurePanel({
 }: NotationDesignerConfigurePanelProps) {
   const [selectedElementIndex, setSelectedElementIndex] = useState<number>(-1);
 
+  console.log("currentNotationElement", currentNotationElement);
+
   const isAttributeButtonDisabled = (attribute: Attribute) => {
     return (
       attribute.name === "" ||
@@ -139,7 +141,6 @@ function NotationDesignerConfigurePanel({
     // Check if the newInputValue is a number (selected from the dropdown) or just a string (typed in)
     const isExistingNotation =
       typeof selectedIndexOrInput === "number" && selectedIndexOrInput !== null;
-    console.log("isExistingNotation", isExistingNotation);
 
     if (isExistingNotation) {
       // Use the index directly from the Autocomplete's selected option
@@ -413,16 +414,22 @@ function NotationDesignerConfigurePanel({
           ] && (
             <div
               className={`bg-[#9b0f0f] px-4 py-2 w-fit rounded-md items-center flex gap-x-[6px] text-white text-xs cursor-pointer hover:opacity-85 trransition duration-300 ease-in-out float-left`}
-              onClick={() =>
-                setSelectedMetaModel({
-                  package: {
-                    ...selectedMetaModel.package,
-                    elements: selectedMetaModel.package.elements.filter(
-                      (n) => n.name !== currentNotationElement.name
-                    ),
-                  },
-                })
-              }
+              onClick={() => {
+                saveNotation(selectedElementIndex, true);
+                setCurrentNotationElement({
+                  isAbstract: false,
+                  isInterface: false,
+                  attributes: [],
+                  references: [],
+                  name: "",
+                  representation: { $ref: "" },
+                });
+                setCurrentNotationElementRepresentation({
+                  name: "",
+                  type: "None",
+                  graphicalRepresentation: [],
+                });
+              }}
             >
               Delete selected element
               <DeleteIcon
@@ -923,12 +930,17 @@ function NotationDesignerConfigurePanel({
             selectedMetaModel={selectedMetaModel}
             selectedRepresentationMetaModel={selectedRepresentationMetaModel}
             setCurrentNotationElement={setCurrentNotationElement}
+            setCurrentNotationElementRepresentation={
+              setCurrentNotationElementRepresentation
+            }
+            selectedElementIndex={selectedElementIndex}
+            setSelectedElementIndex={setSelectedElementIndex}
           />
         </div>
 
         {/* Save button */}
         <button
-          onClick={() => saveNotation(selectedElementIndex)}
+          onClick={() => saveNotation(selectedElementIndex, false)}
           className="bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer hover:opacity-85 trransition duration-300 ease-in-out float-left mt-4"
         >
           <span className="text-[16px]">Save Notation</span>

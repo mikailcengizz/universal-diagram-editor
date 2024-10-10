@@ -217,17 +217,21 @@ const NotationDesigner = () => {
     });
   };
 
-  const saveNotation = (selectedElementIndex: number) => {
-    console.log("currentNotationElement", currentNotationElement);
-    console.log("updatedElements", selectedMetaModel.package.elements);
-    console.log("selectedElementIndex", selectedElementIndex);
+  const saveNotation = (
+    selectedElementIndex: number,
+    removeElement: boolean
+  ) => {
     // Save in the frontend
     const updatedElements = [...selectedMetaModel.package.elements];
 
     if (selectedElementIndex === -1 && currentNotationElement.name !== "") {
       updatedElements.push(currentNotationElement);
-    } else {
-      updatedElements[selectedElementIndex] = currentNotationElement;
+    } else if (selectedElementIndex > -1) {
+      if (removeElement) {
+        updatedElements.splice(selectedElementIndex, 1);
+      } else {
+        updatedElements[selectedElementIndex] = currentNotationElement;
+      }
     }
 
     const updatedMetaModel = {
@@ -301,22 +305,6 @@ const NotationDesigner = () => {
     };
     saveRepresentationConfig();
 
-    setCurrentNotationElement({
-      name: "",
-      isAbstract: false,
-      isInterface: false,
-      attributes: [],
-      references: [],
-      representation: {
-        $ref: "",
-      },
-    });
-    setCurrentNotationElementRepresentation({
-      name: "",
-      type: "None",
-      graphicalRepresentation: [],
-    });
-
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
@@ -346,22 +334,25 @@ const NotationDesigner = () => {
 
   return (
     <div className="flex flex-col h-full bg-white min-h-screen w-full pt-8 relative">
-      {currentNotationElement.name !== "" && (
-        <div
-          className={`absolute top-11 right-12 bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer float-right hover:opacity-85 transition-opacity transition-transform duration-300 ease-in-out transform 
+      {/* Only nodes can be drawn */}
+      {currentNotationElement.name !== "" &&
+        currentNotationElementRepresentation.type === "ClassNode" && (
+          <div
+            className={`absolute top-11 right-12 bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer float-right hover:opacity-85 transition-opacity transition-transform duration-300 ease-in-out transform 
           ${
             isButtonVisible
               ? "opacity-100 translate-x-0"
               : "opacity-0 translate-x-10"
           }`}
-          onClick={() => setIsConfigurePanelOpen(!isConfigurePanelOpen)}
-        >
-          <span className="text-sm">
-            Switch to {isConfigurePanelOpen ? "draw panel" : "configure panel"}
-          </span>
-          <AutorenewIcon className="ml-1" fontSize="small" />
-        </div>
-      )}
+            onClick={() => setIsConfigurePanelOpen(!isConfigurePanelOpen)}
+          >
+            <span className="text-sm">
+              Switch to{" "}
+              {isConfigurePanelOpen ? "draw panel" : "configure panel"}
+            </span>
+            <AutorenewIcon className="ml-1" fontSize="small" />
+          </div>
+        )}
 
       {/* Pass the same currentNotation and setCurrentNotation to both panels */}
       {isConfigurePanelOpen ? (
@@ -389,8 +380,8 @@ const NotationDesigner = () => {
           setSelectedRepresentationMetaModel={
             setSelectedRepresentationMetaModel
           }
-          saveNotation={(selectedElementIndex) =>
-            saveNotation(selectedElementIndex)
+          saveNotation={(selectedElementIndex, removeElement) =>
+            saveNotation(selectedElementIndex, removeElement)
           }
         />
       ) : (

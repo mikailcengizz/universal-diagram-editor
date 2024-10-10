@@ -3,9 +3,10 @@ import CropSquareIcon from "@mui/icons-material/CropSquare";
 import TitleIcon from "@mui/icons-material/Title";
 import SmartButtonIcon from "@mui/icons-material/SmartButton";
 import CircleIcon from "@mui/icons-material/Circle";
+import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";
 import zIndex from "@mui/material/styles/zIndex";
-import { Class, MetaModel } from "../../types/types";
+import { Class, MetaModel, Representation } from "../../types/types";
 
 const shapes = [
   {
@@ -16,6 +17,18 @@ const shapes = [
       borderColor: "#000",
       borderWidth: 1,
       borderStyle: "solid",
+      zIndex: 1,
+    },
+  },
+  {
+    shape: "circle",
+    icon: <CircleOutlinedIcon />,
+    style: {
+      backgroundColor: "#f9f9f9",
+      borderColor: "#000",
+      borderWidth: 1,
+      borderStyle: "solid",
+      borderRadius: "50%",
       zIndex: 1,
     },
   },
@@ -96,6 +109,7 @@ function PaletteDrawPanel({
           {shapes.map((shape, index) => (
             <div
               key={index}
+              title={shape.shape}
               draggable
               onDragStart={(e) => handleDragStart(e, shape)}
               className="p-2 bg-white border border-gray-400 rounded cursor-move align-middle justify-center items-center flex"
@@ -103,6 +117,9 @@ function PaletteDrawPanel({
               {shape.icon}
             </div>
           ))}
+        </div>
+        <div>
+          <h3>Currently drawing: {currentNotationElement.name}</h3>
         </div>
         <div
           className="bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer float-right hover:opacity-85 trransition duration-300 ease-in-out"

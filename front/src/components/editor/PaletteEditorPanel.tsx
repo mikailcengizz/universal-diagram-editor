@@ -63,49 +63,55 @@ const PaletteEditorPanel = ({
     const notationElementRepresentation =
       notationElementsRepresentation![notationElementIndex]!;
 
-    switch (notationElementRepresentation.type) {
-      case "ClassNode":
-        return (
-          <CombineObjectShapesNode
-            key={notationElementIndex}
-            id={notationElementIndex.toString()}
-            data={{
-              notation: {
-                metaModel: selectedMetaModel,
-                representationMetaModel: selectedRepresentationMetaModel,
-              },
-              notationElement: notationElement,
-              instanceObject: undefined,
-              position: undefined,
-            }}
-          />
-        );
-      case "ClassEdge":
-        const { x, y, targetX, targetY } =
-          notationElementRepresentation.graphicalRepresentation![0].position;
-        return (
-          <CombineLinkShapesNode
-            key={notationElementIndex}
-            id={notationElementIndex.toString()}
-            data={{
-              notation: {
-                metaModel: selectedMetaModel,
-                representationMetaModel: selectedRepresentationMetaModel,
-              },
-              notationElement: notationElement,
-              instanceObject: undefined,
-              position: undefined,
-            }}
-            sourceX={x}
-            sourceY={y}
-            targetX={targetX!}
-            targetY={targetY!}
-            sourcePosition={Position.Right}
-            targetPosition={Position.Left}
-          />
-        );
-      /* case "role":
+    if (
+      notationElementRepresentation &&
+      notationElementRepresentation.graphicalRepresentation &&
+      notationElementRepresentation.graphicalRepresentation.length > 0
+    ) {
+      switch (notationElementRepresentation.type) {
+        case "ClassNode":
+          return (
+            <CombineObjectShapesNode
+              key={notationElementIndex}
+              id={notationElementIndex.toString()}
+              data={{
+                notation: {
+                  metaModel: selectedMetaModel,
+                  representationMetaModel: selectedRepresentationMetaModel,
+                },
+                notationElement: notationElement,
+                instanceObject: undefined,
+                position: undefined,
+              }}
+            />
+          );
+        case "ClassEdge":
+          const { x, y, targetX, targetY } =
+            notationElementRepresentation.graphicalRepresentation![0].position;
+          return (
+            <CombineLinkShapesNode
+              key={notationElementIndex}
+              id={notationElementIndex.toString()}
+              data={{
+                notation: {
+                  metaModel: selectedMetaModel,
+                  representationMetaModel: selectedRepresentationMetaModel,
+                },
+                notationElement: notationElement,
+                instanceObject: undefined,
+                position: undefined,
+              }}
+              sourceX={x}
+              sourceY={y}
+              targetX={targetX!}
+              targetY={targetY!}
+              sourcePosition={Position.Right}
+              targetPosition={Position.Left}
+            />
+          );
+        /* case "role":
         return <CombineRoleShapesNode />; */
+      }
     }
   };
 

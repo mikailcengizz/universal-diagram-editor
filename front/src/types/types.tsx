@@ -50,6 +50,7 @@ export type Alignment = "left" | "center" | "right";
 
 export type Shape =
   | "square"
+  | "circle"
   | "compartment"
   | "text"
   | "connector"

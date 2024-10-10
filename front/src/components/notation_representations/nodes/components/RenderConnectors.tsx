@@ -20,12 +20,17 @@ function RenderConnectors({
       {id &&
         connectors.map((connector, index) => (
           <Handle
-            type={connector.style.alignment === "left" ? "target" : "source"} // can not set exact position on connector so will stick with this for now
-            position={connector.style.alignment as Position} // temp
-            style={{ background: connector.style.color }}
+            type={connector.style.alignment === "left" ? "target" : "source"}
+            position={connector.style.alignment as Position} // Left, right, etc.
+            style={{
+              background: connector.style.color,
+              // Ensure connector is placed based on custom position
+              left: `${connector.position.x}px`,
+              top: `${connector.position.y}px`,
+            }}
             id={`${
               connector.style.alignment === "left"
-                ? `target-${index} `
+                ? `target-${index}`
                 : `source-${index}`
             }`}
             key={index}

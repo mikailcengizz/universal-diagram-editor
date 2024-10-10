@@ -18,7 +18,7 @@ interface NotationDesignerDrawPanelProps {
   setSelectedMetaModel: (value: MetaModel) => void;
   selectedRepresentationMetaModel: RepresentationMetaModel;
   setSelectedRepresentationMetaModel: (value: RepresentationMetaModel) => void;
-  saveNotation: (selectedElementIndex: number) => void;
+  saveNotation: (selectedElementIndex: number, removeElement: boolean) => void;
 }
 
 const gridSize = 10; // Size of the grid squares
@@ -40,7 +40,7 @@ function NotationDesignerDrawPanel({
         selectedMetaModel={selectedMetaModel}
         currentNotationElement={currentNotationElement}
         saveNotation={(selectedElementIndex) =>
-          saveNotation(selectedElementIndex)
+          saveNotation(selectedElementIndex, false)
         }
       />
       <div className="flex flex-col overflow-y-auto">

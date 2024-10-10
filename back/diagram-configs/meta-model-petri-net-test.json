@@ -137,6 +137,40 @@
         "representation": {
           "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/5"
         }
+      },
+      {
+        "name": "Place",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [],
+        "references": [
+          {
+            "name": "superType",
+            "element": {
+              "$ref": "#/elements/1"
+            }
+          }
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/6"
+        }
+      },
+      {
+        "name": "Arc",
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [],
+        "references": [
+          {
+            "name": "superType",
+            "element": {
+              "$ref": "#/elements/3"
+            }
+          }
+        ],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/7"
+        }
       }
     ]
   }
