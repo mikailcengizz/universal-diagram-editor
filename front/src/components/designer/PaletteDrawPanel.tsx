@@ -105,22 +105,29 @@ function PaletteDrawPanel({
   return (
     <div className="px-12 w-[82%] h-16 flex flex-row items-center align-middle my-auto">
       <div className="flex flex-row items-center align-middle my-auto justify-between w-full">
-        <div className="flex flex-row items-center align-middle my-auto gap-x-1">
-          {shapes.map((shape, index) => (
-            <div
-              key={index}
-              title={shape.shape}
-              draggable
-              onDragStart={(e) => handleDragStart(e, shape)}
-              className="p-2 bg-white border border-gray-400 rounded cursor-move align-middle justify-center items-center flex"
-            >
-              {shape.icon}
-            </div>
-          ))}
-        </div>
+        {/* Chooseable shapes */}
+        {currentNotationElement.name === "ClassNode" && (
+          <div className="flex flex-row items-center align-middle my-auto gap-x-1">
+            {shapes.map((shape, index) => (
+              <div
+                key={index}
+                title={shape.shape}
+                draggable
+                onDragStart={(e) => handleDragStart(e, shape)}
+                className="p-2 bg-white border border-gray-400 rounded cursor-move align-middle justify-center items-center flex"
+              >
+                {shape.icon}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Currently drawing - center title */}
         <div>
           <h3>Currently drawing: {currentNotationElement.name}</h3>
         </div>
+
+        {/* Save notation button */}
         <div
           className="bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer float-right hover:opacity-85 trransition duration-300 ease-in-out"
           onClick={() =>

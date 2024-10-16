@@ -1,6 +1,11 @@
 import { getBezierPath, useReactFlow, Position } from "@xyflow/react";
 import React, { useEffect, useState } from "react";
-import { DiagramNodeData } from "../../../types/types";
+import {
+  DiagramNodeData,
+  NotationRepresentationItem,
+  Representation,
+  RepresentationInstanceObject,
+} from "../../../types/types";
 import RenderLine from "./components/RenderLine";
 import ModelHelperFunctions from "../../helpers/ModelHelperFunctions";
 
@@ -70,35 +75,101 @@ function CombineLinkShapesNode({
     });
   }, [data.nodeNotation.roles]); */
 
-  console.log("data", data);
+  console.log(
+    "CombineLinkShapesNode style",
+    data.notationElementRepresentation?.graphicalRepresentation![0].style
+  );
 
-  const representationInstanceObject =
-    ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInLocalStorage(
-      data.instanceObject!
-    );
+  const representation =
+    isPalette || isNotationSlider
+      ? (data.notationElementRepresentation as Representation)
+      : (ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInLocalStorage(
+          data.instanceObject!
+        ) as RepresentationInstanceObject);
 
   const edgeStyles = {
     strokeWidth:
-      representationInstanceObject!.graphicalRepresentation![0].style.lineWidth,
+      representation!.graphicalRepresentation!.length === 0
+        ? 1
+        : representation!.graphicalRepresentation![0].style.width,
     stroke:
-      representationInstanceObject!.graphicalRepresentation![0].style.color,
+      representation!.graphicalRepresentation!.length === 0
+        ? "#000000"
+        : representation!.graphicalRepresentation![0].style.color,
     strokeDasharray:
-      representationInstanceObject!.graphicalRepresentation![0].style
-        .lineStyle === "dotted"
+      representation!.graphicalRepresentation!.length === 0
+        ? "0" // Solid line
+        : representation!.graphicalRepresentation![0].style.lineStyle ===
+          "dotted"
         ? "5,5"
-        : representationInstanceObject!.graphicalRepresentation![0].style
-            .lineStyle === "dashed"
+        : representation!.graphicalRepresentation![0].style.lineStyle ===
+          "dashed"
         ? "10,10"
-        : "0",
-    ...style,
+        : "0", // Solid line
   };
 
-  console.log("edgeStyles", edgeStyles);
+  // Get marker styles
+  const markerSource = representation!.graphicalRepresentation![0].markers![0];
+  const markerTarget = representation!.graphicalRepresentation![0].markers![1];
 
-  // Manually render the line for palette or notation slider context
+  // Helper function to get the marker style and dimensions
+  const getMarkerStyle = (marker: any) => ({
+    color: marker?.style?.color || "#000000",
+    width: marker?.style?.width || 1,
+  });
+
+  const sourceMarkerStyle = getMarkerStyle(markerSource);
+  const targetMarkerStyle = getMarkerStyle(markerTarget);
+
+  console.log("edgeStyles", edgeStyles);
+  console.log("sourceMarkerStyle", sourceMarkerStyle);
+
+  // Manually render the line for palette or notation slider context used for previewing
   if (isPalette || isNotationSlider) {
     return (
       <svg width="100%" height="100%">
+        <defs>
+          {/* Define marker elements with dynamic color and width */}
+          <marker
+            id={"sourceMarker"}
+            viewBox={"0 0 10 10"}
+            refX="9"
+            refY="5"
+            markerWidth={sourceMarkerStyle.width}
+            markerHeight={sourceMarkerStyle.width}
+            orient="auto-start-reverse"
+          >
+            <path
+              d="M 0 0 L 10 5 L 0 10"
+              fill={
+                markerSource.type === "openArrow"
+                  ? "none"
+                  : sourceMarkerStyle.color
+              }
+              stroke={sourceMarkerStyle.color}
+            />
+          </marker>
+          <marker
+            id={"targetMarker"}
+            viewBox="0 0 10 10"
+            refX="9"
+            refY="5"
+            markerWidth={targetMarkerStyle.width}
+            markerHeight={targetMarkerStyle.width}
+            orient="auto-start-reverse"
+          >
+            <path
+              d="M 0 0 L 10 5 L 0 10"
+              fill={
+                markerTarget.type === "openArrow"
+                  ? "none"
+                  : targetMarkerStyle.color
+              }
+              stroke={targetMarkerStyle.color}
+            />
+          </marker>
+        </defs>
+
         <line
           x1={sourceX}
           y1={sourceY}
@@ -106,7 +177,11 @@ function CombineLinkShapesNode({
           y2={targetY}
           stroke={edgeStyles.stroke}
           strokeWidth={edgeStyles.strokeWidth}
-          markerEnd={markerEnd}
+          strokeDasharray={edgeStyles.strokeDasharray}
+          markerStart={
+            markerSource?.type ? `url(#${"sourceMarker"})` : undefined
+          }
+          markerEnd={markerTarget?.type ? `url(#${"targetMarker"})` : undefined}
         />
       </svg>
     );
@@ -134,26 +209,44 @@ function CombineLinkShapesNode({
       <defs>
         {/* Define the marker here */}
         <marker
-          id="openArrow"
+          id={"sourceMarker"}
           viewBox="0 0 10 10"
           refX="9" // Move the arrowhead to start at the exact point of the source
           refY="5" // Keep it centered
-          markerWidth="10"
-          markerHeight="10"
+          markerWidth={sourceMarkerStyle.width}
+          markerHeight={sourceMarkerStyle.width}
           orient="auto-start-reverse" // Automatically reverse the direction at the start
         >
-          <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="black" />
+          <path
+            d="M 0 0 L 10 5 L 0 10"
+            fill={
+              markerTarget.type === "openArrow"
+                ? "none"
+                : sourceMarkerStyle.color
+            }
+            stroke={sourceMarkerStyle.color}
+            strokeWidth={sourceMarkerStyle.width}
+          />
         </marker>
         <marker
-          id="closedArrow"
+          id={"targetMarker"}
           viewBox="0 0 10 10"
           refX="9" // Ensure this aligns properly with the end of the line
           refY="5" // Center of the marker
-          markerWidth="10"
-          markerHeight="10"
+          markerWidth={targetMarkerStyle.width}
+          markerHeight={targetMarkerStyle.width}
           orient="auto-start-reverse"
         >
-          <path d="M 0 0 L 10 5 L 0 10" fill="black" />
+          <path
+            d="M 0 0 L 10 5 L 0 10"
+            fill={
+              markerTarget.type === "openArrow"
+                ? "none"
+                : targetMarkerStyle.color
+            }
+            stroke={targetMarkerStyle.color}
+            strokeWidth={targetMarkerStyle.width}
+          />
         </marker>
       </defs>
 
@@ -164,8 +257,8 @@ function CombineLinkShapesNode({
         sourceY={sourceY}
         targetX={targetX}
         targetY={targetY}
-        markerStart={markers.source ? `url(#${markers.source})` : undefined}
-        markerEnd={markers.target ? `url(#${markers.target})` : undefined}
+        markerStart={markerSource?.type ? `url(#${"sourceMarker"})` : undefined}
+        markerEnd={markerTarget?.type ? `url(#${"targetMarker"})` : undefined}
       />
 
       {/* Transparent overlay to capture double-click */}

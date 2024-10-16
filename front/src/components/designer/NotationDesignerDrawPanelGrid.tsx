@@ -142,7 +142,7 @@ const NotationDesignerDrawPanelGrid = ({
         style: representationData.style,
         position: representationData.position,
         generator: representationData.generator,
-        marker: representationData.marker,
+        markers: representationData.markers,
         text: representationData.text,
       };
       const extent = newElement.position?.extent || { width: 100, height: 100 };

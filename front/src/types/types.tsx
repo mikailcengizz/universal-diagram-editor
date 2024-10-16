@@ -1,15 +1,22 @@
 import { EdgeProps } from "@xyflow/react";
 
 // NOTATION DESIGNER
+export type MarkerType =
+  | "openArrow"
+  | "closedArrow"
+  | "diamond"
+  | "circle"
+  | "square"
+  | "none";
+
 export interface Marker {
-  id: string;
-  description: string;
-  svgDefinition: string;
+  type?: MarkerType;
+  style?: StyleProperties;
 }
 
 export interface NotationRepresentationItem {
-  shape: Shape;
-  marker?: string;
+  shape?: Shape;
+  markers?: Marker[];
   text?: string;
   generator?: string | null;
   style: StyleProperties;
@@ -27,7 +34,7 @@ export interface Position {
   };
 }
 
-export type lineStyle = "solid" | "dotted" | "dashed";
+export type LineStyle = "solid" | "dotted" | "dashed";
 
 export interface StyleProperties {
   color?: string;
@@ -38,8 +45,8 @@ export interface StyleProperties {
   borderStyle?: string;
   borderWidth?: number;
   borderRadius?: number;
-  lineWidth?: number;
-  lineStyle?: lineStyle;
+  width?: number;
+  lineStyle?: LineStyle;
   pattern?: Pattern;
   zIndex?: number;
 }
@@ -48,15 +55,16 @@ export type Pattern = "dotted" | "dashed" | "solid";
 
 export type Alignment = "left" | "center" | "right";
 
-export type Shape =
+export type Shape = NodeShape | EdgeShape;
+
+export type NodeShape =
   | "square"
   | "circle"
   | "compartment"
   | "text"
-  | "connector"
-  | "marker"
-  | "line"
-  | "doubleLine";
+  | "connector";
+
+export type EdgeShape = "line" | "doubleLine" | "marker";
 
 export interface Notation {
   metaModel: MetaModel;
@@ -67,7 +75,9 @@ export interface Notation {
 export interface DiagramNodeData {
   notation?: Notation; // notation (meta model and representation model)
   notationElement?: Class; // notation element (class) for this node
+  notationElementRepresentation?: Representation; // graphical representation of the notation element
   instanceObject?: InstanceObject; // instance object for this node
+  instanceObjectRepresentation?: RepresentationInstanceObject; // graphical representation of the instance object
   position?: Position;
   isNotationSlider?: boolean;
   onDoubleClick?: (id: any, data: any) => void;

@@ -160,7 +160,36 @@
       {
         "name": "Arc",
         "type": "ClassEdge",
-        "graphicalRepresentation": []
+        "graphicalRepresentation": [
+          {
+            "shape": "line",
+            "style": {
+              "color": "#000000",
+              "width": 1,
+              "lineStyle": "dotted"
+            },
+            "markers": [
+              {
+                "type": "openArrow",
+                "style": {
+                  "color": "#f60000",
+                  "width": "20"
+                }
+              },
+              {
+                "type": "closedArrow",
+                "style": {
+                  "color": "#5a1cf1",
+                  "width": "20"
+                }
+              }
+            ],
+            "position": {
+              "x": 0,
+              "y": 0
+            }
+          }
+        ]
       },
       {
         "name": "Place",

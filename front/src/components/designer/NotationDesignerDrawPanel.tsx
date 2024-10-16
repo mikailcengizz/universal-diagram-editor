@@ -8,6 +8,7 @@ import {
 } from "../../types/types";
 import PaletteDrawPanel from "./PaletteDrawPanel";
 import NotationDesignerDrawPanelGrid from "./NotationDesignerDrawPanelGrid";
+import NotationDesignerDrawEdge from "./NotationDesignerDrawEdge";
 
 interface NotationDesignerDrawPanelProps {
   currentNotationElementRepresentation: Representation;
@@ -44,23 +45,44 @@ function NotationDesignerDrawPanel({
         }
       />
       <div className="flex flex-col overflow-y-auto">
-        <NotationDesignerDrawPanelGrid
-          currentNotationElementRepresentation={
-            currentNotationElementRepresentation
-          }
-          setCurrentNotationElementRepresentation={
-            setCurrentNotationElementRepresentation
-          }
-          currentNotationElement={currentNotationElement}
-          setCurrentNotationElement={setCurrentNotationElement}
-          selectedMetaModel={selectedMetaModel}
-          setSelectedMetaModel={setSelectedMetaModel}
-          selectedRepresentationMetaModel={selectedRepresentationMetaModel}
-          setSelectedRepresentationMetaModel={
-            setSelectedRepresentationMetaModel
-          }
-          gridSize={gridSize}
-        />
+        {currentNotationElementRepresentation.type === "ClassNode" ? (
+          // draw panel grid for nodes
+          <NotationDesignerDrawPanelGrid
+            currentNotationElementRepresentation={
+              currentNotationElementRepresentation
+            }
+            setCurrentNotationElementRepresentation={
+              setCurrentNotationElementRepresentation
+            }
+            currentNotationElement={currentNotationElement}
+            setCurrentNotationElement={setCurrentNotationElement}
+            selectedMetaModel={selectedMetaModel}
+            setSelectedMetaModel={setSelectedMetaModel}
+            selectedRepresentationMetaModel={selectedRepresentationMetaModel}
+            setSelectedRepresentationMetaModel={
+              setSelectedRepresentationMetaModel
+            }
+            gridSize={gridSize}
+          />
+        ) : (
+          // draw panel for edges
+          <NotationDesignerDrawEdge
+            currentNotationElementRepresentation={
+              currentNotationElementRepresentation
+            }
+            setCurrentNotationElementRepresentation={
+              setCurrentNotationElementRepresentation
+            }
+            currentNotationElement={currentNotationElement}
+            setCurrentNotationElement={setCurrentNotationElement}
+            selectedMetaModel={selectedMetaModel}
+            setSelectedMetaModel={setSelectedMetaModel}
+            selectedRepresentationMetaModel={selectedRepresentationMetaModel}
+            setSelectedRepresentationMetaModel={
+              setSelectedRepresentationMetaModel
+            }
+          />
+        )}
       </div>
     </div>
   );

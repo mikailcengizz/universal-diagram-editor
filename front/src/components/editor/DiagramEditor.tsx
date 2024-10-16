@@ -33,7 +33,7 @@ import PaletteEditorPanel from "./PaletteEditorPanel";
 import configService from "../../services/ConfigService";
 import ReactFlowWithInstance from "../ReactFlowWithInstance";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
-import CombineRelationshipShapesEdge from "../notation_representations/edges/CombineLinkShapesNode";
+import CombineLinkShapesEdge from "../notation_representations/edges/CombineLinkShapesNode";
 import ModalDoubleClickNotation from "../notation_representations/nodes/components/modals/first_layer/ModalDoubleClickNotation";
 import typeHelper from "../helpers/TypeHelper";
 import { all } from "axios";
@@ -51,7 +51,7 @@ const nodeTypes = {
 };
 
 const edgeTypes = {
-  ClassEdge: CombineRelationshipShapesEdge,
+  ClassEdge: CombineLinkShapesEdge,
 };
 
 interface DiagramEditorProps {

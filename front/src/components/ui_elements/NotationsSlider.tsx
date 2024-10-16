@@ -86,6 +86,7 @@ function NotationsSlider({
                 representationMetaModel: selectedRepresentationMetaModel,
               },
               notationElement: notationElement,
+              notationElementRepresentation: notationElementRepresentation,
               instanceObject: undefined, // not necessary for nodes inside the slider
               position: undefined, // not necessary for nodes inside the slider
               isNotationSlider: true,
@@ -125,11 +126,6 @@ function NotationsSlider({
   ) => {
     return graphicalRepresentationItems!.every((item) => item.position);
   };
-
-  console.log(
-    "NotationsSlider.tsx: allNotationElements",
-    selectedMetaModel.package.elements as Class[]
-  );
 
   return (
     <>

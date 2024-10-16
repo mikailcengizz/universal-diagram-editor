@@ -123,8 +123,6 @@ function NotationDesignerConfigurePanel({
 }: NotationDesignerConfigurePanelProps) {
   const [selectedElementIndex, setSelectedElementIndex] = useState<number>(-1);
 
-  console.log("currentNotationElement", currentNotationElement);
-
   const isAttributeButtonDisabled = (attribute: Attribute) => {
     return (
       attribute.name === "" ||
