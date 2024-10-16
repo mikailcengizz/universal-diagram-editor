@@ -97,6 +97,8 @@ const DiagramEditor = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState<DiagramNodeData | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null); // Store the selected edge ID
+  const [hasInitializedNodes, setHasInitializedNodes] = useState(false);
+  const [hasInitializedEdges, setHasInitializedEdges] = useState(false);
 
   useEffect(() => {
     // onLoad react flow functionality
@@ -181,11 +183,17 @@ const DiagramEditor = ({
 
   useEffect(() => {
     if (!reactFlowInstance) {
-      console.log("React Flow instance not set.");
       return;
     }
 
-    if (nodes.length === 0) {
+    if (
+      !hasInitializedNodes &&
+      nodes.length === 0 &&
+      instanceModel &&
+      representationInstanceModel &&
+      selectedMetaModel.package.elements.length > 0 &&
+      selectedRepresentationMetaModel.package.elements.length > 0
+    ) {
       const initialNodes = OnLoadHelper.initializeNodes(
         representationInstanceModel,
         instanceModel,
@@ -193,6 +201,7 @@ const DiagramEditor = ({
         selectedRepresentationMetaModel
       );
       setNodes(initialNodes);
+      setHasInitializedNodes(true);
     }
   }, [
     instanceModel,
@@ -202,16 +211,26 @@ const DiagramEditor = ({
     reactFlowInstance,
     selectedRepresentationMetaModel,
     setNodes,
+    hasInitializedNodes,
   ]);
 
+  // Initialize edges
   useEffect(() => {
     if (!reactFlowInstance) {
-      console.log("React Flow instance not set.");
       return;
     }
-    console.log("reactflow instance set", reactFlowInstance);
 
-    if (edges.length === 0 && nodes.length > 0) {
+    if (
+      !hasInitializedEdges &&
+      hasInitializedNodes &&
+      edges.length === 0 &&
+      nodes.length > 0 &&
+      instanceModel &&
+      representationInstanceModel &&
+      selectedMetaModel.package.elements.length > 0 &&
+      selectedRepresentationMetaModel.package.elements.length > 0
+    ) {
+      console.log("instanceModel", instanceModel);
       const initialEdges = OnLoadHelper.initializeEdges(
         nodes,
         onDoubleClickEdge,
@@ -220,8 +239,11 @@ const DiagramEditor = ({
         selectedMetaModel,
         selectedRepresentationMetaModel
       );
+      console.log("nodes", nodes);
       console.log("initializing Edges", initialEdges);
       setEdges(initialEdges);
+      setHasInitializedEdges(true);
+      console.log("created edges");
     }
   }, [
     edges.length,
@@ -232,6 +254,8 @@ const DiagramEditor = ({
     selectedMetaModel,
     selectedRepresentationMetaModel,
     setEdges,
+    hasInitializedEdges,
+    hasInitializedNodes,
   ]);
 
   const updateInstanceModelWithNewNode = useCallback(
@@ -400,7 +424,7 @@ const DiagramEditor = ({
         modelUri + "#/objects/" + instanceModel.package.objects.length;
       // Create a new edge instance object
       const edgeInstanceObject: InstanceObject = {
-        name: targetInstanceObject!.name,
+        name: uniqueId,
         type: {
           $ref:
             selectedMetaModel.package.uri +
@@ -619,8 +643,8 @@ const DiagramEditor = ({
                 : "source-handle-" + instanceObject.name,
             position:
               representationItem.style.alignment === "left"
-                ? Position.Left
-                : Position.Right,
+                ? Position.Right
+                : Position.Left,
             x: representationItem.position.x,
             y: representationItem.position.y,
             type:
@@ -664,9 +688,6 @@ const DiagramEditor = ({
       updateRepresentationInstanceModelWithNewNode,
     ]
   );
-
-  console.log("current nodes:", nodes);
-  console.log("current edges:", edges);
 
   return (
     <div className="flex h-full bg-white">

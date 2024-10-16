@@ -49,3 +49,6 @@
 #icon-button:hover {
   opacity: 0.8;
 }
+.react-flow__node {
+  z-index: -1 !important;
+}

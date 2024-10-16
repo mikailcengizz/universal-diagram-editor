@@ -13,19 +13,25 @@ import { updateSelectedMetaModel } from "../../redux/actions/selectedConfigActio
 
 interface SubHeaderProps {
   onSelectConfig: (configURI: string) => void;
+  selectedMetaModelURI: string;
   showGrid: boolean;
   setShowGrid: (value: boolean) => void;
   diagramAreaRef: React.RefObject<HTMLDivElement>;
+  setNodes: React.Dispatch<React.SetStateAction<ReactFlowNode[]>>;
   nodes: ReactFlowNode[];
+  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
   edges: Edge[];
 }
 
 function SubHeader({
   onSelectConfig,
+  selectedMetaModelURI,
   showGrid,
   setShowGrid,
   diagramAreaRef,
+  setNodes,
   nodes,
+  setEdges,
   edges,
 }: SubHeaderProps) {
   const dispatch = useDispatch();
@@ -92,8 +98,8 @@ function SubHeader({
     setDropdownVisibleFile(false);
 
     // Clear the diagram
-    // setNodes([]);
-    // setEdges([]);
+    setNodes([]);
+    setEdges([]);
 
     // Clear the diagram instance
     dispatch(
@@ -112,9 +118,6 @@ function SubHeader({
         },
       })
     );
-
-    dispatch(updateSelectedMetaModel(null));
-    onSelectConfig("");
   };
 
   const handleDiagramTypeSelect = (configURI: string) => {

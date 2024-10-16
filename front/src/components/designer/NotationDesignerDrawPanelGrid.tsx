@@ -406,7 +406,9 @@ const NotationDesignerDrawPanelGrid = ({
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
-                  textAlign: element.style?.alignment || "center",
+                  textAlign:
+                    (element.style?.alignment as "left" | "right" | "center") ||
+                    "center",
                   cursor: "move",
                   zIndex: element.style?.zIndex || 1,
                 }}

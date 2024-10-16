@@ -151,12 +151,12 @@ const RenderLine = ({
           key={`${id}-anchor-${index}`}
           cx={anchor.x}
           cy={anchor.y}
-          r={6} // Increased radius of the anchor point for easier clicking
-          fill="blue" // Color of the anchor point
-          stroke="white" // Add stroke for better visibility
+          r={5} // anchor point radius
+          fill="black" // color of the anchor point
+          stroke="white" // white border around the anchor point
           strokeWidth="2"
-          onMouseDown={(e) => handleMouseDown(index, e)} // Make the anchor draggable
-          style={{ cursor: "pointer", zIndex: 10 }} // Ensure anchor points are on top
+          onMouseDown={(e) => handleMouseDown(index, e)} // make the anchor point draggable
+          style={{ cursor: "pointer", zIndex: 10 }} // ensure the anchor point is above the line
         />
       ))}
     </svg>

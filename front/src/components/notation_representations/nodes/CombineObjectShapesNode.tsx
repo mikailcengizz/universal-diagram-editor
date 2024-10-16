@@ -501,7 +501,7 @@ const CombineObjectShapesNode = ({
       />
 
       {/* Render connectors in the front */}
-      {!isPalette && !isNotationSlider && (
+      {!isPalette && !isNotationSlider && connectors.length > 0 && (
         <RenderConnectors
           connectors={connectors}
           id={nodeId}

@@ -39,6 +39,7 @@ function RenderRectangles({
               borderWidth: rect.style.borderWidth,
               borderStyle: rect.style.borderStyle,
               borderRadius: rect.style.borderRadius + "px",
+              zIndex: rect.style.zIndex,
             }}
           />
         );

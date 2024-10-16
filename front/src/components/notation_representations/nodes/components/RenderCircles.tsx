@@ -47,6 +47,7 @@ function RenderCircles({
               borderWidth: `${circle.style.borderWidth}px`,
               borderStyle: circle.style.borderStyle,
               borderRadius: "50%", // Ensure circle shape
+              zIndex: circle.style.zIndex,
             }}
           >
             {/* Render the circle */}

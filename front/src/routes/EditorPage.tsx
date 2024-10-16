@@ -7,9 +7,9 @@ import { Edge, Node, useEdgesState, useNodesState } from "@xyflow/react";
 export default function EditorPage() {
   const selectedConfigNameLocalStorage =
     localStorage.getItem("selectedConfig") || null;
-  const [selectedMetaModelURI, setSelectedMetaModelURI] = useState<
-    string | null
-  >(selectedConfigNameLocalStorage);
+  const [selectedMetaModelURI, setSelectedMetaModelURI] = useState<string>(
+    selectedConfigNameLocalStorage || ""
+  );
   const [showGrid, setShowGrid] = useState<boolean>(true);
   const diagramAreaRef = useRef<HTMLDivElement>(null); // ref for the diagram area
   const [nodes, setNodes] = useState<Node[]>([]);
@@ -19,10 +19,13 @@ export default function EditorPage() {
     <div id="editor" className="overflow-y-hidden h-screen">
       <SubHeader
         onSelectConfig={setSelectedMetaModelURI}
+        selectedMetaModelURI={selectedMetaModelURI}
         showGrid={showGrid}
         setShowGrid={setShowGrid}
         diagramAreaRef={diagramAreaRef}
+        setNodes={setNodes}
         nodes={nodes}
+        setEdges={setEdges}
         edges={edges}
       />
       <div>

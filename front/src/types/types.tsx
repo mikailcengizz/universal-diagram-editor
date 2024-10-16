@@ -53,7 +53,7 @@ export interface StyleProperties {
 
 export type Pattern = "dotted" | "dashed" | "solid";
 
-export type Alignment = "left" | "center" | "right";
+export type Alignment = "left" | "center" | "right" | "top" | "bottom";
 
 export type Shape = NodeShape | EdgeShape;
 

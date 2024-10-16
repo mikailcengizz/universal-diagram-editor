@@ -222,13 +222,18 @@ class OnLoadHelper {
         };
 
         console.log("sourceNode:", sourceNode);
+        console.log("targetNode:", targetNode);
 
         const returnEdge: Edge = {
           id: instanceObj.name,
           source: sourceNode!.id,
-          sourceHandle: "source-handle-" + sourceNode!.id,
+          sourceHandle: sourceNode.handles!.find(
+            (handle) => handle.type === "source"
+          )!.id,
           target: targetNode!.id,
-          targetHandle: "target-handle-" + targetNode!.id,
+          targetHandle: targetNode.handles!.find(
+            (handle) => handle.type === "target"
+          )!.id,
           type: "ClassEdge", // Assuming a default edge type
           data: diagramEdgeData as any,
         };
