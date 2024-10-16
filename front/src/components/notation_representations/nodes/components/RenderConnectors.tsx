@@ -12,7 +12,7 @@ interface RenderConnectorsProps {
 function RenderConnectors({
   isPalette = false,
   isNotationSlider = false,
-  id,
+  id, // node id
   connectors,
 }: RenderConnectorsProps) {
   return (
@@ -30,8 +30,8 @@ function RenderConnectors({
             }}
             id={`${
               connector.style.alignment === "left"
-                ? `target-${index}`
-                : `source-${index}`
+                ? `target-handle-${id}`
+                : `source-handle-${id}`
             }`}
             key={index}
           />

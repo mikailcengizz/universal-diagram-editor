@@ -38,8 +38,6 @@ function CombineLinkShapesNode({
 }: CombineRelationshipShapesEdgeProps) {
   const [data, setData] = useState<DiagramNodeData>({ ...initialData });
   const isNotationSlider = data.isNotationSlider || false;
-  console.log("data.instanceObject", data.instanceObject);
-  console.log("isNotationSlider", isNotationSlider);
   const isPalette = data.instanceObject === undefined && !isNotationSlider;
 
   const [markers, setMarkers] = useState<{
@@ -83,9 +81,6 @@ function CombineLinkShapesNode({
       : (ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInLocalStorage(
           data.instanceObject!
         ) as RepresentationInstanceObject);
-
-  console.log("isPalette", isPalette);
-  console.log("isNotationSlider", isNotationSlider);
 
   const edgeStyles = {
     strokeWidth:
