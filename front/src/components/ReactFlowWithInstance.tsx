@@ -15,7 +15,9 @@ interface ReactFlowWithInstanceProps<
   NodeType extends Node = Node,
   EdgeType extends Edge = Edge
 > extends Omit<ReactFlowProps<NodeType, EdgeType>, "onLoad"> {
-  onReactFlowLoad?: (instance: ReactFlowInstance<NodeType, EdgeType>) => void; // Rename the prop here
+  setReactFlowInstance: (
+    instance: ReactFlowInstance<NodeType, EdgeType>
+  ) => void;
   showGrid?: boolean;
 }
 
@@ -27,14 +29,14 @@ const ReactFlowWithInstance = <
   props: ReactFlowWithInstanceProps<NodeType, EdgeType> &
     React.RefAttributes<HTMLDivElement>
 ) => {
-  const { showGrid, ...restProps } = props;
+  const { showGrid, setReactFlowInstance, ...restProps } = props;
   const reactFlowInstance = useReactFlow<NodeType, EdgeType>();
 
   useEffect(() => {
     if (reactFlowInstance) {
-      restProps.onReactFlowLoad?.(reactFlowInstance); // Call the renamed prop with the instance
+      setReactFlowInstance(reactFlowInstance); // Set the instance when it's ready
     }
-  }, [reactFlowInstance, restProps]);
+  }, [reactFlowInstance, setReactFlowInstance]);
 
   return (
     <ReactFlow {...restProps}>

@@ -86,8 +86,6 @@ const PaletteEditorPanel = ({
             />
           );
         case "ClassEdge":
-          const { x, y, targetX, targetY } =
-            notationElementRepresentation.graphicalRepresentation![0].position;
           return (
             <CombineLinkShapesNode
               key={notationElementIndex}
@@ -98,15 +96,13 @@ const PaletteEditorPanel = ({
                   representationMetaModel: selectedRepresentationMetaModel,
                 },
                 notationElement: notationElement,
-                instanceObject: undefined,
-                position: undefined,
+                notationElementRepresentation: notationElementRepresentation,
+                instanceObject: undefined, // not necessary for nodes inside the palette
               }}
-              sourceX={x}
-              sourceY={y}
-              targetX={targetX!}
-              targetY={targetY!}
-              sourcePosition={Position.Right}
-              targetPosition={Position.Left}
+              sourceX={100}
+              sourceY={100}
+              targetX={300}
+              targetY={300}
             />
           );
         /* case "role":
@@ -184,8 +180,10 @@ const PaletteEditorPanel = ({
                     onDragStart={(event) => onDragStart(event, notationElement)}
                     draggable
                     style={{
-                      margin: "10px",
-                      padding: "10px",
+                      width: "62px",
+                      height: "62px",
+                      paddingLeft: "3px",
+                      paddingTop: "3px",
                       border: "1px solid #ccc",
                       cursor: "grab",
                       backgroundColor: "#fff",
@@ -205,11 +203,13 @@ const PaletteEditorPanel = ({
                   <div
                     key={index}
                     style={{
-                      padding: "10px",
+                      width: "62px",
+                      height: "62px",
+                      paddingLeft: "3px",
+                      paddingTop: "3px",
                       border: "1px solid #ccc",
-                      backgroundColor: "transparent",
-                      width: "75px",
-                      height: "75px",
+                      cursor: "grab",
+                      backgroundColor: "#fff",
                     }}
                   >
                     <div

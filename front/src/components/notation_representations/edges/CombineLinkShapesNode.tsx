@@ -38,6 +38,8 @@ function CombineLinkShapesNode({
 }: CombineRelationshipShapesEdgeProps) {
   const [data, setData] = useState<DiagramNodeData>({ ...initialData });
   const isNotationSlider = data.isNotationSlider || false;
+  console.log("data.instanceObject", data.instanceObject);
+  console.log("isNotationSlider", isNotationSlider);
   const isPalette = data.instanceObject === undefined && !isNotationSlider;
 
   const [markers, setMarkers] = useState<{
@@ -82,6 +84,9 @@ function CombineLinkShapesNode({
           data.instanceObject!
         ) as RepresentationInstanceObject);
 
+  console.log("isPalette", isPalette);
+  console.log("isNotationSlider", isNotationSlider);
+
   const edgeStyles = {
     strokeWidth:
       representation!.graphicalRepresentation!.length === 0
@@ -116,10 +121,19 @@ function CombineLinkShapesNode({
   const sourceMarkerStyle = getMarkerStyle(markerSource);
   const targetMarkerStyle = getMarkerStyle(markerTarget);
 
+  // scaling factors for the palette and notation slider
+  const scale = isPalette ? 0.4 : 1; // scale down to fit within palette and notation slider
+  const paletteWidth = isPalette ? 55 : 94;
+  const paletteHeight = isPalette ? 55 : 94;
+
   // Manually render the line for palette or notation slider context used for previewing
   if (isPalette || isNotationSlider) {
     return (
-      <svg width="100%" height="100%">
+      <svg
+        width={paletteWidth}
+        height={paletteHeight}
+        viewBox={`0 0 ${paletteWidth} ${paletteHeight}`} // Define the aspect ratio here, based on the full size scale
+      >
         <defs>
           {/* Define marker elements with dynamic color and width */}
           <marker
@@ -163,12 +177,12 @@ function CombineLinkShapesNode({
         </defs>
 
         <line
-          x1={sourceX}
-          y1={sourceY}
-          x2={targetX}
-          y2={targetY}
+          x1={0}
+          y1={0}
+          x2={paletteWidth}
+          y2={paletteHeight}
           stroke={edgeStyles.stroke}
-          strokeWidth={edgeStyles.strokeWidth}
+          strokeWidth={edgeStyles.strokeWidth! * scale}
           strokeDasharray={edgeStyles.strokeDasharray}
           markerStart={
             markerSource?.type ? `url(#${"sourceMarker"})` : undefined

@@ -9,6 +9,7 @@ import {
   OnNodesChange,
   OnEdgesChange,
   ReactFlowProvider,
+  ReactFlowInstance,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { parseStringPromise } from "xml2js";
@@ -83,9 +84,8 @@ const DiagramEditor = ({
   selectedMetaModelURI =
     localStorage.getItem("selectedMetaModel") || selectedMetaModelURI;
 
-  console.log("showGrid", showGrid);
-
-  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  const [reactFlowInstance, setReactFlowInstance] =
+    useState<ReactFlowInstance | null>(null);
   const [selectedMetaModel, setSelectedMetaModel] = useState<MetaModel>({
     package: {
       name: "",
@@ -107,14 +107,19 @@ const DiagramEditor = ({
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null); // Store the selected edge ID
 
   useEffect(() => {
-    console.log("Selected meta model URI:", selectedMetaModelURI);
+    // onLoad react flow functionality
+    if (reactFlowInstance) {
+      // Perform any additional actions when the instance is available
+    }
+  }, [reactFlowInstance]);
+
+  useEffect(() => {
     if (selectedMetaModelURI) {
       const fetchMetaConfig = async () => {
         try {
           const response = await configService.getMetaConfigByUri(
             encodeURIComponent(selectedMetaModelURI)
           );
-          console.log("Selected meta model:", response.data);
           setSelectedMetaModel(response.data);
           // clear canvas when new config is selected
           setNodes([]);
@@ -130,7 +135,6 @@ const DiagramEditor = ({
           const response = await configService.getRepresentationConfigByUri(
             encodeURIComponent(selectedMetaModelURI + "-representation")
           );
-          console.log("Selected representation meta model:", response.data);
           setSelectedRepresentationMetaModel(response.data);
         } catch (error) {
           console.error("Error fetching representation configuration: ", error);
@@ -191,6 +195,17 @@ const DiagramEditor = ({
         return [];
 
       const returnNodes = instanceModel.package.objects
+        .filter((instanceObj) => {
+          const representationInstanceObj =
+            ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
+              instanceObj,
+              representationInstanceModel
+            );
+          return (
+            representationInstanceObj &&
+            representationInstanceObj?.type === "ClassNode"
+          );
+        })
         .map((instanceObj) => {
           const representationInstanceObj =
             ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
@@ -220,20 +235,14 @@ const DiagramEditor = ({
             position: position,
           };
 
-          if (representationInstanceObj.type === "ClassEdge") {
-            // temporary fix for edge nodes, this needs to be done by not having edges in the eClassifiers array
-            // but instead in eFeatures array
-            return null;
-          } else {
-            const returnNode: Node = {
-              id: instanceObj.name,
-              type: "ClassNode", // as it is a classifer node
-              position: representationInstanceObj.position!,
-              data: nodeData as any,
-            };
+          const returnNode: Node = {
+            id: instanceObj.name,
+            type: "ClassNode", // as it is a classifer node
+            position: representationInstanceObj.position!,
+            data: nodeData as any,
+          };
 
-            return returnNode;
-          }
+          return returnNode;
         })
         .filter(Boolean); // Filter out null values
 
@@ -277,12 +286,22 @@ const DiagramEditor = ({
           );
         })
         .map((instanceObj) => {
+          console.log("instanceObj initialize Edges:", instanceObj);
           const edgeRepresentation =
             ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
               instanceObj,
               representationInstanceModel
             );
 
+          if (!edgeRepresentation) {
+            console.error(
+              "Edge representation not found for instance edge:",
+              instanceObj
+            );
+            return null;
+          }
+
+          // Get the target and source links
           const targetLink = instanceObj.links.find(
             (link) => link.name === "target"
           );
@@ -290,10 +309,19 @@ const DiagramEditor = ({
             (link) => link.name === "source"
           );
 
+          if (!targetLink || !sourceLink) {
+            console.error(
+              "Target or Source link not found for instance edge:",
+              instanceObj
+            );
+            return null;
+          }
+
+          // Get the target and source objects from the links with the $ref
           const targetObject: InstanceObject | null =
             targetLink && targetLink.target.$ref
               ? ReferenceHelper.resolveRef(
-                  instanceModel.package.objects,
+                  instanceModel.package,
                   targetLink.target.$ref
                 )
               : null;
@@ -301,12 +329,18 @@ const DiagramEditor = ({
           const sourceObject: InstanceObject | null =
             sourceLink && sourceLink.target.$ref
               ? ReferenceHelper.resolveRef(
-                  instanceModel.package.objects,
+                  instanceModel.package,
                   sourceLink.target.$ref
                 )
               : null;
 
-          if (!edgeRepresentation) return null;
+          if (!targetObject) {
+            console.error("Target object not found:", targetLink);
+            return null;
+          } else if (!sourceObject) {
+            console.error("Source object not found:", sourceLink);
+            return null;
+          }
 
           const sourceNode = nodes.find(
             (node) =>
@@ -320,16 +354,30 @@ const DiagramEditor = ({
               targetObject?.name
           );
 
+          if (!sourceNode) {
+            console.error("Source node not found:", sourceObject);
+            console.log("Nodes:", nodes);
+            return null;
+          } else if (!targetNode) {
+            console.error("Target node not found:", targetObject);
+            return null;
+          }
+
+          const diagramEdgeData: DiagramNodeData = {
+            notation: {
+              representationMetaModel: selectedRepresentationMetaModel,
+              metaModel: selectedMetaModel,
+            },
+            instanceObject: instanceObj,
+            onDoubleClick: onDoubleClickEdge,
+          };
+
           const returnEdge: Edge = {
             id: instanceObj.name,
             source: sourceNode!.id,
             target: targetNode!.id,
             type: "ClassEdge", // Assuming a default edge type
-            data: {
-              notation: selectedMetaModel,
-              instanceNotation: instanceObj,
-              onDoubleClick: onDoubleClickEdge,
-            },
+            data: diagramEdgeData as any,
           };
 
           return returnEdge;
@@ -339,7 +387,7 @@ const DiagramEditor = ({
       return returnEdges as Edge[];
     };
 
-    if (edges.length === 0) {
+    if (edges.length === 0 && nodes.length > 0) {
       const initialEdges = initializeEdges();
       setEdges(initialEdges);
     }
@@ -552,10 +600,6 @@ const DiagramEditor = ({
     (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
     [setEdges]
   );
-
-  const onLoad = useCallback((instance: any) => {
-    setReactFlowInstance(instance);
-  }, []);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -785,7 +829,7 @@ const DiagramEditor = ({
               onConnect={onConnect}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
-              onReactFlowLoad={onLoad}
+              setReactFlowInstance={setReactFlowInstance}
               onDrop={onDrop}
               onDragOver={onDragOver}
               nodeTypes={nodeTypes}
