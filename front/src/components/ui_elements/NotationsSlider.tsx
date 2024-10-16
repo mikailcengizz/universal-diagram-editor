@@ -10,7 +10,7 @@ import {
   RepresentationMetaModel,
 } from "../../types/types";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
-import CombineRelationshipShapesNode from "../notation_representations/edges/CombineLinkShapesNode";
+import CombineLinkShapesNode from "../notation_representations/edges/CombineLinkShapesNode";
 import CombineRoleShapesNode from "../notation_representations/nodes/CombineRoleShapesNode";
 import { Position } from "@xyflow/react";
 import ModelHelperFunctions from "../helpers/ModelHelperFunctions";
@@ -72,12 +72,12 @@ function NotationsSlider({
     const notationElementRepresentation =
       notationElementsRepresentation![notationElementIndex]!;
 
+    console.log("notationElementRepresentation", notationElementRepresentation);
+
     switch (notationElementRepresentation.type) {
       case "ClassEdge":
-        const { x, y, targetX, targetY } =
-          notationElementRepresentation.graphicalRepresentation![0].position!;
         return (
-          <CombineRelationshipShapesNode
+          <CombineLinkShapesNode
             key={notationElementRepresentation.name}
             id={notationElementRepresentation.name}
             data={{
@@ -88,15 +88,12 @@ function NotationsSlider({
               notationElement: notationElement,
               notationElementRepresentation: notationElementRepresentation,
               instanceObject: undefined, // not necessary for nodes inside the slider
-              position: undefined, // not necessary for nodes inside the slider
               isNotationSlider: true,
             }}
-            sourceX={x}
-            sourceY={y}
-            targetX={targetX!}
-            targetY={targetY!}
-            sourcePosition={Position.Right}
-            targetPosition={Position.Left}
+            sourceX={0}
+            sourceY={0}
+            targetX={92}
+            targetY={92}
           />
         );
       default:

@@ -75,11 +75,6 @@ function CombineLinkShapesNode({
     });
   }, [data.nodeNotation.roles]); */
 
-  console.log(
-    "CombineLinkShapesNode style",
-    data.notationElementRepresentation?.graphicalRepresentation![0].style
-  );
-
   const representation =
     isPalette || isNotationSlider
       ? (data.notationElementRepresentation as Representation)
@@ -120,9 +115,6 @@ function CombineLinkShapesNode({
 
   const sourceMarkerStyle = getMarkerStyle(markerSource);
   const targetMarkerStyle = getMarkerStyle(markerTarget);
-
-  console.log("edgeStyles", edgeStyles);
-  console.log("sourceMarkerStyle", sourceMarkerStyle);
 
   // Manually render the line for palette or notation slider context used for previewing
   if (isPalette || isNotationSlider) {
@@ -201,8 +193,6 @@ function CombineLinkShapesNode({
       console.error("onDoubleClick function is not defined");
     }
   };
-
-  console.log("edgePath", sourceX, sourceY, targetX, targetY, edgePath);
 
   return (
     <svg width="100%" height="100%">

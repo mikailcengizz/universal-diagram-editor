@@ -222,7 +222,7 @@ function NotationDesignerDrawEdge({
     markerName: string
   ) => {
     const styleName = targetName as "color" | "width";
-    const newStyle = styleName === "color" ? e : e.target.value;
+    const newStyle = styleName === "color" ? e : +e.target.value;
     const markerIndex = markerName === "source" ? 0 : 1;
 
     const updatedMarkers = [...selectedMarkers];
