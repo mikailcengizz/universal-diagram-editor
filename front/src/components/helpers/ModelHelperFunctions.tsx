@@ -1,6 +1,7 @@
 import {
   Class,
   InstanceObject,
+  MetaModel,
   Representation,
   RepresentationInstanceModel,
   RepresentationInstanceObject,
@@ -98,6 +99,26 @@ class ModelHelperFunctions {
       )!;
 
     return representationInstanceObject;
+  }
+  static findClassFromInstanceObjectMetaModel(
+    instanceObject: InstanceObject,
+    metaModel: MetaModel
+  ): Class | null {
+    const classRef = instanceObject.type.$ref;
+    const [modelUri, jsonPointer] = classRef.split("#");
+
+    // Ensure we're dealing with the correct model URI
+    if (modelUri !== metaModel.package.uri) {
+      //console.error("Model URI does not match the selected meta model");
+      return null;
+    }
+
+    const classObject: Class = ReferenceHelper.resolveRef(
+      metaModel.package,
+      jsonPointer
+    )!;
+
+    return classObject;
   }
 }
 

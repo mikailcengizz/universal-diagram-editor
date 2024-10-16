@@ -135,6 +135,7 @@ export interface Class extends Classifier {
   attributes: Attribute[];
   references: Reference[];
   representation: RepresentationReference;
+  constraints?: string[];
 }
 
 export interface RepresentationReference {

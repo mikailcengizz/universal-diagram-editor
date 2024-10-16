@@ -38,6 +38,8 @@ import { v4 as uuidv4 } from "uuid"; // Import UUID generator
 import ModelHelperFunctions from "../helpers/ModelHelperFunctions";
 import OnNodesChangeHelper from "../helpers/react-flow-helpers/OnNodesChangeHelper";
 import OnLoadHelper from "../helpers/react-flow-helpers/OnLoadHelper";
+import ConstraintHelper from "../helpers/ConstraintHelper";
+import AlertWithFade from "../ui_elements/AlertWithFade";
 
 const nodeTypes = {
   ClassNode: CombineObjectShapesNode,
@@ -99,6 +101,11 @@ const DiagramEditor = ({
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null); // Store the selected edge ID
   const [hasInitializedNodes, setHasInitializedNodes] = useState(false);
   const [hasInitializedEdges, setHasInitializedEdges] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
+    "success"
+  );
 
   useEffect(() => {
     // onLoad react flow functionality
@@ -230,7 +237,6 @@ const DiagramEditor = ({
       selectedMetaModel.package.elements.length > 0 &&
       selectedRepresentationMetaModel.package.elements.length > 0
     ) {
-      console.log("instanceModel", instanceModel);
       const initialEdges = OnLoadHelper.initializeEdges(
         nodes,
         onDoubleClickEdge,
@@ -239,11 +245,8 @@ const DiagramEditor = ({
         selectedMetaModel,
         selectedRepresentationMetaModel
       );
-      console.log("nodes", nodes);
-      console.log("initializing Edges", initialEdges);
       setEdges(initialEdges);
       setHasInitializedEdges(true);
-      console.log("created edges");
     }
   }, [
     edges.length,
@@ -413,6 +416,40 @@ const DiagramEditor = ({
         return;
       }
 
+      // Validate if the edge connection is allowed based on constraints
+      // Fetch the constraints
+      const constraints = edgeNotationElement.constraints || [];
+
+      // Define the context for constraint evaluation
+      const context = {
+        self: {
+          source: sourceInstanceObject,
+          target: targetInstanceObject,
+        },
+      };
+
+      // Validate each constraint
+      const isValid = constraints.every((constraint) => {
+        const parsedConstraint = ConstraintHelper.parseConstraint(constraint); // Parse the constraint into AST
+        return ConstraintHelper.evaluateExpression(
+          parsedConstraint,
+          context,
+          selectedMetaModel
+        ); // Evaluate the parsed constraint
+      });
+
+      if (!isValid) {
+        setAlertMessage(
+          "Invalid connection based on constraints:" + constraints
+        );
+        setAlertSeverity("error");
+        setShowAlert(true);
+        setTimeout(() => {
+          setShowAlert(false);
+        }, 8000); // Alert will fade out after 6 seconds
+        return;
+      }
+
       const uniqueId = `${edgeNotationElement.name}-${uuidv4()}`;
 
       console.log("associationRepresentation", edgeNotationElement);
@@ -428,7 +465,7 @@ const DiagramEditor = ({
         type: {
           $ref:
             selectedMetaModel.package.uri +
-            "#/classes/" +
+            "#/elements/" +
             (selectedMetaModel.package.elements as Class[]).findIndex(
               (element) => element.name === edgeNotationElement!.name
             ),
@@ -591,7 +628,7 @@ const DiagramEditor = ({
         type: {
           $ref:
             selectedMetaModel.package.uri +
-            "#/classes/" +
+            "#/elements/" +
             (selectedMetaModel.package.elements as Class[]).findIndex(
               (element) => element.name === notationElement.name
             ),
@@ -748,6 +785,12 @@ const DiagramEditor = ({
           }}
         />
       )}
+
+      <AlertWithFade
+        message={alertMessage}
+        showAlert={showAlert}
+        severity={alertSeverity}
+      />
     </div>
   );
 };

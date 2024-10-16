@@ -88,8 +88,6 @@ class OnLoadHelper {
             };
           });
 
-        console.log("nodeHandles:", nodeHandles);
-
         const returnNode: Node = {
           id: instanceObj.name,
           type: "ClassNode", // as it is a classifer node
@@ -135,7 +133,6 @@ class OnLoadHelper {
         );
       })
       .map((instanceObj) => {
-        console.log("instanceObj initialize Edges:", instanceObj);
         const edgeRepresentation =
           ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
             instanceObj,
@@ -205,7 +202,6 @@ class OnLoadHelper {
 
         if (!sourceNode) {
           console.error("Source node not found:", sourceObject);
-          console.log("Nodes:", nodes);
           return null;
         } else if (!targetNode) {
           console.error("Target node not found:", targetObject);
@@ -220,9 +216,6 @@ class OnLoadHelper {
           instanceObject: instanceObj,
           onDoubleClick: onDoubleClickEdge,
         };
-
-        console.log("sourceNode:", sourceNode);
-        console.log("targetNode:", targetNode);
 
         const returnEdge: Edge = {
           id: instanceObj.name,
