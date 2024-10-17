@@ -80,6 +80,7 @@ export interface DiagramNodeData {
   instanceObjectRepresentation?: RepresentationInstanceObject; // graphical representation of the instance object
   position?: Position;
   isNotationSlider?: boolean;
+  isDesignerPreview?: boolean;
   onDoubleClick?: (id: any, data: any) => void;
 }
 
@@ -199,7 +200,8 @@ export interface ReferenceValue {
 }
 
 export interface InstanceObjectReference {
-  $ref: string; // URI reference to the instance object
+  $ref: string; // URI reference to the instance object, can be extended with connector reference
+  // e.g. #/objects/0/representation/graphicalRepresentation/1
 }
 
 // REPRESENTATION META MODEL

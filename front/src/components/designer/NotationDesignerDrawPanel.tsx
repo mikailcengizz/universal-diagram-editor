@@ -40,6 +40,9 @@ function NotationDesignerDrawPanel({
       <PaletteDrawPanel
         selectedMetaModel={selectedMetaModel}
         currentNotationElement={currentNotationElement}
+        currentNotationElementRepresentation={
+          currentNotationElementRepresentation
+        }
         saveNotation={(selectedElementIndex) =>
           saveNotation(selectedElementIndex, false)
         }
@@ -65,23 +68,25 @@ function NotationDesignerDrawPanel({
             gridSize={gridSize}
           />
         ) : (
-          // draw panel for edges
-          <NotationDesignerDrawEdge
-            currentNotationElementRepresentation={
-              currentNotationElementRepresentation
-            }
-            setCurrentNotationElementRepresentation={
-              setCurrentNotationElementRepresentation
-            }
-            currentNotationElement={currentNotationElement}
-            setCurrentNotationElement={setCurrentNotationElement}
-            selectedMetaModel={selectedMetaModel}
-            setSelectedMetaModel={setSelectedMetaModel}
-            selectedRepresentationMetaModel={selectedRepresentationMetaModel}
-            setSelectedRepresentationMetaModel={
-              setSelectedRepresentationMetaModel
-            }
-          />
+          currentNotationElementRepresentation.type === "ClassEdge" && (
+            // draw panel for edges
+            <NotationDesignerDrawEdge
+              currentNotationElementRepresentation={
+                currentNotationElementRepresentation
+              }
+              setCurrentNotationElementRepresentation={
+                setCurrentNotationElementRepresentation
+              }
+              currentNotationElement={currentNotationElement}
+              setCurrentNotationElement={setCurrentNotationElement}
+              selectedMetaModel={selectedMetaModel}
+              setSelectedMetaModel={setSelectedMetaModel}
+              selectedRepresentationMetaModel={selectedRepresentationMetaModel}
+              setSelectedRepresentationMetaModel={
+                setSelectedRepresentationMetaModel
+              }
+            />
+          )
         )}
       </div>
     </div>

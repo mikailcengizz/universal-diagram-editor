@@ -1,5 +1,6 @@
 import {
   Class,
+  InstanceModel,
   InstanceObject,
   MetaModel,
   Representation,
@@ -119,6 +120,28 @@ class ModelHelperFunctions {
     )!;
 
     return classObject;
+  }
+  static removeEdgesWithNode(
+    instanceModel: InstanceModel,
+    nodeName: string
+  ): InstanceModel {
+    const updatedInstanceModel = {
+      ...instanceModel,
+      package: {
+        ...instanceModel.package,
+        elements: instanceModel.package.objects.map((element) => {
+          if (element.name === nodeName) {
+            return {
+              ...element,
+              links: [],
+            };
+          }
+          return element;
+        }),
+      },
+    };
+
+    return updatedInstanceModel;
   }
 }
 

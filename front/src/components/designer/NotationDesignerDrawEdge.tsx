@@ -150,6 +150,7 @@ function NotationDesignerDrawEdge({
       ],
     },
     instanceObject: undefined,
+    isDesignerPreview: true,
   });
 
   // UseEffect to update the current notation element representation when the props change
@@ -349,6 +350,7 @@ function NotationDesignerDrawEdge({
             <MenuItem value="" disabled style={{ display: "none" }}>
               Select Source Marker
             </MenuItem>
+            <MenuItem value="none">None</MenuItem>
             <MenuItem value="openArrow">Open Arrow</MenuItem>
             <MenuItem value="closedArrow">Closed Arrow</MenuItem>
           </Select>
@@ -421,6 +423,7 @@ function NotationDesignerDrawEdge({
             <MenuItem value="" disabled style={{ display: "none" }}>
               Select Target Marker
             </MenuItem>
+            <MenuItem value="none">None</MenuItem>
             <MenuItem value="openArrow">Open Arrow</MenuItem>
             <MenuItem value="closedArrow">Closed Arrow</MenuItem>
           </Select>
@@ -487,14 +490,16 @@ function NotationDesignerDrawEdge({
             Preview Edge
           </h2>
         </div>
-        <CombineLinkShapesNode
-          id="edge"
-          data={data}
-          sourceX={100}
-          sourceY={100}
-          targetX={300}
-          targetY={300}
-        />
+        <div className="ml-20 mt-16">
+          <CombineLinkShapesNode
+            id="edge"
+            data={data}
+            sourceX={100}
+            sourceY={100}
+            targetX={300}
+            targetY={300}
+          />
+        </div>
       </div>
     </div>
   );

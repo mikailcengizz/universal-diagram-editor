@@ -19,10 +19,9 @@ const RenderLine = ({
   markerStart,
   markerEnd,
 }: RenderLineProps) => {
-  const [anchorPoints, setAnchorPoints] = useState([
-    { x: (sourceX + targetX) / 2, y: sourceY }, // Initial anchor points
-    { x: (sourceX + targetX) / 2, y: targetY },
-  ]);
+  const [anchorPoints, setAnchorPoints] = useState<{ x: number; y: number }[]>(
+    []
+  );
 
   const svgRef = useRef<SVGSVGElement>(null); // Use ref for the SVG element
 
@@ -50,7 +49,13 @@ const RenderLine = ({
       const { x, y } = getSVGCoords(event); // Get the correct SVG coordinates
       setAnchorPoints((prev) => {
         const newAnchorPoints = [...prev];
-        newAnchorPoints[draggingIndex!] = { x, y };
+        if (newAnchorPoints.length > 0) {
+          newAnchorPoints[draggingIndex!] = { x, y };
+        } else {
+          newAnchorPoints.push({ x, y });
+        }
+
+        console.log("newAnchorPoints", newAnchorPoints);
         return newAnchorPoints;
       });
     }
@@ -131,11 +136,13 @@ const RenderLine = ({
 
   return (
     <svg
+      id={"line" + id} // Set the ID of the SVG
       ref={svgRef} // Attach ref to the SVG
       style={{ pointerEvents: "auto" }}
     >
       {/* Render the polyline */}
       <polyline
+        id={"polyline" + id}
         points={points}
         fill="none"
         stroke="black"

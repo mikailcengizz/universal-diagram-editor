@@ -44,6 +44,13 @@ class OnNodesChangeHelper {
           },
         };
 
+        // When we remove a node, we always need to check if it is being referenced by other edges
+        // If it is, we need to remove the edge as well
+        const updatedInstanceModelWithEdges = ModelHelperFunctions.removeEdgesWithNode(
+          updatedInstanceModel,
+          nodeName
+        );
+
         dispatch(updateInstanceModel(updatedInstanceModel));
       } else {
         console.error(
@@ -97,10 +104,6 @@ class OnNodesChangeHelper {
       }
 
       const changedNodeData = changedNode?.data as DiagramNodeData;
-
-      console.log("Node changed:", changedNode);
-      console.log("Change:", change);
-      console.log("changed node data:", changedNode?.data);
       const nodeName = changedNodeData.instanceObject!.name;
 
       const instanceObjectChanged = instanceModel.package.objects.find(

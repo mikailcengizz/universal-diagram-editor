@@ -6,6 +6,7 @@ import {
   NotationRepresentationItem,
   Representation,
 } from "../../../../../types/types";
+import { MenuItem, Select } from "@mui/material";
 
 interface ModalDoubleClickConnectorProps {
   isConnectorModalOpen: boolean;
@@ -16,6 +17,20 @@ interface ModalDoubleClickConnectorProps {
   setCurrentNotationElement: (value: Class) => void;
   selectedElementIndex: number | null;
 }
+
+const selectsStyleMuiSx = {
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#d3d3d3",
+  },
+  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#d3d3d3",
+  },
+  "&:hover .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#d3d3d3",
+  },
+};
+
+const propertyTextfieldStyle = "w-1/6 2xl:w-[200px]";
 
 function ModalDoubleClickConnector({
   isConnectorModalOpen,
@@ -81,22 +96,25 @@ function ModalDoubleClickConnector({
       onClose={() => setIsConnectorModalOpen(false)}
       zIndex={5}
     >
-      <h2 className="font-semibold">Compartment Details</h2>
+      <h2 className="font-semibold">Connector Details</h2>
       <div>
         <h3>Style</h3>
-        <div>
-          <label>Alignment</label>
-          <select
-            name="alignment"
-            onChange={handleStyleChange}
-            value={connector?.style.alignment}
-          >
-            <option value="none">None</option>
-            <option value="left">Left</option>
-            <option value="center">Center</option>
-            <option value="right">Right</option>
-          </select>
-        </div>
+        <Select
+          className={propertyTextfieldStyle}
+          sx={selectsStyleMuiSx}
+          value={connector?.style.alignment}
+          onChange={(e) => handleStyleChange(e)}
+          displayEmpty
+          name="alignment"
+        >
+          <MenuItem value="" disabled style={{ display: "none" }}>
+            Alignment
+          </MenuItem>
+          <MenuItem value="left">Left</MenuItem>
+          <MenuItem value="right">Right</MenuItem>
+          <MenuItem value="top">Top</MenuItem>
+          <MenuItem value="bottom">Bottom</MenuItem>
+        </Select>
       </div>
 
       <div className="mt-4">

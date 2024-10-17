@@ -9,7 +9,7 @@ import {
   RepresentationInstanceModel,
   RepresentationInstanceObject,
 } from "../../../types/types";
-import { NodeResizer } from "@xyflow/react";
+import { NodeResizer, useUpdateNodeInternals } from "@xyflow/react";
 import RenderConnectors from "./components/RenderConnectors";
 import ModalDoubleClickNotation from "./components/modals/first_layer/ModalDoubleClickNotation";
 import ModalAddAttribute from "./components/modals/second_layer/ModalAddAttribute";
@@ -37,7 +37,7 @@ const CombineObjectShapesNode = ({
   selected,
 }: CombineObjectShapesNodeProps) => {
   const dispatch = useDispatch();
-  const metaInstanceModel: InstanceModel = useSelector(
+  const instanceModel: InstanceModel = useSelector(
     (state: any) => state.instanceModelStore.model
   );
   const representationInstanceModel: RepresentationInstanceModel = useSelector(
@@ -277,7 +277,7 @@ const CombineObjectShapesNode = ({
           }
         );
 
-      const instanceObjectIndex = metaInstanceModel.package.objects.findIndex(
+      const instanceObjectIndex = instanceModel.package.objects.findIndex(
         (obj) => obj.name === data.instanceObject!.name
       );
 
@@ -309,7 +309,7 @@ const CombineObjectShapesNode = ({
   // Handle text change
   const handleTextChange = (e: any, nameFromClassifier: string | undefined) => {
     const newDefaultValue = e.target.value;
-    let newInstanceModel = { ...metaInstanceModel };
+    let newInstanceModel = { ...instanceModel };
 
     // update the name of the class
     newInstanceModel.package.objects.find(
@@ -506,6 +506,8 @@ const CombineObjectShapesNode = ({
           connectors={connectors}
           id={nodeId}
           key={nodeId}
+          data={data}
+          instanceModel={instanceModel}
           isNotationSlider={isNotationSlider}
           isPalette={isPalette}
         />

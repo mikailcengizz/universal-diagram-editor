@@ -3,12 +3,15 @@ import {
   InstanceModel,
   InstanceObject,
   MetaModel,
+  NotationRepresentationItem,
   RepresentationInstanceModel,
+  RepresentationInstanceObject,
   RepresentationMetaModel,
 } from "../../../types/types";
 import ModelHelperFunctions from "../ModelHelperFunctions";
-import { Node, Edge, Position } from "@xyflow/react";
+import { Node, Edge, Position, HandleProps } from "@xyflow/react";
 import ReferenceHelper from "../ReferenceHelper";
+import { NodeHandleBounds } from "reactflow";
 
 class OnLoadHelper {
   static initializeNodes = (
@@ -25,33 +28,33 @@ class OnLoadHelper {
       return [];
 
     const returnNodes = instanceModel.package.objects
-      .filter((instanceObj) => {
-        const representationInstanceObj =
+      .filter((instanceObject) => {
+        const representationInstanceObject =
           ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
-            instanceObj,
+            instanceObject,
             representationInstanceModel
           );
         return (
-          representationInstanceObj &&
-          representationInstanceObj?.type === "ClassNode"
+          representationInstanceObject &&
+          representationInstanceObject?.type === "ClassNode"
         );
       })
-      .map((instanceObj) => {
-        const representationInstanceObj =
+      .map((instanceObject) => {
+        const representationInstanceObject =
           ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
-            instanceObj,
+            instanceObject,
             representationInstanceModel
           );
 
         if (
-          !instanceObj ||
+          !instanceObject ||
           !selectedMetaModel ||
           selectedMetaModel.package.elements.length === 0 ||
-          !representationInstanceObj
+          !representationInstanceObject
         )
           return null;
 
-        const position = representationInstanceObj.position || {
+        const position = representationInstanceObject.position || {
           x: 0,
           y: 0,
         };
@@ -61,38 +64,61 @@ class OnLoadHelper {
             representationMetaModel: selectedRepresentationMetaModel,
             metaModel: selectedMetaModel,
           },
-          instanceObject: instanceObj,
+          instanceObject: instanceObject,
           position: position,
         };
 
-        const nodeHandles = representationInstanceObj.graphicalRepresentation
+        const nodeHandles = representationInstanceObject.graphicalRepresentation
           ?.filter(
             (representationItem) => representationItem.shape === "connector"
           )
-          .map((representationItem) => {
-            return {
-              id:
-                representationItem.style.alignment === "left"
-                  ? "target-handle-" + instanceObj.name
-                  : "source-handle-" + instanceObj.name,
-              position:
-                representationItem.style.alignment === "left"
-                  ? Position.Left
-                  : Position.Right,
-              x: representationItem.position.x,
-              y: representationItem.position.y,
-              type:
-                representationItem.style.alignment === "left"
-                  ? ("target" as "target")
-                  : ("source" as "source"),
-            };
+          .flatMap((representationItem, index) => {
+            const handleList = [];
+
+            // Handle target and source for each side
+            if (representationItem.style.alignment === "left") {
+              // Add both target and source handles for 'left'
+              handleList.push({
+                id: `handle-left-${index}`,
+                position: Position.Left,
+                x: representationItem.position.x,
+                y: representationItem.position.y,
+                type: "source" as "source",
+              });
+            } else if (representationItem.style.alignment === "right") {
+              handleList.push({
+                id: `handle-right-${index}`,
+                position: Position.Right,
+                x: representationItem.position.x,
+                y: representationItem.position.y,
+                type: "source" as "source",
+              });
+            } else if (representationItem.style.alignment === "top") {
+              handleList.push({
+                id: `handle-top-${index}`,
+                position: Position.Top,
+                x: representationItem.position.x,
+                y: representationItem.position.y,
+                type: "source" as "source",
+              });
+            } else if (representationItem.style.alignment === "bottom") {
+              handleList.push({
+                id: `handle-bottom-${index}`,
+                position: Position.Bottom,
+                x: representationItem.position.x,
+                y: representationItem.position.y,
+                type: "source" as "source",
+              });
+            }
+
+            return handleList;
           });
 
         const returnNode: Node = {
-          id: instanceObj.name,
+          id: instanceObject.name,
           type: "ClassNode", // as it is a classifer node
           handles: nodeHandles,
-          position: representationInstanceObj.position!,
+          position: representationInstanceObject.position!,
           data: nodeData as any,
         };
 
@@ -163,21 +189,28 @@ class OnLoadHelper {
           return null;
         }
 
+        // ref is currently #/objects/1/representation/graphicalRepresentation/2
+        // we want to split in #/objects/1 and 2
+        const targetRefParts = targetLink.target.$ref.split(
+          "/representation/graphicalRepresentation/"
+        );
+        const sourceRefParts = sourceLink.target.$ref.split(
+          "/representation/graphicalRepresentation/"
+        );
+        const targetObjectRef = targetRefParts[0];
+        const sourceObjectRef = sourceRefParts[0];
+        const targetConnectorRef = +targetRefParts[1];
+        const sourceConnectorRef = +sourceRefParts[1];
+
         // Get the target and source objects from the links with the $ref
         const targetObject: InstanceObject | null =
           targetLink && targetLink.target.$ref
-            ? ReferenceHelper.resolveRef(
-                instanceModel.package,
-                targetLink.target.$ref
-              )
+            ? ReferenceHelper.resolveRef(instanceModel.package, targetObjectRef)
             : null;
 
         const sourceObject: InstanceObject | null =
           sourceLink && sourceLink.target.$ref
-            ? ReferenceHelper.resolveRef(
-                instanceModel.package,
-                sourceLink.target.$ref
-              )
+            ? ReferenceHelper.resolveRef(instanceModel.package, sourceObjectRef)
             : null;
 
         if (!targetObject) {
@@ -208,6 +241,76 @@ class OnLoadHelper {
           return null;
         }
 
+        // Get source and target instance representations
+        const sourceRepresentation =
+          ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
+            sourceObject,
+            representationInstanceModel
+          );
+        const targetRepresentation =
+          ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
+            targetObject,
+            representationInstanceModel
+          );
+
+        const sourceConenctor: NotationRepresentationItem | undefined =
+          sourceRepresentation?.graphicalRepresentation![sourceConnectorRef];
+        const targetConnector: NotationRepresentationItem | undefined =
+          targetRepresentation?.graphicalRepresentation![targetConnectorRef];
+
+        const sourceConnectorIndex =
+          sourceRepresentation?.graphicalRepresentation
+            ?.filter((item) => item.shape === "connector")
+            .indexOf(sourceConenctor!);
+        const targetConnectorIndex =
+          targetRepresentation?.graphicalRepresentation
+            ?.filter((item) => item.shape === "connector")
+            .indexOf(targetConnector!);
+
+        // Use these indices to backtrack and find the appropriate handles on the source and target nodes
+        const findHandleByConnectorIndex = (
+          node: Node,
+          connectorIndex: number
+        ) => {
+          return node.handles!.find(
+            (handle) => handle.id && handle.id.includes(`-${connectorIndex}`)
+          );
+        };
+
+        const sourceHandle = findHandleByConnectorIndex(
+          sourceNode,
+          sourceConnectorIndex!
+        );
+        const targetHandle = findHandleByConnectorIndex(
+          targetNode,
+          targetConnectorIndex!
+        );
+
+        // Check if the source and target representations were found
+        if (!sourceRepresentation || !targetRepresentation) {
+          console.error("Source or Target representation not found:", {
+            sourceRepresentation,
+            targetRepresentation,
+          });
+          return null; // Exit early if either representation is not found
+        }
+
+        if (!sourceHandle || !targetHandle) {
+          console.error(
+            "Source or Target handle not found based on connector index:",
+            {
+              sourceHandle,
+              targetHandle,
+            }
+          );
+          return null;
+        }
+
+        if (!sourceHandle || !targetHandle) {
+          console.error("Source or Target handle not found");
+          return null;
+        }
+
         const diagramEdgeData: DiagramNodeData = {
           notation: {
             representationMetaModel: selectedRepresentationMetaModel,
@@ -220,13 +323,9 @@ class OnLoadHelper {
         const returnEdge: Edge = {
           id: instanceObj.name,
           source: sourceNode!.id,
-          sourceHandle: sourceNode.handles!.find(
-            (handle) => handle.type === "source"
-          )!.id,
+          sourceHandle: sourceHandle.id,
           target: targetNode!.id,
-          targetHandle: targetNode.handles!.find(
-            (handle) => handle.type === "target"
-          )!.id,
+          targetHandle: targetHandle.id,
           type: "ClassEdge", // Assuming a default edge type
           data: diagramEdgeData as any,
         };

@@ -1,10 +1,23 @@
-import React, { useCallback, useEffect } from "react";
-import { NotationRepresentationItem } from "../../../../types/types";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
+  DiagramNodeData,
+  InstanceModel,
+  NotationRepresentationItem,
+} from "../../../../types/types";
 import { Handle, Position, useUpdateNodeInternals } from "@xyflow/react";
+import { isEqual } from "lodash";
 
 interface RenderConnectorsProps {
   isPalette?: boolean;
   isNotationSlider?: boolean;
+  data: DiagramNodeData;
+  instanceModel: InstanceModel;
   id: string;
   connectors: NotationRepresentationItem[];
 }
@@ -12,45 +25,83 @@ interface RenderConnectorsProps {
 function RenderConnectors({
   isPalette = false,
   isNotationSlider = false,
+  data,
+  instanceModel,
   id, // node id
   connectors,
 }: RenderConnectorsProps) {
   const updateNodeInternals = useUpdateNodeInternals();
+  const [handlesRendered, setHandlesRendered] = useState(false);
 
+  // Memoize connectors to avoid unnecessary updates
+  const memoizedConnectors = useMemo(() => connectors, [connectors]);
+
+  // Set handlesRendered to false when connectors change
   useEffect(() => {
-    updateNodeInternals(id);
-  }, [id, updateNodeInternals]);
+    if (!isEqual(memoizedConnectors, connectors)) {
+      setHandlesRendered(false);
+    }
+  }, [memoizedConnectors, connectors]);
+
+  // Update node internals once handles are rendered
+  useEffect(() => {
+    if (handlesRendered) {
+      updateNodeInternals(id);
+    }
+  }, [id, handlesRendered, updateNodeInternals]);
+
+  // Callback for rendering completion
+  useEffect(() => {
+    setHandlesRendered(true);
+  }, [connectors]);
 
   return (
     <>
       {id &&
-        connectors.map((connector, index) => (
-          <Handle
-            type={connector.style.alignment === "left" ? "target" : "source"}
-            position={
-              connector.style.alignment === "left"
-                ? Position.Left
-                : connector.style.alignment === "right"
-                ? Position.Right
-                : connector.style.alignment === "top"
-                ? Position.Top
-                : Position.Bottom
-            } // Left, right, etc.
-            style={{
-              background: connector.style.color,
-              // Ensure connector is placed based on custom position
-              left: `${connector.position.x}px`,
-              top: `${connector.position.y}px`,
-              zIndex: connector.style.zIndex,
-            }}
-            id={`${
-              connector.style.alignment === "left"
-                ? `target-handle-${id}`
-                : `source-handle-${id}`
-            }`}
-            key={index}
-          />
-        ))}
+        connectors.map((connector, index) => {
+          let alignment = connector.style.alignment;
+          let position: Position;
+          let handleId: string;
+
+          // Set position and handleId based on alignment
+          switch (alignment) {
+            case "left":
+              position = Position.Left;
+              handleId = `handle-left-${index}`;
+              break;
+            case "right":
+              position = Position.Right;
+              handleId = `handle-right-${index}`;
+              break;
+            case "top":
+              position = Position.Top;
+              handleId = `handle-top-${index}`;
+              break;
+            case "bottom":
+              position = Position.Bottom;
+              handleId = `handle-bottom-${index}`;
+              break;
+            default:
+              position = Position.Bottom; // Default position
+              handleId = `handle-${index}`; // Default handle id
+              break;
+          }
+
+          return (
+            <Handle
+              type="source" // we are using connection mode "loose" so that we can use source handles both for source and target
+              position={position}
+              style={{
+                background: connector.style.color,
+                left: `${connector.position.x}px`,
+                top: `${connector.position.y}px`,
+                zIndex: connector.style.zIndex,
+              }}
+              key={`${handleId}`}
+              id={`${handleId}`}
+            />
+          );
+        })}
     </>
   );
 }

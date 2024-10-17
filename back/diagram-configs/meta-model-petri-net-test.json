@@ -174,16 +174,6 @@
         "constraints": [
           "(self.source.kindOf('Place') and self.target.kindOf('Transition')) or (self.source.kindOf('Transition') and self.target.kindOf('Place'))"
         ]
-      },
-      {
-        "name": "Place",
-        "isAbstract": false,
-        "isInterface": false,
-        "attributes": [],
-        "references": [],
-        "representation": {
-          "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/8"
-        }
       }
     ]
   }

@@ -87,12 +87,14 @@ const shapes = [
 interface PaletteDrawPanelProps {
   selectedMetaModel: MetaModel;
   currentNotationElement: Class;
+  currentNotationElementRepresentation: Representation;
   saveNotation: (selectedElementIndex: number) => void;
 }
 
 function PaletteDrawPanel({
   selectedMetaModel,
   currentNotationElement,
+  currentNotationElementRepresentation,
   saveNotation,
 }: PaletteDrawPanelProps) {
   const handleDragStart = (
@@ -106,7 +108,7 @@ function PaletteDrawPanel({
     <div className="px-12 w-[82%] h-16 flex flex-row items-center align-middle my-auto">
       <div className="flex flex-row items-center align-middle my-auto justify-between w-full">
         {/* Chooseable shapes */}
-        {currentNotationElement.name === "ClassNode" && (
+        {currentNotationElementRepresentation.type === "ClassNode" && (
           <div className="flex flex-row items-center align-middle my-auto gap-x-1">
             {shapes.map((shape, index) => (
               <div

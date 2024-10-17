@@ -11,6 +11,7 @@ import {
   ReactFlowProvider,
   ReactFlowInstance,
   Position,
+  ConnectionMode,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import {
@@ -40,6 +41,7 @@ import OnNodesChangeHelper from "../helpers/react-flow-helpers/OnNodesChangeHelp
 import OnLoadHelper from "../helpers/react-flow-helpers/OnLoadHelper";
 import ConstraintHelper from "../helpers/ConstraintHelper";
 import AlertWithFade from "../ui_elements/AlertWithFade";
+import OnEdgesChangeHelper from "../helpers/react-flow-helpers/OnEdgesChangeHelper";
 
 const nodeTypes = {
   ClassNode: CombineObjectShapesNode,
@@ -277,47 +279,11 @@ const DiagramEditor = ({
       // Add the new node to the instance model together with its id
       let newInstanceObject = { ...notation };
 
-      if (!isNode) {
-        const newEdge = newNode as Edge;
-        const sourceNode = nodes.find((node) => node.id === newEdge.source);
-        const targetNode = nodes.find((node) => node.id === newEdge.target);
-        // Add source and target references to the edge
-        newInstanceObject = {
-          ...newInstanceObject,
-          links: [
-            {
-              name: "source",
-              target: {
-                $ref:
-                  "#/objects/" +
-                  instanceModel.package.objects.findIndex(
-                    (obj) =>
-                      obj.name ===
-                      (sourceNode!.data as DiagramNodeData).instanceObject?.name
-                  ),
-              },
-            },
-            {
-              name: "target",
-              target: {
-                $ref:
-                  "#/objects/" +
-                  instanceModel.package.objects.findIndex(
-                    (obj) =>
-                      obj.name ===
-                      (targetNode!.data as DiagramNodeData).instanceObject?.name
-                  ),
-              },
-            },
-          ],
-        };
-      }
-
       newInstanceModel.package.objects.push(newInstanceObject);
 
       dispatch(updateInstanceModel(newInstanceModel));
     },
-    [instanceModel, selectedMetaModel, nodes, dispatch]
+    [instanceModel, selectedMetaModel, dispatch]
   );
 
   const updateRepresentationInstanceModelWithNewNode = useCallback(
@@ -361,7 +327,6 @@ const DiagramEditor = ({
 
   const onConnect = useCallback(
     (params: Edge | Connection) => {
-      console.log("onConnect called");
       // Check if source and target exist
       if (!params.source || !params.target) {
         console.error("Source or Target is missing from params:", params);
@@ -369,7 +334,7 @@ const DiagramEditor = ({
       }
 
       // Access the source and target node IDs
-      const { source, target } = params;
+      const { source, target, sourceHandle, targetHandle } = params;
 
       const sourceNode = nodes.find((node) => node.id === source);
       const targetNode = nodes.find((node) => node.id === target);
@@ -394,6 +359,91 @@ const DiagramEditor = ({
         });
         return; // Exit early if either instance is not found
       }
+
+      // Get source and target instance representations
+      const sourceRepresentation =
+        ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
+          sourceInstanceObject,
+          representationInstanceModel
+        );
+      const targetRepresentation =
+        ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
+          targetInstanceObject,
+          representationInstanceModel
+        );
+
+      // Check if the source and target representations were found
+      if (!sourceRepresentation || !targetRepresentation) {
+        console.error("Source or Target representation not found:", {
+          sourceRepresentation,
+          targetRepresentation,
+        });
+        return; // Exit early if either representation is not found
+      }
+
+      if (!sourceHandle || !targetHandle) {
+        console.error(
+          "Source or Target handle is missing from params:",
+          params
+        );
+        return;
+      }
+
+      // Extract the alignment and handle index from the handle ID (e.g., "handle-left-0")
+      const extractHandleInfo = (handleId: string) => {
+        const [prefix, alignment, index] = handleId.split("-");
+        return { alignment, index: parseInt(index, 10) };
+      };
+
+      const sourceHandleInfo = extractHandleInfo(sourceHandle);
+      const targetHandleInfo = extractHandleInfo(targetHandle);
+
+      if (!sourceHandleInfo || !targetHandleInfo) {
+        console.error("Source or Target handle info is missing or incorrect:", {
+          sourceHandleInfo,
+          targetHandleInfo,
+        });
+        return;
+      }
+
+      console.log("sourceHandleInfo:", sourceHandleInfo);
+      console.log("targetHandleInfo:", targetHandleInfo);
+
+      // Now find the correct graphicalRepresentation connector for the source and target
+      const findConnectorIndex = (representation: any, index: number) => {
+        const connectors = representation.graphicalRepresentation.filter(
+          (item: any) => item.shape === "connector"
+        );
+
+        // Return the connector at the given index within the filtered connectors
+        return connectors[index]
+          ? representation.graphicalRepresentation.indexOf(connectors[index])
+          : -1; // Return -1 if not found
+      };
+
+      const sourceConnectorIndex = findConnectorIndex(
+        sourceRepresentation,
+        sourceHandleInfo.index
+      );
+
+      const targetConnectorIndex = findConnectorIndex(
+        targetRepresentation,
+        targetHandleInfo.index
+      );
+
+      if (sourceConnectorIndex === -1 || targetConnectorIndex === -1) {
+        console.error(
+          "Could not find the correct connector in source or target graphicalRepresentation",
+          {
+            sourceConnectorIndex,
+            targetConnectorIndex,
+          }
+        );
+        return;
+      }
+
+      const sourceConnectorRef = `/representation/graphicalRepresentation/${sourceConnectorIndex}`;
+      const targetConnectorRef = `/representation/graphicalRepresentation/${targetConnectorIndex}`;
 
       // Find the first Edge type of the notation which we can use as the default edge type
       let edgeNotationElement: Class | null =
@@ -477,7 +527,8 @@ const DiagramEditor = ({
             target: {
               $ref:
                 "#/objects/" +
-                instanceModel.package.objects.indexOf(sourceInstanceObject),
+                instanceModel.package.objects.indexOf(sourceInstanceObject) +
+                sourceConnectorRef,
             },
           },
           {
@@ -485,7 +536,8 @@ const DiagramEditor = ({
             target: {
               $ref:
                 "#/objects/" +
-                instanceModel.package.objects.indexOf(targetInstanceObject),
+                instanceModel.package.objects.indexOf(targetInstanceObject) +
+                targetConnectorRef,
             },
           },
         ],
@@ -513,15 +565,21 @@ const DiagramEditor = ({
         }, // edges don't have positions
       };
 
-      console.log("Edge created:", edgeInstanceObject);
+      console.log("onConnect edge params:", params);
 
       const newEdge: Edge = {
         ...params,
-        id: `edge-${source}-${target}-${uniqueId}`,
+        id: `${uniqueId}`,
         type: "ClassEdge",
+        source: source,
+        sourceHandle: sourceHandle,
+        target: target,
+        targetHandle: targetHandle,
         // passing data to the combined edge component
         data: data as any,
       };
+
+      console.log("edge created in OnConnect:", newEdge);
 
       setEdges((eds) => addEdge(newEdge, eds));
 
@@ -591,10 +649,25 @@ const DiagramEditor = ({
 
   const onEdgesChange: OnEdgesChange = useCallback(
     (changes) => {
-      console.log("on Edge change:", changes);
-      setEdges((eds) => applyEdgeChanges(changes, eds));
+      setEdges((eds) => {
+        // first apply the changes to the edges
+        const updatedEdges = applyEdgeChanges(changes, eds);
+
+        // then apply the changes to the instance models
+        changes.forEach((change) => {
+          OnEdgesChangeHelper.removeEdge(
+            eds,
+            change,
+            instanceModel,
+            representationInstanceModel,
+            dispatch
+          );
+        });
+
+        return updatedEdges;
+      });
     },
-    [setEdges]
+    [setEdges, dispatch, instanceModel, representationInstanceModel]
   );
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -672,24 +745,77 @@ const DiagramEditor = ({
         ?.filter(
           (representationItem) => representationItem.shape === "connector"
         )
-        .map((representationItem) => {
-          return {
-            id:
-              representationItem.style.alignment === "left"
-                ? "target-handle-" + instanceObject.name
-                : "source-handle-" + instanceObject.name,
-            position:
-              representationItem.style.alignment === "left"
-                ? Position.Right
-                : Position.Left,
-            x: representationItem.position.x,
-            y: representationItem.position.y,
-            type:
-              representationItem.style.alignment === "left"
-                ? ("target" as "target")
-                : ("source" as "source"),
-          };
+        .flatMap((representationItem, index) => {
+          const handleList = [];
+
+          // Handle target and source for each side
+          if (representationItem.style.alignment === "left") {
+            // Add both target and source handles for 'left'
+            handleList.push({
+              id: `handle-left-target-${index}`,
+              position: Position.Left,
+              x: representationItem.position.x,
+              y: representationItem.position.y,
+              type: "target" as "target",
+            });
+            handleList.push({
+              id: `handle-left-source-${index}`,
+              position: Position.Left,
+              x: representationItem.position.x,
+              y: representationItem.position.y,
+              type: "source" as "source",
+            });
+          } else if (representationItem.style.alignment === "right") {
+            handleList.push({
+              id: `handle-right-target-${index}`,
+              position: Position.Right,
+              x: representationItem.position.x,
+              y: representationItem.position.y,
+              type: "target" as "target",
+            });
+            handleList.push({
+              id: `handle-right-source-${index}`,
+              position: Position.Right,
+              x: representationItem.position.x,
+              y: representationItem.position.y,
+              type: "source" as "source",
+            });
+          } else if (representationItem.style.alignment === "top") {
+            handleList.push({
+              id: `handle-top-target-${index}`,
+              position: Position.Top,
+              x: representationItem.position.x,
+              y: representationItem.position.y,
+              type: "target" as "target",
+            });
+            handleList.push({
+              id: `handle-top-source-${index}`,
+              position: Position.Top,
+              x: representationItem.position.x,
+              y: representationItem.position.y,
+              type: "source" as "source",
+            });
+          } else if (representationItem.style.alignment === "bottom") {
+            handleList.push({
+              id: `handle-bottom-target-${index}`,
+              position: Position.Bottom,
+              x: representationItem.position.x,
+              y: representationItem.position.y,
+              type: "target" as "target",
+            });
+            handleList.push({
+              id: `handle-bottom-source-${index}`,
+              position: Position.Bottom,
+              x: representationItem.position.x,
+              y: representationItem.position.y,
+              type: "source" as "source",
+            });
+          }
+
+          return handleList;
         });
+
+      console.log("nodeHandles:", nodeHandles);
 
       const newNode: Node = {
         id: uniqueId,
@@ -761,6 +887,7 @@ const DiagramEditor = ({
               snapToGrid={true}
               snapGrid={[15, 15]}
               showGrid={showGrid}
+              connectionMode={ConnectionMode.Loose}
             />
           </div>
         </div>
