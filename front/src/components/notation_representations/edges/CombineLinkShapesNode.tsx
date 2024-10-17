@@ -84,7 +84,7 @@ function CombineLinkShapesNode({
 
   const hasGraphicalRepresentation =
     representation &&
-    representation.graphicalRepresentation &&
+    representation.graphicalRepresentation !== undefined &&
     representation.graphicalRepresentation.length > 0;
 
   const edgeStyles = {
@@ -103,11 +103,16 @@ function CombineLinkShapesNode({
       : "0", // Solid line
   };
 
+  const hasMarkers =
+    hasGraphicalRepresentation &&
+    representation!.graphicalRepresentation![0].markers !== undefined &&
+    representation!.graphicalRepresentation![0].markers!.length > 0;
+
   // Get marker styles
-  const markerSource: Marker = hasGraphicalRepresentation
+  const markerSource: Marker = hasMarkers
     ? representation!.graphicalRepresentation![0].markers![0]
     : { type: "none" };
-  const markerTarget: Marker = hasGraphicalRepresentation
+  const markerTarget: Marker = hasMarkers
     ? representation!.graphicalRepresentation![0].markers![1]
     : { type: "none" };
 
