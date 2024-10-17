@@ -1,3 +1,5 @@
+import { useDispatch } from "react-redux";
+import { updateRepresentationInstanceModel } from "../../redux/actions/representationInstanceModelActions";
 import {
   Class,
   InstanceModel,
@@ -15,6 +17,7 @@ class ModelHelperFunctions {
     instanceObject: InstanceObject,
     representationInstanceModel: RepresentationInstanceModel
   ): RepresentationInstanceObject | null {
+    console.log("instanceObject", instanceObject);
     const representationRef = instanceObject.representation?.$ref!;
 
     if (!representationRef) {
@@ -123,25 +126,85 @@ class ModelHelperFunctions {
   }
   static removeEdgesWithNode(
     instanceModel: InstanceModel,
-    nodeName: string
-  ): InstanceModel {
-    const updatedInstanceModel = {
-      ...instanceModel,
+    representationInstanceModel: RepresentationInstanceModel,
+    nodeName: string,
+    nodeIndexInstanceObjectRemoved: number,
+    dispatch: any
+  ): {
+    updatedInstanceModel: InstanceModel;
+    updatedRepresentationInstanceModel: RepresentationInstanceModel;
+  } {
+    // Create a copy of representationInstanceModel to ensure immutability
+    let updatedRepresentationInstanceModel: RepresentationInstanceModel = {
       package: {
-        ...instanceModel.package,
-        elements: instanceModel.package.objects.map((element) => {
-          if (element.name === nodeName) {
-            return {
-              ...element,
-              links: [],
-            };
-          }
-          return element;
-        }),
+        ...representationInstanceModel.package,
+        objects: [...representationInstanceModel.package.objects],
       },
     };
 
-    return updatedInstanceModel;
+    const updatedInstanceModel: InstanceModel = {
+      package: {
+        ...instanceModel.package,
+        objects: instanceModel.package.objects
+          .map((element) => {
+            const representationInstance =
+              this.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
+                element,
+                representationInstanceModel
+              );
+            // check all edge instances
+            if (representationInstance?.type === "ClassEdge") {
+              // if the edge is referencing the node, remove it
+              const sourceRef = element.links.find(
+                (link) => link.name === "source"
+              )?.target.$ref;
+              const sourceIndexObject =
+                +sourceRef?.match(/\/objects\/(\d+)/)![1]!; // gets the #/objects/1 part and extracts the 1
+
+              const targetRef = element.links.find(
+                (link) => link.name === "target"
+              )?.target.$ref;
+              const targetIndexObject =
+                +targetRef?.match(/\/objects\/(\d+)/)![1]!;
+
+              console.log("sourceIndexObject", sourceIndexObject);
+              console.log("targetIndexObject", targetIndexObject);
+              console.log("nodeIndex", nodeIndexInstanceObjectRemoved);
+
+              if (
+                sourceIndexObject === nodeIndexInstanceObjectRemoved ||
+                targetIndexObject === nodeIndexInstanceObjectRemoved
+              ) {
+                // remove the edge's representation from the representation instance model
+                updatedRepresentationInstanceModel = {
+                  ...updatedRepresentationInstanceModel,
+                  package: {
+                    ...updatedRepresentationInstanceModel.package,
+                    objects:
+                      updatedRepresentationInstanceModel.package.objects.filter(
+                        (obj) => obj.name !== element.name
+                      ),
+                  },
+                };
+                return null;
+              }
+            }
+            return element;
+          })
+          .filter((element): element is InstanceObject => element !== null),
+      },
+    };
+
+    // Normalize the instance model representation refs indexes
+    updatedInstanceModel.package.objects.forEach((obj, index) => {
+      let newRef = obj.representation?.$ref;
+      if (newRef) {
+        newRef = newRef.replace(`/objects/${index + 1}`, `/objects/${index}`);
+        obj.representation!.$ref = newRef;
+      }
+    });
+
+    return { updatedInstanceModel, updatedRepresentationInstanceModel };
   }
 }
 

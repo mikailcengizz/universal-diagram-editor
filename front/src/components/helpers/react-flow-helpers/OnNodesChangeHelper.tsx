@@ -32,6 +32,8 @@ class OnNodesChangeHelper {
       const instanceObjectRemoved = instanceModel.package.objects.find(
         (obj) => obj.name === nodeName
       );
+      const nodeIndexInstanceObjectRemoved =
+        instanceModel.package.objects.indexOf(instanceObjectRemoved!);
 
       if (instanceObjectRemoved) {
         const updatedInstanceModel = {
@@ -46,44 +48,52 @@ class OnNodesChangeHelper {
 
         // When we remove a node, we always need to check if it is being referenced by other edges
         // If it is, we need to remove the edge as well
-        const updatedInstanceModelWithEdges = ModelHelperFunctions.removeEdgesWithNode(
+        // Remove edges associated with the node in both models
+        const {
+          updatedInstanceModel: finalInstanceModel,
+          updatedRepresentationInstanceModel: finalRepresentationInstanceModel,
+        } = ModelHelperFunctions.removeEdgesWithNode(
           updatedInstanceModel,
-          nodeName
+          representationInstanceModel,
+          nodeName,
+          nodeIndexInstanceObjectRemoved,
+          dispatch
         );
 
-        dispatch(updateInstanceModel(updatedInstanceModel));
-      } else {
-        console.error(
-          "Classifier not found in representation model for ID: ",
-          change.id
-        );
-      }
-
-      // Remove the node from the representation instance model
-      const removedNodeRepresentation =
-        representationInstanceModel.package.objects.find(
-          (obj) => obj.name === nodeName
-        );
-
-      if (removedNodeRepresentation) {
-        const updatedRepresentationInstanceModel = {
-          ...representationInstanceModel,
-          package: {
-            ...representationInstanceModel.package,
-            objects: representationInstanceModel.package.objects.filter(
-              (obj) => obj.name !== nodeName
-            ),
-          },
-        };
-
+        // Update both instance and representation models with the final state
+        dispatch(updateInstanceModel(finalInstanceModel));
         dispatch(
-          updateRepresentationInstanceModel(updatedRepresentationInstanceModel)
+          updateRepresentationInstanceModel(finalRepresentationInstanceModel)
         );
-      } else {
-        console.error(
-          "Classifier not found in representation model for ID: ",
-          change.id
-        );
+
+        // Remove the node from the representation instance model
+        const removedNodeRepresentation =
+          finalRepresentationInstanceModel.package.objects.find(
+            (obj) => obj.name === nodeName
+          );
+
+        if (removedNodeRepresentation) {
+          const updatedRepresentationInstanceModel = {
+            ...finalRepresentationInstanceModel,
+            package: {
+              ...finalRepresentationInstanceModel.package,
+              objects: finalRepresentationInstanceModel.package.objects.filter(
+                (obj) => obj.name !== nodeName
+              ),
+            },
+          };
+
+          dispatch(
+            updateRepresentationInstanceModel(
+              updatedRepresentationInstanceModel
+            )
+          );
+        } else {
+          console.error(
+            "Classifier not found in representation model for ID: ",
+            change.id
+          );
+        }
       }
     }
   }

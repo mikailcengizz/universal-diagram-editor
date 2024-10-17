@@ -51,8 +51,6 @@ function CombineLinkShapesNode({
   );
 
   const [data, setData] = useState<DiagramNodeData>({ ...initialData });
-  console.log("combineLinkShapesNode edge id", id);
-  console.log("combineLinkShapesNode edge data", data);
 
   let sourceRepresentationInstance = undefined;
   let sourceConnectorRepresentationInstance = undefined;
@@ -204,9 +202,24 @@ function CombineLinkShapesNode({
     );
   }
 
-  if (data.instanceObject === undefined) {
+  if (
+    data.instanceObject === undefined ||
+    data.instanceObject.representation === undefined ||
+    data.instanceObject.representation.$ref === undefined ||
+    data.instanceObject.links === undefined ||
+    data.instanceObject.links.length === 0 ||
+    data.notation === undefined ||
+    data.notation.metaModel === undefined ||
+    data.notation.metaModel.package === undefined ||
+    data.notation.representationMetaModel === undefined
+  ) {
     return null;
   }
+
+  console.log("CombineLinkShapesNode data:", data);
+  console.log("metaModel:", data.notation!.metaModel);
+  console.log("instanceModel:", instanceModel);
+  console.log("representationInstanceModel:", representationInstanceModel);
 
   const sourceRef = data.instanceObject.links.find(
     (link) => link.name === "source"
@@ -234,6 +247,10 @@ function CombineLinkShapesNode({
     instanceModel.package,
     sourceObjectRef
   );
+
+  if (!sourceObject || !targetObject) {
+    return null; // edges must have source and target objects to render
+  }
 
   // Get source and target instance representations
   sourceRepresentationInstance =
