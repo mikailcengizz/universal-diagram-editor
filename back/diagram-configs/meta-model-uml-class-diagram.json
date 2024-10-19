@@ -1,0 +1,197 @@
+{
+  "package": {
+    "name": "UML Class Diagram",
+    "uri": "http://www.compute.dtu.dk/sse/models/uml-class",
+    "elements": [
+      {
+        "name": "ModelElement",
+        "isAbstract": true,
+        "isInterface": false,
+        "attributes": [],
+        "references": [],
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/uml-class-representation#/elements/0"
+        }
+      },
+      {
+        "isAbstract": true,
+        "isInterface": false,
+        "attributes": [
+          {
+            "name": "name",
+            "attributeType": {
+              "name": "String"
+            },
+            "defaultValue": "",
+            "isUnique": false
+          }
+        ],
+        "references": [
+          {
+            "name": "superType",
+            "element": {
+              "$ref": "#/elements/0"
+            }
+          }
+        ],
+        "name": "NamedElement",
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/uml-class-representation#/elements/1"
+        }
+      },
+      {
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [],
+        "references": [
+          {
+            "name": "superType",
+            "element": {
+              "$ref": "#/elements/1"
+            }
+          },
+          {
+            "name": "package",
+            "element": {
+              "$ref": "#/elements/7"
+            }
+          }
+        ],
+        "name": "Classifier",
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/uml-class-representation#/elements/2"
+        }
+      },
+      {
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [
+          {
+            "name": "name",
+            "attributeType": {
+              "name": "String"
+            },
+            "defaultValue": "attributeName",
+            "isUnique": false
+          },
+          {
+            "name": "attributeType",
+            "defaultValue": "String",
+            "attributeType": {
+              "name": "String"
+            },
+            "isUnique": false
+          }
+        ],
+        "references": [
+          {
+            "name": "superType",
+            "element": {
+              "$ref": "#/elements/1"
+            }
+          },
+          {
+            "name": "attributeType",
+            "element": {
+              "$ref": "#/elements/6"
+            }
+          }
+        ],
+        "name": "Attribute",
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/uml-class-representation#/elements/3"
+        }
+      },
+      {
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [
+          {
+            "name": "name",
+            "attributeType": {
+              "name": "String"
+            },
+            "defaultValue": "ClassName",
+            "isUnique": false
+          }
+        ],
+        "references": [
+          {
+            "name": "attributes",
+            "element": {
+              "$ref": "#/elements/3"
+            }
+          },
+          {
+            "name": "references",
+            "element": {
+              "$ref": "#/elements/5"
+            }
+          }
+        ],
+        "name": "Class",
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/uml-class-representation#/elements/4"
+        },
+        "constraints": []
+      },
+      {
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [],
+        "references": [
+          {
+            "name": "superType",
+            "element": {
+              "$ref": "#/elements/1"
+            }
+          }
+        ],
+        "name": "Reference",
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/uml-class-representation#/elements/5"
+        }
+      },
+      {
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [],
+        "references": [
+          {
+            "name": "superType",
+            "element": {
+              "$ref": "#/elements/2"
+            }
+          }
+        ],
+        "name": "DataType",
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/uml-class-representation#/elements/-1"
+        }
+      },
+      {
+        "isAbstract": false,
+        "isInterface": false,
+        "attributes": [],
+        "references": [
+          {
+            "name": "superType",
+            "element": {
+              "$ref": "#/elements/1"
+            }
+          },
+          {
+            "name": "classifiers",
+            "element": {
+              "$ref": "#/elements/2"
+            }
+          }
+        ],
+        "name": "Package",
+        "representation": {
+          "$ref": "http://www.compute.dtu.dk/sse/models/uml-class-representation#/elements/-1"
+        }
+      }
+    ]
+  }
+}

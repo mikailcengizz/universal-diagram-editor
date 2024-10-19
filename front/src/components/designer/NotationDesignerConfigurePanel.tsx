@@ -84,6 +84,8 @@ interface NotationDesignerConfigurePanelProps {
   availableConfigs: ConfigListItem[];
   handleDeleteConfig: (uri: string) => void;
   handleSelectUri: (selectedUri: string) => void;
+  selectedElementIndex: number;
+  setSelectedElementIndex: (value: number) => void;
   currentNotationElementRepresentation: Representation; // updates automatically
   setCurrentNotationElementRepresentation: (value: Representation) => void;
   currentNotationElement: Class;
@@ -105,6 +107,8 @@ function NotationDesignerConfigurePanel({
   availableConfigs,
   handleDeleteConfig,
   handleSelectUri,
+  selectedElementIndex,
+  setSelectedElementIndex,
   currentNotationElementRepresentation,
   setCurrentNotationElementRepresentation,
   currentNotationElement,
@@ -121,7 +125,15 @@ function NotationDesignerConfigurePanel({
   setSelectedRepresentationMetaModel,
   saveNotation,
 }: NotationDesignerConfigurePanelProps) {
-  const [selectedElementIndex, setSelectedElementIndex] = useState<number>(-1);
+  useEffect(() => {
+    // force re-render
+    setCurrentNotationElementRepresentation(
+      currentNotationElementRepresentation
+    );
+  }, [
+    currentNotationElementRepresentation,
+    setCurrentNotationElementRepresentation,
+  ]);
 
   const isAttributeButtonDisabled = (attribute: Attribute) => {
     return (
@@ -168,11 +180,11 @@ function NotationDesignerConfigurePanel({
 
       setCurrentNotationElement({
         ...currentNotationElement,
+        name: selectedIndexOrInput, // Set the name as the typed value
         isAbstract: false,
         isInterface: false,
         attributes: [],
         references: [],
-        name: selectedIndexOrInput, // Set the name as the typed value
         representation: {
           $ref: `${selectedMetaModel.package.uri}-representation#/elements/${indexRef}`,
         },
@@ -190,6 +202,8 @@ function NotationDesignerConfigurePanel({
         name: "",
         element: { $ref: "" },
       });
+
+      setSelectedElementIndex(-1);
     }
   };
 
@@ -331,7 +345,11 @@ function NotationDesignerConfigurePanel({
         <FormControl className={configureTextfieldStyle}>
           <Select
             sx={selectsStyleMuiSx}
-            value={currentNotationElementRepresentation.type}
+            value={
+              currentNotationElementRepresentation !== null
+                ? currentNotationElementRepresentation.type
+                : "None"
+            }
             onChange={(e) => {
               const value = e.target.value as RepresentationType;
               setCurrentNotationElementRepresentation({

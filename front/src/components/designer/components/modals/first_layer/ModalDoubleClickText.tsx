@@ -1,4 +1,11 @@
-import { Class, Representation } from "../../../../../types/types";
+import { Autocomplete, TextField } from "@mui/material";
+import {
+  Class,
+  ClassAttributeReference,
+  MetaModel,
+  Representation,
+  RepresentationMetaModel,
+} from "../../../../../types/types";
 import CustomModal from "../../../../ui_elements/Modal";
 
 interface ModalDoubleClickTextProps {
@@ -8,8 +15,25 @@ interface ModalDoubleClickTextProps {
   setCurrentNotationElementRepresentation: (value: Representation) => void;
   currentNotationElement: Class;
   setCurrentNotationElement: (value: Class) => void;
+  selectedMetaModel: MetaModel;
+  setSelectedMetaModel: (value: MetaModel) => void;
+  selectedRepresentationMetaModel: RepresentationMetaModel;
+  setSelectedRepresentationMetaModel: (value: RepresentationMetaModel) => void;
   selectedElementIndex: number | null;
+  selectedNotationRepresentationItemIndex: number | null;
 }
+
+const textFieldsStyleMuiSx = {
+  "& .MuiOutlinedInput-root": {
+    border: "1px solid #d3d3d3",
+    fontSize: "14px",
+  },
+  "& .MuiOutlinedInput-notchedOutline": {
+    border: "none",
+  },
+};
+
+const configureTextfieldStyle = "w-1/3 2xl:w-[450px]";
 
 function ModalDoubleClickText({
   isTextModalOpen,
@@ -18,15 +42,58 @@ function ModalDoubleClickText({
   setCurrentNotationElementRepresentation,
   currentNotationElement,
   setCurrentNotationElement,
+  selectedMetaModel,
+  setSelectedMetaModel,
+  selectedRepresentationMetaModel,
+  setSelectedRepresentationMetaModel,
   selectedElementIndex,
+  selectedNotationRepresentationItemIndex,
 }: ModalDoubleClickTextProps) {
+  if (
+    currentNotationElementRepresentation === null ||
+    currentNotationElementRepresentation === undefined ||
+    currentNotationElementRepresentation.graphicalRepresentation === null ||
+    currentNotationElementRepresentation.graphicalRepresentation ===
+      undefined ||
+    selectedElementIndex === null ||
+    selectedElementIndex === undefined ||
+    selectedElementIndex === -1 ||
+    selectedNotationRepresentationItemIndex === null ||
+    selectedNotationRepresentationItemIndex === undefined ||
+    selectedNotationRepresentationItemIndex === -1
+  ) {
+    return null;
+  }
+
+  const handleSelectClassAttributeReference = (attributeName: string) => {
+    const updatedRepresentation = [
+      ...currentNotationElementRepresentation?.graphicalRepresentation!,
+    ];
+
+    const classAttributeIndex = currentNotationElement.attributes.findIndex(
+      (attribute) => attribute.name === attributeName
+    );
+
+    if (classAttributeIndex === -1) return;
+
+    updatedRepresentation[selectedNotationRepresentationItemIndex].text = {
+      $ref: `${selectedMetaModel.package.uri}#/elements/${selectedElementIndex}/attributes/${classAttributeIndex}`,
+    };
+
+    setCurrentNotationElementRepresentation({
+      ...currentNotationElementRepresentation,
+      graphicalRepresentation: updatedRepresentation,
+    });
+  };
+
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (selectedElementIndex === null) return;
+    if (selectedNotationRepresentationItemIndex === null) return;
 
     const updatedRepresentation = [
       ...currentNotationElementRepresentation?.graphicalRepresentation!,
     ];
-    updatedRepresentation[selectedElementIndex].text = e.target.value;
+    updatedRepresentation[selectedNotationRepresentationItemIndex].text =
+      e.target.value;
 
     setCurrentNotationElementRepresentation({
       ...currentNotationElementRepresentation,
@@ -35,14 +102,14 @@ function ModalDoubleClickText({
   };
 
   const handleFontSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (selectedElementIndex === null) return;
+    if (selectedNotationRepresentationItemIndex === null) return;
 
     const updatedRepresentation = [
       ...currentNotationElementRepresentation?.graphicalRepresentation!,
     ];
-    updatedRepresentation[selectedElementIndex].style.fontSize = parseInt(
-      e.target.value
-    );
+    updatedRepresentation[
+      selectedNotationRepresentationItemIndex
+    ].style.fontSize = parseInt(e.target.value);
 
     setCurrentNotationElementRepresentation({
       ...currentNotationElementRepresentation,
@@ -57,14 +124,67 @@ function ModalDoubleClickText({
       zIndex={5}
     >
       <h2 className="font-semibold">Text Details</h2>
-      <div>
+      <div className="flex flex-col gap-y-2">
+        {/* Configuration name */}
         <div>
-          <label>Text</label>
-          <input type="text" onChange={handleTextChange} />
+          <h3 className="text-sm">Text</h3>
+          {/* If user wants dynamic text, user references it to a attribute */}
+          <Autocomplete
+            className={configureTextfieldStyle}
+            freeSolo
+            options={currentNotationElement.attributes.map(
+              (attribute) => attribute.name
+            )} // List of existing configuration URIs
+            value={
+              typeof currentNotationElementRepresentation.graphicalRepresentation![
+                selectedNotationRepresentationItemIndex!
+              ].text === "object"
+                ? currentNotationElement.attributes[
+                    +(
+                      currentNotationElementRepresentation.graphicalRepresentation![
+                        selectedNotationRepresentationItemIndex!
+                      ].text as ClassAttributeReference
+                    ).$ref.split("attributes/")[1]
+                  ].name
+                : (currentNotationElementRepresentation.graphicalRepresentation![
+                    selectedNotationRepresentationItemIndex!
+                  ].text as string)!
+            }
+            onInputChange={(event, attributeName: string) => {
+              handleSelectClassAttributeReference(attributeName);
+            }}
+            renderInput={(params) => {
+              // If user wants static text, user types it
+              return (
+                <TextField
+                  {...params}
+                  size="small"
+                  className={configureTextfieldStyle}
+                  sx={textFieldsStyleMuiSx}
+                  placeholder="Text"
+                  onChange={handleTextChange}
+                />
+              );
+            }}
+          />
         </div>
+
+        {/* Font size */}
         <div>
-          <label>Font Size</label>
-          <input type="number" onChange={handleFontSizeChange} />
+          <h3 className="text-sm">Font size</h3>
+          <TextField
+            size="small"
+            className={configureTextfieldStyle}
+            sx={textFieldsStyleMuiSx}
+            placeholder="Font size"
+            type="number"
+            value={
+              currentNotationElementRepresentation.graphicalRepresentation![
+                selectedNotationRepresentationItemIndex!
+              ].style.fontSize
+            }
+            onChange={handleFontSizeChange}
+          />
         </div>
       </div>
     </CustomModal>

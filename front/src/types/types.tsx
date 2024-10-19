@@ -17,10 +17,20 @@ export interface Marker {
 export interface NotationRepresentationItem {
   shape?: Shape;
   markers?: Marker[];
-  text?: string;
-  generator?: string | null;
+  text?: string | ClassAttributeReference;
+  content?: ClassReferenceReference; // for compartments
   style: StyleProperties;
   position: Position;
+}
+
+export interface ClassAttributeReference {
+  $ref: string; // URI reference to the class attribute
+  // e.g. #/elements/0/attributes/0
+}
+
+export interface ClassReferenceReference {
+  $ref: string; // URI reference to the class reference
+  // e.g. #/elements/0/references/0
 }
 
 export interface Position {
@@ -40,6 +50,7 @@ export interface StyleProperties {
   color?: string;
   fontSize?: number;
   alignment?: Alignment;
+  layout?: "horizontal" | "vertical";
   backgroundColor?: string;
   borderColor?: string;
   borderStyle?: string;

@@ -1,0 +1,108 @@
+{
+  "package": {
+    "name": "UML Class Diagram Representation",
+    "uri": "http://www.compute.dtu.dk/sse/models/uml-class-representation",
+    "elements": [
+      {
+        "name": "ModelElement",
+        "type": "None",
+        "graphicalRepresentation": []
+      },
+      {
+        "name": "NamedElement",
+        "type": "None",
+        "graphicalRepresentation": []
+      },
+      {
+        "name": "Classifier",
+        "type": "None",
+        "graphicalRepresentation": []
+      },
+      {
+        "name": "Attribute",
+        "type": "None",
+        "graphicalRepresentation": []
+      },
+      {
+        "name": "Class",
+        "type": "ClassNode",
+        "graphicalRepresentation": [
+          {
+            "shape": "square",
+            "style": {
+              "backgroundColor": "#f9f9f9",
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "borderStyle": "solid",
+              "zIndex": 1
+            },
+            "position": {
+              "x": 590,
+              "y": 170,
+              "extent": {
+                "width": 120,
+                "height": 120
+              }
+            }
+          },
+          {
+            "shape": "text",
+            "style": {
+              "color": "#000",
+              "fontSize": 14,
+              "alignment": "center",
+              "zIndex": 3,
+              "borderWidth": 0
+            },
+            "position": {
+              "x": 600,
+              "y": 175,
+              "extent": {
+                "width": 100,
+                "height": 30
+              }
+            },
+            "text": {
+              "$ref": "http://www.compute.dtu.dk/sse/models/uml-class#/elements/4/attributes/0"
+            }
+          },
+          {
+            "shape": "compartment",
+            "style": {
+              "color": "#000000",
+              "fontSize": 14,
+              "alignment": "left",
+              "layout": "vertical"
+            },
+            "position": {
+              "x": 590,
+              "y": 205,
+              "extent": {
+                "width": 120,
+                "height": 30
+              }
+            },
+            "content": {
+              "$ref": "#/elements/4/references/0"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Reference",
+        "type": "None",
+        "graphicalRepresentation": []
+      },
+      {
+        "name": "DataType",
+        "type": "None",
+        "graphicalRepresentation": []
+      },
+      {
+        "name": "Package",
+        "type": "None",
+        "graphicalRepresentation": []
+      }
+    ]
+  }
+}

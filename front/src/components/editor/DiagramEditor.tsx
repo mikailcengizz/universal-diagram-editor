@@ -24,6 +24,7 @@ import {
   Class,
   RepresentationMetaModel,
   RepresentationInstanceObject,
+  AttributeValue,
 } from "../../types/types";
 import PaletteEditorPanel from "./PaletteEditorPanel";
 import configService from "../../services/ConfigService";
@@ -685,6 +686,11 @@ const DiagramEditor = ({
         return;
       }
 
+      console.log(
+        "event.dataTransfer:",
+        event.dataTransfer.getData("palette-item")
+      );
+
       const dragData: DragData = JSON.parse(
         event.dataTransfer.getData("palette-item")
       );
@@ -706,7 +712,14 @@ const DiagramEditor = ({
               (element) => element.name === notationElement.name
             ),
         },
-        attributes: [],
+        attributes: (selectedMetaModel.package.elements as Class[])
+          .find((element) => element.name === notationElement.name)
+          ?.attributes.map((attribute) => {
+            return {
+              name: attribute.name,
+              value: attribute.defaultValue,
+            };
+          }) as AttributeValue[],
         links: [],
         representation: {
           $ref:
@@ -897,6 +910,7 @@ const DiagramEditor = ({
       {isModalOpen && modalData && (
         <ModalDoubleClickNotation
           data={modalData}
+          instanceModel={instanceModel}
           isNodeAttributeModalOpen={false}
           isNodeModalOpen={isModalOpen}
           isNodeOperationModalOpen={false}

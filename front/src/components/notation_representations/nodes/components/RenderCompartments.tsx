@@ -5,6 +5,7 @@ import {
   InstanceModel,
   InstanceObject,
   NotationRepresentationItem,
+  Reference,
 } from "../../../../types/types";
 import typeHelper from "../../../helpers/TypeHelper";
 import { useDispatch, useSelector } from "react-redux";
@@ -32,37 +33,62 @@ function RenderCompartments({
   return (
     <>
       {compartments.map((compartment, index) => {
-        const generatorName = compartment.generator;
-        let instanceObject: InstanceObject | undefined = undefined;
-        if (instanceModel.package) {
-          instanceObject = instanceModel.package!.objects.find(
-            (obj) => obj.name === data.instanceObject?.name
-          );
-        }
+        // this string is #/elements/0/references/0
+        const refToCreateContentFor: string | undefined =
+          compartment.content?.$ref;
+        if (!refToCreateContentFor) return null;
+        // Regular expression to match numbers beside 'elements' and 'references'
+        const elementNumber = parseInt(
+          refToCreateContentFor.match(/\/elements\/(\d+)/)![1]
+        );
+        const referenceNumber = parseInt(
+          refToCreateContentFor.match(/\/references\/(\d+)/)![1]
+        );
 
-        if (generatorName === "attributesForNotation" && instanceObject) {
-          const attributes = instanceObject.attributes!.filter(
-            (attribute) =>
-              attribute.name !== "name" &&
-              attribute.name !== "abstract" &&
-              attribute.name !== "visibility"
-          )!;
+        const referenceToCreateContentFor: Reference | undefined =
+          data.notationElement?.references[referenceNumber];
+        const referencingMetaClass: Class | undefined = data.notation?.metaModel
+          .package?.elements[
+          +referenceToCreateContentFor?.element.$ref.split("elements/")[1]!
+        ] as Class;
 
-          const attributeHeight = compartment.position.extent?.height || 10; // Default height for each attribute
+        if (data.instanceObject) {
+          // Link object for example Attribute class or Operation class
+          const linkObjects = data.instanceObject.links
+            .filter((link) => {
+              const linkObject =
+                instanceModel.package.objects[
+                  +link.target.$ref.split("objects/")[1]
+                ];
+
+              const linkObjectClass = data.notation?.metaModel.package.elements[
+                +linkObject.type.$ref.split("elements/")[1]
+              ] as Class;
+
+              if (!linkObjectClass || !referencingMetaClass) return false;
+              return linkObjectClass!.name === referencingMetaClass!.name;
+            })
+            .map((link) => {
+              return instanceModel.package.objects[
+                +link.target.$ref.split("objects/")[1]
+              ];
+            });
+
+          const compartmentHeight = compartment.position.extent?.height || 10; // Default height for each attribute
           const compartmentX = compartment.position.x;
           const compartmentY = compartment.position.y;
 
           return (
             <div key={index}>
-              {attributes &&
-                attributes.map((attribute, idx) => (
+              {linkObjects &&
+                linkObjects.map((linkObject, idx) => (
                   <div
                     key={idx}
                     style={{
                       position: "absolute",
                       left: `${compartmentX}px`,
-                      top: `${compartmentY + idx * attributeHeight}px`, // Adjust top position based on index
-                      height: `${attributeHeight}px`,
+                      top: `${compartmentY + idx * compartmentHeight}px`, // adjust top position based on index
+                      height: `${compartmentHeight}px`,
                       width: `${
                         isPalette
                           ? (compartment.position.extent?.width || 100) + "px"
@@ -78,76 +104,25 @@ function RenderCompartments({
                   >
                     <div key={idx}>
                       {/* {typeHelper.determineVisibilityIcon(attribute.visibility)}{" "} */}
-                      {attribute.name} {attribute.value}
-                    </div>
-                  </div>
-                ))}
-            </div>
-          );
-        } /* else if (generatorName === "operationsForNotation" && classifier) {
-          const operations = data.instance.eOperations!;
-
-          const operationHeight = compartment.position.extent?.height || 10; // Default height for each operation
-          const compartmentX = compartment.position.x;
-          const compartmentY = compartment.position.y;
-
-          return (
-            <div key={index}>
-              {operations &&
-                operations.map((operation, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      position: "absolute",
-                      left: `${compartmentX}px`,
-                      top: `${compartmentY + idx * operationHeight}px`, // Adjust top position based on index
-                      height: `${operationHeight}px`,
-                      width: `${
-                        data.isPalette
-                          ? (compartment.position.extent?.width || 100) + "px"
-                          : "100%"
-                      }`,
-                      fontSize: `${compartment.style.fontSize}px`,
-                      zIndex: 2,
-                      wordWrap: "break-word",
-                      padding: "2px 5px",
-                      overflowX: "hidden",
-                      overflowY: "auto",
-                    }}
-                  >
-                    <div key={idx}>
-                      {/* {typeHelper.determineVisibilityIcon(operation.visibility)}{" "} }
-                      {operation.name}
-                      {operation.eParameters!.map((parameter, index) => (
-                        <span key={index}>
-                          {parameter.name}: {parameter.eType?.name}{" "}
-                          {/* {parameter.defaultValue &&
-                            `= ${parameter.defaultValue}`} }
+                      {linkObject.attributes && (
+                        <span>
+                          {linkObject.attributes.map((attribute, i) => {
+                            return (
+                              <span key={i}>
+                                {attribute.name === "name" && attribute.value}
+                                {attribute.name === "attributeType" &&
+                                  ": " + attribute.value}
+                              </span>
+                            );
+                          })}
                         </span>
-                      ))}
-                      {operation.eType && `: ${operation.eType}`}
+                      )}
                     </div>
                   </div>
                 ))}
             </div>
           );
-        } */
-
-        /* Default case for rendering direct text and not generator elements */
-        /* return (
-          <div
-            key={index}
-            style={{
-              position: "absolute",
-              left: `${compartment.position.x}px`,
-              top: `${compartment.position.y}px`,
-              width: `${compartment.position.extent?.width || 100}px`,
-              height: `${compartment.position.extent?.height || 10}px`,
-              borderColor: "transparent",
-              borderWidth: 0,
-            }}
-          />
-        ); */
+        }
       })}
     </>
   );

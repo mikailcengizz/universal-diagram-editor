@@ -35,7 +35,7 @@ const shapes = [
   {
     shape: "text",
     icon: <TitleIcon />,
-    text: "Class name",
+    text: "Text",
     style: {
       color: "#000",
       fontSize: 14,
@@ -67,6 +67,7 @@ const shapes = [
       color: "#000000",
       fontSize: 14,
       alignment: "left",
+      layout: "vertical",
       borderColor: "#00b3ff",
       borderWidth: 1,
       zIndex: 2,

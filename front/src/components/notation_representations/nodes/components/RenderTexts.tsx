@@ -32,10 +32,14 @@ function RenderTexts({
   return (
     <>
       {texts.map((textItem, idx) => {
-        let text = "Class";
-        if (!isPalette && !isNotationSlider && textItem.text === "name") {
-          text = data.instanceObject!.name;
-        }
+        let text =
+          typeof textItem.text === "object" && !isPalette
+            ? data.instanceObject?.attributes[
+                +textItem.text.$ref.split("attributes/")[1]!
+              ]!.value
+            : typeof textItem.text === "object" && isPalette
+            ? "Text"
+            : textItem.text;
 
         // we dont want editable field in palette notations
         if (isPalette || isNotationSlider) {
@@ -54,6 +58,7 @@ function RenderTexts({
                   | "left"
                   | "center"
                   | "right",
+                zIndex: textItem.style.zIndex,
               }}
             >
               {text}
@@ -80,6 +85,7 @@ function RenderTexts({
                 borderColor: textItem.style.borderColor,
                 borderWidth: textItem.style.borderWidth,
                 borderStyle: textItem.style.borderStyle,
+                zIndex: textItem.style.zIndex,
               }}
               value={text}
               onChange={(e) => handleTextChange(e, text)}

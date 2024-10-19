@@ -12,10 +12,14 @@ import {
 import typeHelper from "../../../../../helpers/TypeHelper";
 import { useDispatch, useSelector } from "react-redux";
 import ModelHelperFunctions from "../../../../../helpers/ModelHelperFunctions";
+import { TextField } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { updateInstanceModel } from "../../../../../../redux/actions/objectInstanceModelActions";
 
 interface ModalDoubleClickNotationProps {
   isNodeModalOpen: boolean;
   setIsNodeModalOpen: (isOpen: boolean) => void;
+  instanceModel: InstanceModel;
   data: DiagramNodeData;
   setData: (data: DiagramNodeData) => void;
   isNodeAttributeModalOpen: boolean;
@@ -28,6 +32,7 @@ interface ModalDoubleClickNotationProps {
 function ModalDoubleClickNotation({
   isNodeModalOpen,
   setIsNodeModalOpen,
+  instanceModel,
   data,
   setData,
   isNodeAttributeModalOpen,
@@ -37,9 +42,6 @@ function ModalDoubleClickNotation({
   onDataUpdate,
 }: ModalDoubleClickNotationProps) {
   const dispatch = useDispatch();
-  const instanceModel: InstanceModel = useSelector(
-    (state: any) => state.instanceModelStore.model
-  );
   const representationInstanceModel: RepresentationInstanceModel = useSelector(
     (state: any) => state.representationInstanceModelStore.model
   );
@@ -50,6 +52,8 @@ function ModalDoubleClickNotation({
     );
   const [relationshipTab, setRelationshipTab] = useState<number>(1);
 
+  useEffect(() => {}, [instanceModel]);
+
   const handleNodeNotationAttributeChange = (
     attribute: AttributeValue,
     value: any
@@ -58,101 +62,76 @@ function ModalDoubleClickNotation({
     newData.instanceObject!.attributes =
       newData.instanceObject!.attributes!.map((prop) => {
         if (prop.name === attribute.name) {
-          return { ...prop, defaultValue: value }; // Ensure each property is also copied
+          return { name: attribute.name, value: value } as AttributeValue; // Ensure each property is also copied
         }
         return prop;
       });
-    setData(newData); // Set the new data to trigger re-rendering
-  };
-
-  /* const handleNodeNotationOperationChange = (
-    operation: EOperation,
-    value: any
-  ) => {
-    const newData = { ...data }; // Create a shallow copy of the data object
-    newData.instanceNotation.eOperations =
-      newData.instanceNotation.eOperations!.map((prop) => {
-        if (prop.name === operation.name) {
-          return { ...prop, defaultValue: value }; // Ensure each property is also copied
+    const updatedInstanceModel = { ...instanceModel };
+    updatedInstanceModel.package.objects =
+      updatedInstanceModel.package.objects.map((object) => {
+        if (object.name === data.instanceObject!.name) {
+          object.attributes = newData.instanceObject!.attributes;
         }
-        return prop;
+        return object;
       });
+    dispatch(updateInstanceModel(updatedInstanceModel));
     setData(newData); // Set the new data to trigger re-rendering
-  }; */
-
-  const handleRoleMarkerSourceChange = (newMarker: any) => {
-    console.log("New source marker selected:", newMarker); // Add this for debugging
-    const newData = { ...data };
-    /* if (
-      newData.nodeNotation
-        .roles!.find((role) => role.name === "Source")!
-        .graphicalRepresentation!.find(
-          (item) => item.marker && item.marker.length > 0
-        ) === undefined
-    ) {
-      newData.nodeNotation
-        .roles!.find((role) => role.name === "Source")!
-        .graphicalRepresentation!.push({
-          shape: "marker",
-          style: { pattern: "solid" as Pattern },
-          position: { x: 0, y: 0 },
-          marker: newMarker,
-        });
-    } else {
-      newData.nodeNotation
-        .roles!.find((role) => role.name === "Source")!
-        .graphicalRepresentation!.find(
-          (item) => item.marker && item.marker.length > 0
-        )!.marker = newMarker;
-    } */
-
-    setData(newData); // Update modal data
-    onDataUpdate(newData); // Update parent with new data
   };
 
-  const handleRoleMarkerTargetChange = (newMarker: any) => {
-    console.log("New target marker selected:", newMarker); // Add this for debugging
+  const handleAttributeDelete = (index: number) => {
     const newData = { ...data };
-    /*  if (
-      newData.nodeNotation
-        .roles!.find((role) => role.name === "Target")!
-        .graphicalRepresentation!.find(
-          (item) => item.marker && item.marker.length > 0
-        ) === undefined
-    ) {
-      newData.nodeNotation
-        .roles!.find((role) => role.name === "Target")!
-        .graphicalRepresentation!.push({
-          shape: "marker",
-          style: { pattern: "solid" as Pattern },
-          position: { x: 0, y: 0 },
-          marker: newMarker,
-        });
-    } else {
-      newData.nodeNotation
-        .roles!.find((role) => role.name === "Target")!
-        .graphicalRepresentation!.find(
-          (item) => item.marker && item.marker.length > 0
-        )!.marker = newMarker;
-    } */
+    newData.instanceObject!.attributes =
+      newData.instanceObject!.attributes!.filter((attr, idx) => idx !== index);
 
-    setData(newData); // Update modal data
-    onDataUpdate(newData); // Update parent with new data
+    const updatedInstanceModel = { ...instanceModel };
+    updatedInstanceModel.package.objects =
+      updatedInstanceModel.package.objects.map((object) => {
+        if (object.name === data.instanceObject!.name) {
+          object.attributes = newData.instanceObject!.attributes;
+        }
+        return object;
+      });
+    dispatch(updateInstanceModel(updatedInstanceModel));
+    setData(newData);
   };
 
-  // This should not be used to update data, but only to display the attributes of the class
-  const [classAttributes, setClassAttributes] = useState<
-    Attribute[] | undefined
-  >([]);
-  useEffect(() => {
-    if (data.notation && data.notation.metaModel.package) {
-      const classifier: Class | undefined =
-        data.notation.metaModel.package.elements.find((element) => {
-          return element.name === data.instanceObject!.name;
-        }) as Class;
-      setClassAttributes(classifier?.attributes!);
-    }
-  }, [instanceModel]);
+  const handleAttributeReferenceDelete = (index: number) => {
+    const newData = { ...data };
+    const attributeObjectIndex =
+      +newData.instanceObject!.links[index].target.$ref.split("objects/")[1];
+
+    // Remove the attribute reference link from the instance object
+    newData.instanceObject!.links = newData.instanceObject!.links!.filter(
+      (link, idx) => idx !== index
+    );
+
+    // Update the instance model with the new data
+    const updatedInstanceModel = { ...instanceModel };
+    updatedInstanceModel.package.objects =
+      updatedInstanceModel.package.objects.map((object) => {
+        if (object.name === data.instanceObject!.name) {
+          object.links = newData.instanceObject!.links;
+        }
+        return object;
+      });
+
+    // Remove the attribute object from the instance model
+    updatedInstanceModel.package.objects.splice(attributeObjectIndex, 1);
+
+    dispatch(updateInstanceModel(updatedInstanceModel));
+    setData(newData);
+  };
+
+  const instanceObject = instanceModel.package.objects.find(
+    (object) => object.name === data.instanceObject?.name
+  );
+
+  if (!instanceObject) {
+    return null;
+  }
+
+  console.log("instanceObject", instanceObject);
+  console.log("instanceModel", instanceModel);
 
   return (
     <CustomModal
@@ -160,117 +139,100 @@ function ModalDoubleClickNotation({
       onClose={() => setIsNodeModalOpen(false)}
       zIndex={5}
     >
-      <h2 className="font-semibold">{data.instanceObject!.name!} Details</h2>
-
       {/* Normal attributes - these are class specific, under eAttributes */}
 
       {/* Attributes with name = "Attribute" - these are fields, but under Classifier, and we add these to eAttributes of the class */}
 
-      <div className="w-full">
-        {data.instanceObject!.attributes &&
-          data.instanceObject!.attributes.map((attribute, index) => {
-            {
-              /* Class-Specific Attributes (e.g., isAbstract, visibility) */
-            }
-            if (
-              attribute.name === "name" ||
-              attribute.name === "abstract" ||
-              attribute.name === "visibility"
-            ) {
-              return (
-                <div key={index}>
-                  <label>{attribute.name}</label>
-                  <input
-                    type={typeHelper.determineInputFieldType(attribute.name!)}
-                    value={attribute.value}
-                    onChange={(e) =>
-                      handleNodeNotationAttributeChange(
-                        attribute,
-                        e.target.value
-                      )
-                    }
+      <div className="w-full flex flex-col gap-y-2">
+        <h2 className="font-semibold">{instanceObject.name!} Details</h2>
+        {instanceObject.attributes.map((attribute, index) => {
+          console.log("Attribute:", attribute);
+          /* Class-Specific Attributes (e.g., isAbstract, visibility) */
+          return (
+            <div key={index}>
+              <h3 className="text-sm">{attribute.name}</h3>
+              <div className="flex">
+                <TextField
+                  size="small"
+                  type={typeHelper.determineInputFieldType(attribute.name!)}
+                  value={attribute.value as string}
+                  onChange={(e) =>
+                    handleNodeNotationAttributeChange(attribute, e.target.value)
+                  }
+                />
+                <div
+                  className={`bg-[#000000] px-2 py-1 w-fit rounded-md items-center flex text-white text-xs cursor-pointer hover:opacity-85 trransition duration-300 ease-in-out float-left`}
+                  onClick={() => handleAttributeDelete(index)}
+                >
+                  <DeleteIcon
+                    style={{
+                      width: "15px",
+                      height: "15px",
+                      objectFit: "contain",
+                    }}
                   />
                 </div>
-              );
-            }
-          })}
+              </div>
+            </div>
+          );
+        })}
 
-        {/* Field Attributes (e.g., class members inside compartments) should just be listed */}
-        <h3>Class Attributes</h3>
-        {classAttributes &&
-          classAttributes.map((attribute, index) => {
-            if (
-              attribute.name !== "name" &&
-              attribute.name !== "abstract" &&
-              attribute.name !== "visibility"
-            ) {
+        {/* References to Attribute objects, i.e added attribute instances */}
+        <h3>Attributes</h3>
+        {instanceObject.links &&
+          instanceObject.links
+            .filter((link) => link.name === "attribute")
+            .map((reference, index) => {
+              const targetObjectIndex =
+                +reference.target.$ref.split("objects/")[1];
+              const targetObject =
+                instanceModel.package.objects[targetObjectIndex];
+
+              const attributeName = targetObject.attributes.find(
+                (attribute) => attribute.name === "name"
+              )?.value;
+              const attributeType = targetObject.attributes.find(
+                (attribute) => attribute.name === "attributeType"
+              )?.value;
+
+              // actually the user should be able to choose the order of how the attributes are displayed and which ones are displayed
+              // but will choose it for them for now
+              const wholeAttribute = `${attributeName}: ${attributeType}`;
+
               return (
                 <div key={index}>
-                  <span>{attribute.name}</span>
+                  <div className="flex">
+                    <div className="border-[1px] border-[#c5c5c5] w-full py-2 px-4 rounded-md">
+                      <span>{wholeAttribute}</span>
+                    </div>
+
+                    <div
+                      className={`bg-[#000000] px-2 py-1 w-fit rounded-md items-center flex text-white text-xs cursor-pointer hover:opacity-85 trransition duration-300 ease-in-out float-left`}
+                      onClick={() => handleAttributeReferenceDelete(index)}
+                    >
+                      <DeleteIcon
+                        style={{
+                          width: "15px",
+                          height: "15px",
+                          objectFit: "contain",
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
               );
-            }
-          })}
-
+            })}
         {/* Add attribute field button */}
         <div className="flex flex-row w-full">
           <div
-            className="w-1/2 bg-black text-white text-center cursor-pointer"
+            className="w-full bg-black text-white text-center cursor-pointer"
             onClick={() => {
               setIsNodeAttributeModalOpen(true);
             }}
           >
             Add
           </div>
-          <div className="w-1/2 text-center border-[1px] border-solid border-black cursor-pointer">
-            Remove
-          </div>
         </div>
-
-        <br />
-
-        {/* Field Operations (e.g., class members inside compartments) */}
-        {/* <h3>Class Operations</h3>
-        {data.instanceNotation.eOperations &&
-          data.instanceNotation.eOperations.map((operation, index) => {
-            if (
-              operation.name !== "name" &&
-              operation.name !== "abstract" &&
-              operation.name !== "visibility"
-            ) {
-              return (
-                <div key={index}>
-                  <label>{operation.name}</label>
-                  <input
-                    type={typeHelper.determineInputFieldType(
-                      operation.eType!.name!
-                    )}
-                    onChange={(e) =>
-                      handleNodeNotationOperationChange(
-                        operation,
-                        e.target.value
-                      )
-                    }
-                  />
-                </div>
-              );
-            }
-          })} */}
-
-        {/* Add operation field button */}
-        {/* <div className="flex flex-row w-full">
-          <div
-            className="w-1/2 bg-black text-white text-center cursor-pointer"
-            onClick={() => {
-              setIsNodeOperationModalOpen(true);
-            }}
-          >
-            Add
-          </div>
-          <div className="w-1/2 text-center border-[1px] border-solid border-black cursor-pointer">
-            Remove
-          </div>
-        </div> */}
 
         <br />
 

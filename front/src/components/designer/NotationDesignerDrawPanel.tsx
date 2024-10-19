@@ -13,6 +13,7 @@ import NotationDesignerDrawEdge from "./NotationDesignerDrawEdge";
 interface NotationDesignerDrawPanelProps {
   currentNotationElementRepresentation: Representation;
   setCurrentNotationElementRepresentation: (value: Representation) => void;
+  selectedNotationElementIndex: number;
   currentNotationElement: Class;
   setCurrentNotationElement: (value: any) => void;
   selectedMetaModel: MetaModel;
@@ -27,6 +28,7 @@ const gridSize = 10; // Size of the grid squares
 function NotationDesignerDrawPanel({
   currentNotationElementRepresentation,
   setCurrentNotationElementRepresentation,
+  selectedNotationElementIndex,
   currentNotationElement,
   setCurrentNotationElement,
   selectedMetaModel,
@@ -57,6 +59,7 @@ function NotationDesignerDrawPanel({
             setCurrentNotationElementRepresentation={
               setCurrentNotationElementRepresentation
             }
+            selectedNotationElementIndex={selectedNotationElementIndex}
             currentNotationElement={currentNotationElement}
             setCurrentNotationElement={setCurrentNotationElement}
             selectedMetaModel={selectedMetaModel}

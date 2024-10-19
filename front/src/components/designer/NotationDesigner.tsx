@@ -72,6 +72,7 @@ const NotationDesigner = () => {
   const [isConfigurePanelOpen, setIsConfigurePanelOpen] =
     useState<boolean>(true);
   const [isButtonVisible, setIsButtonVisible] = useState(false);
+  const [selectedElementIndex, setSelectedElementIndex] = useState<number>(-1);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
@@ -223,6 +224,13 @@ const NotationDesigner = () => {
   ) => {
     // Save in the frontend
     const updatedElements = [...selectedMetaModel.package.elements];
+    currentNotationElement.representation = {
+      $ref:
+        selectedRepresentationMetaModel.package.uri +
+        "#/elements/" +
+        selectedElementIndex,
+    };
+    currentNotationElement.constraints = [];
 
     if (selectedElementIndex === -1 && currentNotationElement.name !== "") {
       updatedElements.push(currentNotationElement);
@@ -265,11 +273,21 @@ const NotationDesigner = () => {
       ...selectedRepresentationMetaModel.package.elements,
     ];
 
+    console.log("selectedElementIndex", selectedElementIndex);
+    console.log("currentNotationElement", currentNotationElementRepresentation);
+
     if (selectedElementIndex === -1 && currentNotationElement.name !== "") {
       updatedRepresentationElements.push(currentNotationElementRepresentation);
-    } else {
-      updatedRepresentationElements[selectedElementIndex] =
-        currentNotationElementRepresentation;
+      console.log("pushed new element", currentNotationElementRepresentation);
+    } else if (selectedElementIndex > -1) {
+      if (removeElement) {
+        updatedRepresentationElements.splice(selectedElementIndex, 1);
+        console.log("removed element", selectedElementIndex);
+      } else {
+        updatedRepresentationElements[selectedElementIndex] =
+          currentNotationElementRepresentation;
+        console.log("updated element", selectedElementIndex);
+      }
     }
 
     const updatedRepresentationMetaModelURI =
@@ -304,6 +322,7 @@ const NotationDesigner = () => {
       }
     };
     saveRepresentationConfig();
+    setSelectedElementIndex(selectedElementIndex);
 
     setShowAlert(true);
     setTimeout(() => {
@@ -334,23 +353,26 @@ const NotationDesigner = () => {
 
   return (
     <div className="flex flex-col h-full bg-white min-h-screen w-full pt-8 relative">
-      
-      {currentNotationElement.name !== "" && (
-        <div
-          className={`absolute top-11 right-12 bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer float-right hover:opacity-85 transition-opacity transition-transform duration-300 ease-in-out transform 
+      {currentNotationElement.name !== "" &&
+        currentNotationElementRepresentation !== undefined &&
+        currentNotationElementRepresentation !== null &&
+        currentNotationElementRepresentation.type !== "None" && (
+          <div
+            className={`absolute top-11 right-12 bg-[#1B1B20] px-4 py-2 w-fit rounded-md text-white cursor-pointer float-right hover:opacity-85 transition-opacity transition-transform duration-300 ease-in-out transform 
           ${
             isButtonVisible
               ? "opacity-100 translate-x-0"
               : "opacity-0 translate-x-10"
           }`}
-          onClick={() => setIsConfigurePanelOpen(!isConfigurePanelOpen)}
-        >
-          <span className="text-sm">
-            Switch to {isConfigurePanelOpen ? "draw panel" : "configure panel"}
-          </span>
-          <AutorenewIcon className="ml-1" fontSize="small" />
-        </div>
-      )}
+            onClick={() => setIsConfigurePanelOpen(!isConfigurePanelOpen)}
+          >
+            <span className="text-sm">
+              Switch to{" "}
+              {isConfigurePanelOpen ? "draw panel" : "configure panel"}
+            </span>
+            <AutorenewIcon className="ml-1" fontSize="small" />
+          </div>
+        )}
 
       {/* Pass the same currentNotation and setCurrentNotation to both panels */}
       {isConfigurePanelOpen ? (
@@ -358,6 +380,8 @@ const NotationDesigner = () => {
           availableConfigs={availableConfigs}
           handleDeleteConfig={handleDeleteConfig}
           handleSelectUri={handleSelectUri}
+          selectedElementIndex={selectedElementIndex}
+          setSelectedElementIndex={setSelectedElementIndex}
           currentNotationElementRepresentation={
             currentNotationElementRepresentation
           }
@@ -390,6 +414,7 @@ const NotationDesigner = () => {
           setCurrentNotationElementRepresentation={
             setCurrentNotationElementRepresentation
           }
+          selectedNotationElementIndex={selectedElementIndex}
           currentNotationElement={currentNotationElement}
           setCurrentNotationElement={setCurrentNotationElement}
           selectedMetaModel={selectedMetaModel}

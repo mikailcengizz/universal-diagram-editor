@@ -3,8 +3,10 @@ import CustomModal from "../../../../ui_elements/Modal";
 import {
   Class,
   DiagramNodeData,
+  MetaModel,
   NotationRepresentationItem,
   Representation,
+  RepresentationMetaModel,
 } from "../../../../../types/types";
 
 interface ModalDoubleClickSquareProps {
@@ -14,8 +16,25 @@ interface ModalDoubleClickSquareProps {
   setCurrentNotationElementRepresentation: (value: Representation) => void;
   currentNotationElement: Class;
   setCurrentNotationElement: (value: Class) => void;
+  selectedMetaModel: MetaModel;
+  setSelectedMetaModel: (value: MetaModel) => void;
+  selectedRepresentationMetaModel: RepresentationMetaModel;
+  setSelectedRepresentationMetaModel: (value: RepresentationMetaModel) => void;
   selectedElementIndex: number | null;
+  selectedNotationRepresentationItemIndex: number | null;
 }
+
+const textFieldsStyleMuiSx = {
+  "& .MuiOutlinedInput-root": {
+    border: "1px solid #d3d3d3",
+    fontSize: "14px",
+  },
+  "& .MuiOutlinedInput-notchedOutline": {
+    border: "none",
+  },
+};
+
+const configureTextfieldStyle = "w-1/3 2xl:w-[450px]";
 
 function ModalDoubleClickSquare({
   isSquareModalOpen,
@@ -24,22 +43,30 @@ function ModalDoubleClickSquare({
   setCurrentNotationElementRepresentation,
   currentNotationElement,
   setCurrentNotationElement,
+  selectedMetaModel,
+  setSelectedMetaModel,
+  selectedRepresentationMetaModel,
+  setSelectedRepresentationMetaModel,
   selectedElementIndex,
+  selectedNotationRepresentationItemIndex,
 }: ModalDoubleClickSquareProps) {
   const [square, setSquare] = useState<NotationRepresentationItem>();
 
   // This useEffect ensures that the modal's fields are populated with the current values
   useEffect(() => {
-    if (selectedElementIndex !== null && selectedElementIndex >= 0) {
+    if (
+      selectedNotationRepresentationItemIndex !== null &&
+      selectedNotationRepresentationItemIndex >= 0
+    ) {
       const selectedElement =
         currentNotationElementRepresentation?.graphicalRepresentation![
-          selectedElementIndex
+          selectedNotationRepresentationItemIndex
         ];
       if (selectedElement) {
         setSquare(selectedElement);
       }
     }
-  }, [selectedElementIndex, currentNotationElement]);
+  }, [selectedNotationRepresentationItemIndex, currentNotationElement]);
 
   const handleStyleChange = (e: any) => {
     setSquare({
@@ -65,16 +92,19 @@ function ModalDoubleClickSquare({
   };
 
   const handleSave = () => {
-    console.log("selectedElementIndex", selectedElementIndex);
-    if (selectedElementIndex === null || !square) return;
+    console.log(
+      "selectedElementIndex",
+      selectedNotationRepresentationItemIndex
+    );
+    if (selectedNotationRepresentationItemIndex === null || !square) return;
 
     const updatedRepresentation = [
       ...currentNotationElementRepresentation?.graphicalRepresentation!,
     ];
 
     // Update the entire style and position objects in one go
-    updatedRepresentation[selectedElementIndex] = {
-      ...updatedRepresentation[selectedElementIndex],
+    updatedRepresentation[selectedNotationRepresentationItemIndex] = {
+      ...updatedRepresentation[selectedNotationRepresentationItemIndex],
       style: { ...square.style }, // Copy the entire style object
       position: { ...square.position }, // Copy the entire position object
     };

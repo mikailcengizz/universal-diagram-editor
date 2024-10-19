@@ -39,9 +39,9 @@ const PaletteEditorPanel = ({
       notationElement: notationElement,
     };
 
+    console.log("onDragStart - element dragged:", dragData);
     event.dataTransfer.setData("palette-item", JSON.stringify(dragData));
     event.dataTransfer.effectAllowed = "move";
-    console.log("onDragStart - element dragged:", dragData);
   };
 
   let notationElementsRepresentation: Representation[] | null = null;
@@ -193,12 +193,19 @@ const PaletteEditorPanel = ({
                   </div>
                 ))}
             </div>
+
             <h2>Package</h2>
             <div className="grid grid-cols-2">
               {notationElements
-                .filter(
-                  (notationElement: Class) => notationElement.name === "Package"
-                )
+                .filter((notationElement: Class, index) => {
+                  const notationElementRepresentation =
+                    notationElementsRepresentation![index];
+                  return (
+                    notationElement.name === "Package" &&
+                    notationElementRepresentation &&
+                    notationElementRepresentation.type === "ClassNode"
+                  );
+                })
                 .map((notationElement, index) => (
                   <div
                     key={index}

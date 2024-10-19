@@ -1,20 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Attribute,
+  AttributeValue,
   Class,
   DiagramNodeData,
   InstanceModel,
+  InstanceObject,
   NotationRepresentationItem,
   Representation,
   RepresentationInstanceModel,
   RepresentationInstanceObject,
 } from "../../../types/types";
-import { NodeResizer, useUpdateNodeInternals } from "@xyflow/react";
+import { NodeResizer } from "@xyflow/react";
 import RenderConnectors from "./components/RenderConnectors";
 import ModalDoubleClickNotation from "./components/modals/first_layer/ModalDoubleClickNotation";
 import ModalAddAttribute from "./components/modals/second_layer/ModalAddAttribute";
-import ModalAddParameter from "./components/modals/third_layer/ModalAddParameter";
-import ModalAddOperation from "./components/modals/second_layer/ModalAddOperation";
 import RenderTexts from "./components/RenderTexts";
 import RenderCompartments from "./components/RenderCompartments";
 import RenderRectangles from "./components/RenderRectangles";
@@ -24,6 +23,8 @@ import ReferenceHelper from "../../helpers/ReferenceHelper";
 import ModelHelperFunctions from "../../helpers/ModelHelperFunctions";
 import { updateInstanceModel } from "../../../redux/actions/objectInstanceModelActions";
 import RenderCircles from "./components/RenderCircles";
+import { v4 as uuidv4 } from "uuid";
+import { set } from "lodash";
 
 interface CombineObjectShapesNodeProps {
   id: string;
@@ -50,8 +51,6 @@ const CombineObjectShapesNode = ({
     useState(false); // second layer modal for node attributes
   const [isNodeOperationModalOpen, setIsNodeOperationModalOpen] =
     useState(false); // second layer modal for node operations
-  const [isAddParameterModalOpen, setIsAddParameterModalOpen] = useState(false); // third layer modal for adding parameters to operations
-  const [modifiyingAttribute, setModifyingAttribute] = useState<Attribute>();
   const isNotationSlider = data.isNotationSlider || false;
   const isPalette = data.instanceObject === undefined && !isNotationSlider;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -63,6 +62,14 @@ const CombineObjectShapesNode = ({
   const [validGraphicalItems, setValidGraphicalItems] = useState<
     NotationRepresentationItem[]
   >([]);
+  const [instanceObject, setInstanceObject] = useState<
+    InstanceObject | undefined
+  >(data.instanceObject);
+
+  const [representationInstanceObject, setRepresentationInstanceObject] =
+    useState<RepresentationInstanceObject | undefined>(
+      data.instanceObjectRepresentation
+    );
 
   let representationRef = undefined;
   if (isPalette || isNotationSlider) {
@@ -153,16 +160,6 @@ const CombineObjectShapesNode = ({
 
   let adjustedRepresentation: NotationRepresentationItem[] =
     validGraphicalItems;
-
-  /* const [modifyingOperation, setModifyingOperation] = useState<EOperation>({
-    name: "",
-    eParameters: [],
-    eType: undefined,
-  }); */
-  /* const [modifyingParameter, setModifyingParameter] = useState<EParameter>({
-    name: "",
-    eType: undefined,
-  }); */
 
   if (isNotationSlider || isPalette) {
     // Calculate the minimum x and y coordinates to center the notation in the palette/slider
@@ -318,115 +315,6 @@ const CombineObjectShapesNode = ({
     dispatch(updateInstanceModel(newInstanceModel));
   };
 
-  const handleAttributeSubmit = () => {
-    // give the attribute a unique id if it is a new attribute
-    /* let newAttribute = { ...modifiyingAttribute };
-    if (!modifiyingAttribute.id) {
-      newAttribute.id = `attribute-${Date.now()}`;
-    }
-    setModifyingAttribute(newAttribute);
-
-    dispatch(updateMetaInstanceAttribute(nodeId, newAttribute));
-
-    // Reset and close the modal
-    // re-initialize newAttribute with default values of the meta attribute
-    if (metaAttribute.attributes) {
-      metaAttribute.attributes.forEach((attribute) => {
-        if (!modifiyingAttribute[attribute.name as keyof EAttributeInstance]) {
-          setModifyingAttribute({
-            ...modifiyingAttribute,
-            [attribute.name!]: attribute.defaultValue,
-          });
-        }
-      });
-    }
-    setIsNodeAttributeModalOpen(false); */
-  };
-
-  const handleOperationSubmit = () => {
-    // Find the "Operations" collection i.e if the classifier can have operations
-    /* const operationReference = data.instanceNotation.eReferences!.find(
-      (prop) => prop.name === "operations"
-    );
-
-    if (operationReference) {
-      const operations = data.instanceNotation.eOperations
-        ? (data.instanceNotation.eOperations as Array<any>)
-        : [];
-      const newModifyingOperation = { ...modifyingOperation };
-
-      // Find the index of the operation we are modifying
-      const operationIndex = operations.findIndex(
-        (operation) => operation.name === newModifyingOperation.name
-      );
-
-      // If the operation already exists, update it
-      if (operationIndex !== -1) {
-        operations[operationIndex] = newModifyingOperation;
-      } else {
-        // Otherwise, add the new operation
-        operations.push(newModifyingOperation);
-      }
-
-      data.instanceNotation.eOperations = operations;
-
-      setData({ ...data });
-    }
-
-    // Reset and close the modal
-    setModifyingOperation({
-      name: "",
-      eParameters: [],
-      eType: undefined,
-    });
-    setIsNodeOperationModalOpen(false); */
-  };
-
-  const handleParameterSubmit = () => {
-    // Find the "Operations" collection i.e if the classifier can have operations
-    /* const operationReference = data.instanceNotation.eOperations!.find(
-      (prop) => prop.name === "operations"
-    );
-
-    if (operationReference) {
-      const operations = data.instanceNotation.eOperations
-        ? (data.instanceNotation.eOperations as Array<any>)
-        : [];
-      const newModifyingOperation = { ...modifyingOperation };
-
-      // Find the index of the parameter we are modifying
-      const parameterIndex = newModifyingOperation.eParameters!.findIndex(
-        (parameter) => parameter.name === modifyingParameter.name
-      );
-
-      // If the parameter already exists, update it
-      if (parameterIndex !== -1) {
-        newModifyingOperation.eParameters![parameterIndex] = modifyingParameter;
-      } else {
-        // Otherwise, add the new parameter
-        newModifyingOperation.eParameters!.push(modifyingParameter);
-      }
-
-      // Find the index of the operation we are modifying
-      const operationIndex = operations.findIndex(
-        (operation) => operation.name === newModifyingOperation.name
-      );
-
-      // If the operation already exists, update it
-      if (operationIndex !== -1) {
-        operations[operationIndex] = newModifyingOperation;
-      } else {
-        // Otherwise, add the new operation
-        operations.push(newModifyingOperation);
-      }
-
-      data.instanceNotation.eOperations = operations;
-
-      setModifyingOperation(newModifyingOperation);
-      setData({ ...data });
-    } */
-  };
-
   // Filter and sort the shapes according to the specified rendering order
   // adjust notation size when rendering in palette
   const rectangles = adjustedRepresentation.filter(
@@ -529,6 +417,7 @@ const CombineObjectShapesNode = ({
           {/* Modal for double click */}
           <ModalDoubleClickNotation
             data={data}
+            instanceModel={instanceModel}
             isNodeAttributeModalOpen={isNodeAttributeModalOpen}
             isNodeModalOpen={isNodeModalOpen}
             isNodeOperationModalOpen={isNodeOperationModalOpen}
@@ -544,11 +433,10 @@ const CombineObjectShapesNode = ({
           {/* Attribute modal */}
           {/* Add or modify attributes */}
           <ModalAddAttribute
-            handleAttributeSubmit={handleAttributeSubmit}
+            data={data}
+            instanceModel={instanceModel}
+            representationInstanceModel={representationInstanceModel}
             isNodeAttributeModalOpen={isNodeAttributeModalOpen}
-            notationElement={data.notationElement!}
-            newAttribute={modifiyingAttribute!}
-            setNewAttribute={setModifyingAttribute}
             setIsNodeAttributeModalOpen={setIsNodeAttributeModalOpen}
           />
 

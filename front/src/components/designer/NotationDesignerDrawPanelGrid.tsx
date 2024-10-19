@@ -14,6 +14,7 @@ import ModalDoubleClickConnector from "./components/modals/first_layer/ModalDoub
 interface NotationDesignerDrawPanelGridProps {
   currentNotationElementRepresentation: Representation;
   setCurrentNotationElementRepresentation: (value: Representation) => void;
+  selectedNotationElementIndex: number;
   currentNotationElement: Class;
   setCurrentNotationElement: (value: Class) => void;
   selectedMetaModel: MetaModel;
@@ -26,6 +27,7 @@ interface NotationDesignerDrawPanelGridProps {
 const NotationDesignerDrawPanelGrid = ({
   currentNotationElementRepresentation,
   setCurrentNotationElementRepresentation,
+  selectedNotationElementIndex,
   currentNotationElement,
   setCurrentNotationElement,
   selectedMetaModel,
@@ -34,26 +36,27 @@ const NotationDesignerDrawPanelGrid = ({
   setSelectedRepresentationMetaModel,
   gridSize,
 }: NotationDesignerDrawPanelGridProps) => {
-  const [selectedElementIndex, setSelectedElementIndex] = useState<
-    number | null
-  >(null);
   const [isSquareModalOpen, setIsSquareModalOpen] = useState(false);
   const [isTextModalOpen, setIsTextModalOpen] = useState(false);
   const [isCompartmentModalOpen, setIsCompartmentModalOpen] = useState(false);
   const [isConnectorModalOpen, setIsConnectorModalOpen] = useState(false);
   const [isLineModalOpen, setIsLineModalOpen] = useState(false);
+  const [
+    selectedNotationRepresentationItemIndex,
+    setSelectedNotationRepresentationItemIndex,
+  ] = useState<number | null>(null);
 
   // Flag to track if any modal is open
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (selectedElementIndex !== null && !isModalOpen) {
+      if (selectedNotationRepresentationItemIndex !== null && !isModalOpen) {
         const element = document.getElementById(
-          `element-${selectedElementIndex}`
+          `element-${selectedNotationRepresentationItemIndex}`
         );
         if (element && !element.contains(event.target as Node)) {
-          setSelectedElementIndex(null);
+          setSelectedNotationRepresentationItemIndex(null);
         }
       }
     };
@@ -63,15 +66,16 @@ const NotationDesignerDrawPanelGrid = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [selectedElementIndex]);
+  }, [selectedNotationRepresentationItemIndex]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (selectedElementIndex !== null) {
+      if (selectedNotationRepresentationItemIndex !== null) {
         const updatedRepresentation = [
           ...currentNotationElementRepresentation.graphicalRepresentation!,
         ];
-        const element = updatedRepresentation[selectedElementIndex];
+        const element =
+          updatedRepresentation[selectedNotationRepresentationItemIndex];
         const currentPosition = element.position;
 
         switch (event.key) {
@@ -88,8 +92,11 @@ const NotationDesignerDrawPanelGrid = ({
             currentPosition.x += gridSize;
             break;
           case "Delete":
-            updatedRepresentation.splice(selectedElementIndex, 1);
-            setSelectedElementIndex(null);
+            updatedRepresentation.splice(
+              selectedNotationRepresentationItemIndex,
+              1
+            );
+            setSelectedNotationRepresentationItemIndex(null);
             break;
           default:
             return;
@@ -109,7 +116,7 @@ const NotationDesignerDrawPanelGrid = ({
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [
-    selectedElementIndex,
+    selectedNotationRepresentationItemIndex,
     currentNotationElement,
     setCurrentNotationElement,
     currentNotationElementRepresentation,
@@ -141,7 +148,7 @@ const NotationDesignerDrawPanelGrid = ({
         shape: representationData.shape,
         style: representationData.style,
         position: representationData.position,
-        generator: representationData.generator,
+        content: representationData.content,
         markers: representationData.markers,
         text: representationData.text,
       };
@@ -203,14 +210,16 @@ const NotationDesignerDrawPanelGrid = ({
   };
 
   const handleElementClick = (index: number) => {
-    setSelectedElementIndex(index === selectedElementIndex ? null : index);
+    setSelectedNotationRepresentationItemIndex(
+      index === selectedNotationRepresentationItemIndex ? null : index
+    );
   };
 
   const handleElementDoubleClick = (
     element: NotationRepresentationItem,
     index: number
   ) => {
-    setSelectedElementIndex(index);
+    setSelectedNotationRepresentationItemIndex(index);
     switch (element.shape) {
       case "circle":
         // todo
@@ -238,7 +247,7 @@ const NotationDesignerDrawPanelGrid = ({
 
   const handleCloseModal = () => {
     setIsModalOpen(false); // Modal is closed
-    setSelectedElementIndex(null); // Reset `selectedElementIndex` when the modal closes
+    setSelectedNotationRepresentationItemIndex(null); // Reset `selectedElementIndex` when the modal closes
   };
 
   const handleResize = (
@@ -397,9 +406,16 @@ const NotationDesignerDrawPanelGrid = ({
                   height: `${element.position.extent?.height || 100}px`,
                   backgroundColor:
                     element.style?.backgroundColor || "transparent",
-                  borderWidth: `${element.style?.borderWidth || 0}px`,
+                  borderWidth: `${
+                    element.shape === "compartment"
+                      ? 1
+                      : element.style?.borderWidth || 0
+                  }px`,
                   borderStyle: element.style?.borderStyle || "solid",
-                  borderColor: element.style?.borderColor || "black",
+                  borderColor:
+                    element.shape === "compartment"
+                      ? "#00b3ff"
+                      : element.style?.borderColor || "black",
                   borderRadius: element.style?.borderRadius || 0,
                   color: element.style?.color || "black",
                   fontSize: `${element.style?.fontSize || 14}px`,
@@ -413,9 +429,20 @@ const NotationDesignerDrawPanelGrid = ({
                   zIndex: element.style?.zIndex || 1,
                 }}
               >
-                {element.shape === "text" && element.text}
+                {element.shape === "text" &&
+                typeof element.text === "object" ? (
+                  <span>
+                    {"(ref: " +
+                      currentNotationElement.attributes[
+                        +element.text.$ref.split("attributes/")[1]
+                      ].name +
+                      ")"}
+                  </span>
+                ) : (
+                  <span>{element.text as string}</span>
+                )}
 
-                {index === selectedElementIndex && (
+                {index === selectedNotationRepresentationItemIndex && (
                   <>
                     {/* Resize handles */}
                     {/* Corners */}
@@ -538,7 +565,14 @@ const NotationDesignerDrawPanelGrid = ({
         }
         currentNotationElement={currentNotationElement}
         setCurrentNotationElement={setCurrentNotationElement}
-        selectedElementIndex={selectedElementIndex}
+        selectedMetaModel={selectedMetaModel}
+        setSelectedMetaModel={setSelectedMetaModel}
+        selectedRepresentationMetaModel={selectedRepresentationMetaModel}
+        setSelectedRepresentationMetaModel={setSelectedRepresentationMetaModel}
+        selectedElementIndex={selectedNotationElementIndex}
+        selectedNotationRepresentationItemIndex={
+          selectedNotationRepresentationItemIndex
+        }
       />
 
       <ModalDoubleClickText
@@ -555,7 +589,14 @@ const NotationDesignerDrawPanelGrid = ({
         }
         currentNotationElement={currentNotationElement}
         setCurrentNotationElement={setCurrentNotationElement}
-        selectedElementIndex={selectedElementIndex}
+        selectedMetaModel={selectedMetaModel}
+        setSelectedMetaModel={setSelectedMetaModel}
+        selectedRepresentationMetaModel={selectedRepresentationMetaModel}
+        setSelectedRepresentationMetaModel={setSelectedRepresentationMetaModel}
+        selectedElementIndex={selectedNotationElementIndex}
+        selectedNotationRepresentationItemIndex={
+          selectedNotationRepresentationItemIndex
+        }
       />
 
       <ModalDoubleClickCompartment
@@ -572,7 +613,14 @@ const NotationDesignerDrawPanelGrid = ({
         }
         currentNotationElement={currentNotationElement}
         setCurrentNotationElement={setCurrentNotationElement}
-        selectedElementIndex={selectedElementIndex}
+        selectedMetaModel={selectedMetaModel}
+        setSelectedMetaModel={setSelectedMetaModel}
+        selectedRepresentationMetaModel={selectedRepresentationMetaModel}
+        setSelectedRepresentationMetaModel={setSelectedRepresentationMetaModel}
+        selectedElementIndex={selectedNotationElementIndex}
+        selectedNotationRepresentationItemIndex={
+          selectedNotationRepresentationItemIndex
+        }
       />
 
       <ModalDoubleClickConnector
@@ -589,7 +637,14 @@ const NotationDesignerDrawPanelGrid = ({
         }
         currentNotationElement={currentNotationElement}
         setCurrentNotationElement={setCurrentNotationElement}
-        selectedElementIndex={selectedElementIndex}
+        selectedMetaModel={selectedMetaModel}
+        setSelectedMetaModel={setSelectedMetaModel}
+        selectedRepresentationMetaModel={selectedRepresentationMetaModel}
+        setSelectedRepresentationMetaModel={setSelectedRepresentationMetaModel}
+        selectedElementIndex={selectedNotationElementIndex}
+        selectedNotationRepresentationItemIndex={
+          selectedNotationRepresentationItemIndex
+        }
       />
     </>
   );

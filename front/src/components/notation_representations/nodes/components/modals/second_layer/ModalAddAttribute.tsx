@@ -1,40 +1,118 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CustomModal from "../../../../../ui_elements/Modal";
 import {
   Attribute,
+  AttributeValue,
   Class,
+  DiagramNodeData,
+  InstanceModel,
   InstanceObject,
   MetaModel,
+  RepresentationInstanceModel,
 } from "../../../../../../types/types";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { v4 as uuidv4 } from "uuid";
+import { updateInstanceModel } from "../../../../../../redux/actions/objectInstanceModelActions";
 
 interface ModalAddAttributeProps {
+  data: DiagramNodeData;
+  instanceModel: InstanceModel;
+  representationInstanceModel: RepresentationInstanceModel;
   isNodeAttributeModalOpen: boolean;
   setIsNodeAttributeModalOpen: (isOpen: boolean) => void;
-  notationElement: Class;
-  newAttribute: Attribute;
-  setNewAttribute: (newAttribute: Attribute) => void;
-  handleAttributeSubmit: () => void;
 }
 
 const inputStyle = "border border-gray-300 rounded-md p-1";
 
+const textFieldsStyleMuiSx = {
+  "& .MuiOutlinedInput-root": {
+    border: "1px solid #d3d3d3",
+    fontSize: "14px",
+  },
+  "& .MuiOutlinedInput-notchedOutline": {
+    border: "none",
+  },
+};
+
+const configureTextfieldStyle = "w-1/3 2xl:w-[450px]";
+
 function ModalAddAttribute({
+  data,
+  instanceModel,
+  representationInstanceModel,
   isNodeAttributeModalOpen,
   setIsNodeAttributeModalOpen,
-  notationElement,
-  newAttribute,
-  setNewAttribute,
-  handleAttributeSubmit,
 }: ModalAddAttributeProps) {
+  const dispatch = useDispatch();
+  const attributeClass = data.notation!.metaModel.package.elements.find(
+    (element) => element.name === "Attribute"
+  )! as Class;
+  const initialModifyingAttributeAttributes =
+    attributeClass &&
+    attributeClass.attributes!.map((attribute) => {
+      return {
+        name: attribute.name,
+        value: attribute.defaultValue,
+      } as AttributeValue;
+    });
+
+  const [modifiyingAttributeAttributes, setModifyingAttributeAttributes] =
+    useState<AttributeValue[]>(initialModifyingAttributeAttributes || []);
   // Helper function to handle updating attributes
   // Attribute = {"name": "lowerBound"}
   // NewAttribute = {"name": "name", "lowerBound": 0}
-  const handleAttributeChange = (attributeName: string, value: any) => {
-    setNewAttribute({
-      ...newAttribute,
-      [attributeName]: value,
+  const handleAttributeChange = (
+    attributeName: string,
+    value: any,
+    index: number
+  ) => {
+    const newAttributes = [...modifiyingAttributeAttributes];
+    newAttributes[index] = { ...newAttributes[index], value: value };
+    setModifyingAttributeAttributes(newAttributes);
+  };
+
+  const handleAttributeSubmit = () => {
+    // give the attribute a unique id if it is a new attribute
+    let newAttributeAttributes = [...modifiyingAttributeAttributes];
+    let updatedInstanceModel = { ...instanceModel };
+    updatedInstanceModel.package.objects
+      .find(
+        (instanceObject) => instanceObject.name === data.instanceObject!.name
+      )!
+      .links.push({
+        name: "attribute",
+        target: {
+          $ref:
+            data.notation?.metaModel.package.uri +
+            "#/objects/" +
+            updatedInstanceModel.package.objects.length,
+        },
+      });
+
+    updatedInstanceModel.package.objects.push({
+      name: "Attribute-" + uuidv4(),
+      type: {
+        $ref:
+          data.notation?.metaModel.package.uri +
+          "#/elements/" +
+          (data.notation?.metaModel.package.elements as any[]).findIndex(
+            (element) => element.name === "Attribute"
+          ),
+      },
+      attributes: [...newAttributeAttributes],
+      links: [],
+      representation: {
+        $ref:
+          data.notation?.metaModel.package.uri +
+          "#/elements/" +
+          representationInstanceModel.package.objects.length,
+      },
     });
+
+    dispatch(updateInstanceModel(updatedInstanceModel));
+
+    setIsNodeAttributeModalOpen(false);
+    setModifyingAttributeAttributes(initialModifyingAttributeAttributes || []);
   };
 
   return (
@@ -44,68 +122,28 @@ function ModalAddAttribute({
       zIndex={10}
     >
       <h2>Attribute</h2>
-      {/* Iterate over metaAttribute.eAttributes and render form fields */}
-      {notationElement &&
-        notationElement.attributes!.map((attribute) => {
-          /* const foundAttributeValue =
-          newAttribute[attribute.name as keyof EAttributeInstance]; */
-
+      <div className="flex flex-col gap-y-2">
+        {modifiyingAttributeAttributes.map((attribute, index) => {
           return (
             <div key={attribute.name}>
               <label>{attribute.name}</label>
               <br />
-              {attribute.attributeType?.name === "String" ? (
-                <input
-                  name={attribute.name}
-                  className={inputStyle}
-                  type="text"
-                  value={attribute.defaultValue}
-                  onChange={(e) =>
-                    handleAttributeChange(attribute.name!, e.target.value)
-                  }
-                />
-              ) : attribute.attributeType?.name === "Integer" ? (
-                <input
-                  name={attribute.name}
-                  className={inputStyle}
-                  type="number"
-                  value={attribute.defaultValue}
-                  onChange={(e) =>
-                    handleAttributeChange(
-                      attribute.name!,
-                      parseInt(e.target.value, 10)
-                    )
-                  }
-                />
-              ) : attribute.attributeType?.name === "Boolean" ? (
-                <input
-                  name={attribute.name}
-                  className={inputStyle}
-                  type="checkbox"
-                  checked={attribute.defaultValue}
-                  onChange={(e) =>
-                    handleAttributeChange(attribute.name!, e.target.checked)
-                  }
-                />
-              ) : (
-                <input
-                  name={attribute.name}
-                  className={inputStyle}
-                  type="text"
-                  value={attribute.defaultValue}
-                  onChange={(e) =>
-                    handleAttributeChange(attribute.name!, e.target.value)
-                  }
-                />
-              )}
+              <input
+                name={attribute.name}
+                className={inputStyle}
+                type="text"
+                value={attribute.value}
+                onChange={(e) =>
+                  handleAttributeChange(attribute.name!, e.target.value, index)
+                }
+              />
               <br />
             </div>
           );
         })}
+      </div>
 
-      <label>Constraints</label>
       <br />
-      <textarea name="constraints" />
       <button
         className="bg-black text-white px-2 py-[2px] font-semibold"
         onClick={handleAttributeSubmit}

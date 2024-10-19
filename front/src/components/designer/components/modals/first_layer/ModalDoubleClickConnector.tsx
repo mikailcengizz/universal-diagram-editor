@@ -3,8 +3,10 @@ import CustomModal from "../../../../ui_elements/Modal";
 import {
   Class,
   DiagramNodeData,
+  MetaModel,
   NotationRepresentationItem,
   Representation,
+  RepresentationMetaModel,
 } from "../../../../../types/types";
 import { MenuItem, Select } from "@mui/material";
 
@@ -15,7 +17,12 @@ interface ModalDoubleClickConnectorProps {
   setCurrentNotationElementRepresentation: (value: Representation) => void;
   currentNotationElement: Class;
   setCurrentNotationElement: (value: Class) => void;
+  selectedMetaModel: MetaModel;
+  setSelectedMetaModel: (value: MetaModel) => void;
+  selectedRepresentationMetaModel: RepresentationMetaModel;
+  setSelectedRepresentationMetaModel: (value: RepresentationMetaModel) => void;
   selectedElementIndex: number | null;
+  selectedNotationRepresentationItemIndex: number | null;
 }
 
 const selectsStyleMuiSx = {
@@ -39,22 +46,30 @@ function ModalDoubleClickConnector({
   setCurrentNotationElementRepresentation,
   currentNotationElement,
   setCurrentNotationElement,
+  selectedMetaModel,
+  setSelectedMetaModel,
+  selectedRepresentationMetaModel,
+  setSelectedRepresentationMetaModel,
   selectedElementIndex,
+  selectedNotationRepresentationItemIndex,
 }: ModalDoubleClickConnectorProps) {
   const [connector, setConnector] = useState<NotationRepresentationItem>();
 
   // This useEffect ensures that the modal's fields are populated with the current values
   useEffect(() => {
-    if (selectedElementIndex !== null && selectedElementIndex >= 0) {
+    if (
+      selectedNotationRepresentationItemIndex !== null &&
+      selectedNotationRepresentationItemIndex >= 0
+    ) {
       const selectedElement =
         currentNotationElementRepresentation.graphicalRepresentation![
-          selectedElementIndex
+          selectedNotationRepresentationItemIndex
         ];
       if (selectedElement) {
         setConnector(selectedElement);
       }
     }
-  }, [selectedElementIndex, currentNotationElement]);
+  }, [selectedNotationRepresentationItemIndex, currentNotationElement]);
 
   const handleStyleChange = (e: any) => {
     setConnector({
@@ -67,17 +82,20 @@ function ModalDoubleClickConnector({
   };
 
   const handleSave = () => {
-    console.log("selectedElementIndex", selectedElementIndex);
-    if (selectedElementIndex === null || !connector) return;
+    console.log(
+      "selectedElementIndex",
+      selectedNotationRepresentationItemIndex
+    );
+    if (selectedNotationRepresentationItemIndex === null || !connector) return;
 
     const updatedRepresentation = [
       ...currentNotationElementRepresentation?.graphicalRepresentation!,
     ];
 
     // Update the entire style and position objects in one go
-    updatedRepresentation[selectedElementIndex] = {
-      ...updatedRepresentation[selectedElementIndex],
-      generator: connector.generator,
+    updatedRepresentation[selectedNotationRepresentationItemIndex] = {
+      ...updatedRepresentation[selectedNotationRepresentationItemIndex],
+      content: connector.content,
       style: { ...connector.style }, // Copy the entire style object
       position: { ...connector.position }, // Copy the entire position object
     };

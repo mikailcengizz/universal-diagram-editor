@@ -72,8 +72,6 @@ function NotationsSlider({
     const notationElementRepresentation =
       notationElementsRepresentation![notationElementIndex]!;
 
-    console.log("notationElementRepresentation", notationElementRepresentation);
-
     switch (notationElementRepresentation.type) {
       case "ClassEdge":
         return (
@@ -143,7 +141,7 @@ function NotationsSlider({
                   return (
                     <div
                       key={index}
-                      className="border-[1px] border-black text-center h-28 p-2 cursor-pointer content-center"
+                      className="overflow-hidden whitespace-nowrap text-ellipsis border-[1px] border-black text-center h-28 p-2 cursor-pointer content-center"
                       onClick={() => {
                         setSelectedElementIndex(index);
                         setCurrentNotationElement(notationElement);

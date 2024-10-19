@@ -2,9 +2,14 @@ import React, { useEffect, useState } from "react";
 import CustomModal from "../../../../ui_elements/Modal";
 import {
   Class,
+  MetaModel,
   NotationRepresentationItem,
+  Reference,
   Representation,
+  RepresentationMetaModel,
+  RepresentationType,
 } from "../../../../../types/types";
+import { FormControl, MenuItem, Select, TextField } from "@mui/material";
 
 interface ModalDoubleClickCompartmentProps {
   isCompartmentModalOpen: boolean;
@@ -13,8 +18,37 @@ interface ModalDoubleClickCompartmentProps {
   setCurrentNotationElementRepresentation: (value: Representation) => void;
   currentNotationElement: Class;
   setCurrentNotationElement: (value: Class) => void;
+  selectedMetaModel: MetaModel;
+  setSelectedMetaModel: (value: MetaModel) => void;
+  selectedRepresentationMetaModel: RepresentationMetaModel;
+  setSelectedRepresentationMetaModel: (value: RepresentationMetaModel) => void;
   selectedElementIndex: number | null;
+  selectedNotationRepresentationItemIndex: number | null;
 }
+
+const textFieldsStyleMuiSx = {
+  "& .MuiOutlinedInput-root": {
+    border: "1px solid #d3d3d3",
+    fontSize: "14px",
+  },
+  "& .MuiOutlinedInput-notchedOutline": {
+    border: "none",
+  },
+};
+
+const configureTextfieldStyle = "w-1/3 2xl:w-[450px]";
+
+const selectsStyleMuiSx = {
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#d3d3d3",
+  },
+  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#d3d3d3",
+  },
+  "&:hover .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#d3d3d3",
+  },
+};
 
 function ModalDoubleClickCompartment({
   isCompartmentModalOpen,
@@ -23,27 +57,86 @@ function ModalDoubleClickCompartment({
   setCurrentNotationElementRepresentation,
   currentNotationElement,
   setCurrentNotationElement,
+  selectedMetaModel,
+  setSelectedMetaModel,
+  selectedRepresentationMetaModel,
+  setSelectedRepresentationMetaModel,
   selectedElementIndex,
+  selectedNotationRepresentationItemIndex,
 }: ModalDoubleClickCompartmentProps) {
-  const [compartment, setCompartment] = useState<NotationRepresentationItem>();
+  const [compartment, setCompartment] = useState<NotationRepresentationItem>({
+    shape: "compartment",
+    content: { $ref: "" },
+    style: {
+      color: "#000000",
+      fontSize: 14,
+      alignment: "left",
+      layout: "vertical",
+    },
+    position: {
+      x: 0,
+      y: 0,
+      extent: { width: 0, height: 0 },
+    },
+  });
 
   // This useEffect ensures that the modal's fields are populated with the current values
   useEffect(() => {
-    if (selectedElementIndex !== null && selectedElementIndex >= 0) {
+    if (
+      selectedNotationRepresentationItemIndex !== null &&
+      selectedNotationRepresentationItemIndex >= 0
+    ) {
       const selectedElement =
         currentNotationElementRepresentation.graphicalRepresentation![
-          selectedElementIndex
+          selectedNotationRepresentationItemIndex
         ];
-      if (selectedElement) {
+      if (
+        selectedElement &&
+        selectedElement.shape === "compartment" &&
+        selectedElement.content
+      ) {
         setCompartment(selectedElement);
+      } else if (
+        selectedElement &&
+        selectedElement.shape === "compartment" &&
+        !selectedElement.content &&
+        selectedElement.position &&
+        selectedElement.position.extent
+      ) {
+        // if we have dropped a compartment without content, we only need to update the position
+        setCompartment({
+          ...compartment!,
+          position: {
+            ...compartment!.position,
+            x: selectedElement.position.x,
+            y: selectedElement.position.y,
+            extent: {
+              width: selectedElement.position.extent.width,
+              height: selectedElement.position.extent.height,
+            },
+          },
+        });
       }
     }
-  }, [selectedElementIndex, currentNotationElement]);
+  }, [
+    selectedNotationRepresentationItemIndex,
+    currentNotationElement,
+    currentNotationElementRepresentation.graphicalRepresentation,
+    compartment,
+  ]);
 
-  const handleGeneratorChange = (e: any) => {
+  const handleContentChange = (e: any) => {
+    const referenceIndex = currentNotationElement.references.findIndex(
+      (reference) => reference.name === e.target.value
+    );
+    // constructing uri#/elements/0/references/0
+    const newReference = `${selectedMetaModel.package.uri}#/elements/${selectedElementIndex}/references/${referenceIndex}`;
+
     setCompartment({
       ...compartment!,
-      generator: e.target.value,
+      content: {
+        $ref: newReference,
+      },
     });
   };
 
@@ -57,41 +150,18 @@ function ModalDoubleClickCompartment({
     });
   };
 
-  const handleSizeChange = (e: any) => {
-    setCompartment({
-      ...compartment!,
-      position: {
-        ...compartment!.position,
-        extent: {
-          width: parseInt(e.target.value),
-          height: parseInt(e.target.value),
-        },
-      },
-    });
-  };
-
-  const handlePositionChange = (e: any) => {
-    setCompartment({
-      ...compartment!,
-      position: {
-        ...compartment!.position,
-        [e.target.name]: e.target.value,
-      },
-    });
-  };
-
   const handleSave = () => {
-    console.log("selectedElementIndex", selectedElementIndex);
-    if (selectedElementIndex === null || !compartment) return;
+    if (selectedNotationRepresentationItemIndex === null || !compartment)
+      return;
 
     const updatedRepresentation = [
       ...currentNotationElementRepresentation?.graphicalRepresentation!,
     ];
 
     // Update the entire style and position objects in one go
-    updatedRepresentation[selectedElementIndex] = {
-      ...updatedRepresentation[selectedElementIndex],
-      generator: compartment.generator,
+    updatedRepresentation[selectedNotationRepresentationItemIndex] = {
+      ...updatedRepresentation[selectedNotationRepresentationItemIndex],
+      content: compartment.content,
       style: { ...compartment.style }, // Copy the entire style object
       position: { ...compartment.position }, // Copy the entire position object
     };
@@ -112,87 +182,102 @@ function ModalDoubleClickCompartment({
     >
       <h2 className="font-semibold">Compartment Details</h2>
       <div>
-        <h3>Generator</h3>
+        {/* Content */}
         <div>
-          <label>Generator</label>
-          <select
-            name="generator"
-            onChange={handleGeneratorChange}
-            value={compartment?.generator!}
-          >
-            <option value="none">None</option>
-            <option value="attributesForNotation">attributesForNotation</option>
-            <option value="operationsForNotation">operationsForNotation</option>
-          </select>
+          <h3 className="text-sm">Content</h3>
+          <FormControl className={configureTextfieldStyle}>
+            <Select
+              size="small"
+              placeholder="Select Content Reference"
+              sx={selectsStyleMuiSx}
+              value={
+                compartment!.content?.$ref === ""
+                  ? ""
+                  : (currentNotationElement.references[
+                      +compartment!.content?.$ref.split("references/")[1]!
+                    ] as Reference)!.name
+              }
+              onChange={(e) => handleContentChange(e)}
+              displayEmpty
+            >
+              <MenuItem value="" disabled style={{ display: "none" }}>
+                Select Content Reference
+              </MenuItem>
+              {currentNotationElement.references.map((reference, index) => (
+                <MenuItem key={index} value={reference.name}>
+                  {reference.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </div>
+
         <h3>Style</h3>
+        {/* Font size */}
         <div>
-          <label>Text color</label>
-          <input
+          <h3 className="text-sm">Text color</h3>
+          <TextField
+            size="small"
             type="color"
             name="color"
-            onChange={handleStyleChange}
+            className={configureTextfieldStyle}
+            sx={textFieldsStyleMuiSx}
+            placeholder="Text color"
             value={compartment?.style.color}
+            onChange={handleStyleChange}
           />
         </div>
         <div>
-          <label>Text size</label>
-          <input
+          <h3 className="text-sm">Text size</h3>
+          <TextField
+            size="small"
             type="number"
             name="fontSize"
-            onChange={handleStyleChange}
+            className={configureTextfieldStyle}
+            sx={textFieldsStyleMuiSx}
+            placeholder="Text size"
             value={compartment?.style.fontSize}
-          />
-        </div>
-        <div>
-          <label>Text alignment</label>
-          <select
-            name="textAlign"
             onChange={handleStyleChange}
-            value={compartment?.style.alignment}
-          >
-            <option value="left">Left</option>
-            <option value="center">Center</option>
-            <option value="right">Right</option>
-          </select>
-        </div>
-        <h3>Size</h3>
-        <div>
-          <label>Width</label>
-          <input
-            type="number"
-            name="width"
-            onChange={handleSizeChange}
-            value={compartment?.position.extent?.width}
           />
         </div>
         <div>
-          <label>Height</label>
-          <input
-            type="number"
-            name="height"
-            onChange={handleSizeChange}
-            value={compartment?.position.extent?.height}
-          />
+          <h3 className="text-sm">Text alignment</h3>
+          <FormControl className={configureTextfieldStyle}>
+            <Select
+              size="small"
+              sx={selectsStyleMuiSx}
+              value={compartment?.style.alignment}
+              onChange={(e) => handleStyleChange(e)}
+              displayEmpty
+              name="alignment"
+            >
+              <MenuItem value="" disabled style={{ display: "none" }}>
+                Text alignment
+              </MenuItem>
+              <MenuItem value="left">Left</MenuItem>
+              <MenuItem value="center">Center</MenuItem>
+              <MenuItem value="right">Right</MenuItem>
+            </Select>
+          </FormControl>
         </div>
-        <h3>Position</h3>
         <div>
-          <label>X</label>
-          <input
-            type="number"
-            name="x"
-            onChange={handlePositionChange}
-            value={compartment?.position.x}
-          />
-        </div>
-        <div>
-          <label>Y</label>
-          <input
-            type="number"
-            name="y"
-            onChange={handlePositionChange}
-            value={compartment?.position.y}
-          />
+          <h3 className="text-sm">Layout</h3>
+          <FormControl className={configureTextfieldStyle}>
+            <Select
+              size="small"
+              sx={selectsStyleMuiSx}
+              value={compartment?.style.layout}
+              onChange={(e) => handleStyleChange(e)}
+              displayEmpty
+              name="layout"
+            >
+              <MenuItem value="" disabled style={{ display: "none" }}>
+                Select Layout
+              </MenuItem>
+              <MenuItem value="horizontal">Horizontal</MenuItem>
+              <MenuItem value="vertical">Vertical</MenuItem>
+            </Select>
+          </FormControl>
         </div>
       </div>
 
