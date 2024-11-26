@@ -7,7 +7,7 @@ import {
 import dataTypeHelper from "../../../helpers/TypeHelper";
 import { useDispatch, useSelector } from "react-redux";
 
-interface RenderTextsProps {
+interface RenderLabelsProps {
   nodeId: string;
   data: DiagramNodeData;
   texts: NotationRepresentationItem[];
@@ -16,14 +16,14 @@ interface RenderTextsProps {
   isNotationSlider?: boolean;
 }
 
-function RenderTexts({
+function RenderLabels({
   nodeId,
   data,
   texts,
   handleTextChange,
   isPalette = false,
   isNotationSlider = false,
-}: RenderTextsProps) {
+}: RenderLabelsProps) {
   const dispatch = useDispatch();
   const instanceModel: InstanceModel = useSelector(
     (state: any) => state.instanceModelStore.model
@@ -97,4 +97,4 @@ function RenderTexts({
   );
 }
 
-export default RenderTexts;
+export default RenderLabels;

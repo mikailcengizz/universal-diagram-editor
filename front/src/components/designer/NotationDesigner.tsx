@@ -52,7 +52,7 @@ const NotationDesigner = () => {
   ] = useState<Representation>({
     name: "",
     type: "None",
-    graphicalRepresentation: [],
+    representationItems: [],
   });
 
   const [newAttribute, setNewAttribute] = useState<Attribute>({

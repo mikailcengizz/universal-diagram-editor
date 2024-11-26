@@ -72,7 +72,7 @@ const NotationDesignerDrawPanelGrid = ({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (selectedNotationRepresentationItemIndex !== null) {
         const updatedRepresentation = [
-          ...currentNotationElementRepresentation.graphicalRepresentation!,
+          ...currentNotationElementRepresentation.representationItems!,
         ];
         const element =
           updatedRepresentation[selectedNotationRepresentationItemIndex];
@@ -105,7 +105,7 @@ const NotationDesignerDrawPanelGrid = ({
         // Update currentNotation's graphicalRepresentation directly
         setCurrentNotationElementRepresentation({
           ...currentNotationElementRepresentation,
-          graphicalRepresentation: updatedRepresentation,
+          representationItems: updatedRepresentation,
         });
       }
     };
@@ -136,7 +136,7 @@ const NotationDesignerDrawPanelGrid = ({
     const y = Math.round((event.clientY - grid.top) / gridSize) * gridSize;
 
     const updatedRepresentation = [
-      ...currentNotationElementRepresentation.graphicalRepresentation!,
+      ...currentNotationElementRepresentation.representationItems!,
     ];
 
     // If shapeData exists, this means we are adding a new element from the palette
@@ -164,7 +164,7 @@ const NotationDesignerDrawPanelGrid = ({
       // Add new element to the graphicalRepresentation
       setCurrentNotationElementRepresentation({
         ...currentNotationElementRepresentation,
-        graphicalRepresentation: [...updatedRepresentation, newElement],
+        representationItems: [...updatedRepresentation, newElement],
       });
 
       // If elementIndex exists and is valid, this means we are moving an existing element
@@ -190,7 +190,7 @@ const NotationDesignerDrawPanelGrid = ({
         // Update currentNotation's graphicalRepresentation directly
         setCurrentNotationElementRepresentation({
           ...currentNotationElementRepresentation,
-          graphicalRepresentation: updatedRepresentation,
+          representationItems: updatedRepresentation,
         });
       } else {
         console.error("Invalid index:", index);
@@ -267,7 +267,7 @@ const NotationDesignerDrawPanelGrid = ({
     event.preventDefault();
 
     const updatedRepresentation = [
-      ...currentNotationElementRepresentation.graphicalRepresentation!,
+      ...currentNotationElementRepresentation.representationItems!,
     ];
     const element = updatedRepresentation[index];
 
@@ -337,7 +337,7 @@ const NotationDesignerDrawPanelGrid = ({
 
         setCurrentNotationElementRepresentation({
           ...currentNotationElementRepresentation,
-          graphicalRepresentation: updatedRepresentation,
+          representationItems: updatedRepresentation,
         });
       }
     };
@@ -354,23 +354,23 @@ const NotationDesignerDrawPanelGrid = ({
   console.log("loaded meta model in draw panel", selectedMetaModel);
 
   const squares =
-    currentNotationElementRepresentation.graphicalRepresentation?.filter(
+    currentNotationElementRepresentation.representationItems?.filter(
       (element) => element.shape === "square"
     );
   const circles =
-    currentNotationElementRepresentation.graphicalRepresentation?.filter(
+    currentNotationElementRepresentation.representationItems?.filter(
       (element) => element.shape === "circle"
     );
   const texts =
-    currentNotationElementRepresentation.graphicalRepresentation?.filter(
+    currentNotationElementRepresentation.representationItems?.filter(
       (element) => element.shape === "text"
     );
   const compartments =
-    currentNotationElementRepresentation.graphicalRepresentation?.filter(
+    currentNotationElementRepresentation.representationItems?.filter(
       (element) => element.shape === "compartment"
     );
   const connectors =
-    currentNotationElementRepresentation.graphicalRepresentation?.filter(
+    currentNotationElementRepresentation.representationItems?.filter(
       (element) => element.shape === "connector"
     );
 
@@ -388,8 +388,8 @@ const NotationDesignerDrawPanelGrid = ({
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
       >
-        {currentNotationElementRepresentation!.graphicalRepresentation &&
-          currentNotationElementRepresentation!.graphicalRepresentation.map(
+        {currentNotationElementRepresentation!.representationItems &&
+          currentNotationElementRepresentation!.representationItems.map(
             (element, index) => (
               <div
                 key={index}

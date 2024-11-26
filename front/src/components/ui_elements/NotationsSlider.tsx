@@ -9,9 +9,8 @@ import {
   Representation,
   RepresentationMetaModel,
 } from "../../types/types";
-import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
-import CombineLinkShapesNode from "../notation_representations/edges/CombineLinkShapesNode";
-import CombineRoleShapesNode from "../notation_representations/nodes/CombineRoleShapesNode";
+import CombineObjectShapesNode from "../notation_representations/nodes/CombineShapesNode";
+import CombineLinkShapesNode from "../notation_representations/edges/CombineShapesEdge";
 import { Position } from "@xyflow/react";
 import ModelHelperFunctions from "../helpers/ModelHelperFunctions";
 
@@ -149,9 +148,9 @@ function NotationsSlider({
                       }}
                     >
                       {representation &&
-                      representation.graphicalRepresentation!.length > 0 &&
+                      representation.representationItems!.length > 0 &&
                       allGraphicalRepresentationItemsHasPosition(
-                        representation.graphicalRepresentation!
+                        representation.representationItems!
                       ) ? (
                         renderNodePreview(notationElement)
                       ) : (

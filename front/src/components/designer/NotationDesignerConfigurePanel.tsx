@@ -169,7 +169,7 @@ function NotationDesignerConfigurePanel({
       const newNotationElementRepresentation: Representation = {
         name: selectedIndexOrInput,
         type: "None",
-        graphicalRepresentation: [],
+        representationItems: [],
       };
 
       // Add the new element at the end of the representation array
@@ -443,7 +443,7 @@ function NotationDesignerConfigurePanel({
                 setCurrentNotationElementRepresentation({
                   name: "",
                   type: "None",
-                  graphicalRepresentation: [],
+                  representationItems: [],
                 });
               }}
             >

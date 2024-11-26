@@ -52,9 +52,8 @@ function ModalDoubleClickText({
   if (
     currentNotationElementRepresentation === null ||
     currentNotationElementRepresentation === undefined ||
-    currentNotationElementRepresentation.graphicalRepresentation === null ||
-    currentNotationElementRepresentation.graphicalRepresentation ===
-      undefined ||
+    currentNotationElementRepresentation.representationItems === null ||
+    currentNotationElementRepresentation.representationItems === undefined ||
     selectedElementIndex === null ||
     selectedElementIndex === undefined ||
     selectedElementIndex === -1 ||
@@ -67,7 +66,7 @@ function ModalDoubleClickText({
 
   const handleSelectClassAttributeReference = (attributeName: string) => {
     const updatedRepresentation = [
-      ...currentNotationElementRepresentation?.graphicalRepresentation!,
+      ...currentNotationElementRepresentation?.representationItems!,
     ];
 
     const classAttributeIndex = currentNotationElement.attributes.findIndex(
@@ -82,7 +81,7 @@ function ModalDoubleClickText({
 
     setCurrentNotationElementRepresentation({
       ...currentNotationElementRepresentation,
-      graphicalRepresentation: updatedRepresentation,
+      representationItems: updatedRepresentation,
     });
   };
 
@@ -90,14 +89,14 @@ function ModalDoubleClickText({
     if (selectedNotationRepresentationItemIndex === null) return;
 
     const updatedRepresentation = [
-      ...currentNotationElementRepresentation?.graphicalRepresentation!,
+      ...currentNotationElementRepresentation?.representationItems!,
     ];
     updatedRepresentation[selectedNotationRepresentationItemIndex].text =
       e.target.value;
 
     setCurrentNotationElementRepresentation({
       ...currentNotationElementRepresentation,
-      graphicalRepresentation: updatedRepresentation,
+      representationItems: updatedRepresentation,
     });
   };
 
@@ -105,7 +104,7 @@ function ModalDoubleClickText({
     if (selectedNotationRepresentationItemIndex === null) return;
 
     const updatedRepresentation = [
-      ...currentNotationElementRepresentation?.graphicalRepresentation!,
+      ...currentNotationElementRepresentation?.representationItems!,
     ];
     updatedRepresentation[
       selectedNotationRepresentationItemIndex
@@ -113,7 +112,7 @@ function ModalDoubleClickText({
 
     setCurrentNotationElementRepresentation({
       ...currentNotationElementRepresentation,
-      graphicalRepresentation: updatedRepresentation,
+      representationItems: updatedRepresentation,
     });
   };
 
@@ -136,17 +135,17 @@ function ModalDoubleClickText({
               (attribute) => attribute.name
             )} // List of existing configuration URIs
             value={
-              typeof currentNotationElementRepresentation.graphicalRepresentation![
+              typeof currentNotationElementRepresentation.representationItems![
                 selectedNotationRepresentationItemIndex!
               ].text === "object"
                 ? currentNotationElement.attributes[
                     +(
-                      currentNotationElementRepresentation.graphicalRepresentation![
+                      currentNotationElementRepresentation.representationItems![
                         selectedNotationRepresentationItemIndex!
                       ].text as ClassAttributeReference
                     ).$ref.split("attributes/")[1]
                   ].name
-                : (currentNotationElementRepresentation.graphicalRepresentation![
+                : (currentNotationElementRepresentation.representationItems![
                     selectedNotationRepresentationItemIndex!
                   ].text as string)!
             }
@@ -179,7 +178,7 @@ function ModalDoubleClickText({
             placeholder="Font size"
             type="number"
             value={
-              currentNotationElementRepresentation.graphicalRepresentation![
+              currentNotationElementRepresentation.representationItems![
                 selectedNotationRepresentationItemIndex!
               ].style.fontSize
             }

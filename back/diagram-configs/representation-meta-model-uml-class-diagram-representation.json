@@ -37,8 +37,8 @@
               "zIndex": 1
             },
             "position": {
-              "x": 590,
-              "y": 170,
+              "x": 550,
+              "y": 130,
               "extent": {
                 "width": 120,
                 "height": 120
@@ -55,8 +55,8 @@
               "borderWidth": 0
             },
             "position": {
-              "x": 600,
-              "y": 175,
+              "x": 560,
+              "y": 135,
               "extent": {
                 "width": 100,
                 "height": 30
@@ -75,8 +75,8 @@
               "layout": "vertical"
             },
             "position": {
-              "x": 590,
-              "y": 205,
+              "x": 550,
+              "y": 165,
               "extent": {
                 "width": 120,
                 "height": 30

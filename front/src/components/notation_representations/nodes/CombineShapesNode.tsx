@@ -14,7 +14,7 @@ import { NodeResizer } from "@xyflow/react";
 import RenderConnectors from "./components/RenderConnectors";
 import ModalDoubleClickNotation from "./components/modals/first_layer/ModalDoubleClickNotation";
 import ModalAddAttribute from "./components/modals/second_layer/ModalAddAttribute";
-import RenderTexts from "./components/RenderTexts";
+import RenderLabels from "./components/RenderLabels";
 import RenderCompartments from "./components/RenderCompartments";
 import RenderRectangles from "./components/RenderRectangles";
 import { useDispatch, useSelector } from "react-redux";
@@ -32,7 +32,7 @@ interface CombineObjectShapesNodeProps {
   selected?: boolean;
 }
 
-const CombineObjectShapesNode = ({
+const CombineShapesNode = ({
   id: nodeId,
   data: initialData,
   selected,
@@ -91,16 +91,15 @@ const CombineObjectShapesNode = ({
     }
 
     // Filter valid graphical items
-    const filteredGraphicalItems =
-      representation.graphicalRepresentation!.filter(
-        (item) =>
-          (!isPalette || (isPalette && item.shape !== "connector")) &&
-          (!isNotationSlider ||
-            (isNotationSlider && item.shape !== "connector")) &&
-          item.position &&
-          item.position.x !== undefined &&
-          item.position.y !== undefined
-      );
+    const filteredGraphicalItems = representation.representationItems!.filter(
+      (item) =>
+        (!isPalette || (isPalette && item.shape !== "connector")) &&
+        (!isNotationSlider ||
+          (isNotationSlider && item.shape !== "connector")) &&
+        item.position &&
+        item.position.x !== undefined &&
+        item.position.y !== undefined
+    );
 
     // Set the valid graphical items
     setValidGraphicalItems(filteredGraphicalItems);
@@ -252,7 +251,7 @@ const CombineObjectShapesNode = ({
 
       // Apply scaling to the graphical elements
       const updatedGraphicalRepresentation =
-        notationElementRepresentationInstance.graphicalRepresentation!.map(
+        notationElementRepresentationInstance.representationItems!.map(
           (item) => {
             // Scale both the position and the extent (size)
             return {
@@ -354,7 +353,6 @@ const CombineObjectShapesNode = ({
         alignItems: isNotationSlider ? "center" : "flex-start",
       }}
     >
-      {/* Render rectangles in the background */}
       <RenderRectangles
         rectangles={rectangles}
         data={data}
@@ -369,7 +367,6 @@ const CombineObjectShapesNode = ({
         isNotationSlider={isNotationSlider}
       />
 
-      {/* Render compartments */}
       <RenderCompartments
         nodeId={nodeId}
         compartments={compartments}
@@ -378,8 +375,7 @@ const CombineObjectShapesNode = ({
         isPalette={isPalette}
       />
 
-      {/* Render texts in the front */}
-      <RenderTexts
+      <RenderLabels
         nodeId={nodeId}
         data={data}
         handleTextChange={handleTextChange}
@@ -388,7 +384,6 @@ const CombineObjectShapesNode = ({
         isPalette={isPalette}
       />
 
-      {/* Render connectors in the front */}
       {!isPalette && !isNotationSlider && connectors.length > 0 && (
         <RenderConnectors
           connectors={connectors}
@@ -466,4 +461,4 @@ const CombineObjectShapesNode = ({
   );
 };
 
-export default CombineObjectShapesNode;
+export default CombineShapesNode;

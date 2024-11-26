@@ -62,7 +62,7 @@ function ModalDoubleClickConnector({
       selectedNotationRepresentationItemIndex >= 0
     ) {
       const selectedElement =
-        currentNotationElementRepresentation.graphicalRepresentation![
+        currentNotationElementRepresentation.representationItems![
           selectedNotationRepresentationItemIndex
         ];
       if (selectedElement) {
@@ -89,7 +89,7 @@ function ModalDoubleClickConnector({
     if (selectedNotationRepresentationItemIndex === null || !connector) return;
 
     const updatedRepresentation = [
-      ...currentNotationElementRepresentation?.graphicalRepresentation!,
+      ...currentNotationElementRepresentation?.representationItems!,
     ];
 
     // Update the entire style and position objects in one go
@@ -102,7 +102,7 @@ function ModalDoubleClickConnector({
 
     setCurrentNotationElementRepresentation({
       ...currentNotationElementRepresentation,
-      graphicalRepresentation: updatedRepresentation,
+      representationItems: updatedRepresentation,
     });
 
     setIsConnectorModalOpen(false); // Close modal after saving

@@ -59,7 +59,7 @@ function ModalDoubleClickSquare({
       selectedNotationRepresentationItemIndex >= 0
     ) {
       const selectedElement =
-        currentNotationElementRepresentation?.graphicalRepresentation![
+        currentNotationElementRepresentation?.representationItems![
           selectedNotationRepresentationItemIndex
         ];
       if (selectedElement) {
@@ -99,7 +99,7 @@ function ModalDoubleClickSquare({
     if (selectedNotationRepresentationItemIndex === null || !square) return;
 
     const updatedRepresentation = [
-      ...currentNotationElementRepresentation?.graphicalRepresentation!,
+      ...currentNotationElementRepresentation?.representationItems!,
     ];
 
     // Update the entire style and position objects in one go
@@ -111,7 +111,7 @@ function ModalDoubleClickSquare({
 
     setCurrentNotationElementRepresentation({
       ...currentNotationElementRepresentation,
-      graphicalRepresentation: updatedRepresentation,
+      representationItems: updatedRepresentation,
     });
 
     setIsSquareModalOpen(false); // Close modal after saving

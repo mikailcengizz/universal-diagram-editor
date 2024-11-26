@@ -11,7 +11,7 @@ import {
   StyleProperties,
 } from "../../types/types";
 import { FormControl, MenuItem, Select, TextField } from "@mui/material";
-import CombineLinkShapesNode from "../notation_representations/edges/CombineLinkShapesNode";
+import CombineLinkShapesNode from "../notation_representations/edges/CombineShapesEdge";
 import { HexColorPicker } from "react-colorful";
 import Popover from "@mui/material/Popover";
 import IconButton from "@mui/material/IconButton";
@@ -86,30 +86,27 @@ function NotationDesignerDrawEdge({
     : undefined;
 
   const [selectedShape, setSelectedShape] = useState<Shape>(
-    currentNotationElementRepresentation.graphicalRepresentation?.length ===
-      0 ||
-      currentNotationElementRepresentation.graphicalRepresentation![0].shape ===
+    currentNotationElementRepresentation.representationItems?.length === 0 ||
+      currentNotationElementRepresentation.representationItems![0].shape ===
         undefined
       ? "line"
-      : currentNotationElementRepresentation.graphicalRepresentation![0].shape!
+      : currentNotationElementRepresentation.representationItems![0].shape!
   );
   const [selectedStyle, setSelectedStyle] = useState<StyleProperties>(
-    currentNotationElementRepresentation.graphicalRepresentation?.length ===
-      0 ||
-      currentNotationElementRepresentation.graphicalRepresentation![0].style ===
+    currentNotationElementRepresentation.representationItems?.length === 0 ||
+      currentNotationElementRepresentation.representationItems![0].style ===
         undefined
       ? {
           color: "#000000",
           width: 1,
           lineStyle: "solid",
         }
-      : currentNotationElementRepresentation.graphicalRepresentation![0].style!
+      : currentNotationElementRepresentation.representationItems![0].style!
   );
   const [selectedMarkers, setSelectedMarkers] = useState<Marker[]>(
-    currentNotationElementRepresentation.graphicalRepresentation?.length ===
-      0 ||
-      currentNotationElementRepresentation.graphicalRepresentation![0]
-        .markers === undefined
+    currentNotationElementRepresentation.representationItems?.length === 0 ||
+      currentNotationElementRepresentation.representationItems![0].markers ===
+        undefined
       ? [
           {
             type: "openArrow",
@@ -126,8 +123,7 @@ function NotationDesignerDrawEdge({
             },
           },
         ]
-      : currentNotationElementRepresentation.graphicalRepresentation![0]
-          .markers!
+      : currentNotationElementRepresentation.representationItems![0].markers!
   );
   const [data, setData] = useState<DiagramNodeData>({
     notation: {
@@ -137,7 +133,7 @@ function NotationDesignerDrawEdge({
     notationElement: currentNotationElement,
     notationElementRepresentation: {
       ...currentNotationElementRepresentation,
-      graphicalRepresentation: [
+      representationItems: [
         {
           shape: selectedShape,
           style: selectedStyle,
@@ -157,7 +153,7 @@ function NotationDesignerDrawEdge({
   useEffect(() => {
     setCurrentNotationElementRepresentation({
       ...currentNotationElementRepresentation,
-      graphicalRepresentation: [
+      representationItems: [
         {
           shape: selectedShape,
           style: selectedStyle,
@@ -177,7 +173,7 @@ function NotationDesignerDrawEdge({
 
     setSelectedShape(newShape);
     let updatedData = { ...data };
-    updatedData.notationElementRepresentation!.graphicalRepresentation![0].shape =
+    updatedData.notationElementRepresentation!.representationItems![0].shape =
       newShape;
     setData(updatedData); // Force re-render
   };
@@ -194,7 +190,7 @@ function NotationDesignerDrawEdge({
 
     setSelectedStyle(updatedStyle);
     let updatedData = { ...data };
-    updatedData.notationElementRepresentation!.graphicalRepresentation![0].style =
+    updatedData.notationElementRepresentation!.representationItems![0].style =
       updatedStyle;
     setData(updatedData); // Force re-render
   };
@@ -212,7 +208,7 @@ function NotationDesignerDrawEdge({
 
     setSelectedMarkers(updatedMarkers);
     let updatedData = { ...data };
-    updatedData.notationElementRepresentation!.graphicalRepresentation![0].markers =
+    updatedData.notationElementRepresentation!.representationItems![0].markers =
       updatedMarkers;
     setData(updatedData); // Force re-render
   };
@@ -234,7 +230,7 @@ function NotationDesignerDrawEdge({
 
     setSelectedMarkers(updatedMarkers);
     let updatedData = { ...data };
-    updatedData.notationElementRepresentation!.graphicalRepresentation![0].markers =
+    updatedData.notationElementRepresentation!.representationItems![0].markers =
       updatedMarkers;
     setData(updatedData); // Force re-render
   };

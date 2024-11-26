@@ -68,7 +68,7 @@ class OnLoadHelper {
           position: position,
         };
 
-        const nodeHandles = representationInstanceObject.graphicalRepresentation
+        const nodeHandles = representationInstanceObject.representationItems
           ?.filter(
             (representationItem) => representationItem.shape === "connector"
           )
@@ -254,18 +254,16 @@ class OnLoadHelper {
           );
 
         const sourceConenctor: NotationRepresentationItem | undefined =
-          sourceRepresentation?.graphicalRepresentation![sourceConnectorRef];
+          sourceRepresentation?.representationItems![sourceConnectorRef];
         const targetConnector: NotationRepresentationItem | undefined =
-          targetRepresentation?.graphicalRepresentation![targetConnectorRef];
+          targetRepresentation?.representationItems![targetConnectorRef];
 
-        const sourceConnectorIndex =
-          sourceRepresentation?.graphicalRepresentation
-            ?.filter((item) => item.shape === "connector")
-            .indexOf(sourceConenctor!);
-        const targetConnectorIndex =
-          targetRepresentation?.graphicalRepresentation
-            ?.filter((item) => item.shape === "connector")
-            .indexOf(targetConnector!);
+        const sourceConnectorIndex = sourceRepresentation?.representationItems
+          ?.filter((item) => item.shape === "connector")
+          .indexOf(sourceConenctor!);
+        const targetConnectorIndex = targetRepresentation?.representationItems
+          ?.filter((item) => item.shape === "connector")
+          .indexOf(targetConnector!);
 
         // Use these indices to backtrack and find the appropriate handles on the source and target nodes
         const findHandleByConnectorIndex = (

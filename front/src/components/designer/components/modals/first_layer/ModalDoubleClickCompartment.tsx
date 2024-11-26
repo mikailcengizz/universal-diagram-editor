@@ -87,7 +87,7 @@ function ModalDoubleClickCompartment({
       selectedNotationRepresentationItemIndex >= 0
     ) {
       const selectedElement =
-        currentNotationElementRepresentation.graphicalRepresentation![
+        currentNotationElementRepresentation.representationItems![
           selectedNotationRepresentationItemIndex
         ];
       if (
@@ -121,7 +121,7 @@ function ModalDoubleClickCompartment({
   }, [
     selectedNotationRepresentationItemIndex,
     currentNotationElement,
-    currentNotationElementRepresentation.graphicalRepresentation,
+    currentNotationElementRepresentation.representationItems,
     compartment,
   ]);
 
@@ -155,7 +155,7 @@ function ModalDoubleClickCompartment({
       return;
 
     const updatedRepresentation = [
-      ...currentNotationElementRepresentation?.graphicalRepresentation!,
+      ...currentNotationElementRepresentation?.representationItems!,
     ];
 
     // Update the entire style and position objects in one go
@@ -168,7 +168,7 @@ function ModalDoubleClickCompartment({
 
     setCurrentNotationElementRepresentation({
       ...currentNotationElementRepresentation,
-      graphicalRepresentation: updatedRepresentation,
+      representationItems: updatedRepresentation,
     });
 
     setIsCompartmentModalOpen(false); // Close modal after saving

@@ -83,9 +83,9 @@ export interface Notation {
 }
 
 // DIAGRAM EDITOR
-export interface DiagramNodeData {
-  notation?: Notation; // notation (meta model and representation model)
-  notationElement?: Class; // notation element (class) for this node
+export interface ReactFlowComponentData {
+  notation?: Notation; // (meta model and representation model)
+  notationElement?: Class; // meta model concept for this node
   notationElementRepresentation?: Representation; // graphical representation of the notation element
   instanceObject?: InstanceObject; // instance object for this node
   instanceObjectRepresentation?: RepresentationInstanceObject; // graphical representation of the instance object
@@ -231,7 +231,7 @@ export type RepresentationType = "ClassNode" | "ClassEdge" | "None";
 export interface Representation {
   name: string;
   type: RepresentationType; // we map classes to representation types
-  graphicalRepresentation?: NotationRepresentationItem[];
+  representationItems?: NotationRepresentationItem[];
 }
 
 // REPRESENTATION INSTANCE
@@ -248,5 +248,5 @@ export interface RepresentationInstanceObject {
   name: string;
   type: RepresentationType;
   position?: Position;
-  graphicalRepresentation?: NotationRepresentationItem[];
+  representationItems?: NotationRepresentationItem[];
 }

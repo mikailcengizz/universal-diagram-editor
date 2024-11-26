@@ -29,8 +29,8 @@ import {
 import PaletteEditorPanel from "./PaletteEditorPanel";
 import configService from "../../services/ConfigService";
 import ReactFlowWithInstance from "../ReactFlowWithInstance";
-import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
-import CombineLinkShapesEdge from "../notation_representations/edges/CombineLinkShapesNode";
+import CombineShapesNode from "../notation_representations/nodes/CombineShapesNode";
+import CombineShapesEdge from "../notation_representations/edges/CombineShapesEdge";
 import ModalDoubleClickNotation from "../notation_representations/nodes/components/modals/first_layer/ModalDoubleClickNotation";
 import { useDispatch, useSelector } from "react-redux";
 import { updateRepresentationInstanceModel } from "../../redux/actions/representationInstanceModelActions";
@@ -45,11 +45,11 @@ import AlertWithFade from "../ui_elements/AlertWithFade";
 import OnEdgesChangeHelper from "../helpers/react-flow-helpers/OnEdgesChangeHelper";
 
 const nodeTypes = {
-  ClassNode: CombineObjectShapesNode,
+  ClassNode: CombineShapesNode,
 };
 
 const edgeTypes = {
-  ClassEdge: CombineLinkShapesEdge,
+  ClassEdge: CombineShapesEdge,
 };
 
 interface DiagramEditorProps {
@@ -594,8 +594,8 @@ const DiagramEditor = ({
           x: 0,
           y: 0,
         },
-        graphicalRepresentation: [
-          ...edgeNotationElementRepresentation!.graphicalRepresentation!,
+        representationItems: [
+          ...edgeNotationElementRepresentation!.representationItems!,
         ],
       };
 
@@ -738,8 +738,8 @@ const DiagramEditor = ({
         name: uniqueId,
         type: notationElementRepresentation.type,
         position: position,
-        graphicalRepresentation: [
-          ...notationElementRepresentation.graphicalRepresentation!,
+        representationItems: [
+          ...notationElementRepresentation.representationItems!,
         ],
       };
 
@@ -754,7 +754,7 @@ const DiagramEditor = ({
         isNotationSlider: false,
       };
 
-      const nodeHandles = representationInstanceObject.graphicalRepresentation
+      const nodeHandles = representationInstanceObject.representationItems
         ?.filter(
           (representationItem) => representationItem.shape === "connector"
         )
@@ -832,7 +832,7 @@ const DiagramEditor = ({
 
       const newNode: Node = {
         id: uniqueId,
-        type: notationElementRepresentation.type, // ClassNode, EdgeNode
+        type: notationElementRepresentation.type, // ClassNode, ClassEdge
         handles: nodeHandles,
         position: position,
         data: nodeData as any,

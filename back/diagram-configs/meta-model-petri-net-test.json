@@ -13,7 +13,7 @@
             "attributeType": {
               "name": "String"
             },
-            "defaultValue": "transition",
+            "defaultValue": "",
             "isUnique": false
           }
         ],
@@ -33,7 +33,16 @@
         "name": "Node",
         "isAbstract": true,
         "isInterface": false,
-        "attributes": [],
+        "attributes": [
+          {
+            "name": "name",
+            "attributeType": {
+              "name": "String"
+            },
+            "defaultValue": "",
+            "isUnique": false
+          }
+        ],
         "references": [],
         "representation": {
           "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/1"
@@ -43,12 +52,21 @@
         "name": "PetriNet",
         "isAbstract": false,
         "isInterface": false,
-        "attributes": [],
+        "attributes": [
+          {
+            "name": "name",
+            "attributeType": {
+              "name": "String"
+            },
+            "defaultValue": "",
+            "isUnique": false
+          }
+        ],
         "references": [
           {
             "name": "reference",
             "element": {
-              "$ref": "#/elements/3"
+              "$ref": "#/elements/5"
             }
           }
         ],
@@ -60,8 +78,24 @@
         "name": "Object",
         "isAbstract": true,
         "isInterface": false,
-        "attributes": [],
-        "references": [],
+        "attributes": [
+          {
+            "name": "name",
+            "attributeType": {
+              "name": "String"
+            },
+            "defaultValue": "",
+            "isUnique": false
+          }
+        ],
+        "references": [
+          {
+            "name": "reference",
+            "element": {
+              "$ref": "#/elements/6"
+            }
+          }
+        ],
         "representation": {
           "$ref": "http://www.compute.dtu.dk/sse/models/test-representation#/elements/3"
         }
@@ -118,6 +152,14 @@
             },
             "defaultValue": "petriNet",
             "isUnique": false
+          },
+          {
+            "name": "isComposition",
+            "attributeType": {
+              "name": "Boolean"
+            },
+            "defaultValue": "false",
+            "isUnique": false
           }
         ],
         "references": [
@@ -165,6 +207,18 @@
             "name": "superType",
             "element": {
               "$ref": "#/elements/3"
+            }
+          },
+          {
+            "name": "source",
+            "element": {
+              "$ref": "#/elements/1"
+            }
+          },
+          {
+            "name": "target",
+            "element": {
+              "$ref": "#/elements/1"
             }
           }
         ],

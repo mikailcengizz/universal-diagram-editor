@@ -6,9 +6,8 @@ import {
   Representation,
   RepresentationMetaModel,
 } from "../../types/types";
-import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
-import CombineLinkShapesNode from "../notation_representations/edges/CombineLinkShapesNode";
-import CombineRoleShapesNode from "../notation_representations/nodes/CombineRoleShapesNode";
+import CombineObjectShapesNode from "../notation_representations/nodes/CombineShapesNode";
+import CombineLinkShapesNode from "../notation_representations/edges/CombineShapesEdge";
 import { Position } from "@xyflow/react";
 import ReferenceHelper from "../helpers/ReferenceHelper";
 import ModelHelperFunctions from "../helpers/ModelHelperFunctions";
@@ -65,8 +64,8 @@ const PaletteEditorPanel = ({
 
     if (
       notationElementRepresentation &&
-      notationElementRepresentation.graphicalRepresentation &&
-      notationElementRepresentation.graphicalRepresentation.length > 0
+      notationElementRepresentation.representationItems &&
+      notationElementRepresentation.representationItems.length > 0
     ) {
       switch (notationElementRepresentation.type) {
         case "ClassNode":
@@ -139,8 +138,8 @@ const PaletteEditorPanel = ({
                   return (
                     notationElementRepresentation &&
                     notationElementRepresentation.type === "ClassNode" &&
-                    notationElementRepresentation.graphicalRepresentation
-                      ?.length! > 0
+                    notationElementRepresentation.representationItems?.length! >
+                      0
                   );
                 })
                 .map((notationElement: Class, index) => (

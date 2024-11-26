@@ -29,7 +29,7 @@ interface CombineRelationshipShapesEdgeProps {
   data: DiagramNodeData;
 }
 
-function CombineLinkShapesNode({
+function CombineShapesEdge({
   id,
   sourceX,
   sourceY,
@@ -84,36 +84,36 @@ function CombineLinkShapesNode({
 
   const hasGraphicalRepresentation =
     representation &&
-    representation.graphicalRepresentation !== undefined &&
-    representation.graphicalRepresentation.length > 0;
+    representation.representationItems !== undefined &&
+    representation.representationItems.length > 0;
 
   const edgeStyles = {
     strokeWidth: hasGraphicalRepresentation
-      ? representation!.graphicalRepresentation![0].style.width
+      ? representation!.representationItems![0].style.width
       : 1,
     stroke: hasGraphicalRepresentation
-      ? representation!.graphicalRepresentation![0].style.color
+      ? representation!.representationItems![0].style.color
       : "#000000",
     strokeDasharray: !hasGraphicalRepresentation
       ? "0" // Solid line
-      : representation!.graphicalRepresentation![0].style.lineStyle === "dotted"
+      : representation!.representationItems![0].style.lineStyle === "dotted"
       ? "5,5"
-      : representation!.graphicalRepresentation![0].style.lineStyle === "dashed"
+      : representation!.representationItems![0].style.lineStyle === "dashed"
       ? "10,10"
       : "0", // Solid line
   };
 
   const hasMarkers =
     hasGraphicalRepresentation &&
-    representation!.graphicalRepresentation![0].markers !== undefined &&
-    representation!.graphicalRepresentation![0].markers!.length > 0;
+    representation!.representationItems![0].markers !== undefined &&
+    representation!.representationItems![0].markers!.length > 0;
 
   // Get marker styles
   const markerSource: Marker = hasMarkers
-    ? representation!.graphicalRepresentation![0].markers![0]
+    ? representation!.representationItems![0].markers![0]
     : { type: "none" };
   const markerTarget: Marker = hasMarkers
-    ? representation!.graphicalRepresentation![0].markers![1]
+    ? representation!.representationItems![0].markers![1]
     : { type: "none" };
 
   // Helper function to get the marker style and dimensions
@@ -281,9 +281,9 @@ function CombineLinkShapesNode({
 
   // Get source and target connector representations
   sourceConnectorRepresentationInstance =
-    sourceRepresentationInstance!.graphicalRepresentation![sourceConnectorRef];
+    sourceRepresentationInstance!.representationItems![sourceConnectorRef];
   targetConnectorRepresentationInstance =
-    targetRepresentationInstance!.graphicalRepresentation![targetConnectorRef];
+    targetRepresentationInstance!.representationItems![targetConnectorRef];
 
   const getMarkerRotation = (alignment: string) => {
     switch (alignment) {
@@ -415,4 +415,4 @@ function CombineLinkShapesNode({
   );
 }
 
-export default CombineLinkShapesNode;
+export default CombineShapesEdge;
