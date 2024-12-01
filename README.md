@@ -1,7 +1,7 @@
 # Creation and Customization of Graphical Notations without Programming: A Universal Diagram Editor
 
 <p align="center">
-    <img src="./DTU_Logo.png" alt="DTU Logo" width="50">
+    <img src="DTU_Logo.png" alt="DTU Logo" width="50">
 </p>
 
 This repository contains the implementation of my master's thesis project in collaboration with the **Technical University of Denmark (DTU)**. The goal of this project is to develop a **Universal Diagram Editor** that enables easy creation and customization of graphical notations and their use in a diagram editor, serving to both graphical notation developers and diagram creators.
