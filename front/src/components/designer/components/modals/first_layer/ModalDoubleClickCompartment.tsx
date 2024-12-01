@@ -6,8 +6,7 @@ import {
   NotationRepresentationItem,
   Reference,
   Representation,
-  RepresentationMetaModel,
-  RepresentationType,
+  RepresentationMetaModel
 } from "../../../../../types/types";
 import { FormControl, MenuItem, Select, TextField } from "@mui/material";
 
@@ -80,7 +79,7 @@ function ModalDoubleClickCompartment({
     },
   });
 
-  // This useEffect ensures that the modal's fields are populated with the current values
+  // this useEffect ensures that the modal's fields are populated with the current values
   useEffect(() => {
     if (
       selectedNotationRepresentationItemIndex !== null &&
@@ -158,12 +157,12 @@ function ModalDoubleClickCompartment({
       ...currentNotationElementRepresentation?.graphicalRepresentation!,
     ];
 
-    // Update the entire style and position objects in one go
+    // update entire style and position objects in one go
     updatedRepresentation[selectedNotationRepresentationItemIndex] = {
       ...updatedRepresentation[selectedNotationRepresentationItemIndex],
       content: compartment.content,
-      style: { ...compartment.style }, // Copy the entire style object
-      position: { ...compartment.position }, // Copy the entire position object
+      style: { ...compartment.style }, // copy entire style object
+      position: { ...compartment.position }, // copy entire position object
     };
 
     setCurrentNotationElementRepresentation({
@@ -171,7 +170,7 @@ function ModalDoubleClickCompartment({
       graphicalRepresentation: updatedRepresentation,
     });
 
-    setIsCompartmentModalOpen(false); // Close modal after saving
+    setIsCompartmentModalOpen(false); // close modal after saving
   };
 
   return (

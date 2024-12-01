@@ -1,11 +1,8 @@
 import React from "react";
 import {
   DiagramNodeData,
-  InstanceModel,
   NotationRepresentationItem,
 } from "../../../../types/types";
-import dataTypeHelper from "../../../helpers/TypeHelper";
-import { useDispatch, useSelector } from "react-redux";
 
 interface RenderTextsProps {
   nodeId: string;
@@ -24,11 +21,6 @@ function RenderTexts({
   isPalette = false,
   isNotationSlider = false,
 }: RenderTextsProps) {
-  const dispatch = useDispatch();
-  const instanceModel: InstanceModel = useSelector(
-    (state: any) => state.instanceModelStore.model
-  );
-
   return (
     <>
       {texts.map((textItem, idx) => {
@@ -41,7 +33,7 @@ function RenderTexts({
             ? "Text"
             : textItem.text;
 
-        // we dont want editable field in palette notations
+        // no editable field in palette notations
         if (isPalette || isNotationSlider) {
           return (
             <span

@@ -8,7 +8,7 @@ export const UPDATE_REPRESENTATION_INSTANCE_MODEL =
 export const UPDATE_REPRESENTATION_INSTANCE_OBJECT =
   "UPDATE_REPRESENTATION_INSTANCE_OBJECT";
 
-// Action to update the whole model
+// action to update the whole model
 export const updateRepresentationInstanceModel = (
   model: RepresentationInstanceModel
 ) => ({
@@ -16,7 +16,7 @@ export const updateRepresentationInstanceModel = (
   payload: model,
 });
 
-// Action to update a object
+// action to update a object
 export const updateRepresentationInstanceObject = (
   classData: RepresentationInstanceObject
 ) => ({

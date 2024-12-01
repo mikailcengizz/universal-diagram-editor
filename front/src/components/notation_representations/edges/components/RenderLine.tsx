@@ -23,11 +23,11 @@ const RenderLine = ({
     []
   );
 
-  const svgRef = useRef<SVGSVGElement>(null); // Use ref for the SVG element
+  const svgRef = useRef<SVGSVGElement>(null); // use ref for the SVG element
 
-  let draggingIndex: number | null = null; // Index of the anchor point being dragged
+  let draggingIndex: number | null = null; // index of the anchor point being dragged
 
-  // Convert the mouse coordinates to the correct SVG coordinates
+  // convert the mouse coordinates to the correct SVG coordinates
   const getSVGCoords = (event: MouseEvent) => {
     const svg = svgRef.current;
     if (!svg) return { x: event.clientX, y: event.clientY };
@@ -43,10 +43,10 @@ const RenderLine = ({
     return { x: event.clientX, y: event.clientY };
   };
 
-  // Handle dragging
+  // handle dragging
   const handleMouseMove = (event: MouseEvent) => {
     if (draggingIndex !== null) {
-      const { x, y } = getSVGCoords(event); // Get the correct SVG coordinates
+      const { x, y } = getSVGCoords(event); // get the correct SVG coordinates
       setAnchorPoints((prev) => {
         const newAnchorPoints = [...prev];
         if (newAnchorPoints.length > 0) {
@@ -62,29 +62,28 @@ const RenderLine = ({
   };
 
   const handleMouseUp = () => {
-    draggingIndex = null; // Stop dragging
-    window.removeEventListener("mousemove", handleMouseMove); // Detach listeners
+    draggingIndex = null; // stop dragging
+    window.removeEventListener("mousemove", handleMouseMove); // detach listeners
     window.removeEventListener("mouseup", handleMouseUp);
   };
 
   const handleMouseDown = (index: number, e: React.MouseEvent) => {
-    e.stopPropagation(); // Stop propagation so it doesn't trigger line drag
-    draggingIndex = index; // Set the index of the anchor point being dragged
-    window.addEventListener("mousemove", handleMouseMove); // Attach listeners to window
+    e.stopPropagation(); // stop propagation so it doesn't trigger line drag
+    draggingIndex = index; // set the index of the anchor point being dragged
+    window.addEventListener("mousemove", handleMouseMove); // attach listeners to window
     window.addEventListener("mouseup", handleMouseUp);
   };
 
-  // Handle right-click to add a new anchor point
+  // handle right-click to add a new anchor point
   const handleRightClick = (event: React.MouseEvent) => {
-    event.preventDefault(); // Prevent the default context menu
-    const { x, y } = getSVGCoords(event as unknown as MouseEvent); // Get the correct SVG coordinates
+    event.preventDefault(); // prevent the default context menu
     const pointsToUse = [
       { x: sourceX, y: sourceY },
       ...anchorPoints,
       { x: targetX, y: targetY },
     ];
 
-    // Find the midpoint between two existing points on the line
+    // find the midpoint between two existing points on the line
     const closestPointIndex = findClosestPointIndex(
       event.clientX,
       event.clientY,
@@ -98,12 +97,12 @@ const RenderLine = ({
     };
 
     const newAnchorPoints = [...anchorPoints];
-    newAnchorPoints.splice(nextPointIndex - 1, 0, midpoint); // Insert the midpoint between points
+    newAnchorPoints.splice(nextPointIndex - 1, 0, midpoint); // insert the midpoint between points
 
     setAnchorPoints(newAnchorPoints);
   };
 
-  // Find the closest point in the line to the mouse position
+  // find the closest point in the line to the mouse position
   const findClosestPointIndex = (
     mouseX: number,
     mouseY: number,
@@ -125,7 +124,7 @@ const RenderLine = ({
     return closestIndex;
   };
 
-  // Calculate the points of the polyline including the anchor points
+  // calculate the points of the polyline including the anchor points
   const points = [
     { x: sourceX, y: sourceY },
     ...anchorPoints,
@@ -136,8 +135,8 @@ const RenderLine = ({
 
   return (
     <svg
-      id={"line" + id} // Set the ID of the SVG
-      ref={svgRef} // Attach ref to the SVG
+      id={"line" + id} // set the ID of the SVG
+      ref={svgRef} // attach ref to the SVG
       style={{ pointerEvents: "auto" }}
     >
       {/* Render the polyline */}
@@ -149,7 +148,7 @@ const RenderLine = ({
         strokeWidth="2"
         markerStart={markerStart ? markerStart : undefined}
         markerEnd={markerEnd ? markerEnd : undefined}
-        onContextMenu={handleRightClick} // Right-click to add anchor point
+        onContextMenu={handleRightClick} // right-click to add anchor point
       />
 
       {/* Render draggable anchor points */}

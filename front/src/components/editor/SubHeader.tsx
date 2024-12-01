@@ -43,7 +43,7 @@ function SubHeader({
   const [dropdownVisibleDisplay, setDropdownVisibleDisplay] = useState(false);
   const [configs, setConfigs] = useState<ConfigListItem[]>([]);
 
-  // Ref to detect outside clicks
+  // ref to detect outside clicks
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -97,11 +97,11 @@ function SubHeader({
   const onCreateNewDiagramHandler = () => {
     setDropdownVisibleFile(false);
 
-    // Clear the diagram
+    // clear the diagram
     setNodes([]);
     setEdges([]);
 
-    // Clear the diagram instance
+    // clear the diagram instance
     dispatch(
       updateInstanceModel({
         package: {
@@ -125,7 +125,7 @@ function SubHeader({
     onSelectConfig(configURI);
     dispatch(updateSelectedMetaModel(configURI));
 
-    // Clear the diagram instance
+    // clear the diagram instance
     dispatch(
       updateInstanceModel({
         package: {

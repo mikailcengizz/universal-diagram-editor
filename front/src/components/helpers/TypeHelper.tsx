@@ -1,5 +1,3 @@
-import {} from "../../types/types";
-
 class TypeHelper {
   determineInputFieldType(dataType: string) {
     switch (dataType) {

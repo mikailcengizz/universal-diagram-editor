@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
 const basicAuth = (req: Request, res: Response, next: NextFunction) => {
-  // the 'Authorization' header is encoded in base64 as 'username:password'
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -15,7 +14,7 @@ const basicAuth = (req: Request, res: Response, next: NextFunction) => {
   if (username === "test@hotmail.com" && password === "test123") {
     return next(); // credentials are correct, proceed to the route
   } else {
-    return res.status(403).send("Access Denied"); // access denied
+    return res.status(403).send("Access Denied"); 
   }
 };
 

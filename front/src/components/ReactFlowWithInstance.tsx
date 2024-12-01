@@ -10,7 +10,7 @@ import {
 } from "@xyflow/react";
 import { useEffect } from "react";
 
-// Define the props type for the ReactFlowWithInstance component, extending ReactFlowProps
+// define the props type for the ReactFlowWithInstance component, extending ReactFlowProps
 interface ReactFlowWithInstanceProps<
   NodeType extends Node = Node,
   EdgeType extends Edge = Edge
@@ -21,7 +21,7 @@ interface ReactFlowWithInstanceProps<
   showGrid?: boolean;
 }
 
-// Create the component using the props type with generics
+// create the component using the props type with generics
 const ReactFlowWithInstance = <
   NodeType extends Node = Node,
   EdgeType extends Edge = Edge
@@ -34,7 +34,7 @@ const ReactFlowWithInstance = <
 
   useEffect(() => {
     if (reactFlowInstance) {
-      setReactFlowInstance(reactFlowInstance); // Set the instance when it's ready
+      setReactFlowInstance(reactFlowInstance); // set the instance when it's ready
     }
   }, [reactFlowInstance, setReactFlowInstance]);
 

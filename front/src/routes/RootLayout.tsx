@@ -11,10 +11,10 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#000000", // Set the focused border color to black
+            borderColor: "#000000",
           },
           "& .MuiInputBase-input::placeholder": {
-            color: "#A0A0A0", // Set placeholder color here
+            color: "#A0A0A0",
           },
         },
       },
@@ -22,9 +22,9 @@ const theme = createTheme({
     MuiInputLabel: {
       styleOverrides: {
         root: {
-          color: "#A0A0A0", // Set label color here (used as placeholder when not focused)
+          color: "#A0A0A0",
           "&.Mui-focused": {
-            color: "#A0A0A0", // Keep the label placeholder color even when focused
+            color: "#A0A0A0",
           },
         },
       },
@@ -33,13 +33,13 @@ const theme = createTheme({
       styleOverrides: {
         select: {
           "&.Mui-disabled": {
-            color: "#A0A0A0", // Color for disabled selected item when displayed
+            color: "#A0A0A0",
           },
           "&[aria-expanded='false']": {
-            color: "#A0A0A0", // Ensure the placeholder has the desired color when the dropdown is closed
+            color: "#A0A0A0",
           },
           "&.Mui-focused": {
-            color: "#A0A0A0", // Keep color consistent when focused
+            color: "#A0A0A0",
           },
         },
       },
@@ -48,7 +48,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           "&.Mui-disabled": {
-            color: "#A0A0A0", // Color for disabled MenuItem in the dropdown
+            color: "#A0A0A0",
           },
         },
       },

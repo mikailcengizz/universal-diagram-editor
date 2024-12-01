@@ -1,11 +1,10 @@
-import { getBezierPath, useReactFlow, Position } from "@xyflow/react";
-import React, { useEffect, useState } from "react";
+import { getBezierPath, Position } from "@xyflow/react";
+import React, { useState } from "react";
 import {
   DiagramNodeData,
   InstanceModel,
   InstanceObject,
   Marker,
-  NotationRepresentationItem,
   Representation,
   RepresentationInstanceModel,
   RepresentationInstanceObject,
@@ -42,7 +41,6 @@ function CombineLinkShapesNode({
   markerEnd,
   data: initialData,
 }: CombineRelationshipShapesEdgeProps) {
-  const dispatch = useDispatch();
   const instanceModel: InstanceModel = useSelector(
     (state: any) => state.instanceModelStore.model
   );
@@ -108,7 +106,7 @@ function CombineLinkShapesNode({
     representation!.graphicalRepresentation![0].markers !== undefined &&
     representation!.graphicalRepresentation![0].markers!.length > 0;
 
-  // Get marker styles
+  // get marker styles
   const markerSource: Marker = hasMarkers
     ? representation!.graphicalRepresentation![0].markers![0]
     : { type: "none" };
@@ -116,7 +114,7 @@ function CombineLinkShapesNode({
     ? representation!.graphicalRepresentation![0].markers![1]
     : { type: "none" };
 
-  // Helper function to get the marker style and dimensions
+  // helper function to get the marker style and dimensions
   const getMarkerStyle = (marker: any) => ({
     color: marker?.style?.color || "#000000",
     width: marker?.style?.width || 1,
@@ -130,13 +128,13 @@ function CombineLinkShapesNode({
   const paletteWidth = isPalette ? 55 : isDesignerPreview ? 200 : 94;
   const paletteHeight = isPalette ? 55 : isDesignerPreview ? 200 : 94;
 
-  // Manually render the line for palette or notation slider context used for previewing
+  // manually render the line for palette or notation slider context used for previewing
   if (isPalette || isNotationSlider || isDesignerPreview) {
     return (
       <svg
         width={paletteWidth}
         height={paletteHeight}
-        viewBox={`0 0 ${paletteWidth} ${paletteHeight}`} // Define the aspect ratio here, based on the full size scale
+        viewBox={`0 0 ${paletteWidth} ${paletteHeight}`} // define the aspect ratio here, based on the full size scale
       >
         <defs>
           {/* Define marker elements with dynamic color and width */}
@@ -257,7 +255,7 @@ function CombineLinkShapesNode({
     return null; // edges must have source and target objects to render
   }
 
-  // Get source and target instance representations
+  // get source and target instance representations
   sourceRepresentationInstance =
     ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
       sourceObject!,
@@ -279,7 +277,7 @@ function CombineLinkShapesNode({
     );
   }
 
-  // Get source and target connector representations
+  // get source and target connector representations
   sourceConnectorRepresentationInstance =
     sourceRepresentationInstance!.graphicalRepresentation![sourceConnectorRef];
   targetConnectorRepresentationInstance =
@@ -296,7 +294,7 @@ function CombineLinkShapesNode({
       case "right":
         return -180;
       default:
-        return 0; // Default is no rotation
+        return 0; // default is no rotation
     }
   };
 
@@ -312,7 +310,7 @@ function CombineLinkShapesNode({
 
   const handleDoubleClick = () => {
     if (data.onDoubleClick) {
-      data.onDoubleClick(id, data); // Access the onDoubleClick function
+      data.onDoubleClick(id, data); // access the onDoubleClick function
     } else {
       console.error("onDoubleClick function is not defined");
     }
@@ -325,8 +323,8 @@ function CombineLinkShapesNode({
         <marker
           id={"sourceMarker" + id}
           viewBox="0 0 10 10"
-          refX="9" // Move the arrowhead to start at the exact point of the source
-          refY="5" // Keep it centered
+          refX="9" // move the arrowhead to start at the exact point of the source
+          refY="5" // keep it centered
           markerWidth={
             markerSource.type === "none" ? 0 : sourceMarkerStyle.width
           }
@@ -352,8 +350,8 @@ function CombineLinkShapesNode({
         <marker
           id={"targetMarker" + id}
           viewBox="0 0 10 10"
-          refX="9" // Ensure this aligns properly with the end of the line
-          refY="5" // Center of the marker
+          refX="9" // ensure this aligns properly with the end of the line
+          refY="5" // center of the marker
           markerWidth={
             markerTarget.type === "none" ? 0 : targetMarkerStyle.width
           }
@@ -407,7 +405,7 @@ function CombineLinkShapesNode({
           y2={targetY}
           stroke="transparent"
           onDoubleClick={handleDoubleClick}
-          strokeWidth={Number(edgeStyles.strokeWidth) + 10} // Increase the clickable area
+          strokeWidth={Number(edgeStyles.strokeWidth) + 10} // increase the clickable area
           style={{ cursor: "pointer", pointerEvents: "all" }}
         />
       </svg>

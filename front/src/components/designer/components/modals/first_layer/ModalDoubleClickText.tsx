@@ -128,13 +128,13 @@ function ModalDoubleClickText({
         {/* Configuration name */}
         <div>
           <h3 className="text-sm">Text</h3>
-          {/* If user wants dynamic text, user references it to a attribute */}
+          {/* if user wants dynamic text, user references it to a attribute */}
           <Autocomplete
             className={configureTextfieldStyle}
             freeSolo
             options={currentNotationElement.attributes.map(
               (attribute) => attribute.name
-            )} // List of existing configuration URIs
+            )} // list of existing configuration URIs
             value={
               typeof currentNotationElementRepresentation.graphicalRepresentation![
                 selectedNotationRepresentationItemIndex!
@@ -154,7 +154,7 @@ function ModalDoubleClickText({
               handleSelectClassAttributeReference(attributeName);
             }}
             renderInput={(params) => {
-              // If user wants static text, user types it
+              // if user wants static text, user types it
               return (
                 <TextField
                   {...params}

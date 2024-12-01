@@ -11,7 +11,7 @@ const fallbackRepresentationInstanceModel: RepresentationInstanceModel = {
   },
 };
 
-// Load the model from localStorage if available
+// load model from localStorage if available
 const storedRepresentationInstanceModel: RepresentationInstanceModel =
   JSON.parse(localStorage.getItem("representationInstanceModel")!) ||
   fallbackRepresentationInstanceModel;
@@ -32,7 +32,7 @@ const metaRepresentationInstanceModelReducer = (
   switch (action.type) {
     case UPDATE_REPRESENTATION_INSTANCE_MODEL:
       const updatedModel = action.payload;
-      // Save the entire model to localStorage
+      // save the entire model to localStorage
       localStorage.setItem(
         "representationInstanceModel",
         JSON.stringify(updatedModel)

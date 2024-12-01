@@ -1,4 +1,3 @@
-// redux/store.js
 import { createStore, combineReducers } from "redux";
 import instanceModelReducer from "./reducers/instanceModelReducer";
 import representationInstanceModelStore from "./reducers/representationInstanceModelReducer";

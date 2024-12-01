@@ -18,7 +18,7 @@ class OnNodesChangeHelper {
     dispatch: any
   ) {
     if (change.type === "remove" && "id" in change) {
-      // Remove the node from the instance model
+      // remove the node from the instance model
       const removedNode = nds.find((node) => node.id === change.id);
 
       if (!removedNode) {
@@ -46,9 +46,9 @@ class OnNodesChangeHelper {
           },
         };
 
-        // When we remove a node, we always need to check if it is being referenced by other edges
-        // If it is, we need to remove the edge as well
-        // Remove edges associated with the node in both models
+        // when we remove a node, we always need to check if it is being referenced by other edges
+        // if it is, we need to remove the edge as well
+        // remove edges associated with the node in both models
         const {
           updatedInstanceModel: finalInstanceModel,
           updatedRepresentationInstanceModel: finalRepresentationInstanceModel,
@@ -60,13 +60,13 @@ class OnNodesChangeHelper {
           dispatch
         );
 
-        // Update both instance and representation models with the final state
+        // update both instance and representation models with the final state
         dispatch(updateInstanceModel(finalInstanceModel));
         dispatch(
           updateRepresentationInstanceModel(finalRepresentationInstanceModel)
         );
 
-        // Remove the node from the representation instance model
+        // remove the node from the representation instance model
         const removedNodeRepresentation =
           finalRepresentationInstanceModel.package.objects.find(
             (obj) => obj.name === nodeName
@@ -124,7 +124,7 @@ class OnNodesChangeHelper {
       );
 
       if (instanceObjectChanged) {
-        // Ensure the new position is valid, fallback to the last known position if not
+        // ensure the new position is valid, fallback to the last known position if not
         const newPosition: Position = {
           x:
             change.position &&
@@ -159,7 +159,7 @@ class OnNodesChangeHelper {
                 if (index === indexInstanceObjectChanged) {
                   return {
                     ...obj,
-                    position: newPosition, // Update position with valid or fallback position
+                    position: newPosition, // update position with valid or fallback position
                   };
                 }
                 return obj;

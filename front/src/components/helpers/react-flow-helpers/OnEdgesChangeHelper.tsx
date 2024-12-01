@@ -31,7 +31,7 @@ class OnEdgesChangeHelper {
       );
 
       if (instanceObjectRemoved) {
-        // Remove the edge from the instance model
+        // remove the edge from the instance model
         const updatedInstanceModel = {
           ...instanceModel,
           package: {
@@ -42,7 +42,7 @@ class OnEdgesChangeHelper {
           },
         };
 
-        // Normalize the instance model representation refs indexes
+        // normalize the instance model representation refs indexes
         updatedInstanceModel.package.objects.forEach((obj, index) => {
           let newRef = obj.representation?.$ref;
           if (newRef) {
@@ -62,7 +62,7 @@ class OnEdgesChangeHelper {
         );
       }
 
-      // Remove the node from the representation instance model
+      // remove the node from the representation instance model
       const removedNodeRepresentation =
         representationInstanceModel.package.objects.find(
           (obj) => obj.name === edgeName

@@ -1,5 +1,4 @@
 /* eslint-disable no-restricted-globals */
-
 export default function TeamsPage() {
   return (
     <div

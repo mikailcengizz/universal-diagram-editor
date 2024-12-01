@@ -1,16 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import CustomModal from "../../../../../ui_elements/Modal";
 import {
-  Attribute,
   AttributeValue,
   Class,
   DiagramNodeData,
   InstanceModel,
-  InstanceObject,
-  MetaModel,
   RepresentationInstanceModel,
 } from "../../../../../../types/types";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 import { updateInstanceModel } from "../../../../../../redux/actions/objectInstanceModelActions";
 
@@ -58,9 +55,6 @@ function ModalAddAttribute({
 
   const [modifiyingAttributeAttributes, setModifyingAttributeAttributes] =
     useState<AttributeValue[]>(initialModifyingAttributeAttributes || []);
-  // Helper function to handle updating attributes
-  // Attribute = {"name": "lowerBound"}
-  // NewAttribute = {"name": "name", "lowerBound": 0}
   const handleAttributeChange = (
     attributeName: string,
     value: any,
@@ -72,7 +66,6 @@ function ModalAddAttribute({
   };
 
   const handleAttributeSubmit = () => {
-    // give the attribute a unique id if it is a new attribute
     let newAttributeAttributes = [...modifiyingAttributeAttributes];
     let updatedInstanceModel = { ...instanceModel };
     updatedInstanceModel.package.objects

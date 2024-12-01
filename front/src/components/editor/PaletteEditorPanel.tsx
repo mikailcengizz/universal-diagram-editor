@@ -8,9 +8,6 @@ import {
 } from "../../types/types";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
 import CombineLinkShapesNode from "../notation_representations/edges/CombineLinkShapesNode";
-import CombineRoleShapesNode from "../notation_representations/nodes/CombineRoleShapesNode";
-import { Position } from "@xyflow/react";
-import ReferenceHelper from "../helpers/ReferenceHelper";
 import ModelHelperFunctions from "../helpers/ModelHelperFunctions";
 
 interface PaletteEditorPanelProps {
@@ -105,8 +102,6 @@ const PaletteEditorPanel = ({
               targetY={300}
             />
           );
-        /* case "role":
-        return <CombineRoleShapesNode />; */
       }
     }
   };
@@ -129,7 +124,6 @@ const PaletteEditorPanel = ({
       ) : (
         notationElementsRepresentation && (
           <>
-            {/* Classifiers: Class, DataType, Enumeration, ETypeParameter */}
             <h2>Classifier</h2>
             <div className="grid grid-cols-2">
               {notationElements

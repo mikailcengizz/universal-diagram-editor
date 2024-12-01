@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   DiagramNodeData,
   InstanceModel,
@@ -33,24 +27,24 @@ function RenderConnectors({
   const updateNodeInternals = useUpdateNodeInternals();
   const [handlesRendered, setHandlesRendered] = useState(false);
 
-  // Memoize connectors to avoid unnecessary updates
+  // memoize connectors to avoid unnecessary updates
   const memoizedConnectors = useMemo(() => connectors, [connectors]);
 
-  // Set handlesRendered to false when connectors change
+  // set handlesRendered to false when connectors change
   useEffect(() => {
     if (!isEqual(memoizedConnectors, connectors)) {
       setHandlesRendered(false);
     }
   }, [memoizedConnectors, connectors]);
 
-  // Update node internals once handles are rendered
+  // update node internals once handles are rendered
   useEffect(() => {
     if (handlesRendered) {
       updateNodeInternals(id);
     }
   }, [id, handlesRendered, updateNodeInternals]);
 
-  // Callback for rendering completion
+  // callback for rendering completion
   useEffect(() => {
     setHandlesRendered(true);
   }, [connectors]);
@@ -63,7 +57,7 @@ function RenderConnectors({
           let position: Position;
           let handleId: string;
 
-          // Set position and handleId based on alignment
+          // set position and handleId based on alignment
           switch (alignment) {
             case "left":
               position = Position.Left;
@@ -82,14 +76,14 @@ function RenderConnectors({
               handleId = `handle-bottom-${index}`;
               break;
             default:
-              position = Position.Bottom; // Default position
-              handleId = `handle-${index}`; // Default handle id
+              position = Position.Bottom; // default position
+              handleId = `handle-${index}`; // default handle id
               break;
           }
 
           return (
             <Handle
-              type="source" // we are using connection mode "loose" so that we can use source handles both for source and target
+              type="source" // using connection mode "loose" so to use source handles both for source and target
               position={position}
               style={{
                 background: connector.style.color,

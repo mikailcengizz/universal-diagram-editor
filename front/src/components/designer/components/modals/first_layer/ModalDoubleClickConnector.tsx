@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import CustomModal from "../../../../ui_elements/Modal";
 import {
   Class,
-  DiagramNodeData,
   MetaModel,
   NotationRepresentationItem,
   Representation,
@@ -55,7 +54,7 @@ function ModalDoubleClickConnector({
 }: ModalDoubleClickConnectorProps) {
   const [connector, setConnector] = useState<NotationRepresentationItem>();
 
-  // This useEffect ensures that the modal's fields are populated with the current values
+  // this useEffect ensures that the modal's fields are populated with the current values
   useEffect(() => {
     if (
       selectedNotationRepresentationItemIndex !== null &&
@@ -92,12 +91,12 @@ function ModalDoubleClickConnector({
       ...currentNotationElementRepresentation?.graphicalRepresentation!,
     ];
 
-    // Update the entire style and position objects in one go
+    // update entire style and position objects in one go
     updatedRepresentation[selectedNotationRepresentationItemIndex] = {
       ...updatedRepresentation[selectedNotationRepresentationItemIndex],
       content: connector.content,
-      style: { ...connector.style }, // Copy the entire style object
-      position: { ...connector.position }, // Copy the entire position object
+      style: { ...connector.style }, // copy entire style object
+      position: { ...connector.position }, // copy entire position object
     };
 
     setCurrentNotationElementRepresentation({
@@ -105,7 +104,7 @@ function ModalDoubleClickConnector({
       graphicalRepresentation: updatedRepresentation,
     });
 
-    setIsConnectorModalOpen(false); // Close modal after saving
+    setIsConnectorModalOpen(false); // close modal after saving
   };
 
   return (

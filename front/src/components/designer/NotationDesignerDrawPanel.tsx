@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Class,
   MetaModel,
-  NotationRepresentationItem,
   Representation,
   RepresentationMetaModel,
 } from "../../types/types";
@@ -23,7 +22,7 @@ interface NotationDesignerDrawPanelProps {
   saveNotation: (selectedElementIndex: number, removeElement: boolean) => void;
 }
 
-const gridSize = 10; // Size of the grid squares
+const gridSize = 10; // size of the grid squares
 
 function NotationDesignerDrawPanel({
   currentNotationElementRepresentation,

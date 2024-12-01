@@ -4,15 +4,6 @@ import {
   NotationRepresentationItem,
 } from "../../../../types/types";
 
-// Utility function to calculate positions on a circle based on user-defined positions
-const getCircleEdgePosition = (radius: number, angleInDegrees: number) => {
-  const angleInRadians = (angleInDegrees * Math.PI) / 180;
-  return {
-    x: radius * Math.cos(angleInRadians),
-    y: radius * Math.sin(angleInRadians),
-  };
-};
-
 interface RenderCirclesProps {
   isPalette?: boolean;
   isNotationSlider?: boolean;
@@ -29,10 +20,6 @@ function RenderCircles({
   return (
     <>
       {circles.map((circle, index) => {
-        const radius = (circle.position.extent?.width || 100) / 2;
-        const centerX = circle.position.x + radius;
-        const centerY = circle.position.y + radius;
-
         return (
           <div
             key={index}
@@ -46,7 +33,7 @@ function RenderCircles({
               borderColor: circle.style.borderColor,
               borderWidth: `${circle.style.borderWidth}px`,
               borderStyle: circle.style.borderStyle,
-              borderRadius: "50%", // Ensure circle shape
+              borderRadius: "50%", // ensure circle shape
               zIndex: circle.style.zIndex,
             }}
           >

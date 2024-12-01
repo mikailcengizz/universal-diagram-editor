@@ -74,7 +74,7 @@ export interface RepresentationReference {
 }
 
 export interface DataType extends Classifier {
-  // represents data types like String, int, etc.
+  // represents data types String, int, etc.
 }
 
 export interface Attribute extends NamedElement {

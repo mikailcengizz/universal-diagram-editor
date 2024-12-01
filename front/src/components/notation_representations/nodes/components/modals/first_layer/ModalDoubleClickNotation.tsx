@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
 import CustomModal from "../../../../../ui_elements/Modal";
 import {
-  Attribute,
   AttributeValue,
-  Class,
   DiagramNodeData,
   InstanceModel,
-  Pattern,
   RepresentationInstanceModel,
 } from "../../../../../../types/types";
 import typeHelper from "../../../../../helpers/TypeHelper";
@@ -58,11 +55,11 @@ function ModalDoubleClickNotation({
     attribute: AttributeValue,
     value: any
   ) => {
-    const newData = { ...data }; // Create a shallow copy of the data object
+    const newData = { ...data }; // create a shallow copy of the data object
     newData.instanceObject!.attributes =
       newData.instanceObject!.attributes!.map((prop) => {
         if (prop.name === attribute.name) {
-          return { name: attribute.name, value: value } as AttributeValue; // Ensure each property is also copied
+          return { name: attribute.name, value: value } as AttributeValue; // ensure each property is also copied
         }
         return prop;
       });
@@ -75,7 +72,7 @@ function ModalDoubleClickNotation({
         return object;
       });
     dispatch(updateInstanceModel(updatedInstanceModel));
-    setData(newData); // Set the new data to trigger re-rendering
+    setData(newData); // set the new data to trigger re-rendering
   };
 
   const handleAttributeDelete = (index: number) => {
@@ -100,12 +97,12 @@ function ModalDoubleClickNotation({
     const attributeObjectIndex =
       +newData.instanceObject!.links[index].target.$ref.split("objects/")[1];
 
-    // Remove the attribute reference link from the instance object
+    // remove the attribute reference link from the instance object
     newData.instanceObject!.links = newData.instanceObject!.links!.filter(
       (link, idx) => idx !== index
     );
 
-    // Update the instance model with the new data
+    // update the instance model with the new data
     const updatedInstanceModel = { ...instanceModel };
     updatedInstanceModel.package.objects =
       updatedInstanceModel.package.objects.map((object) => {
@@ -115,7 +112,7 @@ function ModalDoubleClickNotation({
         return object;
       });
 
-    // Remove the attribute object from the instance model
+    // remove the attribute object from the instance model
     updatedInstanceModel.package.objects.splice(attributeObjectIndex, 1);
 
     dispatch(updateInstanceModel(updatedInstanceModel));
@@ -139,15 +136,11 @@ function ModalDoubleClickNotation({
       onClose={() => setIsNodeModalOpen(false)}
       zIndex={5}
     >
-      {/* Normal attributes - these are class specific, under eAttributes */}
-
-      {/* Attributes with name = "Attribute" - these are fields, but under Classifier, and we add these to eAttributes of the class */}
-
       <div className="w-full flex flex-col gap-y-2">
         <h2 className="font-semibold">{instanceObject.name!} Details</h2>
         {instanceObject.attributes.map((attribute, index) => {
           console.log("Attribute:", attribute);
-          /* Class-Specific Attributes (e.g., isAbstract, visibility) */
+          /* class-specific attributes (e.g., isAbstract, isInterface) */
           return (
             <div key={index}>
               <h3 className="text-sm">{attribute.name}</h3>
@@ -266,199 +259,6 @@ function ModalDoubleClickNotation({
                   </button>
                 </div>
               </div>
-
-              {relationshipTab === 1 ? (
-                <></>
-              ) : /* <div className="flex flex-col w-full">
-                {data.nodeNotation.properties!.map((property, index) => (
-                  <div key={index}>
-                    <label>{property.name}</label>
-                    <input
-                      className="border-[1px] border-solid border-black"
-                      type={typeHelper.determineInputFieldType(
-                        property.dataType
-                      )}
-                      value={property.defaultValue as string | number}
-                      onChange={(e) =>
-                        handleNodeNotationPropertyChange(
-                          property,
-                          e.target.value
-                        )
-                      }
-                    />
-                  </div>
-                ))}
-
-                <label>Type</label>
-                <select
-                  className="border-[1px] border-solid border-black"
-                  onChange={(e) => {
-                    data.nodeNotation.graphicalRepresentation![0].shape = e
-                      .target.value as "line" | "doubleLine";
-                    setData({ ...data });
-                  }}
-                >
-                  <option value="line">Line</option>
-                  <option value="doubleLine">Double Line</option>
-                </select>
-                <label>Pattern</label>
-                <select
-                  className="border-[1px] border-solid border-black"
-                  onChange={(e) => {
-                    data.nodeNotation.graphicalRepresentation![0].style.pattern =
-                      e.target.value as "solid" | "dotted" | "dashed";
-                    setData({ ...data });
-                  }}
-                >
-                  <option value="solid">Solid</option>
-                  <option value="dotted">Dotted</option>
-                  <option value="dashed">Dashed</option>
-                </select>
-              </div> */
-              relationshipTab === 2 ? (
-                <></>
-              ) : (
-                /* <div className="flex flex-col w-full">
-                <h3 className="font-bold">Role</h3>
-                {data.notations.relationships.map((relationship, index) => (
-                  <>
-                    {relationship
-                      .roles!.filter((role) => role.name === "Source")
-                      .map((role, index) => (
-                        <div key={index}>
-                          {role.properties!.map((roleProperty, index) => (
-                            <div key={index}>
-                              <label>{roleProperty.name}</label>
-                              {roleProperty.values &&
-                              roleProperty.values.length > 0 ? (
-                                <select
-                                  className="border-[1px] border-solid border-black"
-                                  value={roleProperty.defaultValue as string}
-                                  onChange={(e) => {
-                                    roleProperty.defaultValue = e.target.value;
-                                    setData({ ...data });
-                                  }}
-                                >
-                                  {roleProperty.values.map((value, index) => (
-                                    <option key={index} value={value}>
-                                      {value}
-                                    </option>
-                                  ))}
-                                </select>
-                              ) : (
-                                <input
-                                  className="border-[1px] border-solid border-black"
-                                  type={typeHelper.determineInputFieldType(
-                                    roleProperty.dataType
-                                  )}
-                                  value={
-                                    roleProperty.defaultValue as string | number
-                                  }
-                                  onChange={(e) => {
-                                    roleProperty.defaultValue = e.target.value;
-                                    setData({ ...data });
-                                  }}
-                                />
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      ))}
-                  </>
-                ))}
-                <label>Marker</label>
-                <select
-                  className="border-[1px] border-solid border-black"
-                  value={
-                    data.nodeNotation.roles!.find(
-                      (role) => role.name === "Source"
-                    )!.graphicalRepresentation![0].marker
-                  }
-                  onChange={(e) => handleRoleMarkerSourceChange(e.target.value)}
-                >
-                  <option value="none">None</option>
-                  <option value="openArrow">Open arrow</option>
-                  <option value="closedArrow">Closed arrow</option>
-                </select>
-              </div> */
-                // Target tab
-                relationshipTab === 3 && (
-                  <></>
-                  /* <div className="flex flex-col w-full">
-                    <h3 className="font-bold">Role</h3>
-                    {data.notations.relationships.map((relationship, index) => (
-                      <>
-                        {relationship
-                          .roles!.filter((role) => role.name === "Target")
-                          .map((role, index) => (
-                            <div key={index}>
-                              {role.properties!.map((roleProperty, index) => (
-                                <div key={index}>
-                                  <label>{roleProperty.name}</label>
-                                  {roleProperty.values &&
-                                  roleProperty.values.length > 0 ? (
-                                    <select
-                                      className="border-[1px] border-solid border-black"
-                                      value={
-                                        roleProperty.defaultValue as string
-                                      }
-                                      onChange={(e) => {
-                                        roleProperty.defaultValue =
-                                          e.target.value;
-                                        setData({ ...data });
-                                      }}
-                                    >
-                                      {roleProperty.values.map(
-                                        (value, index) => (
-                                          <option key={index} value={value}>
-                                            {value}
-                                          </option>
-                                        )
-                                      )}
-                                    </select>
-                                  ) : (
-                                    <input
-                                      className="border-[1px] border-solid border-black"
-                                      type={typeHelper.determineInputFieldType(
-                                        roleProperty.dataType
-                                      )}
-                                      value={
-                                        roleProperty.defaultValue as
-                                          | string
-                                          | number
-                                      }
-                                      onChange={(e) => {
-                                        roleProperty.defaultValue =
-                                          e.target.value;
-                                        setData({ ...data });
-                                      }}
-                                    />
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          ))}
-                      </>
-                    ))}
-                    <label>Marker</label>
-                    <select
-                      className="border-[1px] border-solid border-black"
-                      value={
-                        data.nodeNotation.roles!.find(
-                          (role) => role.name === "Target"
-                        )!.graphicalRepresentation![0].marker
-                      }
-                      onChange={(e) =>
-                        handleRoleMarkerTargetChange(e.target.value)
-                      }
-                    >
-                      <option value="none">None</option>
-                      <option value="openArrow">Open arrow</option>
-                      <option value="closedArrow">Closed arrow</option>
-                    </select>
-                  </div> */
-                )
-              )}
             </div>
           )}
       </div>

@@ -5,13 +5,11 @@ import {
   MetaModel,
   NotationRepresentationItem,
   RepresentationInstanceModel,
-  RepresentationInstanceObject,
   RepresentationMetaModel,
 } from "../../../types/types";
 import ModelHelperFunctions from "../ModelHelperFunctions";
-import { Node, Edge, Position, HandleProps } from "@xyflow/react";
+import { Node, Edge, Position } from "@xyflow/react";
 import ReferenceHelper from "../ReferenceHelper";
-import { NodeHandleBounds } from "reactflow";
 
 class OnLoadHelper {
   static initializeNodes = (
@@ -75,9 +73,9 @@ class OnLoadHelper {
           .flatMap((representationItem, index) => {
             const handleList = [];
 
-            // Handle target and source for each side
+            // handle target and source for each side
             if (representationItem.style.alignment === "left") {
-              // Add both target and source handles for 'left'
+              // add both target and source handles for 'left'
               handleList.push({
                 id: `handle-left-${index}`,
                 position: Position.Left,
@@ -124,7 +122,7 @@ class OnLoadHelper {
 
         return returnNode;
       })
-      .filter(Boolean); // Filter out null values
+      .filter(Boolean); // filter out null values
 
     return returnNodes as Node[];
   };
@@ -145,8 +143,6 @@ class OnLoadHelper {
       return [];
 
     const returnEdges = instanceModel.package.objects
-      // temporary fix for edge nodes, this needs to be done by not having edges in the eClassifiers array
-      // but instead in eFeatures array, and then just reference them by id in the eReferences array
       .filter((instanceObj) => {
         const representationInstanceObj =
           ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
@@ -173,7 +169,7 @@ class OnLoadHelper {
           return null;
         }
 
-        // Get the target and source links
+        // get the target and source links
         const targetLink = instanceObj.links.find(
           (link) => link.name === "target"
         );
@@ -202,7 +198,7 @@ class OnLoadHelper {
         const targetConnectorRef = +targetRefParts[1];
         const sourceConnectorRef = +sourceRefParts[1];
 
-        // Get the target and source objects from the links with the $ref
+        // get the target and source objects from the links with the $ref
         const targetObject: InstanceObject | null =
           targetLink && targetLink.target.$ref
             ? ReferenceHelper.resolveRef(instanceModel.package, targetObjectRef)
@@ -241,7 +237,7 @@ class OnLoadHelper {
           return null;
         }
 
-        // Get source and target instance representations
+        // get source and target instance representations
         const sourceRepresentation =
           ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
             sourceObject,
@@ -267,7 +263,7 @@ class OnLoadHelper {
             ?.filter((item) => item.shape === "connector")
             .indexOf(targetConnector!);
 
-        // Use these indices to backtrack and find the appropriate handles on the source and target nodes
+        // use these indices to backtrack and find the appropriate handles on the source and target nodes
         const findHandleByConnectorIndex = (
           node: Node,
           connectorIndex: number
@@ -286,13 +282,13 @@ class OnLoadHelper {
           targetConnectorIndex!
         );
 
-        // Check if the source and target representations were found
+        // check if the source and target representations were found
         if (!sourceRepresentation || !targetRepresentation) {
           console.error("Source or Target representation not found:", {
             sourceRepresentation,
             targetRepresentation,
           });
-          return null; // Exit early if either representation is not found
+          return null; // exit early if either representation is not found
         }
 
         if (!sourceHandle || !targetHandle) {
@@ -326,13 +322,13 @@ class OnLoadHelper {
           sourceHandle: sourceHandle.id,
           target: targetNode!.id,
           targetHandle: targetHandle.id,
-          type: "ClassEdge", // Assuming a default edge type
+          type: "ClassEdge",
           data: diagramEdgeData as any,
         };
 
         return returnEdge;
       })
-      .filter(Boolean); // Filter out null values
+      .filter(Boolean); // filter out null values
 
     return returnEdges as Edge[];
   };

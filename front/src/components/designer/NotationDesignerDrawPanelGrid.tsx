@@ -40,13 +40,12 @@ const NotationDesignerDrawPanelGrid = ({
   const [isTextModalOpen, setIsTextModalOpen] = useState(false);
   const [isCompartmentModalOpen, setIsCompartmentModalOpen] = useState(false);
   const [isConnectorModalOpen, setIsConnectorModalOpen] = useState(false);
-  const [isLineModalOpen, setIsLineModalOpen] = useState(false);
   const [
     selectedNotationRepresentationItemIndex,
     setSelectedNotationRepresentationItemIndex,
   ] = useState<number | null>(null);
 
-  // Flag to track if any modal is open
+  // flag to track if any modal is open
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -102,7 +101,7 @@ const NotationDesignerDrawPanelGrid = ({
             return;
         }
 
-        // Update currentNotation's graphicalRepresentation directly
+        // update currentNotation's graphicalRepresentation directly
         setCurrentNotationElementRepresentation({
           ...currentNotationElementRepresentation,
           graphicalRepresentation: updatedRepresentation,
@@ -139,7 +138,7 @@ const NotationDesignerDrawPanelGrid = ({
       ...currentNotationElementRepresentation.graphicalRepresentation!,
     ];
 
-    // If shapeData exists, this means we are adding a new element from the palette
+    // if shapeData exists, this means we are adding a new element from the palette
     if (shapeData) {
       const representationData: NotationRepresentationItem =
         JSON.parse(shapeData);
@@ -161,17 +160,17 @@ const NotationDesignerDrawPanelGrid = ({
       };
       console.log("newElement", newElement);
 
-      // Add new element to the graphicalRepresentation
+      // add new element to the graphicalRepresentation
       setCurrentNotationElementRepresentation({
         ...currentNotationElementRepresentation,
         graphicalRepresentation: [...updatedRepresentation, newElement],
       });
 
-      // If elementIndex exists and is valid, this means we are moving an existing element
+      // if elementIndex exists and is valid, this means we are moving an existing element
     } else if (elementIndex) {
       const index = parseInt(elementIndex, 10);
 
-      // Ensure that index is valid before accessing
+      // ensure that index is valid before accessing
       if (!isNaN(index) && index >= 0 && index < updatedRepresentation.length) {
         const extent = updatedRepresentation[index].position.extent || {
           width: 100,
@@ -187,7 +186,7 @@ const NotationDesignerDrawPanelGrid = ({
           },
         };
 
-        // Update currentNotation's graphicalRepresentation directly
+        // update currentNotation's graphicalRepresentation directly
         setCurrentNotationElementRepresentation({
           ...currentNotationElementRepresentation,
           graphicalRepresentation: updatedRepresentation,
@@ -226,7 +225,7 @@ const NotationDesignerDrawPanelGrid = ({
         break;
       case "square":
         setIsSquareModalOpen(true);
-        setIsModalOpen(true); // Mark that a modal is open
+        setIsModalOpen(true);
         break;
       case "text":
         setIsTextModalOpen(true);
@@ -246,8 +245,8 @@ const NotationDesignerDrawPanelGrid = ({
   };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false); // Modal is closed
-    setSelectedNotationRepresentationItemIndex(null); // Reset `selectedElementIndex` when the modal closes
+    setIsModalOpen(false);
+    setSelectedNotationRepresentationItemIndex(null);
   };
 
   const handleResize = (
@@ -326,7 +325,7 @@ const NotationDesignerDrawPanelGrid = ({
           break;
       }
 
-      // Ensure the new dimensions are within the grid and positive
+      // ensure the new dimensions are within the grid and positive
       if (newWidth > 0 && newHeight > 0) {
         element.position = {
           ...element.position,
@@ -352,27 +351,6 @@ const NotationDesignerDrawPanelGrid = ({
   };
 
   console.log("loaded meta model in draw panel", selectedMetaModel);
-
-  const squares =
-    currentNotationElementRepresentation.graphicalRepresentation?.filter(
-      (element) => element.shape === "square"
-    );
-  const circles =
-    currentNotationElementRepresentation.graphicalRepresentation?.filter(
-      (element) => element.shape === "circle"
-    );
-  const texts =
-    currentNotationElementRepresentation.graphicalRepresentation?.filter(
-      (element) => element.shape === "text"
-    );
-  const compartments =
-    currentNotationElementRepresentation.graphicalRepresentation?.filter(
-      (element) => element.shape === "compartment"
-    );
-  const connectors =
-    currentNotationElementRepresentation.graphicalRepresentation?.filter(
-      (element) => element.shape === "connector"
-    );
 
   return (
     <>

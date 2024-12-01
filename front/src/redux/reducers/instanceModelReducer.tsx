@@ -4,7 +4,7 @@ import {
   UPDATE_INSTANCE_OBJECT,
 } from "../actions/objectInstanceModelActions";
 
-// Load the model from localStorage if available
+// load model from localStorage if available
 const fallbackMetaInstanceModel: InstanceModel = {
   package: {
     uri: "",
@@ -26,7 +26,7 @@ const metaInstanceModelReducer = (state = initialState, action: any) => {
   switch (action.type) {
     case UPDATE_INSTANCE_MODEL:
       const updatedModel = action.payload;
-      // Save the entire model to localStorage
+      // save the entire model to localStorage
       localStorage.setItem("instanceModel", JSON.stringify(updatedModel));
       return { ...state, model: updatedModel };
 

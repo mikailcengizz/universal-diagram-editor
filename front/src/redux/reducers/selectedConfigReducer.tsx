@@ -1,6 +1,6 @@
 import { UPDATE_SELECTED_META_MODEL } from "../actions/selectedConfigActions";
 
-// Load the model from localStorage if available
+// load model from localStorage if available
 const storedSelectedConfig = localStorage.getItem("selectedConfig") || null;
 const initialState = storedSelectedConfig;
 

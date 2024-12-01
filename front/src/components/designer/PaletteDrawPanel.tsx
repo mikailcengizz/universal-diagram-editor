@@ -5,7 +5,6 @@ import SmartButtonIcon from "@mui/icons-material/SmartButton";
 import CircleIcon from "@mui/icons-material/Circle";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";
-import zIndex from "@mui/material/styles/zIndex";
 import { Class, MetaModel, Representation } from "../../types/types";
 
 const shapes = [

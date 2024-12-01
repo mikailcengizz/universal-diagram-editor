@@ -1,6 +1,5 @@
-import { Model, DataTypes, Sequelize, Optional } from 'sequelize';
+import { Model, DataTypes, Sequelize, Optional } from "sequelize";
 
-// Define attributes
 interface UserAttributes {
   id?: number;
   firstname: string;
@@ -11,11 +10,12 @@ interface UserAttributes {
   profilePic?: string;
 }
 
-// Define creation attributes, all optional except required fields
-interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
+interface UserCreationAttributes extends Optional<UserAttributes, "id"> {}
 
-// Define the User class, extending Sequelize's Model
-class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
+class User
+  extends Model<UserAttributes, UserCreationAttributes>
+  implements UserAttributes
+{
   public id!: number;
   public firstname!: string;
   public lastname!: string;
@@ -27,12 +27,9 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 
-  public static associate(models: any) {
-    // define association here
-  }
+  public static associate(models: any) {}
 }
 
-// Initialization function
 export const initUser = (sequelize: Sequelize) => {
   User.init(
     {
@@ -69,7 +66,7 @@ export const initUser = (sequelize: Sequelize) => {
     },
     {
       sequelize,
-      tableName: 'Users',
+      tableName: "Users",
     }
   );
 

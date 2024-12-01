@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import CustomModal from "../../../../ui_elements/Modal";
 import {
   Class,
-  DiagramNodeData,
   MetaModel,
   NotationRepresentationItem,
   Representation,
@@ -52,7 +51,7 @@ function ModalDoubleClickSquare({
 }: ModalDoubleClickSquareProps) {
   const [square, setSquare] = useState<NotationRepresentationItem>();
 
-  // This useEffect ensures that the modal's fields are populated with the current values
+  // this useEffect ensures that the modal's fields are populated with the current values
   useEffect(() => {
     if (
       selectedNotationRepresentationItemIndex !== null &&
@@ -102,11 +101,11 @@ function ModalDoubleClickSquare({
       ...currentNotationElementRepresentation?.graphicalRepresentation!,
     ];
 
-    // Update the entire style and position objects in one go
+    // update entire style and position objects in one go
     updatedRepresentation[selectedNotationRepresentationItemIndex] = {
       ...updatedRepresentation[selectedNotationRepresentationItemIndex],
-      style: { ...square.style }, // Copy the entire style object
-      position: { ...square.position }, // Copy the entire position object
+      style: { ...square.style }, // copy entire style object
+      position: { ...square.position }, // copy entire position object
     };
 
     setCurrentNotationElementRepresentation({
@@ -114,7 +113,7 @@ function ModalDoubleClickSquare({
       graphicalRepresentation: updatedRepresentation,
     });
 
-    setIsSquareModalOpen(false); // Close modal after saving
+    setIsSquareModalOpen(false); // close modal after saving
   };
 
   return (

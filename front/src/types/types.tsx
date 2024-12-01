@@ -99,7 +99,7 @@ export interface CustomEdgeProps extends EdgeProps {
   data: {
     onEdgeClick?: () => void;
     type: string;
-    [key: string]: any; // Allow for additional properties if necessary
+    [key: string]: any; // allow for additional properties if necessary
   };
 }
 
@@ -155,7 +155,7 @@ export interface RepresentationReference {
 }
 
 export interface DataType extends Classifier {
-  // represents data types like String, int, etc.
+  // represents data types String, int, etc.
 }
 
 export interface Attribute extends NamedElement {

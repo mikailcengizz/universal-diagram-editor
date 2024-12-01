@@ -3,13 +3,11 @@
 import { Sequelize, Dialect } from 'sequelize';
 import { initDiagram } from './Diagram';
 import { initUser } from './User';
-import config from '../config/config.json'; // Adjust the path as necessary
+import config from '../config/config.json'; 
 
-// Determine the current environment (development, test, production)
 const env = process.env.NODE_ENV || 'development';
 const envConfig = config[env as keyof typeof config];
 
-// Define the config object with the correct types
 const sequelizeConfig: {
   username: string;
   password: string | null;
@@ -18,14 +16,13 @@ const sequelizeConfig: {
   dialect: Dialect;
 } = {
   ...envConfig,
-  dialect: envConfig.dialect as Dialect, // Cast to Dialect type
+  dialect: envConfig.dialect as Dialect, 
 };
 
-// Initialize Sequelize with the selected configuration
 const sequelize = new Sequelize(
   sequelizeConfig.database,
   sequelizeConfig.username,
-  sequelizeConfig.password ?? undefined, // Handle null password case
+  sequelizeConfig.password ?? undefined,
   {
     host: sequelizeConfig.host,
     dialect: sequelizeConfig.dialect,

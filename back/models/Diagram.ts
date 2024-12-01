@@ -1,16 +1,13 @@
 import { Model, DataTypes, Sequelize, Optional } from 'sequelize';
 
-// Define attributes
 interface DiagramAttributes {
   id?: number;
   name: string;
   xmiData: string;
 }
 
-// Define creation attributes, all optional except `name` and `xmiData`
 interface DiagramCreationAttributes extends Optional<DiagramAttributes, 'id'> {}
 
-// Define the Diagram class, extending Sequelize's Model
 class Diagram extends Model<DiagramAttributes, DiagramCreationAttributes> implements DiagramAttributes {
   public id!: number;
   public name!: string;
@@ -20,7 +17,6 @@ class Diagram extends Model<DiagramAttributes, DiagramCreationAttributes> implem
   public readonly updatedAt!: Date;
 }
 
-// Initialization function
 export const initDiagram = (sequelize: Sequelize) => {
   Diagram.init(
     {

@@ -1,5 +1,3 @@
-import { useDispatch } from "react-redux";
-import { updateRepresentationInstanceModel } from "../../redux/actions/representationInstanceModelActions";
 import {
   Class,
   InstanceModel,
@@ -30,7 +28,7 @@ class ModelHelperFunctions {
 
     const [modelUri, jsonPointer] = representationRef.split("#");
 
-    // Ensure we're dealing with the correct model URI
+    // ensure we're dealing with the correct model URI
     if (modelUri !== representationInstanceModel.package.uri) {
       //console.error("Model URI does not match the selected meta model");
       return null;
@@ -57,7 +55,7 @@ class ModelHelperFunctions {
 
     const [modelUri, jsonPointer] = metaRepresentationRef.split("#");
 
-    // Ensure we're dealing with the correct model URI
+    // ensure we're dealing with the correct model URI
     if (modelUri !== representationMetaModel.package.uri) {
       /* console.error("Model URI does not match the selected meta model");
       console.error("Model URI:", modelUri);
@@ -90,7 +88,7 @@ class ModelHelperFunctions {
       representationInstanceModelJSON
     );
 
-    // Ensure we're dealing with the correct model URI
+    // ensure we're dealing with the correct model URI
     if (modelUri !== representationInstanceModel.package.uri) {
       //console.error("Model URI does not match the selected meta model");
       return null;
@@ -111,7 +109,7 @@ class ModelHelperFunctions {
     const classRef = instanceObject.type.$ref;
     const [modelUri, jsonPointer] = classRef.split("#");
 
-    // Ensure we're dealing with the correct model URI
+    // ensure we're dealing with the correct model URI
     if (modelUri !== metaModel.package.uri) {
       //console.error("Model URI does not match the selected meta model");
       return null;
@@ -134,7 +132,7 @@ class ModelHelperFunctions {
     updatedInstanceModel: InstanceModel;
     updatedRepresentationInstanceModel: RepresentationInstanceModel;
   } {
-    // Create a copy of representationInstanceModel to ensure immutability
+    // create a copy of representationInstanceModel to ensure immutability
     let updatedRepresentationInstanceModel: RepresentationInstanceModel = {
       package: {
         ...representationInstanceModel.package,
@@ -195,7 +193,7 @@ class ModelHelperFunctions {
       },
     };
 
-    // Normalize the instance model representation refs indexes
+    // normalize the instance model representation refs indexes
     updatedInstanceModel.package.objects.forEach((obj, index) => {
       let newRef = obj.representation?.$ref;
       if (newRef) {

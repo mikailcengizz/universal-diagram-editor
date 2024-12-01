@@ -1,10 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  AttributeValue,
-  Class,
   DiagramNodeData,
   InstanceModel,
-  InstanceObject,
   NotationRepresentationItem,
   Representation,
   RepresentationInstanceModel,
@@ -23,8 +20,6 @@ import ReferenceHelper from "../../helpers/ReferenceHelper";
 import ModelHelperFunctions from "../../helpers/ModelHelperFunctions";
 import { updateInstanceModel } from "../../../redux/actions/objectInstanceModelActions";
 import RenderCircles from "./components/RenderCircles";
-import { v4 as uuidv4 } from "uuid";
-import { set } from "lodash";
 
 interface CombineObjectShapesNodeProps {
   id: string;
@@ -62,14 +57,6 @@ const CombineObjectShapesNode = ({
   const [validGraphicalItems, setValidGraphicalItems] = useState<
     NotationRepresentationItem[]
   >([]);
-  const [instanceObject, setInstanceObject] = useState<
-    InstanceObject | undefined
-  >(data.instanceObject);
-
-  const [representationInstanceObject, setRepresentationInstanceObject] =
-    useState<RepresentationInstanceObject | undefined>(
-      data.instanceObjectRepresentation
-    );
 
   let representationRef = undefined;
   if (isPalette || isNotationSlider) {
@@ -90,7 +77,7 @@ const CombineObjectShapesNode = ({
       return;
     }
 
-    // Filter valid graphical items
+    // filter valid graphical items
     const filteredGraphicalItems =
       representation.graphicalRepresentation!.filter(
         (item) =>
@@ -102,10 +89,10 @@ const CombineObjectShapesNode = ({
           item.position.y !== undefined
       );
 
-    // Set the valid graphical items
+    // set the valid graphical items
     setValidGraphicalItems(filteredGraphicalItems);
 
-    // Set container size for the graphical representation
+    // set container size for the graphical representation
     const maxWidth = Math.max(
       ...filteredGraphicalItems.map(
         (item) => item.position.extent?.width || 100
@@ -147,7 +134,7 @@ const CombineObjectShapesNode = ({
     }
 
     if (containerRef.current) {
-      // Calculate the max width and max height when node is rendered on the canvas
+      // calculate the max width and max height when node is rendered on the canvas
       // to know our selection area when moving the node around
       const { width, height } = containerRef.current.getBoundingClientRect();
       setContainerSize({ width, height });
@@ -162,7 +149,7 @@ const CombineObjectShapesNode = ({
     validGraphicalItems;
 
   if (isNotationSlider || isPalette) {
-    // Calculate the minimum x and y coordinates to center the notation in the palette/slider
+    // calculate the minimum x and y coordinates to center the notation in the palette/slider
     const minX = Math.min(
       ...validGraphicalItems.map((item) => item.position.x)
     );
@@ -192,7 +179,7 @@ const CombineObjectShapesNode = ({
       )
     );
   } else {
-    // Calculate the minimum x and y coordinates from the valid graphical items
+    // calculate the minimum x and y coordinates from the valid graphical items
     const minX = Math.min(
       ...validGraphicalItems.map((item) => item.position.x)
     );
@@ -225,7 +212,7 @@ const CombineObjectShapesNode = ({
     event: any,
     { width, height }: { width: number; height: number }
   ) => {
-    // Find the class representation in local storage
+    // find the class representation in local storage
     const notationElementRepresentationInstance =
       ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
         data.instanceObject!,
@@ -233,16 +220,16 @@ const CombineObjectShapesNode = ({
       );
 
     if (notationElementRepresentationInstance) {
-      // Get the original width and height of the container
+      // get the original width and height of the container
       const originalWidth = containerSize.width;
       const originalHeight = containerSize.height;
 
-      // Calculate the uniform scaling factor based on the new width and height
+      // calculate the uniform scaling factor based on the new width and height
       const scaleX = width / originalWidth;
       const scaleY = height / originalHeight;
       const uniformScale = Math.min(scaleX, scaleY);
 
-      // Update the container size based on the new width and height
+      // update the container size based on the new width and height
       //setContainerSize({ width, height });
       setScale(uniformScale); // Set the uniform scaling factor
 
@@ -250,23 +237,23 @@ const CombineObjectShapesNode = ({
         containerRef.current.style.transform = `scale(${uniformScale})`;
       }
 
-      // Apply scaling to the graphical elements
+      // apply scaling to the graphical elements
       const updatedGraphicalRepresentation =
         notationElementRepresentationInstance.graphicalRepresentation!.map(
           (item) => {
-            // Scale both the position and the extent (size)
+            // scale both the position and the extent (size)
             return {
               ...item,
               position: {
                 ...item.position,
-                x: item.position.x, // Scale position X
-                y: item.position.y, // Scale position Y
+                x: item.position.x, // scale position X
+                y: item.position.y, // scale position Y
                 extent: item.position.extent
                   ? {
                       width:
-                        (item.position.extent?.width || 100) * uniformScale, // Scale width
+                        (item.position.extent?.width || 100) * uniformScale, // scale width
                       height:
-                        (item.position.extent?.height || 100) * uniformScale, // Scale height
+                        (item.position.extent?.height || 100) * uniformScale, // scale height
                     }
                   : item.position.extent,
               },
@@ -278,7 +265,7 @@ const CombineObjectShapesNode = ({
         (obj) => obj.name === data.instanceObject!.name
       );
 
-      // Update the representation instance model with the scaled graphical representation
+      // update the representation instance model with the scaled graphical representation
       const updatedRepresentationInstanceModel: RepresentationInstanceModel = {
         package: {
           ...representationInstanceModel.package,
@@ -296,14 +283,14 @@ const CombineObjectShapesNode = ({
         },
       };
 
-      // Dispatch the updated representation instance model to Redux
+      // dispatch the updated representation instance model to Redux
       dispatch(
         updateRepresentationInstanceModel(updatedRepresentationInstanceModel)
       );
     }
   };
 
-  // Handle text change
+  // handle text change
   const handleTextChange = (e: any, nameFromClassifier: string | undefined) => {
     const newDefaultValue = e.target.value;
     let newInstanceModel = { ...instanceModel };
@@ -315,7 +302,7 @@ const CombineObjectShapesNode = ({
     dispatch(updateInstanceModel(newInstanceModel));
   };
 
-  // Filter and sort the shapes according to the specified rendering order
+  // filter and sort the shapes according to the specified rendering order
   // adjust notation size when rendering in palette
   const rectangles = adjustedRepresentation.filter(
     (representationItem) => representationItem.shape === "square"
@@ -439,27 +426,6 @@ const CombineObjectShapesNode = ({
             isNodeAttributeModalOpen={isNodeAttributeModalOpen}
             setIsNodeAttributeModalOpen={setIsNodeAttributeModalOpen}
           />
-
-          {/* Operation modal */}
-          {/* Add or modify operations */}
-          {/* <ModalAddOperation
-        data={data}
-        isNodeOperationModalOpen={isNodeOperationModalOpen}
-        modifyingOperation={modifyingOperation}
-        setModifyingOperation={setModifyingOperation}
-        setIsNodeOperationModalOpen={setIsNodeOperationModalOpen}
-        setIsAddParameterModalOpen={setIsAddParameterModalOpen}
-        handleOperationSubmit={handleOperationSubmit}
-      /> */}
-
-          {/* Add parameter modal */}
-          {/* <ModalAddParameter
-        isAddParameterModalOpen={isAddParameterModalOpen}
-        setIsAddParameterModalOpen={setIsAddParameterModalOpen}
-        modifyingParameter={modifyingParameter}
-        setModifyingParameter={setModifyingParameter}
-        handleParameterSubmit={handleParameterSubmit}
-      /> */}
         </>
       )}
     </div>

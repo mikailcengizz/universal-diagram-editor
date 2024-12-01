@@ -4,7 +4,6 @@ import {
   DiagramNodeData,
   Marker,
   MetaModel,
-  NotationRepresentationItem,
   Representation,
   RepresentationMetaModel,
   Shape,
@@ -153,7 +152,7 @@ function NotationDesignerDrawEdge({
     isDesignerPreview: true,
   });
 
-  // UseEffect to update the current notation element representation when the props change
+  // useEffect to update the current notation element representation when the props change
   useEffect(() => {
     setCurrentNotationElementRepresentation({
       ...currentNotationElementRepresentation,
@@ -179,7 +178,7 @@ function NotationDesignerDrawEdge({
     let updatedData = { ...data };
     updatedData.notationElementRepresentation!.graphicalRepresentation![0].shape =
       newShape;
-    setData(updatedData); // Force re-render
+    setData(updatedData); // force re-render
   };
 
   const handleStyleChange = (e: any, targetName: string) => {
@@ -196,7 +195,7 @@ function NotationDesignerDrawEdge({
     let updatedData = { ...data };
     updatedData.notationElementRepresentation!.graphicalRepresentation![0].style =
       updatedStyle;
-    setData(updatedData); // Force re-render
+    setData(updatedData); // force re-render
   };
 
   const handleMarkerTypeChange = (e: any) => {
@@ -214,7 +213,7 @@ function NotationDesignerDrawEdge({
     let updatedData = { ...data };
     updatedData.notationElementRepresentation!.graphicalRepresentation![0].markers =
       updatedMarkers;
-    setData(updatedData); // Force re-render
+    setData(updatedData); // force re-render
   };
 
   const handleMarkersStyleChange = (
@@ -236,7 +235,7 @@ function NotationDesignerDrawEdge({
     let updatedData = { ...data };
     updatedData.notationElementRepresentation!.graphicalRepresentation![0].markers =
       updatedMarkers;
-    setData(updatedData); // Force re-render
+    setData(updatedData); // force re-render
   };
 
   return (

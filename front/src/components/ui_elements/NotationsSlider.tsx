@@ -11,8 +11,6 @@ import {
 } from "../../types/types";
 import CombineObjectShapesNode from "../notation_representations/nodes/CombineObjectShapesNode";
 import CombineLinkShapesNode from "../notation_representations/edges/CombineLinkShapesNode";
-import CombineRoleShapesNode from "../notation_representations/nodes/CombineRoleShapesNode";
-import { Position } from "@xyflow/react";
 import ModelHelperFunctions from "../helpers/ModelHelperFunctions";
 
 interface NotationsSliderProps {
@@ -44,7 +42,7 @@ function NotationsSlider({
 
   const updatedSettings = {
     ...settings,
-    infinite: selectedMetaModel.package.elements.length > 5, // Disable infinite scroll when there's only 5 slides
+    infinite: selectedMetaModel.package.elements.length > 5, // disable infinite scroll when there's only 5 slides
   };
 
   let notationElementsRepresentation: Representation[] | null = null;
@@ -111,8 +109,6 @@ function NotationsSlider({
             }}
           />
         );
-      /* case "role":
-        return <CombineRoleShapesNode />; */
     }
   };
 

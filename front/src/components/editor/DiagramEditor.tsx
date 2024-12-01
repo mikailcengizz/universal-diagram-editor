@@ -101,7 +101,7 @@ const DiagramEditor = ({
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState<DiagramNodeData | null>(null);
-  const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null); // Store the selected edge ID
+  const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null); // store the selected edge ID
   const [hasInitializedNodes, setHasInitializedNodes] = useState(false);
   const [hasInitializedEdges, setHasInitializedEdges] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
@@ -113,7 +113,7 @@ const DiagramEditor = ({
   useEffect(() => {
     // onLoad react flow functionality
     if (reactFlowInstance) {
-      // Perform any additional actions when the instance is available
+      // perform any additional actions when the instance is available
     }
   }, [reactFlowInstance]);
 
@@ -152,13 +152,13 @@ const DiagramEditor = ({
 
   const onDoubleClickEdge = (edgeId: string, data: DiagramNodeData) => {
     console.log("Double clicked on edge:", edgeId, data);
-    setModalData(data); // Set the data to be displayed in the modal
-    setSelectedEdgeId(edgeId); // Store the selected edge ID
-    setIsModalOpen(true); // Open the modal
+    setModalData(data); // set the data to be displayed in the modal
+    setSelectedEdgeId(edgeId); // store the selected edge ID
+    setIsModalOpen(true); // open the modal
   };
 
   const onEdgeDataChange = (edgeId: string, updatedData: any) => {
-    console.log("Updating edge:", edgeId, updatedData); // Add this for debugging
+    console.log("Updating edge:", edgeId, updatedData);
     setEdges((edges) =>
       edges.map((edge) =>
         edge.id === edgeId
@@ -168,16 +168,7 @@ const DiagramEditor = ({
     );
   };
 
-  // TODO: set initial nodes and edges from local storage,
-  useEffect(() => {
-    /* if (config) {
-      const initialNodes = [];
-      setNodes(initialNodes);
-      console.log("Initial nodes set:", initialNodes);
-    } */
-  }, [selectedMetaModel]);
-
-  // Load the instance models from local storage
+  // load the instance models from local storage
   useEffect(() => {
     const metaInstance = JSON.parse(localStorage.getItem("metaInstanceModel")!);
     const representationInstance = JSON.parse(
@@ -224,7 +215,7 @@ const DiagramEditor = ({
     hasInitializedNodes,
   ]);
 
-  // Initialize edges
+  // initialize edges
   useEffect(() => {
     if (!reactFlowInstance) {
       return;
@@ -277,7 +268,7 @@ const DiagramEditor = ({
         newInstanceModel.package.uri = selectedMetaModel.package.uri;
       }
 
-      // Add the new node to the instance model together with its id
+      // add the new node to the instance model together with its id
       let newInstanceObject = { ...notation };
 
       newInstanceModel.package.objects.push(newInstanceObject);
@@ -301,7 +292,7 @@ const DiagramEditor = ({
           selectedRepresentationMetaModel.package.uri;
       }
 
-      // Add the new node to the instance model together with its id
+      // add the new node to the instance model together with its id
       let newRepresentationInstanceObject = { ...notation };
 
       if (isNode) {
@@ -328,19 +319,19 @@ const DiagramEditor = ({
 
   const onConnect = useCallback(
     (params: Edge | Connection) => {
-      // Check if source and target exist
+      // check if source and target exist
       if (!params.source || !params.target) {
         console.error("Source or Target is missing from params:", params);
         return;
       }
 
-      // Access the source and target node IDs
+      // access the source and target node IDs
       const { source, target, sourceHandle, targetHandle } = params;
 
       const sourceNode = nodes.find((node) => node.id === source);
       const targetNode = nodes.find((node) => node.id === target);
 
-      // Find source and target notations in metaInstanceModel
+      // find source and target notations in metaInstanceModel
       const sourceInstanceObject = instanceModel.package.objects.find(
         (obj) =>
           obj.name ===
@@ -352,16 +343,16 @@ const DiagramEditor = ({
           (targetNode!.data as DiagramNodeData).instanceObject?.name
       );
 
-      // Check if the source and target were found
+      // check if the source and target were found
       if (!sourceInstanceObject || !targetInstanceObject) {
         console.error("Source or Target notation not found:", {
           sourceInstanceObject,
           targetInstanceObject,
         });
-        return; // Exit early if either instance is not found
+        return; // exit early if either instance is not found
       }
 
-      // Get source and target instance representations
+      // get source and target instance representations
       const sourceRepresentation =
         ModelHelperFunctions.findRepresentationInstanceFromInstanceObjectInRepresentationInstanceModel(
           sourceInstanceObject,
@@ -373,13 +364,13 @@ const DiagramEditor = ({
           representationInstanceModel
         );
 
-      // Check if the source and target representations were found
+      // check if the source and target representations were found
       if (!sourceRepresentation || !targetRepresentation) {
         console.error("Source or Target representation not found:", {
           sourceRepresentation,
           targetRepresentation,
         });
-        return; // Exit early if either representation is not found
+        return; // exit early if either representation is not found
       }
 
       if (!sourceHandle || !targetHandle) {
@@ -390,7 +381,7 @@ const DiagramEditor = ({
         return;
       }
 
-      // Extract the alignment and handle index from the handle ID (e.g., "handle-left-0")
+      // extract the alignment and handle index from the handle ID (e.g., "handle-left-0")
       const extractHandleInfo = (handleId: string) => {
         const [prefix, alignment, index] = handleId.split("-");
         return { alignment, index: parseInt(index, 10) };
@@ -410,16 +401,16 @@ const DiagramEditor = ({
       console.log("sourceHandleInfo:", sourceHandleInfo);
       console.log("targetHandleInfo:", targetHandleInfo);
 
-      // Now find the correct graphicalRepresentation connector for the source and target
+      // now find the correct graphicalRepresentation connector for the source and target
       const findConnectorIndex = (representation: any, index: number) => {
         const connectors = representation.graphicalRepresentation.filter(
           (item: any) => item.shape === "connector"
         );
 
-        // Return the connector at the given index within the filtered connectors
+        // return the connector at the given index within the filtered connectors
         return connectors[index]
           ? representation.graphicalRepresentation.indexOf(connectors[index])
-          : -1; // Return -1 if not found
+          : -1; // return -1 if not found
       };
 
       const sourceConnectorIndex = findConnectorIndex(
@@ -446,7 +437,7 @@ const DiagramEditor = ({
       const sourceConnectorRef = `/representation/graphicalRepresentation/${sourceConnectorIndex}`;
       const targetConnectorRef = `/representation/graphicalRepresentation/${targetConnectorIndex}`;
 
-      // Find the first Edge type of the notation which we can use as the default edge type
+      // find the first Edge type of the notation which we can use as the default edge type
       let edgeNotationElement: Class | null =
         (selectedMetaModel.package.elements as Class[]).find(
           (element) =>
@@ -461,17 +452,17 @@ const DiagramEditor = ({
           selectedRepresentationMetaModel
         );
 
-      // No edge types found in the language
+      // no edge types found in the language
       if (!edgeNotationElement) {
         console.error("No edge types found in the language.");
         return;
       }
 
-      // Validate if the edge connection is allowed based on constraints
-      // Fetch the constraints
+      // validate if the edge connection is allowed based on constraints
+      // fetch the constraints
       const constraints = edgeNotationElement.constraints || [];
 
-      // Define the context for constraint evaluation
+      // define the context for constraint evaluation
       const context = {
         self: {
           source: sourceInstanceObject,
@@ -479,14 +470,14 @@ const DiagramEditor = ({
         },
       };
 
-      // Validate each constraint
+      // validate each constraint
       const isValid = constraints.every((constraint) => {
         const parsedConstraint = ConstraintHelper.parseConstraint(constraint); // Parse the constraint into AST
         return ConstraintHelper.evaluateExpression(
           parsedConstraint,
           context,
           selectedMetaModel
-        ); // Evaluate the parsed constraint
+        ); // evaluate the parsed constraint
       });
 
       if (!isValid) {
@@ -497,7 +488,7 @@ const DiagramEditor = ({
         setShowAlert(true);
         setTimeout(() => {
           setShowAlert(false);
-        }, 8000); // Alert will fade out after 6 seconds
+        }, 8000); // alert will fade out after 8 seconds
         return;
       }
 
@@ -505,12 +496,12 @@ const DiagramEditor = ({
 
       console.log("associationRepresentation", edgeNotationElement);
 
-      // Make sure we reference the new edge to the new representation instance that we create after adding the edge to the instance model
+      // make sure we reference the new edge to the new representation instance that we create after adding the edge to the instance model
       const metaRepresentationRef = edgeNotationElement.representation?.$ref!;
       const [modelUri] = metaRepresentationRef.split("#"); // use base URI to construct new URI
       const representationUri =
         modelUri + "#/objects/" + instanceModel.package.objects.length;
-      // Create a new edge instance object
+      // create a new edge instance object
       const edgeInstanceObject: InstanceObject = {
         name: uniqueId,
         type: {
@@ -547,7 +538,7 @@ const DiagramEditor = ({
         },
       };
 
-      // Ensure graphicalRepresentation exists
+      // ensure graphicalRepresentation exists
       if (!edgeInstanceObject.representation) {
         console.error("Graphical representation is missing for edge");
         return;
@@ -584,7 +575,7 @@ const DiagramEditor = ({
 
       setEdges((eds) => addEdge(newEdge, eds));
 
-      // Update meta instance model with new edge
+      // update meta instance model with new edge
       updateInstanceModelWithNewNode(newEdge, false, edgeInstanceObject);
 
       const representationInstanceObject: RepresentationInstanceObject = {
@@ -599,7 +590,7 @@ const DiagramEditor = ({
         ],
       };
 
-      // Update representation instance model with new edge
+      // update representation instance model with new edge
       updateRepresentationInstanceModelWithNewNode(
         newEdge,
         false,
@@ -761,9 +752,9 @@ const DiagramEditor = ({
         .flatMap((representationItem, index) => {
           const handleList = [];
 
-          // Handle target and source for each side
+          // handle target and source for each side
           if (representationItem.style.alignment === "left") {
-            // Add both target and source handles for 'left'
+            // add both target and source handles for 'left'
             handleList.push({
               id: `handle-left-target-${index}`,
               position: Position.Left,
@@ -841,10 +832,10 @@ const DiagramEditor = ({
       console.log("Node dropped:", newNode);
       setNodes((nds) => nds.concat(newNode));
 
-      // Update meta instance model with new node
+      // update meta instance model with new node
       updateInstanceModelWithNewNode(newNode, true, instanceObject);
 
-      // Update representation instance model with new node
+      // update representation instance model with new node
       updateRepresentationInstanceModelWithNewNode(
         newNode,
         true,

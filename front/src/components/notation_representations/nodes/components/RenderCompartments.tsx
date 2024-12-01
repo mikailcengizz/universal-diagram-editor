@@ -3,12 +3,10 @@ import {
   Class,
   DiagramNodeData,
   InstanceModel,
-  InstanceObject,
   NotationRepresentationItem,
   Reference,
 } from "../../../../types/types";
-import typeHelper from "../../../helpers/TypeHelper";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 interface RenderCompartmentsProps {
   nodeId: string;
@@ -25,7 +23,6 @@ function RenderCompartments({
   isPalette = false,
   isNotationSlider = false,
 }: RenderCompartmentsProps) {
-  const dispatch = useDispatch();
   const instanceModel: InstanceModel = useSelector(
     (state: any) => state.instanceModelStore.model
   );
@@ -37,7 +34,7 @@ function RenderCompartments({
         const refToCreateContentFor: string | undefined =
           compartment.content?.$ref;
         if (!refToCreateContentFor) return null;
-        // Regular expression to match numbers beside 'elements' and 'references'
+        // regular expression to match numbers beside 'elements' and 'references'
         const elementNumber = parseInt(
           refToCreateContentFor.match(/\/elements\/(\d+)/)![1]
         );
@@ -53,7 +50,7 @@ function RenderCompartments({
         ] as Class;
 
         if (data.instanceObject) {
-          // Link object for example Attribute class or Operation class
+          // link object for example Attribute class or Operation class
           const linkObjects = data.instanceObject.links
             .filter((link) => {
               const linkObject =
@@ -74,7 +71,7 @@ function RenderCompartments({
               ];
             });
 
-          const compartmentHeight = compartment.position.extent?.height || 10; // Default height for each attribute
+          const compartmentHeight = compartment.position.extent?.height || 10; // default height for each attribute
           const compartmentX = compartment.position.x;
           const compartmentY = compartment.position.y;
 

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { SelectChangeEvent } from "@mui/material";
 import NotationDesignerConfigurePanel from "./NotationDesignerConfigurePanel";
 import NotationDesignerDrawPanel from "./NotationDesignerDrawPanel";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
@@ -80,7 +79,7 @@ const NotationDesigner = () => {
   );
 
   useEffect(() => {
-    // Fetch available configurations from the server
+    // fetch available configurations from the server
     const fetchConfigs = async () => {
       try {
         const response = await axios.get("/config/list", {
@@ -184,14 +183,6 @@ const NotationDesigner = () => {
     }
   };
 
-  const handleNotationTypeChange = (e: SelectChangeEvent<string>) => {
-    /* setSelectedNotationType(value);
-    setCurrentNotation({
-      ...currentNotation,
-      type: value,
-    }); */
-  };
-
   const handleAddAttribute = () => {
     setCurrentNotationElement({
       ...currentNotationElement,
@@ -222,7 +213,7 @@ const NotationDesigner = () => {
     selectedElementIndex: number,
     removeElement: boolean
   ) => {
-    // Save in the frontend
+    // save in the frontend
     const updatedElements = [...selectedMetaModel.package.elements];
     currentNotationElement.representation = {
       $ref:
@@ -252,7 +243,7 @@ const NotationDesigner = () => {
 
     setSelectedMetaModel(updatedMetaModel);
 
-    // Save meta model in the backend
+    // save meta model in the backend
     console.log("saving meta config", updatedMetaModel);
     const saveConfig = async () => {
       try {
@@ -304,7 +295,7 @@ const NotationDesigner = () => {
 
     setSelectedRepresentationMetaModel(updatedRepresentationMetaModel);
 
-    // Save representation in the backend
+    // save representation in the backend
     console.log("saving representation config", updatedRepresentationMetaModel);
     const saveRepresentationConfig = async () => {
       try {
@@ -327,7 +318,7 @@ const NotationDesigner = () => {
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
-    }, 3000); // Alert will fade out after 3 seconds
+    }, 3000); // alert fade out after 3 seconds
   };
 
   const handleDeleteConfig = (uri: string) => {
@@ -374,7 +365,7 @@ const NotationDesigner = () => {
           </div>
         )}
 
-      {/* Pass the same currentNotation and setCurrentNotation to both panels */}
+      {/* pass the same currentNotation and setCurrentNotation to both panels */}
       {isConfigurePanelOpen ? (
         <NotationDesignerConfigurePanel
           availableConfigs={availableConfigs}
