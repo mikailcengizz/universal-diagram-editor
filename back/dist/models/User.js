@@ -2,13 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.initUser = void 0;
 const sequelize_1 = require("sequelize");
-// Define the User class, extending Sequelize's Model
 class User extends sequelize_1.Model {
-    static associate(models) {
-        // define association here
-    }
+    static associate(models) { }
 }
-// Initialization function
 const initUser = (sequelize) => {
     User.init({
         id: {
@@ -43,7 +39,7 @@ const initUser = (sequelize) => {
         },
     }, {
         sequelize,
-        tableName: 'Users',
+        tableName: "Users",
     });
     return User;
 };

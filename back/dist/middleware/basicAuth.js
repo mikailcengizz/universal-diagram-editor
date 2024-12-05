@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const basicAuth = (req, res, next) => {
-    // the 'Authorization' header is encoded in base64 as 'username:password'
     const authHeader = req.headers.authorization;
     if (!authHeader) {
         return res.status(401).send("Authentication required"); // no auth header
@@ -13,7 +12,7 @@ const basicAuth = (req, res, next) => {
         return next(); // credentials are correct, proceed to the route
     }
     else {
-        return res.status(403).send("Access Denied"); // access denied
+        return res.status(403).send("Access Denied");
     }
 };
 exports.default = basicAuth;

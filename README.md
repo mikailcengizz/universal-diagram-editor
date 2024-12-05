@@ -9,7 +9,6 @@ This repository contains the implementation of my master's thesis project in col
 ## Author
 
 - **Name**: Mikail Cengiz
-- **Student ID**: s230362
 - **University**: Technical University of Denmark (DTU)
 - **Supervisor**: Ekkart Kindler
 
@@ -52,7 +51,7 @@ The setup instructions for both the frontend and backend are provided in their r
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+This project is licensed under the Apache License. See the `LICENSE` file for details.
 
 ## Acknowledgments
 

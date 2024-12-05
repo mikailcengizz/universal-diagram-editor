@@ -13,7 +13,7 @@ interface Context {
   };
 }
 
-// available methods
+// available static methods
 const methods: any = {
   kindOf: (obj: InstanceObject, type: string, metaModel: MetaModel) => {
     const objType = ModelHelperFunctions.findClassFromInstanceObjectMetaModel(

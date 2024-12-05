@@ -25,11 +25,9 @@ router.post("/upload", upload.single("file"), (req, res) => {
     }
     res.status(200).send("Configuration uploaded successfully.");
 });
-// Endpoint to get config by 'name' field inside the configuration file
 router.get("/get-meta-config-by-uri/:uri", (req, res) => {
     const requestedUri = decodeURIComponent(req.params.uri);
     console.log("Requested URI", requestedUri);
-    // Read all config files in the directory
     fs_1.default.readdir(configDir, (err, files) => {
         if (err) {
             return res.status(500).send("Unable to read configurations.");
@@ -39,19 +37,18 @@ router.get("/get-meta-config-by-uri/:uri", (req, res) => {
             const filePath = path_1.default.join(configDir, file);
             const content = fs_1.default.readFileSync(filePath, "utf-8");
             const config = JSON.parse(content);
-            // Check if the 'name' field in the config matches the requested name
+            // check if 'name' field in the config matches requested name
             if (config.package && config.package.uri === requestedUri) {
-                return res.json(config); // Return the config if name matches
+                return res.json(config);
             }
         }
-        // If no config is found with the matching name
         res.status(404).send(null);
     });
 });
 router.get("/get-representation-config-by-uri/:uri", (req, res) => {
     const requestedUri = decodeURIComponent(req.params.uri);
     console.log("Requested URI", requestedUri);
-    // Read all config files in the directory
+    // read all config files in directory
     fs_1.default.readdir(configDir, (err, files) => {
         if (err) {
             return res.status(500).send("Unable to read configurations.");
@@ -61,22 +58,21 @@ router.get("/get-representation-config-by-uri/:uri", (req, res) => {
             const filePath = path_1.default.join(configDir, file);
             const content = fs_1.default.readFileSync(filePath, "utf-8");
             const config = JSON.parse(content);
-            // Check if the 'name' field in the config matches the requested name
+            // check if 'name' field in config matches requested name
             if (config.package && config.package.uri === requestedUri) {
-                return res.json(config); // Return the config if name matches
+                return res.json(config);
             }
         }
-        // If no config is found with the matching name
         res.status(404).send(null);
     });
 });
-// Save meta model file by type or update an existing one by type
+// save meta model file by type or update an existing one by type
 router.post("/save-meta-model-file", (req, res) => {
     const { name, uri, elements } = req.body.package;
     if (!name || !uri || !elements) {
         return res.status(400).send("Configuration uri or elements are missing.");
     }
-    // Check if a file with the same "name" exists inside the configuration file
+    // check if file with the same "name" exists inside configuration file
     let configFileFound = false;
     let configFilename = "";
     fs_1.default.readdir(configDir, (err, files) => {
@@ -89,7 +85,7 @@ router.post("/save-meta-model-file", (req, res) => {
             const content = fs_1.default.readFileSync(filePath, "utf-8");
             const config = JSON.parse(content);
             if (config.package && config.package.uri === uri) {
-                // Match found, update this file
+                // match found, update this file
                 configFileFound = true;
                 configFilename = file;
                 break;
@@ -103,17 +99,17 @@ router.post("/save-meta-model-file", (req, res) => {
             },
         };
         if (configFileFound) {
-            // Update the existing meta file
+            // update existing meta file
             fs_1.default.writeFileSync(path_1.default.join(configDir, configFilename), JSON.stringify(newConfig, null, 2));
             return res
                 .status(200)
                 .send(`Configuration "${name}" updated successfully.`);
         }
         else {
-            // Create a new meta file
+            // create new meta file
             const newFilename = `meta-model-${name
                 .replace(/\s+/g, "-")
-                .toLowerCase()}.json`; // Create a filename from the config name
+                .toLowerCase()}.json`; // create filename from config name
             fs_1.default.writeFileSync(path_1.default.join(configDir, newFilename), JSON.stringify(newConfig, null, 2));
             return res
                 .status(201)
@@ -121,14 +117,14 @@ router.post("/save-meta-model-file", (req, res) => {
         }
     });
 });
-// Save representation meta model file by type or update an existing one by type
+// save representation meta model file by type or update existing one by type
 router.post("/save-representation-meta-model-file", (req, res) => {
     const { name, uri, elements } = req.body
         .package;
     if (!name || !uri || !elements) {
         return res.status(400).send("Configuration uri or elements are missing.");
     }
-    // Check if a file with the same "name" exists inside the configuration file
+    // check if file with same "name" exists inside configuration file
     let configFileFound = false;
     let configFilename = "";
     fs_1.default.readdir(configDir, (err, files) => {
@@ -141,7 +137,7 @@ router.post("/save-representation-meta-model-file", (req, res) => {
             const content = fs_1.default.readFileSync(filePath, "utf-8");
             const config = JSON.parse(content);
             if (config.package && config.package.uri === uri) {
-                // Match found, update this file
+                // match found, update file
                 configFileFound = true;
                 configFilename = file;
                 break;
@@ -155,17 +151,17 @@ router.post("/save-representation-meta-model-file", (req, res) => {
             },
         };
         if (configFileFound) {
-            // Update the existing representation meta file
+            // update existing representation meta file
             fs_1.default.writeFileSync(path_1.default.join(configDir, configFilename), JSON.stringify(newConfig, null, 2));
             return res
                 .status(200)
                 .send(`Configuration "${name}" updated successfully.`);
         }
         else {
-            // Create a new representation meta file
+            // create new representation meta file
             const newFilename = `representation-meta-model-${name
                 .replace(/\s+/g, "-")
-                .toLowerCase()}.json`; // Create a filename from the config name
+                .toLowerCase()}.json`; // create filename from config name
             fs_1.default.writeFileSync(path_1.default.join(configDir, newFilename), JSON.stringify(newConfig, null, 2));
             return res
                 .status(201)
@@ -208,7 +204,7 @@ router.get("/get-config-by-filename/:name", (req, res) => {
 router.delete("/delete-config/:uri", (req, res) => {
     const requestedUri = decodeURIComponent(req.params.uri);
     console.log("Requested URI", requestedUri);
-    // Read all config files in the directory
+    // read all config files in directory
     fs_1.default.readdir(configDir, (err, files) => {
         if (err) {
             return res.status(500).send("Unable to read configurations.");
@@ -217,7 +213,7 @@ router.delete("/delete-config/:uri", (req, res) => {
             const filePath = path_1.default.join(configDir, file);
             const content = fs_1.default.readFileSync(filePath, "utf-8");
             const config = JSON.parse(content);
-            // Check if the 'name' field in the config matches the requested name
+            // check if 'name' field in the config matches requested name
             if (config.package) {
                 if (config.package.uri === requestedUri) {
                     fs_1.default.unlinkSync(filePath);
@@ -233,7 +229,6 @@ router.delete("/delete-config/:uri", (req, res) => {
                 }
             }
         }
-        // If no config is found with the matching name
         res.status(404).send(null);
     });
 });
