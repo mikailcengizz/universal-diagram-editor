@@ -25,12 +25,6 @@ Key concepts include:
 - **Dynamic Diagram Editor:** Dynamic editor that support updates to graphical notations without having the editor's codebase re-generated.
 - **Customizability:** Allowing users to define syntax, semantics, and visual appearances of modeling languages.
 
-## Features
-
-- Support for defining graphical notations based on the Ecore meta-metamodel.
-- Mapping of meta-models to digram editor to support dynamic modifications to the metamodel.
-- Export of diagram models.
-
 ## Repository Structure
 
 📁 back/ # Node.js + TypeScript backend for API and DB services
